@@ -1,0 +1,177 @@
+"use client";
+
+import React, { useState } from "react";
+import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { Button } from "@/components/ui/button";
+import { PaymentDetails } from "../types";
+
+interface StripePaymentFormProps {
+  onPaymentSuccess: (paymentDetails: PaymentDetails) => void;
+  onPaymentError: (error: string) => void;
+  total: number;
+  billingDetails?: {
+    name: string;
+    email: string;
+    address: {
+      line1: string;
+      line2?: string;
+      city: string;
+      state: string;
+      postal_code: string;
+      country: string;
+    };
+  };
+}
+
+export function StripePaymentForm({
+  onPaymentSuccess,
+  onPaymentError,
+  total,
+  billingDetails,
+}: StripePaymentFormProps) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [cardError, setCardError] = useState<string | undefined>();
+
+  const cardElementOptions = {
+    style: {
+      base: {
+        fontSize: "16px",
+        color: "#32325d",
+        fontFamily: "Arial, sans-serif",
+        "::placeholder": {
+          color: "#aab7c4",
+        },
+      },
+      invalid: {
+        color: "#fa755a",
+        iconColor: "#fa755a",
+      },
+    },
+    hidePostalCode: true,
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!stripe || !elements) {
+      // Stripe.js has not loaded yet
+      return;
+    }
+
+    setIsProcessing(true);
+    setCardError(undefined);
+
+    try {
+      // Get the card element
+      const cardElement = elements.getElement(CardElement);
+      if (!cardElement) {
+        throw new Error("Card element not found");
+      }
+
+      // Create a payment intent on the server
+      const response = await fetch("/api/stripe/payment-intent", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          amount: total,
+          currency: "usd",
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create payment intent");
+      }
+
+      const { clientSecret } = await response.json();
+
+      // Confirm the payment with the card element
+      const { error, paymentIntent } = await stripe.confirmCardPayment(
+        clientSecret,
+        {
+          payment_method: {
+            card: cardElement,
+            billing_details: billingDetails || {
+              name: "Anonymous Customer",
+            },
+          },
+        }
+      );
+
+      if (error) {
+        throw new Error(error.message || "Payment failed");
+      }
+
+      if (paymentIntent.status === "succeeded") {
+        // Create a payment details object
+        // Note: For security, we don't have direct access to the card details
+        // We create a simplified representation for the UI
+        const cardInfo: PaymentDetails = {
+          cardNumber: "•••• •••• •••• 4242", // For testing, we use a fixed value
+          cardholderName: billingDetails?.name || "Card Holder",
+          expiryDate: "**/**", // We don't store the actual expiry date
+          cvv: "***", // Never store the actual CVV
+        };
+
+        onPaymentSuccess(cardInfo);
+      } else {
+        throw new Error("Payment processing failed");
+      }
+    } catch (error) {
+      const errorMessage =
+        (error as Error).message || "An error occurred with your payment";
+      setCardError(errorMessage);
+      onPaymentError(errorMessage);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6">
+      <div className="bg-white rounded-lg border p-4">
+        <div className="space-y-4">
+          <div>
+            <label
+              htmlFor="card-element"
+              className="block text-sm font-medium mb-1">
+              Credit or debit card
+            </label>
+            <div className="border rounded-md p-3">
+              <CardElement
+                id="card-element"
+                options={cardElementOptions}
+              />
+            </div>
+            {cardError && (
+              <p className="text-red-500 text-sm mt-1">{cardError}</p>
+            )}
+          </div>
+
+          <div className="pt-2 text-sm text-gray-500">
+            <p>
+              For testing, you can use the card number:{" "}
+              <strong>4242 4242 4242 4242</strong>
+            </p>
+            <p>Use any future date for expiry and any 3-digit CVC.</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end">
+        <Button
+          type="submit"
+          disabled={!stripe || isProcessing}
+          className="px-8">
+          {isProcessing ? "Processing..." : `Pay $${total.toFixed(2)}`}
+        </Button>
+      </div>
+    </form>
+  );
+}
