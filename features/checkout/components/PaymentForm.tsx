@@ -33,59 +33,49 @@ export function PaymentForm({
   onBack,
 }: PaymentFormProps) {
   const { getCartTotal } = useCart();
-  const [useSameAddress, setUseSameAddress] = useState<boolean>(
+  const [useSameAddress, setUseSameAddress] = useState(
     billingAddressSameAsShipping
   );
-  const [showBillingForm, setShowBillingForm] = useState<boolean>(
-    !billingAddressSameAsShipping
-  );
-  const [currentBillingAddress, setCurrentBillingAddress] = useState<
-    ShippingAddress | undefined
-  >(
-    billingAddress ||
-      (billingAddressSameAsShipping ? shippingAddress : undefined)
+  const [currentBillingAddress, setCurrentBillingAddress] = useState(
+    billingAddress || shippingAddress
   );
   const [paymentError, setPaymentError] = useState<string | null>(null);
 
+  const showBillingForm = !useSameAddress;
+
   const handleCheckboxChange = (checked: boolean) => {
     setUseSameAddress(checked);
-    setShowBillingForm(!checked);
-
-    // If checking the box, use shipping address as billing address
-    if (checked && shippingAddress) {
+    if (checked) {
       setCurrentBillingAddress(shippingAddress);
     }
+  };
+
+  const getBillingDetails = () => {
+    const address = useSameAddress ? shippingAddress : currentBillingAddress;
+    return {
+      name: address?.fullName || "",
+      email: "", // We should have this from the user's account
+      address: {
+        line1: address?.addressLine1 || "",
+        line2: address?.addressLine2 || "",
+        city: address?.city || "",
+        state: address?.state || "",
+        postal_code: address?.postalCode || "",
+        country: address?.country || "",
+      },
+    };
   };
 
   const handlePaymentSuccess = (paymentDetails: PaymentDetails) => {
     onSubmit({
       paymentDetails,
       billingAddressSameAsShipping: useSameAddress,
-      billingAddress: !useSameAddress ? currentBillingAddress : undefined,
+      billingAddress: useSameAddress ? undefined : currentBillingAddress,
     });
   };
 
   const handlePaymentError = (error: string) => {
     setPaymentError(error);
-  };
-
-  // Convert shipping address to Stripe format for billing details
-  const getBillingDetails = () => {
-    const address = useSameAddress ? shippingAddress : currentBillingAddress;
-    if (!address) return undefined;
-
-    return {
-      name: address.fullName,
-      email: "", // We should have this from the user's account
-      address: {
-        line1: address.addressLine1,
-        line2: address.addressLine2 || "",
-        city: address.city,
-        state: address.state,
-        postal_code: address.postalCode,
-        country: address.country,
-      },
-    };
   };
 
   return (

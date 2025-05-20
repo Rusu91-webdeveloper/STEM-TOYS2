@@ -31,21 +31,21 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
     <div className="fixed inset-0 z-50 flex justify-end">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50"
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden="true"
       />
 
       {/* Cart panel */}
-      <div className="relative w-full max-w-md bg-background p-6 shadow-xl overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <ShoppingCart className="h-5 w-5" />
+      <div className="relative w-full max-w-md bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 p-6 shadow-xl overflow-y-auto animate-in slide-in-from-right-1/2 duration-300">
+        <div className="flex items-center justify-between mb-6 border-b pb-4 border-indigo-200">
+          <h2 className="text-xl font-semibold flex items-center gap-2 text-indigo-900">
+            <ShoppingCart className="h-5 w-5 text-indigo-700" />
             Your Cart
           </h2>
           <button
             onClick={onClose}
-            className="rounded-full p-1 hover:bg-muted"
+            className="rounded-full p-2 hover:bg-white/50 transition-colors text-indigo-700 hover:text-indigo-900"
             aria-label="Close cart">
             <X className="h-5 w-5" />
           </button>
@@ -53,28 +53,28 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
 
         {isLoading ? (
           <div className="py-12 flex flex-col items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-            <p className="text-muted-foreground">Loading your cart...</p>
+            <Loader2 className="h-8 w-8 animate-spin text-indigo-700 mb-4" />
+            <p className="text-indigo-700">Loading your cart...</p>
           </div>
         ) : isEmpty ? (
           <div className="py-12 text-center">
-            <p className="text-muted-foreground mb-6">Your cart is empty</p>
+            <p className="text-indigo-700 mb-6">Your cart is empty</p>
             <Link
               href="/products"
-              className="inline-block rounded-md bg-primary px-6 py-2 text-primary-foreground"
+              className="inline-block rounded-md bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 px-6 py-2 text-white hover:from-indigo-700 hover:to-purple-800 shadow-md hover:shadow-lg transition-all"
               onClick={onClose}>
               Continue Shopping
             </Link>
           </div>
         ) : (
           <>
-            <ul className="divide-y">
+            <ul className="divide-y divide-indigo-100">
               {items.map((item) => (
                 <li
                   key={item.id}
                   className="py-4 flex gap-4">
                   {item.image ? (
-                    <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border">
+                    <div className="relative h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border border-indigo-100 shadow-sm">
                       <Image
                         src={item.image}
                         alt={item.name}
@@ -83,35 +83,37 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
                       />
                     </div>
                   ) : (
-                    <div className="h-16 w-16 flex-shrink-0 rounded-md border bg-muted flex items-center justify-center">
-                      <ShoppingCart className="h-8 w-8 text-muted-foreground" />
+                    <div className="h-16 w-16 flex-shrink-0 rounded-md border border-indigo-100 bg-white flex items-center justify-center shadow-sm">
+                      <ShoppingCart className="h-8 w-8 text-indigo-300" />
                     </div>
                   )}
 
                   <div className="flex flex-1 flex-col">
                     <div className="flex justify-between text-base font-medium">
-                      <h3>{item.name}</h3>
-                      <p className="ml-4">${item.price.toFixed(2)}</p>
+                      <h3 className="text-indigo-900">{item.name}</h3>
+                      <p className="ml-4 text-indigo-700 font-bold">
+                        ${item.price.toFixed(2)}
+                      </p>
                     </div>
 
                     <div className="mt-1 flex items-center justify-between">
-                      <div className="flex items-center border rounded-md">
+                      <div className="flex items-center border rounded-md bg-white border-indigo-100 shadow-sm">
                         <button
                           onClick={() =>
                             updateItemQuantity(item.id, item.quantity - 1)
                           }
-                          className="p-1 hover:bg-muted"
+                          className="p-1.5 hover:bg-indigo-50 transition-colors rounded-l-md text-indigo-700"
                           aria-label={`Decrease quantity of ${item.name}`}>
                           <Minus className="h-4 w-4" />
                         </button>
-                        <span className="px-2 py-1 text-sm">
+                        <span className="px-3 py-1 text-sm font-medium text-indigo-900 border-x border-indigo-100 bg-indigo-50">
                           {item.quantity}
                         </span>
                         <button
                           onClick={() =>
                             updateItemQuantity(item.id, item.quantity + 1)
                           }
-                          className="p-1 hover:bg-muted"
+                          className="p-1.5 hover:bg-indigo-50 transition-colors rounded-r-md text-indigo-700"
                           aria-label={`Increase quantity of ${item.name}`}>
                           <Plus className="h-4 w-4" />
                         </button>
@@ -119,7 +121,7 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
 
                       <button
                         onClick={() => removeItem(item.id)}
-                        className="text-muted-foreground hover:text-destructive"
+                        className="text-indigo-400 hover:text-red-500 transition-colors p-1.5 rounded-full hover:bg-white"
                         aria-label={`Remove ${item.name} from cart`}>
                         <Trash2 className="h-5 w-5" />
                       </button>
@@ -129,19 +131,21 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
               ))}
             </ul>
 
-            <div className="border-t pt-6 mt-6">
+            <div className="border-t pt-6 mt-6 border-indigo-200">
               <div className="flex justify-between text-base font-medium">
-                <p>Subtotal</p>
-                <p>${getTotal().toFixed(2)}</p>
+                <p className="text-indigo-900">Subtotal</p>
+                <p className="text-indigo-700 font-bold">
+                  ${getTotal().toFixed(2)}
+                </p>
               </div>
-              <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-sm text-indigo-600">
                 Shipping and taxes calculated at checkout.
               </p>
 
               <div className="mt-6 space-y-3">
                 <Link
                   href="/checkout"
-                  className="flex w-full items-center justify-center rounded-md bg-primary px-6 py-3 text-base font-medium text-primary-foreground shadow-sm hover:bg-primary/90"
+                  className="flex w-full items-center justify-center rounded-md bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 px-6 py-3 text-base font-medium text-white shadow-md hover:shadow-lg transition-all hover:from-indigo-700 hover:to-purple-800"
                   onClick={() => {
                     syncWithServer();
                     onClose();
@@ -154,7 +158,7 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
                     clearCart();
                     onClose();
                   }}
-                  className="flex w-full items-center justify-center rounded-md border border-destructive px-6 py-3 text-base font-medium text-destructive shadow-sm hover:bg-destructive hover:text-destructive-foreground">
+                  className="flex w-full items-center justify-center rounded-md border border-indigo-300 px-6 py-3 text-base font-medium text-indigo-700 shadow-sm hover:bg-white transition-colors hover:border-indigo-400">
                   Clear Cart
                 </button>
               </div>

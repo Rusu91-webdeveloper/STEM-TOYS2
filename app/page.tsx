@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useTranslation } from "@/lib/i18n";
 
 // Mock data for featured products
 const featuredProducts = [
@@ -74,6 +77,8 @@ const categories = [
 ];
 
 export default function Home() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col">
       {/* Hero Section - Already updated for better visibility */}
@@ -92,25 +97,24 @@ export default function Home() {
         <div className="container relative z-10 text-white mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
           <div className="max-w-3xl">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-md">
-              Inspire Curious Minds
+              {t("inspireMinds")}
             </h1>
             <p className="text-xl md:text-2xl mb-8 max-w-2xl drop-shadow-md">
-              Discover our curated collection of STEM toys that make learning
-              fun and engaging for children of all ages.
+              {t("discoverCollection")}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button
                 asChild
                 size="lg"
                 className="text-base md:text-lg px-8 py-6 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 bg-gradient-to-r from-blue-600 to-yellow-500 hover:from-blue-700 hover:to-yellow-400 text-white border-0">
-                <Link href="/products">Shop All Products</Link>
+                <Link href="/products">{t("shopAllProducts")}</Link>
               </Button>
               <Button
                 asChild
                 size="lg"
                 variant="outline"
                 className="text-base md:text-lg px-8 py-6 bg-orange-500 text-white border-orange-500 hover:bg-orange-600 hover:border-orange-600 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-                <Link href="/categories">Explore Categories</Link>
+                <Link href="/categories">{t("exploreCategories")}</Link>
               </Button>
             </div>
           </div>
@@ -121,12 +125,10 @@ export default function Home() {
       <section className="py-16 bg-muted">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
-            Explore STEM Categories
+            {t("stemCategories")}
           </h2>
           <p className="text-center text-muted-foreground mb-10 max-w-3xl mx-auto">
-            Discover our range of educational toys categorized by STEM
-            disciplines to help your child develop essential skills while having
-            fun.
+            {t("stemCategoriesDesc")}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {categories.map((category) => (
@@ -178,11 +180,10 @@ export default function Home() {
       <section className="py-16">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
-            Featured Products
+            {t("featuredProducts")}
           </h2>
           <p className="text-center text-muted-foreground mb-10 max-w-3xl mx-auto">
-            Handpicked products that have proven to be favorites among parents
-            and educators for their exceptional educational value.
+            {t("featuredProductsDesc")}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
             {featuredProducts.map((product) => (
@@ -216,7 +217,7 @@ export default function Home() {
                       size="sm"
                       className="transition-all hover:scale-105">
                       <Link href={`/products/${product.slug}`}>
-                        View Details
+                        {t("viewDetails")}
                       </Link>
                     </Button>
                   </div>
@@ -229,7 +230,7 @@ export default function Home() {
               asChild
               size="lg"
               className="text-base px-8 py-6 rounded-lg shadow-md hover:shadow-lg transition-all hover:scale-105">
-              <Link href="/products">View All Products</Link>
+              <Link href="/products">{t("viewAllProducts")}</Link>
             </Button>
           </div>
         </div>
@@ -239,7 +240,7 @@ export default function Home() {
       <section className="py-16 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
           <h2 className="text-3xl font-bold mb-12 text-center">
-            Why Choose TechTots?
+            {t("whyChooseTechTots")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
             <div className="text-center bg-primary-foreground/10 rounded-lg p-8 transition-transform hover:scale-105">

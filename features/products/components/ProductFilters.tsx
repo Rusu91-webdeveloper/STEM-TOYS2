@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/accordion";
 import { Checkbox } from "@/components/ui/checkbox";
 import { X, SlidersHorizontal } from "lucide-react";
+import { useCurrency } from "@/lib/currency";
 
 export interface FilterOption {
   id: string;
@@ -94,14 +95,8 @@ export function ProductFilters({
     }
   };
 
-  // Format price for display
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
+  // Get the currency formatter
+  const { formatPrice } = useCurrency();
 
   const filterContent = (
     <div className="space-y-6">
@@ -230,13 +225,13 @@ export function ProductFilters({
 
     return (
       <div className="flex flex-wrap gap-2 mt-2">
-        {selectedCategories.map((categoryId) => {
+        {selectedCategories.map((categoryId, index) => {
           const category = categories?.options.find((c) => c.id === categoryId);
           if (!category) return null;
 
           return (
             <Badge
-              key={`cat-${categoryId}`}
+              key={`category-${categoryId}-${index}`}
               variant="outline"
               className="flex items-center gap-1">
               {category.label}
@@ -249,14 +244,14 @@ export function ProductFilters({
         })}
 
         {Object.entries(selectedFilters).map(([filterId, optionIds]) =>
-          optionIds.map((optionId) => {
+          optionIds.map((optionId, index) => {
             const filterGroup = filters.find((f) => f.id === filterId);
             const option = filterGroup?.options.find((o) => o.id === optionId);
             if (!filterGroup || !option) return null;
 
             return (
               <Badge
-                key={`${filterId}-${optionId}`}
+                key={`${filterId}-${optionId}-${index}`}
                 variant="outline"
                 className="flex items-center gap-1">
                 {option.label}

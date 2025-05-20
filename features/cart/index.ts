@@ -4,9 +4,9 @@ export { CartProviderWrapper } from "./components/CartProviderWrapper";
 export { CartButton } from "./components/CartButton";
 export { CartIcon } from "./components/CartIcon";
 export { MiniCart } from "./components/MiniCart";
-export { AddToCartButton } from "./components/AddToCartButton";
 
 // Re-export hooks
+export { useCart } from "./context/CartContext";
 export { useShoppingCart } from "./hooks/useShoppingCart";
 
 // Re-export types

@@ -67,4 +67,7 @@ export function useShoppingCart() {
   };
 }
 
+// Re-export the useCart hook for convenience
+export { useCart };
+
 export type { CartItem };

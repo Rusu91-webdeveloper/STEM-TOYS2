@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProductAddToCartButton } from "./ProductAddToCartButton";
 import { StarIcon } from "lucide-react";
+import { useCurrency } from "@/lib/currency";
 
 interface ProductCardProps {
   product: Product;
@@ -23,16 +24,9 @@ export function ProductCard({
   imageHeight = 280,
   layout = "grid",
 }: ProductCardProps) {
+  const { formatPrice } = useCurrency();
   const isOnSale =
     product.compareAtPrice && product.compareAtPrice > product.price;
-
-  // Format price to 2 decimal places and add currency symbol
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
-  };
 
   // Render star rating
   const renderRating = () => {

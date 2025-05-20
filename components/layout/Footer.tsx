@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useTranslation } from "@/lib/i18n";
+import { TranslationKey } from "@/lib/i18n/translations";
 
 const footerLinks = {
   shop: [
@@ -29,6 +33,8 @@ const footerLinks = {
 };
 
 export default function Footer() {
+  const { t } = useTranslation();
+
   return (
     <footer className="bg-muted">
       <div className="container mx-auto py-12 px-4 md:px-6">
@@ -46,9 +52,7 @@ export default function Footer() {
               />
             </Link>
             <p className="mt-4 text-sm text-muted-foreground max-w-md">
-              Discover the best STEM toys for curious minds. Inspire learning
-              through play with our curated collection of science, technology,
-              engineering, and math toys.
+              {t("discoverCollection")}
             </p>
             <div className="mt-6 flex space-x-4">
               <a
@@ -116,7 +120,7 @@ export default function Footer() {
 
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
-              Shop
+              {t("shop")}
             </h3>
             <ul className="mt-4 space-y-2">
               {footerLinks.shop.map((item) => (
@@ -133,7 +137,7 @@ export default function Footer() {
 
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
-              Company
+              {t("company")}
             </h3>
             <ul className="mt-4 space-y-2">
               {footerLinks.company.map((item) => (
@@ -150,7 +154,7 @@ export default function Footer() {
 
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
-              Support
+              {t("support")}
             </h3>
             <ul className="mt-4 space-y-2">
               {footerLinks.support.map((item) => (
@@ -164,7 +168,7 @@ export default function Footer() {
               ))}
             </ul>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground mt-8">
-              Legal
+              {t("legal")}
             </h3>
             <ul className="mt-4 space-y-2">
               {footerLinks.legal.map((item) => (
@@ -182,24 +186,24 @@ export default function Footer() {
 
         <div className="mt-12 border-t border-[hsl(var(--border))] pt-8 flex flex-col md:flex-row justify-between">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} TechTots, Inc. All rights
-            reserved.
+            &copy; {new Date().getFullYear()} TechTots, Inc.{" "}
+            {t("allRightsReserved")}
           </p>
           <div className="mt-4 md:mt-0 flex space-x-6">
             <Link
               href="/terms"
               className="text-xs text-muted-foreground hover:text-primary">
-              Terms of Service
+              {t("termsOfService")}
             </Link>
             <Link
               href="/privacy"
               className="text-xs text-muted-foreground hover:text-primary">
-              Privacy Policy
+              {t("privacyPolicy")}
             </Link>
             <Link
               href="/cookies"
               className="text-xs text-muted-foreground hover:text-primary">
-              Cookie Policy
+              {t("cookiePolicy")}
             </Link>
           </div>
         </div>

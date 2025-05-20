@@ -3,7 +3,7 @@
 import React from "react";
 import { CheckoutData, CheckoutStep } from "../types";
 import { Button } from "@/components/ui/button";
-import { useCart } from "@/features/cart/context/CartContext";
+import { useCart } from "@/features/cart";
 import { Edit, AlertCircle } from "lucide-react";
 
 interface OrderReviewProps {

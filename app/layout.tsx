@@ -1,23 +1,19 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
 import { CartProviderWrapper } from "@/features/cart";
 import { Toaster } from "@/components/ui/toaster";
+import { I18nProvider } from "@/lib/i18n";
+import { CurrencyProvider } from "@/lib/currency";
+import ClientLayout from "@/components/layout/ClientLayout";
+import { metadata as appMetadata } from "./metadata";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
 });
 
-export const metadata: Metadata = {
-  title: "TechTots | STEM Toys for Curious Minds",
-  description:
-    "Discover the best STEM toys for curious minds at TechTots. Educational toys that make learning fun.",
-  keywords:
-    "STEM toys, science toys, technology toys, engineering toys, math toys, educational toys, TechTots",
-};
+export const metadata: Metadata = appMetadata;
 
 export default function RootLayout({
   children,
@@ -26,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="ro"
       className="scroll-smooth">
       <head>
         <link
@@ -37,12 +33,14 @@ export default function RootLayout({
       </head>
       <body
         className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
-        <CartProviderWrapper>
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-        </CartProviderWrapper>
-        <Toaster />
+        <I18nProvider>
+          <CurrencyProvider>
+            <CartProviderWrapper>
+              <ClientLayout>{children}</ClientLayout>
+              <Toaster />
+            </CartProviderWrapper>
+          </CurrencyProvider>
+        </I18nProvider>
       </body>
     </html>
   );

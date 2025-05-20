@@ -10,7 +10,7 @@ import { CheckoutSummary } from "./CheckoutSummary";
 import { CheckoutStepper } from "./CheckoutStepper";
 import { createOrder } from "../lib/checkoutApi";
 import { useRouter } from "next/navigation";
-import { useCart } from "@/features/cart/context/CartContext";
+import { useCart } from "@/features/cart";
 
 export function CheckoutFlow() {
   const router = useRouter();

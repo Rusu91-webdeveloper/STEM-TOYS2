@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslation } from "@/lib/i18n";
 import {
   ProductCard,
   ProductGrid,
@@ -12,6 +13,9 @@ import {
   ProductVariantProvider,
 } from "@/features/products";
 import type { Product } from "@/types/product";
+
+// Metadata is now exported from a separate file since this is a client component
+// and metadata needs to be static and server-rendered
 
 // Mock data for demonstration
 const mockProducts: Product[] = Array.from({ length: 12 }).map((_, i) => ({
@@ -49,6 +53,10 @@ const mockProducts: Product[] = Array.from({ length: 12 }).map((_, i) => ({
   ageRange: `${6 + (i % 5)}-${12 + (i % 5)}`,
   rating: 3 + (i % 3),
   reviewCount: 10 + i,
+  attributes: {
+    difficulty:
+      i % 3 === 0 ? "beginner" : i % 2 === 0 ? "intermediate" : "advanced",
+  },
 }));
 
 // Mock categories
@@ -105,6 +113,7 @@ const mockFilters: FilterGroup[] = [
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
+  const { t } = useTranslation();
 
   // State for filters
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -145,20 +154,32 @@ export default function ProductsPage() {
     Object.entries(selectedFilters).forEach(([filterId, values]) => {
       if (values.length > 0) {
         if (filterId === "ageRange") {
-          filtered = filtered.filter((product) =>
-            values.some((range) => {
-              const [min, max] = range.split("-").map(Number);
-              const [productMin, productMax] = product.ageRange
-                ?.split("-")
-                .map(Number) || [0, 0];
+          filtered = filtered.filter((product) => {
+            if (!product.ageRange) return false;
+
+            const [productMin, productMax] = product.ageRange
+              .split("-")
+              .map(Number);
+
+            return values.some((range) => {
+              const [filterMin, filterMax] = range.split("-").map(Number);
+
+              // Check if product age range overlaps with filter age range
               return (
-                (productMin <= min && productMax >= min) ||
-                (productMin >= min && productMin <= max)
+                (productMin <= filterMax && productMax >= filterMin) ||
+                (filterMin <= productMax && filterMax >= productMin)
               );
-            })
-          );
+            });
+          });
+        } else if (filterId === "difficulty") {
+          filtered = filtered.filter((product) => {
+            // Check product attributes for difficulty level
+            return values.some(
+              (value) => product.attributes?.difficulty === value
+            );
+          });
         } else {
-          // Generic attribute filtering (for mock purposes)
+          // Generic attribute filtering (for other filters)
           filtered = filtered.filter((product) =>
             values.some((v) => product[filterId as keyof Product] === v)
           );
@@ -246,8 +267,9 @@ export default function ProductsPage() {
           <div className="flex-1">
             <div className="mb-4">
               <p className="text-muted-foreground">
-                Showing {filteredProducts.length} of {mockProducts.length}{" "}
-                products
+                {t("showingProducts")
+                  .replace("{0}", filteredProducts.length.toString())
+                  .replace("{1}", mockProducts.length.toString())}
               </p>
             </div>
 

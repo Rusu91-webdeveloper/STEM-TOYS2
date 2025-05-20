@@ -1,12 +1,9 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { db } from "./db";
+import GoogleProvider from "next-auth/providers/google";
 import NextAuth from "next-auth";
-// In a real implementation, we would use the Prisma client here
-// import { prisma } from "./prisma";
 
-// Since we're just implementing a placeholder auth system, we'll use
+// Since we're implementing a placeholder auth system, we'll use
 // a simple in-memory mock for users
 const MOCK_USERS = new Map([
   [
@@ -17,18 +14,21 @@ const MOCK_USERS = new Map([
       email: "user@example.com",
       // In a real app, this would be a hashed password
       password: "password123",
+      image: null,
     },
   ],
 ]);
 
 export const authOptions: NextAuthOptions = {
-  // In a real app, we would use the Prisma adapter
-  // adapter: PrismaAdapter(prisma),
   session: {
     strategy: "jwt",
   },
-  // Add providers for authentication
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "placeholder-client-id",
+      clientSecret:
+        process.env.GOOGLE_CLIENT_SECRET || "placeholder-client-secret",
+    }),
     CredentialsProvider({
       name: "Credentials",
       credentials: {
@@ -40,12 +40,7 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // In a real app, we would fetch the user from the database
-        // const user = await prisma.user.findUnique({
-        //   where: { email: credentials.email },
-        // });
-
-        // Using our mock user data instead
+        // Using our mock user data
         const user = MOCK_USERS.get(credentials.email);
 
         if (!user || user.password !== credentials.password) {
@@ -56,10 +51,10 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           name: user.name,
           email: user.email,
+          image: user.image,
         };
       },
     }),
-    // Add more providers as needed (Google, GitHub, etc.)
   ],
   callbacks: {
     async session({ session, token }) {
@@ -68,12 +63,21 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+    async jwt({ token, user, account }) {
+      if (user) {
+        token.id = user.id;
+      }
+      if (account) {
+        token.accessToken = account.access_token;
+      }
+      return token;
+    },
   },
   pages: {
-    signIn: "/auth/signin",
-    // Other custom pages can be added here
+    signIn: "/auth/login",
+    signUp: "/auth/register",
+    error: "/auth/error",
   },
-  // Secret used to encrypt cookies - in production, use the environment variable
   secret: process.env.NEXTAUTH_SECRET || "placeholder-secret-for-development",
 };
 

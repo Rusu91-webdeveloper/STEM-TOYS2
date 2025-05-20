@@ -1,15 +1,65 @@
-import { NextResponse, type NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { securityHeaders, isDevelopment } from "@/lib/security";
+import { auth } from "./lib/auth";
+
+// Supported locales
+const locales = ["en", "ro"];
+const defaultLocale = "en"; // Changed from "ro" to "en" as default until we have translated content
 
 /**
- * Next.js Middleware for applying security headers and other global
- * request/response modifications.
+ * Next.js Middleware for applying security headers, authentication checks,
+ * and other global request/response modifications.
  */
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
+  const session = await auth();
+  const { pathname } = request.nextUrl;
+
+  // Handle auth redirects
+  if (pathname === "/auth/signin") {
+    return NextResponse.redirect(new URL("/auth/login", request.url));
+  }
+  if (pathname === "/auth/signup") {
+    return NextResponse.redirect(new URL("/auth/register", request.url));
+  }
+
+  // Protect checkout routes
+  if (pathname.startsWith("/checkout")) {
+    if (!session) {
+      const signInUrl = new URL("/auth/login", request.url);
+      signInUrl.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(signInUrl);
+    }
+  }
+
+  // For now, we'll disable automatic locale redirection until we have the proper i18n setup
+  // This will allow the root route to work properly
+  /*
+  // Handle i18n routing
+  const pathnameHasLocale = locales.some(
+    (locale: string) =>
+      pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
+  );
+
+  if (!pathnameHasLocale) {
+    // Redirect if there is no locale
+    const locale = defaultLocale;
+
+    // e.g. incoming request is /products
+    // The new URL is now /en/products
+    return NextResponse.redirect(
+      new URL(
+        `/${locale}${pathname.startsWith("/") ? "" : "/"}${pathname}`,
+        request.url
+      )
+    );
+  }
+  */
+
   // Get the response
   const response = NextResponse.next();
 
-  // Apply security headers
+  // Add security headers
   Object.entries(securityHeaders).forEach(([key, value]) => {
     response.headers.set(key, value);
   });
@@ -27,7 +77,7 @@ export function middleware(request: NextRequest) {
  */
 export const config = {
   matcher: [
-    /*
+    /**
      * Match all request paths except for the ones starting with:
      * - api (API routes)
      * - _next/static (static files)
@@ -35,6 +85,8 @@ export const config = {
      * - favicon.ico (favicon file)
      */
     "/((?!api|_next/static|_next/image|favicon.ico).*)",
+    // Add protection for checkout routes
+    "/checkout/:path*",
   ],
 };
 
