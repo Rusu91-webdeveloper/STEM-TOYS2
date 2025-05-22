@@ -9,6 +9,7 @@ export const en = {
   admin: "Admin",
   login: "Log in",
   register: "Register",
+  logout: "Log out",
   cart: "Cart",
   checkout: "Checkout",
   search: "Search",
@@ -28,6 +29,12 @@ export const en = {
   shipping: "Shipping",
   total: "Total",
   clearCart: "Clear Cart",
+
+  // Products page
+  stemToysTitle: "Educational STEM Toys",
+  stemToysDescription:
+    "Explore our collection of educational toys designed to inspire curiosity and foster learning in science, technology, engineering, and mathematics.",
+
   // Homepage specific translations
   inspireMinds: "Inspire Curious Minds",
   discoverCollection:
@@ -58,27 +65,17 @@ export const en = {
   metaDescription:
     "Discover the best STEM toys for curious minds at TechTots. Educational toys that make learning fun.",
 
-  // Products Page
-  productsTitle: "Our STEM Toys Collection | TechTots",
-  productsDescription:
-    "Explore our collection of educational STEM toys designed to inspire curiosity and learning in children of all ages.",
-  showingProducts: "Showing {0} of {1} products",
-  filterByCategory: "Filter by Category",
-
-  // Categories Page
-  categoriesTitle: "STEM Categories | TechTots",
-  categoriesDescription:
-    "Explore our carefully curated STEM categories. Each category is designed to develop specific skills while making learning fun.",
-  categoryProducts: "{0} Products",
-  explorerCategoryToys: "Explore {0} Toys",
-  scienceCategoryDesc:
-    "Discover the wonders of the natural world through hands-on experiments and exploration. Our science toys promote curiosity, observation skills, and a deeper understanding of how things work.",
-  technologyCategoryDesc:
-    "Explore coding, robotics, and digital innovation with our technology-focused toys. These products help children develop computational thinking and prepare for a digital future.",
-  engineeringCategoryDesc:
-    "Build, design, and solve problems with our engineering toys and kits. These products encourage critical thinking, spatial reasoning, and the engineering design process.",
-  mathCategoryDesc:
-    "Make numbers fun and engaging with our mathematics toys and games. These products build foundational math skills through play and help children develop logical thinking.",
+  // ProductGrid component
+  sortBy: "Sort by",
+  featured: "Featured",
+  priceLowToHigh: "Price: Low to High",
+  priceHighToLow: "Price: High to Low",
+  newest: "Newest",
+  topRated: "Top Rated",
+  view: "View",
+  gridView: "Grid view",
+  listView: "List view",
+  noProductsFound: "No products found. Try different filters or search terms.",
 
   // Blog Page
   blogTitle: "STEM Learning Blog | TechTots",
@@ -116,16 +113,37 @@ export const en = {
   // Values section
   qualitySafety: "Quality & Safety",
   qualitySafetyDesc:
-    "We rigorously test all our products to ensure they meet the highest standards of quality, durability, and safety for children.",
+    "We rigorously test all our products to ensure they meet the highest standards of quality, durability, and child safety.",
   educationalImpact: "Educational Impact",
   educationalImpactDesc:
-    "Every product in our collection is designed with specific learning outcomes in mind, supporting age-appropriate skill development.",
+    "Every product in our collection is designed with specific learning outcomes in mind, supporting the development of age-appropriate skills.",
   sustainability: "Sustainability",
   sustainabilityDesc:
-    "We're committed to reducing our environmental footprint through sustainable materials, responsible packaging, and mindful business practices.",
+    "We are committed to reducing our environmental footprint through sustainable materials, responsible packaging, and mindful business practices.",
 
   // CTA section
   joinStemJourneyDesc:
     "Discover our carefully curated selection of educational toys and start inspiring curiosity today!",
   shopCollection: "Shop Our Collection",
+
+  // Product & Category Specific Content
+  scienceToysTitle: "Science Learning Toys & Kits",
+  scienceToysDescription:
+    "Inspire young scientists with hands-on experiments and discovery kits",
+  technologyToysTitle: "Technology Learning Toys & Kits",
+  technologyToysDescription:
+    "Empower future innovators with coding, robotics, and digital learning tools",
+  engineeringToysTitle: "Engineering Learning Toys & Kits",
+  engineeringToysDescription:
+    "Build young engineers with construction sets and problem-solving challenges",
+  mathematicsToysTitle: "Mathematics Learning Toys & Kits",
+  mathematicsToysDescription:
+    "Make math magical with puzzles, games, and interactive learning tools",
+
+  // Filter and Sort UI
+  filterOptions: "Filter Options",
+  filterBy: "Filter By:",
+  allCategories: "All Categories",
+  tryAdjustingFilters: "Try adjusting your filters or search criteria",
+  clearAllFilters: "Clear All Filters",
 };

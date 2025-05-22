@@ -9,6 +9,7 @@ export const ro = {
   admin: "Admin",
   login: "Conectare",
   register: "Înregistrare",
+  logout: "Deconectare",
   cart: "Coș",
   checkout: "Finalizare comandă",
   search: "Căutare",
@@ -28,6 +29,25 @@ export const ro = {
   shipping: "Transport",
   total: "Total",
   clearCart: "Golește coșul",
+
+  // Products page
+  stemToysTitle: "Jucării Educaționale STEM",
+  stemToysDescription:
+    "Explorează colecția noastră de jucării educaționale concepute pentru a inspira curiozitatea și a încuraja învățarea în știință, tehnologie, inginerie și matematică.",
+
+  // ProductGrid component
+  sortBy: "Sortează după",
+  featured: "Recomandate",
+  priceLowToHigh: "Preț: De la mic la mare",
+  priceHighToLow: "Preț: De la mare la mic",
+  newest: "Cele mai noi",
+  topRated: "Cel mai bine evaluate",
+  view: "Vizualizare",
+  gridView: "Vizualizare grilă",
+  listView: "Vizualizare listă",
+  noProductsFound:
+    "Nu s-au găsit produse. Încercați filtre diferite sau termeni de căutare diferiți.",
+
   // Homepage specific translations
   inspireMinds: "Inspiră Minți Curioase",
   discoverCollection:
@@ -64,6 +84,57 @@ export const ro = {
     "Explorează colecția noastră de jucării educaționale STEM concepute pentru a inspira curiozitatea și învățarea la copiii de toate vârstele.",
   showingProducts: "Se afișează {0} din {1} produse",
   filterByCategory: "Filtrează după categorie",
+
+  // Product page - Category-specific content
+  discoverStemToys: "Descoperă Jucării Educaționale STEM Uimitoare",
+  stemToysDescription:
+    "Stimulează curiozitatea, creativitatea și gândirea critică cu jucăriile noastre educaționale atent selecționate",
+  scienceToysTitle: "Jucării și Kituri de Învățare Științifice",
+  scienceToysDescription:
+    "Inspiră tinerii oameni de știință cu experimente practice și kituri de descoperire",
+  technologyToysTitle: "Jucării și Kituri de Învățare Tehnologice",
+  technologyToysDescription:
+    "Împuternicește viitorii inovatori cu instrumente de programare, robotică și învățare digitală",
+  engineeringToysTitle: "Jucării și Kituri de Învățare de Inginerie",
+  engineeringToysDescription:
+    "Formează tineri ingineri cu seturi de construcție și provocări de rezolvare a problemelor",
+  mathematicsToysTitle: "Jucării și Kituri de Învățare Matematică",
+  mathematicsToysDescription:
+    "Fă matematica magică cu puzzle-uri, jocuri și instrumente interactive de învățare",
+
+  // STEM benefits
+  whyStemEssential: "De ce Jucăriile STEM Sunt Esențiale",
+  cognitiveDevelopment: "Dezvoltare Cognitivă",
+  cognitiveDevelopmentDesc:
+    "Îmbunătățește abilitățile de rezolvare a problemelor și gândirea critică",
+  creativityInnovation: "Creativitate și Inovație",
+  creativityInnovationDesc: "Încurajează gândirea creativă și ideile noi",
+  futureReady: "Pregătit pentru Viitor",
+  futureReadyDesc: "Pregătește copiii pentru cariere în știință și tehnologie",
+  funLearning: "Învățare Distractivă",
+  funLearningDesc: "Face educația captivantă și plăcută",
+
+  // Filtering
+  filterOptions: "Opțiuni de Filtrare",
+  filterBy: "Filtrează După:",
+  allCategories: "Toate Categoriile",
+  tryAdjustingFilters:
+    "Încearcă să ajustezi filtrele sau criteriile de căutare",
+  clearAllFilters: "Șterge Toate Filtrele",
+
+  // Category learning descriptions
+  scienceLearning: "Învățare Științifică",
+  scienceLearningDesc:
+    "Descoperă minunile explorării științifice cu jucării care fac învățarea distractivă și captivantă.",
+  technologyLearning: "Învățare Tehnologică",
+  technologyLearningDesc:
+    "Ajută-ți copilul să dezvolte abilități tehnologice esențiale pentru viitor cu jucăriile noastre inovatoare.",
+  engineeringLearning: "Învățare de Inginerie",
+  engineeringLearningDesc:
+    "Jucăriile de inginerie dezvoltă abilitățile spațiale, capacitățile de rezolvare a problemelor și creativitatea.",
+  mathematicsLearning: "Învățare Matematică",
+  mathematicsLearningDesc:
+    "Jocurile matematice fac numerele distractive în timp ce construiesc abilități esențiale pentru succesul academic.",
 
   // Categories Page
   categoriesTitle: "Categorii STEM | TechTots",

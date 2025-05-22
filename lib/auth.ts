@@ -1,23 +1,22 @@
-import { NextAuthOptions } from "next-auth";
+import NextAuth, { DefaultSession, NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import NextAuth from "next-auth";
+import { db } from "@/lib/db";
+import { compare } from "bcrypt";
+import { JWT } from "next-auth/jwt";
 
-// Since we're implementing a placeholder auth system, we'll use
-// a simple in-memory mock for users
-const MOCK_USERS = new Map([
-  [
-    "user@example.com",
-    {
-      id: "1",
-      name: "Demo User",
-      email: "user@example.com",
-      // In a real app, this would be a hashed password
-      password: "password123",
-      image: null,
-    },
-  ],
-]);
+// Extend the session types
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user: {
+      id: string;
+      isActive?: boolean;
+      role?: string;
+    } & DefaultSession["user"];
+  }
+}
+
+// Remove the mock users since we're using a database now
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -40,32 +39,73 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        // Using our mock user data
-        const user = MOCK_USERS.get(credentials.email);
+        try {
+          // Find user in database
+          const user = await db.user.findUnique({
+            where: { email: credentials.email },
+          });
 
-        if (!user || user.password !== credentials.password) {
-          return null;
+          if (!user) {
+            console.log("User not found");
+            return null;
+          }
+
+          // Verify password
+          const passwordMatch = await compare(
+            credentials.password,
+            user.password
+          );
+
+          if (!passwordMatch) {
+            console.log("Password doesn't match");
+            return null;
+          }
+
+          // Check if user is active (email verified)
+          if (!user.isActive) {
+            throw new Error(
+              "Account not verified. Please check your email for verification link."
+            );
+          }
+
+          // Return user without password
+          return {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            image: null,
+            isActive: user.isActive,
+            role: user.role,
+          };
+        } catch (error) {
+          console.error("Auth error:", error);
+          throw error;
         }
-
-        return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          image: user.image,
-        };
       },
     }),
   ],
   callbacks: {
-    async session({ session, token }) {
-      if (token.sub && session.user) {
+    async session({ session, token }: { session: any; token: any }) {
+      if (token) {
         session.user.id = token.sub;
+        session.user.isActive = token.isActive;
+        session.user.role = token.role;
       }
       return session;
     },
-    async jwt({ token, user, account }) {
+    async jwt({
+      token,
+      user,
+      account,
+    }: {
+      token: any;
+      user: any;
+      account: any;
+    }) {
       if (user) {
         token.id = user.id;
+        token.isActive = user.isActive;
+        token.role = user.role;
       }
       if (account) {
         token.accessToken = account.access_token;

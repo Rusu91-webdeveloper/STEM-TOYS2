@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 
 // Order validation schema
 const shippingAddressSchema = z.object({
@@ -43,7 +42,7 @@ const orderSchema = z.object({
 // POST /api/checkout/order - Create a new order
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     const body = await request.json();
 
     // Validate request body

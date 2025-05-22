@@ -63,10 +63,20 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       // For now, we'll just simulate a successful update
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      toast({
-        title: "Profile updated",
-        description: "Your profile information has been updated successfully.",
-      });
+      // If password is being updated, show specific message
+      if (data.newPassword) {
+        toast({
+          title: "Password updated",
+          description: "Your password has been changed successfully.",
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Profile updated",
+          description:
+            "Your profile information has been updated successfully.",
+        });
+      }
 
       // Reset password fields
       reset({
@@ -75,11 +85,22 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         confirmPassword: "",
       });
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "There was an error updating your profile",
-        variant: "destructive",
-      });
+      console.error("Error updating profile:", error);
+      // Determine if password change failed
+      if (watchNewPassword) {
+        toast({
+          title: "Password update failed",
+          description:
+            "There was an error updating your password. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "There was an error updating your profile",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

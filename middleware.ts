@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { securityHeaders, isDevelopment } from "@/lib/security";
-import { auth } from "./lib/auth";
 
 // Supported locales
 const locales = ["en", "ro"];
@@ -12,8 +11,11 @@ const defaultLocale = "en"; // Changed from "ro" to "en" as default until we hav
  * and other global request/response modifications.
  */
 export async function middleware(request: NextRequest) {
-  const session = await auth();
   const { pathname } = request.nextUrl;
+  const authCookie =
+    request.cookies.get("next-auth.session-token") ||
+    request.cookies.get("__Secure-next-auth.session-token");
+  const isAuthenticated = !!authCookie;
 
   // Handle auth redirects
   if (pathname === "/auth/signin") {
@@ -25,7 +27,7 @@ export async function middleware(request: NextRequest) {
 
   // Protect checkout routes
   if (pathname.startsWith("/checkout")) {
-    if (!session) {
+    if (!isAuthenticated) {
       const signInUrl = new URL("/auth/login", request.url);
       signInUrl.searchParams.set("callbackUrl", pathname);
       return NextResponse.redirect(signInUrl);

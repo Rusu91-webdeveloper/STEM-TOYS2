@@ -16,18 +16,60 @@ datasource db {
 
 // Models
 model User {
-  id        String   @id @default(cuid())
-  name      String?
-  email     String   @unique
-  password  String
-  role      Role     @default(CUSTOMER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String        @id @default(cuid())
+  name              String?
+  email             String        @unique
+  password          String
+  role              Role          @default(CUSTOMER)
+  emailVerified     DateTime?
+  verificationToken String?
+  isActive          Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  addresses         Address[]
+  paymentCards      PaymentCard[]
 }
 
 enum Role {
   CUSTOMER
   ADMIN
+}
+
+model Address {
+  id           String  @id @default(cuid())
+  userId       String
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  fullName     String
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String
+  postalCode   String
+  country      String
+  phone        String
+  isDefault    Boolean @default(false)
+}
+
+model PaymentCard {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cardholderName    String
+  // Only store last 4 digits of card number for display/reference
+  lastFourDigits    String
+  // Store encrypted card data (these fields should be encrypted at the application level)
+  encryptedCardData String // Stores encrypted full card number
+  encryptedCvv      String? // Stores encrypted CVV (optional as we may not need to store it)
+  expiryMonth       String
+  expiryYear        String
+  cardType          String // visa, mastercard, amex, discover
+  billingAddressId  String? // Optional reference to an address
+  isDefault         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Category {

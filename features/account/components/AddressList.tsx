@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -25,36 +25,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
-
-// Mock address data - in a real app, this would come from an API
-const mockAddresses = [
-  {
-    id: "addr_1",
-    name: "Home",
-    fullName: "John Doe",
-    addressLine1: "123 Main St",
-    addressLine2: "Apt 4B",
-    city: "New York",
-    state: "NY",
-    postalCode: "10001",
-    country: "US",
-    phone: "(555) 123-4567",
-    isDefault: true,
-  },
-  {
-    id: "addr_2",
-    name: "Work",
-    fullName: "John Doe",
-    addressLine1: "456 Park Ave",
-    addressLine2: "Floor 8",
-    city: "New York",
-    state: "NY",
-    postalCode: "10022",
-    country: "US",
-    phone: "(555) 987-6543",
-    isDefault: false,
-  },
-];
+import { Skeleton } from "@/components/ui/skeleton";
+import { useRouter } from "next/navigation";
 
 interface Address {
   id: string;
@@ -71,30 +43,148 @@ interface Address {
 }
 
 export function AddressList() {
-  const [addresses, setAddresses] = useState<Address[]>(mockAddresses);
+  const router = useRouter();
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [addressToDelete, setAddressToDelete] = useState<string | null>(null);
 
-  const handleSetDefault = (id: string) => {
-    setAddresses(
-      addresses.map((address) => ({
-        ...address,
-        isDefault: address.id === id,
-      }))
-    );
-    toast({
-      title: "Default address updated",
-      description: "Your default address has been updated successfully.",
-    });
+  useEffect(() => {
+    async function fetchAddresses() {
+      try {
+        const response = await fetch("/api/account/addresses");
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch addresses");
+        }
+
+        const data = await response.json();
+        setAddresses(data);
+      } catch (error) {
+        console.error("Error fetching addresses:", error);
+        setError("Could not load addresses. Please try again.");
+        toast({
+          title: "Error",
+          description: "Failed to load addresses",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchAddresses();
+  }, []);
+
+  const handleSetDefault = async (id: string) => {
+    try {
+      // Find the address to update
+      const address = addresses.find((a) => a.id === id);
+      if (!address) return;
+
+      // Update the address with isDefault = true
+      const response = await fetch(`/api/account/addresses/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...address, isDefault: true }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to update default address");
+      }
+
+      // Update local state
+      setAddresses(
+        addresses.map((address) => ({
+          ...address,
+          isDefault: address.id === id,
+        }))
+      );
+
+      toast({
+        title: "Default address updated",
+        description: "Your default address has been updated successfully.",
+      });
+    } catch (error) {
+      console.error("Error updating default address:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update default address",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDelete = (id: string) => {
-    setAddresses(addresses.filter((address) => address.id !== id));
-    setAddressToDelete(null);
-    toast({
-      title: "Address deleted",
-      description: "Your address has been deleted successfully.",
-    });
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await fetch(`/api/account/addresses/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete address");
+      }
+
+      // Update local state
+      setAddresses(addresses.filter((address) => address.id !== id));
+      setAddressToDelete(null);
+
+      toast({
+        title: "Address deleted",
+        description: "Your address has been deleted successfully.",
+      });
+
+      // Refresh the page to update any other components
+      router.refresh();
+    } catch (error) {
+      console.error("Error deleting address:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete address",
+        variant: "destructive",
+      });
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="grid gap-6 md:grid-cols-2">
+        {[1, 2].map((i) => (
+          <Card
+            key={i}
+            className="relative">
+            <CardHeader>
+              <Skeleton className="h-6 w-32 mb-2" />
+              <Skeleton className="h-4 w-24" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Skeleton className="h-9 w-full" />
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-10 border rounded-lg">
+        <MapPin className="h-10 w-10 mx-auto text-gray-400 mb-4" />
+        <h3 className="text-lg font-medium mb-2">Error loading addresses</h3>
+        <p className="text-gray-500 mb-6">{error}</p>
+        <Button onClick={() => window.location.reload()}>Try Again</Button>
+      </div>
+    );
+  }
 
   if (addresses.length === 0) {
     return (

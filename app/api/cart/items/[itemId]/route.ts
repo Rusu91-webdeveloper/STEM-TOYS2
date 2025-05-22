@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { CartItem } from "@/features/cart";
 
@@ -25,7 +24,7 @@ function getGuestId(): string {
 
 // Helper function to get the cart ID (either user email or guest ID)
 async function getCartId(): Promise<string> {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   if (session?.user?.email) {
     return session.user.email;

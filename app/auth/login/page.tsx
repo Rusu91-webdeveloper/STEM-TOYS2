@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -11,13 +11,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginSchema } from "@/lib/validations";
+import { CheckCircle } from "lucide-react";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  // Check for verification success parameter or registration redirect
+  useEffect(() => {
+    if (searchParams.get("verified") === "true") {
+      setSuccess("Your email has been verified! You can now sign in.");
+    } else if (searchParams.get("from") === "register") {
+      setSuccess(
+        "Your account has been created! Please check your email to verify your account before logging in."
+      );
+    }
+  }, [searchParams]);
 
   const {
     register,
@@ -34,6 +48,7 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     setError(null);
+    setSuccess(null);
 
     try {
       const result = await signIn("credentials", {
@@ -43,7 +58,21 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError("Invalid email or password");
+        if (
+          result.error === "CredentialsSignin" ||
+          result.error.includes("credentials")
+        ) {
+          setError("Invalid email or password");
+        } else if (
+          result.error.includes("not verified") ||
+          result.error.includes("inactive")
+        ) {
+          setError(
+            "Your account has not been verified. Please check your email for the verification link."
+          );
+        } else {
+          setError(result.error);
+        }
         setIsLoading(false);
         return;
       }
@@ -69,8 +98,31 @@ export default function LoginPage() {
 
         <div className="w-full p-6 space-y-6 bg-card rounded-lg border shadow-sm">
           {error && (
-            <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm">
-              {error}
+            <div className="p-4 rounded-md bg-destructive/15 text-destructive border border-destructive/30 flex flex-col space-y-1">
+              <p className="font-medium">Sign In Failed</p>
+              <p className="text-sm">{error}</p>
+              {error.includes("not verified") && (
+                <div className="mt-2 text-sm">
+                  <p>
+                    Need a new verification email?{" "}
+                    <Link
+                      href="/auth/resend-verification"
+                      className="text-primary hover:underline font-medium">
+                      Resend verification
+                    </Link>
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {success && (
+            <div className="p-4 rounded-md bg-green-100 text-green-800 border border-green-200 flex items-start gap-3">
+              <CheckCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="font-medium">Success</p>
+                <p className="text-sm">{success}</p>
+              </div>
             </div>
           )}
 

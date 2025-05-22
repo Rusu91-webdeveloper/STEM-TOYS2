@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useTranslation } from "@/lib/i18n";
 
 interface ProductGridProps {
   products: Product[];
@@ -45,6 +46,7 @@ export function ProductGrid({
 }: ProductGridProps) {
   const [layout, setLayout] = useState<"grid" | "list">(defaultLayout);
   const [sortOption, setSortOption] = useState<string>(defaultSort);
+  const { t } = useTranslation();
 
   const sortProducts = (products: Product[], option: string) => {
     const sortedProducts = [...products];
@@ -89,14 +91,18 @@ export function ProductGrid({
                 value={sortOption}
                 onValueChange={setSortOption}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sort by" />
+                  <SelectValue placeholder={t("sortBy")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="featured">Featured</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  <SelectItem value="newest">Newest</SelectItem>
-                  <SelectItem value="rating">Top Rated</SelectItem>
+                  <SelectItem value="featured">{t("featured")}</SelectItem>
+                  <SelectItem value="price-low">
+                    {t("priceLowToHigh")}
+                  </SelectItem>
+                  <SelectItem value="price-high">
+                    {t("priceHighToLow")}
+                  </SelectItem>
+                  <SelectItem value="newest">{t("newest")}</SelectItem>
+                  <SelectItem value="rating">{t("topRated")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -104,13 +110,15 @@ export function ProductGrid({
 
           {showLayoutToggle && (
             <div className="flex items-center space-x-2">
-              <span className="text-sm text-muted-foreground mr-2">View:</span>
+              <span className="text-sm text-muted-foreground mr-2">
+                {t("view")}:
+              </span>
               <Button
                 variant={layout === "grid" ? "default" : "outline"}
                 size="sm"
                 className="px-2"
                 onClick={() => setLayout("grid")}
-                aria-label="Grid view">
+                aria-label={t("gridView")}>
                 <Grid2X2 className="h-4 w-4" />
               </Button>
               <Button
@@ -118,7 +126,7 @@ export function ProductGrid({
                 size="sm"
                 className="px-2"
                 onClick={() => setLayout("list")}
-                aria-label="List view">
+                aria-label={t("listView")}>
                 <List className="h-4 w-4" />
               </Button>
             </div>
@@ -128,7 +136,7 @@ export function ProductGrid({
 
       {sortedProducts.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
-          No products found. Try different filters or search terms.
+          {t("noProductsFound")}
         </div>
       ) : layout === "grid" ? (
         <div className={cn("grid gap-6", gridColsClass)}>

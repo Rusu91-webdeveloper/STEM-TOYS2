@@ -126,6 +126,40 @@ exports.Prisma.UserScalarFieldEnum = {
   email: 'email',
   password: 'password',
   role: 'role',
+  emailVerified: 'emailVerified',
+  verificationToken: 'verificationToken',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AddressScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  fullName: 'fullName',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  city: 'city',
+  state: 'state',
+  postalCode: 'postalCode',
+  country: 'country',
+  phone: 'phone',
+  isDefault: 'isDefault'
+};
+
+exports.Prisma.PaymentCardScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  cardholderName: 'cardholderName',
+  lastFourDigits: 'lastFourDigits',
+  encryptedCardData: 'encryptedCardData',
+  encryptedCvv: 'encryptedCvv',
+  expiryMonth: 'expiryMonth',
+  expiryYear: 'expiryYear',
+  cardType: 'cardType',
+  billingAddressId: 'billingAddressId',
+  isDefault: 'isDefault',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -188,6 +222,8 @@ exports.Role = exports.$Enums.Role = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  Address: 'Address',
+  PaymentCard: 'PaymentCard',
   Category: 'Category',
   Product: 'Product'
 };

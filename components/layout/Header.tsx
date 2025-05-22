@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, X, User, Settings, ShoppingCart } from "lucide-react";
+import { Menu, X, User, Settings, ShoppingCart, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CartButton } from "@/features/cart";
@@ -12,6 +12,7 @@ import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { CurrencySwitcher } from "@/components/ui/currency-switcher";
 import { useTranslation } from "@/lib/i18n";
 import { TranslationKey } from "@/lib/i18n/translations";
+import { useSession, signOut } from "next-auth/react";
 
 const navigation: { name: TranslationKey; href: string }[] = [
   { name: "home", href: "/" },
@@ -25,12 +26,16 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const { t } = useTranslation();
+  const { data: session, status } = useSession();
 
-  // For demonstration, we'll assume user is logged in
-  // In a real app, this would check auth state
-  const isLoggedIn = true;
-  // For demonstration purposes only - in a real app would check user role
-  const isAdmin = true;
+  // Check if user is logged in
+  const isLoggedIn = status === "authenticated";
+  // Check if user is admin
+  const isAdmin = isLoggedIn && session?.user?.role === "ADMIN";
+
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: "/" });
+  };
 
   return (
     <header className="bg-white sticky top-0 z-40 w-full border-b shadow-sm">
@@ -60,9 +65,9 @@ export default function Header() {
                 key={item.name}
                 href={item.href}
                 className={cn(
-                  "relative group px-4 py-2 mx-1 text-sm font-medium transition-all duration-200 rounded-md",
+                  "relative group px-4 py-2 mx-1 text-sm font-medium transition-all duration-200 rounded-md cursor-pointer",
                   pathname === item.href
-                    ? "text-indigo-700 bg-indigo-50"
+                    ? "text-indigo-700 bg-indigo-50 shadow-sm"
                     : "text-gray-700 hover:text-indigo-600 hover:bg-indigo-50/50"
                 )}>
                 <span className="relative">
@@ -81,7 +86,7 @@ export default function Header() {
           <div className="flex md:hidden">
             <button
               type="button"
-              className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              className="inline-flex items-center justify-center rounded-md p-2 text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 cursor-pointer"
               onClick={() => setMobileMenuOpen(true)}>
               <span className="sr-only">Open main menu</span>
               <Menu
@@ -115,7 +120,7 @@ export default function Header() {
               <div className="flex items-center space-x-3 ml-6 border-l pl-6 border-gray-200">
                 <Link
                   href="/account"
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition-colors">
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 hover:text-indigo-600 transition-colors cursor-pointer shadow-sm hover:shadow">
                   <User className="h-4 w-4" />
                   <span>{t("account")}</span>
                 </Link>
@@ -123,17 +128,25 @@ export default function Header() {
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors">
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors cursor-pointer shadow-sm hover:shadow">
                     <Settings className="h-4 w-4" />
                     <span>{t("admin")}</span>
                   </Link>
                 )}
+
+                <Button
+                  onClick={handleSignOut}
+                  variant="ghost"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer shadow-sm hover:shadow">
+                  <LogOut className="h-4 w-4" />
+                  <span>{t("logout")}</span>
+                </Button>
               </div>
             ) : (
               <div className="ml-6 border-l pl-6 border-gray-200">
                 <Link
                   href="/auth/login"
-                  className="flex items-center gap-1 px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm">
+                  className="flex items-center gap-1 px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm hover:shadow cursor-pointer">
                   {t("login")}
                   <span aria-hidden="true">&rarr;</span>
                 </Link>
@@ -167,7 +180,7 @@ export default function Header() {
               </Link>
               <button
                 type="button"
-                className="-m-2.5 rounded-md p-2.5 text-gray-700 hover:bg-gray-100"
+                className="-m-2.5 rounded-md p-2.5 text-gray-700 hover:bg-gray-100 cursor-pointer"
                 onClick={() => setMobileMenuOpen(false)}>
                 <span className="sr-only">Close menu</span>
                 <X
@@ -185,9 +198,9 @@ export default function Header() {
                       key={item.name}
                       href={item.href}
                       className={cn(
-                        "block rounded-md px-4 py-3 text-base font-medium transition-all",
+                        "block rounded-md px-4 py-3 text-base font-medium transition-all cursor-pointer",
                         pathname === item.href
-                          ? "bg-indigo-50 text-indigo-700"
+                          ? "bg-indigo-50 text-indigo-700 shadow-sm"
                           : "text-gray-900 hover:bg-gray-50 hover:text-indigo-600"
                       )}
                       onClick={() => setMobileMenuOpen(false)}>
@@ -208,7 +221,7 @@ export default function Header() {
                       <>
                         <Link
                           href="/account"
-                          className="block rounded-md px-4 py-3 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-indigo-600 mb-2"
+                          className="block rounded-md px-4 py-3 text-base font-medium text-gray-900 hover:bg-gray-50 hover:text-indigo-600 mb-2 cursor-pointer"
                           onClick={() => setMobileMenuOpen(false)}>
                           <div className="flex items-center">
                             <User className="h-5 w-5 mr-2" />
@@ -218,7 +231,7 @@ export default function Header() {
                         {isAdmin && (
                           <Link
                             href="/admin"
-                            className="block rounded-md px-4 py-3 text-base font-medium bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
+                            className="block rounded-md px-4 py-3 text-base font-medium bg-indigo-50 text-indigo-600 hover:bg-indigo-100 cursor-pointer mb-2"
                             onClick={() => setMobileMenuOpen(false)}>
                             <div className="flex items-center">
                               <Settings className="h-5 w-5 mr-2" />
@@ -226,11 +239,22 @@ export default function Header() {
                             </div>
                           </Link>
                         )}
+                        <button
+                          onClick={() => {
+                            handleSignOut();
+                            setMobileMenuOpen(false);
+                          }}
+                          className="w-full block rounded-md px-4 py-3 text-base font-medium text-red-600 hover:bg-red-50 cursor-pointer">
+                          <div className="flex items-center">
+                            <LogOut className="h-5 w-5 mr-2" />
+                            <span>{t("logout")}</span>
+                          </div>
+                        </button>
                       </>
                     ) : (
                       <Link
                         href="/auth/login"
-                        className="flex items-center justify-center gap-2 w-full rounded-md bg-indigo-600 px-4 py-3 text-center text-base font-medium text-white shadow-sm hover:bg-indigo-700"
+                        className="flex items-center justify-center gap-2 w-full rounded-md bg-indigo-600 px-4 py-3 text-center text-base font-medium text-white shadow-sm hover:bg-indigo-700 cursor-pointer"
                         onClick={() => setMobileMenuOpen(false)}>
                         {t("login")}
                         <span aria-hidden="true">&rarr;</span>

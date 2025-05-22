@@ -19,6 +19,16 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
 /**
+ * Model Address
+ * 
+ */
+export type Address = $Result.DefaultSelection<Prisma.$AddressPayload>
+/**
+ * Model PaymentCard
+ * 
+ */
+export type PaymentCard = $Result.DefaultSelection<Prisma.$PaymentCardPayload>
+/**
  * Model Category
  * 
  */
@@ -180,6 +190,26 @@ export class PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.address`: Exposes CRUD operations for the **Address** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Addresses
+    * const addresses = await prisma.address.findMany()
+    * ```
+    */
+  get address(): Prisma.AddressDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.paymentCard`: Exposes CRUD operations for the **PaymentCard** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PaymentCards
+    * const paymentCards = await prisma.paymentCard.findMany()
+    * ```
+    */
+  get paymentCard(): Prisma.PaymentCardDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.category`: Exposes CRUD operations for the **Category** model.
@@ -641,6 +671,8 @@ export namespace Prisma {
 
   export const ModelName: {
     User: 'User',
+    Address: 'Address',
+    PaymentCard: 'PaymentCard',
     Category: 'Category',
     Product: 'Product'
   };
@@ -661,7 +693,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "category" | "product"
+      modelProps: "user" | "address" | "paymentCard" | "category" | "product"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -736,6 +768,154 @@ export namespace Prisma {
           count: {
             args: Prisma.UserCountArgs<ExtArgs>
             result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      Address: {
+        payload: Prisma.$AddressPayload<ExtArgs>
+        fields: Prisma.AddressFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.AddressFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddressPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AddressFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddressPayload>
+          }
+          findFirst: {
+            args: Prisma.AddressFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddressPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AddressFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddressPayload>
+          }
+          findMany: {
+            args: Prisma.AddressFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddressPayload>[]
+          }
+          create: {
+            args: Prisma.AddressCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddressPayload>
+          }
+          createMany: {
+            args: Prisma.AddressCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.AddressCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddressPayload>[]
+          }
+          delete: {
+            args: Prisma.AddressDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddressPayload>
+          }
+          update: {
+            args: Prisma.AddressUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddressPayload>
+          }
+          deleteMany: {
+            args: Prisma.AddressDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AddressUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.AddressUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddressPayload>[]
+          }
+          upsert: {
+            args: Prisma.AddressUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$AddressPayload>
+          }
+          aggregate: {
+            args: Prisma.AddressAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateAddress>
+          }
+          groupBy: {
+            args: Prisma.AddressGroupByArgs<ExtArgs>
+            result: $Utils.Optional<AddressGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AddressCountArgs<ExtArgs>
+            result: $Utils.Optional<AddressCountAggregateOutputType> | number
+          }
+        }
+      }
+      PaymentCard: {
+        payload: Prisma.$PaymentCardPayload<ExtArgs>
+        fields: Prisma.PaymentCardFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.PaymentCardFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentCardPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PaymentCardFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentCardPayload>
+          }
+          findFirst: {
+            args: Prisma.PaymentCardFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentCardPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PaymentCardFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentCardPayload>
+          }
+          findMany: {
+            args: Prisma.PaymentCardFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentCardPayload>[]
+          }
+          create: {
+            args: Prisma.PaymentCardCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentCardPayload>
+          }
+          createMany: {
+            args: Prisma.PaymentCardCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.PaymentCardCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentCardPayload>[]
+          }
+          delete: {
+            args: Prisma.PaymentCardDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentCardPayload>
+          }
+          update: {
+            args: Prisma.PaymentCardUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentCardPayload>
+          }
+          deleteMany: {
+            args: Prisma.PaymentCardDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PaymentCardUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.PaymentCardUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentCardPayload>[]
+          }
+          upsert: {
+            args: Prisma.PaymentCardUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$PaymentCardPayload>
+          }
+          aggregate: {
+            args: Prisma.PaymentCardAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregatePaymentCard>
+          }
+          groupBy: {
+            args: Prisma.PaymentCardGroupByArgs<ExtArgs>
+            result: $Utils.Optional<PaymentCardGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PaymentCardCountArgs<ExtArgs>
+            result: $Utils.Optional<PaymentCardCountAggregateOutputType> | number
           }
         }
       }
@@ -972,6 +1152,8 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     user?: UserOmit
+    address?: AddressOmit
+    paymentCard?: PaymentCardOmit
     category?: CategoryOmit
     product?: ProductOmit
   }
@@ -1064,6 +1246,46 @@ export namespace Prisma {
 
 
   /**
+   * Count Type UserCountOutputType
+   */
+
+  export type UserCountOutputType = {
+    addresses: number
+    paymentCards: number
+  }
+
+  export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    addresses?: boolean | UserCountOutputTypeCountAddressesArgs
+    paymentCards?: boolean | UserCountOutputTypeCountPaymentCardsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UserCountOutputType
+     */
+    select?: UserCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountAddressesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AddressWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountPaymentCardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentCardWhereInput
+  }
+
+
+  /**
    * Count Type CategoryCountOutputType
    */
 
@@ -1123,6 +1345,9 @@ export namespace Prisma {
     email: string | null
     password: string | null
     role: $Enums.Role | null
+    emailVerified: Date | null
+    verificationToken: string | null
+    isActive: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1133,6 +1358,9 @@ export namespace Prisma {
     email: string | null
     password: string | null
     role: $Enums.Role | null
+    emailVerified: Date | null
+    verificationToken: string | null
+    isActive: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1143,6 +1371,9 @@ export namespace Prisma {
     email: number
     password: number
     role: number
+    emailVerified: number
+    verificationToken: number
+    isActive: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -1155,6 +1386,9 @@ export namespace Prisma {
     email?: true
     password?: true
     role?: true
+    emailVerified?: true
+    verificationToken?: true
+    isActive?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1165,6 +1399,9 @@ export namespace Prisma {
     email?: true
     password?: true
     role?: true
+    emailVerified?: true
+    verificationToken?: true
+    isActive?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1175,6 +1412,9 @@ export namespace Prisma {
     email?: true
     password?: true
     role?: true
+    emailVerified?: true
+    verificationToken?: true
+    isActive?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -1258,6 +1498,9 @@ export namespace Prisma {
     email: string
     password: string
     role: $Enums.Role
+    emailVerified: Date | null
+    verificationToken: string | null
+    isActive: boolean
     createdAt: Date
     updatedAt: Date
     _count: UserCountAggregateOutputType | null
@@ -1285,8 +1528,14 @@ export namespace Prisma {
     email?: boolean
     password?: boolean
     role?: boolean
+    emailVerified?: boolean
+    verificationToken?: boolean
+    isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    addresses?: boolean | User$addressesArgs<ExtArgs>
+    paymentCards?: boolean | User$paymentCardsArgs<ExtArgs>
+    _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1295,6 +1544,9 @@ export namespace Prisma {
     email?: boolean
     password?: boolean
     role?: boolean
+    emailVerified?: boolean
+    verificationToken?: boolean
+    isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1305,6 +1557,9 @@ export namespace Prisma {
     email?: boolean
     password?: boolean
     role?: boolean
+    emailVerified?: boolean
+    verificationToken?: boolean
+    isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
@@ -1315,21 +1570,37 @@ export namespace Prisma {
     email?: boolean
     password?: boolean
     role?: boolean
+    emailVerified?: boolean
+    verificationToken?: boolean
+    isActive?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "role" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "role" | "emailVerified" | "verificationToken" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    addresses?: boolean | User$addressesArgs<ExtArgs>
+    paymentCards?: boolean | User$paymentCardsArgs<ExtArgs>
+    _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
   export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "User"
-    objects: {}
+    objects: {
+      addresses: Prisma.$AddressPayload<ExtArgs>[]
+      paymentCards: Prisma.$PaymentCardPayload<ExtArgs>[]
+    }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       name: string | null
       email: string
       password: string
       role: $Enums.Role
+      emailVerified: Date | null
+      verificationToken: string | null
+      isActive: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["user"]>
@@ -1726,6 +1997,8 @@ export namespace Prisma {
    */
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    addresses<T extends User$addressesArgs<ExtArgs> = {}>(args?: Subset<T, User$addressesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    paymentCards<T extends User$paymentCardsArgs<ExtArgs> = {}>(args?: Subset<T, User$paymentCardsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1760,6 +2033,9 @@ export namespace Prisma {
     readonly email: FieldRef<"User", 'String'>
     readonly password: FieldRef<"User", 'String'>
     readonly role: FieldRef<"User", 'Role'>
+    readonly emailVerified: FieldRef<"User", 'DateTime'>
+    readonly verificationToken: FieldRef<"User", 'String'>
+    readonly isActive: FieldRef<"User", 'Boolean'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
@@ -1779,6 +2055,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter, which User to fetch.
      */
     where: UserWhereUniqueInput
@@ -1797,6 +2077,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter, which User to fetch.
      */
     where: UserWhereUniqueInput
@@ -1814,6 +2098,10 @@ export namespace Prisma {
      * Omit specific fields from the User
      */
     omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
     /**
      * Filter, which User to fetch.
      */
@@ -1863,6 +2151,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter, which User to fetch.
      */
     where?: UserWhereInput
@@ -1911,6 +2203,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter, which Users to fetch.
      */
     where?: UserWhereInput
@@ -1953,6 +2249,10 @@ export namespace Prisma {
      * Omit specific fields from the User
      */
     omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
     /**
      * The data needed to create a User.
      */
@@ -2001,6 +2301,10 @@ export namespace Prisma {
      * Omit specific fields from the User
      */
     omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
     /**
      * The data needed to update a User.
      */
@@ -2068,6 +2372,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * The filter to search for the User to update in case it exists.
      */
     where: UserWhereUniqueInput
@@ -2094,6 +2402,10 @@ export namespace Prisma {
      */
     omit?: UserOmit<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    /**
      * Filter which User to delete.
      */
     where: UserWhereUniqueInput
@@ -2114,6 +2426,54 @@ export namespace Prisma {
   }
 
   /**
+   * User.addresses
+   */
+  export type User$addressesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Address
+     */
+    select?: AddressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Address
+     */
+    omit?: AddressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddressInclude<ExtArgs> | null
+    where?: AddressWhereInput
+    orderBy?: AddressOrderByWithRelationInput | AddressOrderByWithRelationInput[]
+    cursor?: AddressWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: AddressScalarFieldEnum | AddressScalarFieldEnum[]
+  }
+
+  /**
+   * User.paymentCards
+   */
+  export type User$paymentCardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentCard
+     */
+    select?: PaymentCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentCard
+     */
+    omit?: PaymentCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentCardInclude<ExtArgs> | null
+    where?: PaymentCardWhereInput
+    orderBy?: PaymentCardOrderByWithRelationInput | PaymentCardOrderByWithRelationInput[]
+    cursor?: PaymentCardWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaymentCardScalarFieldEnum | PaymentCardScalarFieldEnum[]
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2125,6 +2485,2321 @@ export namespace Prisma {
      * Omit specific fields from the User
      */
     omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Address
+   */
+
+  export type AggregateAddress = {
+    _count: AddressCountAggregateOutputType | null
+    _min: AddressMinAggregateOutputType | null
+    _max: AddressMaxAggregateOutputType | null
+  }
+
+  export type AddressMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    name: string | null
+    fullName: string | null
+    addressLine1: string | null
+    addressLine2: string | null
+    city: string | null
+    state: string | null
+    postalCode: string | null
+    country: string | null
+    phone: string | null
+    isDefault: boolean | null
+  }
+
+  export type AddressMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    name: string | null
+    fullName: string | null
+    addressLine1: string | null
+    addressLine2: string | null
+    city: string | null
+    state: string | null
+    postalCode: string | null
+    country: string | null
+    phone: string | null
+    isDefault: boolean | null
+  }
+
+  export type AddressCountAggregateOutputType = {
+    id: number
+    userId: number
+    name: number
+    fullName: number
+    addressLine1: number
+    addressLine2: number
+    city: number
+    state: number
+    postalCode: number
+    country: number
+    phone: number
+    isDefault: number
+    _all: number
+  }
+
+
+  export type AddressMinAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    fullName?: true
+    addressLine1?: true
+    addressLine2?: true
+    city?: true
+    state?: true
+    postalCode?: true
+    country?: true
+    phone?: true
+    isDefault?: true
+  }
+
+  export type AddressMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    fullName?: true
+    addressLine1?: true
+    addressLine2?: true
+    city?: true
+    state?: true
+    postalCode?: true
+    country?: true
+    phone?: true
+    isDefault?: true
+  }
+
+  export type AddressCountAggregateInputType = {
+    id?: true
+    userId?: true
+    name?: true
+    fullName?: true
+    addressLine1?: true
+    addressLine2?: true
+    city?: true
+    state?: true
+    postalCode?: true
+    country?: true
+    phone?: true
+    isDefault?: true
+    _all?: true
+  }
+
+  export type AddressAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Address to aggregate.
+     */
+    where?: AddressWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Addresses to fetch.
+     */
+    orderBy?: AddressOrderByWithRelationInput | AddressOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AddressWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Addresses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Addresses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Addresses
+    **/
+    _count?: true | AddressCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AddressMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AddressMaxAggregateInputType
+  }
+
+  export type GetAddressAggregateType<T extends AddressAggregateArgs> = {
+        [P in keyof T & keyof AggregateAddress]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAddress[P]>
+      : GetScalarType<T[P], AggregateAddress[P]>
+  }
+
+
+
+
+  export type AddressGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: AddressWhereInput
+    orderBy?: AddressOrderByWithAggregationInput | AddressOrderByWithAggregationInput[]
+    by: AddressScalarFieldEnum[] | AddressScalarFieldEnum
+    having?: AddressScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AddressCountAggregateInputType | true
+    _min?: AddressMinAggregateInputType
+    _max?: AddressMaxAggregateInputType
+  }
+
+  export type AddressGroupByOutputType = {
+    id: string
+    userId: string
+    name: string
+    fullName: string
+    addressLine1: string
+    addressLine2: string | null
+    city: string
+    state: string
+    postalCode: string
+    country: string
+    phone: string
+    isDefault: boolean
+    _count: AddressCountAggregateOutputType | null
+    _min: AddressMinAggregateOutputType | null
+    _max: AddressMaxAggregateOutputType | null
+  }
+
+  type GetAddressGroupByPayload<T extends AddressGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<AddressGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AddressGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AddressGroupByOutputType[P]>
+            : GetScalarType<T[P], AddressGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AddressSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    fullName?: boolean
+    addressLine1?: boolean
+    addressLine2?: boolean
+    city?: boolean
+    state?: boolean
+    postalCode?: boolean
+    country?: boolean
+    phone?: boolean
+    isDefault?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["address"]>
+
+  export type AddressSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    fullName?: boolean
+    addressLine1?: boolean
+    addressLine2?: boolean
+    city?: boolean
+    state?: boolean
+    postalCode?: boolean
+    country?: boolean
+    phone?: boolean
+    isDefault?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["address"]>
+
+  export type AddressSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    fullName?: boolean
+    addressLine1?: boolean
+    addressLine2?: boolean
+    city?: boolean
+    state?: boolean
+    postalCode?: boolean
+    country?: boolean
+    phone?: boolean
+    isDefault?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["address"]>
+
+  export type AddressSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    name?: boolean
+    fullName?: boolean
+    addressLine1?: boolean
+    addressLine2?: boolean
+    city?: boolean
+    state?: boolean
+    postalCode?: boolean
+    country?: boolean
+    phone?: boolean
+    isDefault?: boolean
+  }
+
+  export type AddressOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "fullName" | "addressLine1" | "addressLine2" | "city" | "state" | "postalCode" | "country" | "phone" | "isDefault", ExtArgs["result"]["address"]>
+  export type AddressInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type AddressIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type AddressIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $AddressPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Address"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      name: string
+      fullName: string
+      addressLine1: string
+      addressLine2: string | null
+      city: string
+      state: string
+      postalCode: string
+      country: string
+      phone: string
+      isDefault: boolean
+    }, ExtArgs["result"]["address"]>
+    composites: {}
+  }
+
+  type AddressGetPayload<S extends boolean | null | undefined | AddressDefaultArgs> = $Result.GetResult<Prisma.$AddressPayload, S>
+
+  type AddressCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<AddressFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: AddressCountAggregateInputType | true
+    }
+
+  export interface AddressDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Address'], meta: { name: 'Address' } }
+    /**
+     * Find zero or one Address that matches the filter.
+     * @param {AddressFindUniqueArgs} args - Arguments to find a Address
+     * @example
+     * // Get one Address
+     * const address = await prisma.address.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends AddressFindUniqueArgs>(args: SelectSubset<T, AddressFindUniqueArgs<ExtArgs>>): Prisma__AddressClient<$Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Address that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {AddressFindUniqueOrThrowArgs} args - Arguments to find a Address
+     * @example
+     * // Get one Address
+     * const address = await prisma.address.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends AddressFindUniqueOrThrowArgs>(args: SelectSubset<T, AddressFindUniqueOrThrowArgs<ExtArgs>>): Prisma__AddressClient<$Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Address that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AddressFindFirstArgs} args - Arguments to find a Address
+     * @example
+     * // Get one Address
+     * const address = await prisma.address.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends AddressFindFirstArgs>(args?: SelectSubset<T, AddressFindFirstArgs<ExtArgs>>): Prisma__AddressClient<$Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Address that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AddressFindFirstOrThrowArgs} args - Arguments to find a Address
+     * @example
+     * // Get one Address
+     * const address = await prisma.address.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends AddressFindFirstOrThrowArgs>(args?: SelectSubset<T, AddressFindFirstOrThrowArgs<ExtArgs>>): Prisma__AddressClient<$Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Addresses that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AddressFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Addresses
+     * const addresses = await prisma.address.findMany()
+     * 
+     * // Get first 10 Addresses
+     * const addresses = await prisma.address.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const addressWithIdOnly = await prisma.address.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends AddressFindManyArgs>(args?: SelectSubset<T, AddressFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Address.
+     * @param {AddressCreateArgs} args - Arguments to create a Address.
+     * @example
+     * // Create one Address
+     * const Address = await prisma.address.create({
+     *   data: {
+     *     // ... data to create a Address
+     *   }
+     * })
+     * 
+     */
+    create<T extends AddressCreateArgs>(args: SelectSubset<T, AddressCreateArgs<ExtArgs>>): Prisma__AddressClient<$Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Addresses.
+     * @param {AddressCreateManyArgs} args - Arguments to create many Addresses.
+     * @example
+     * // Create many Addresses
+     * const address = await prisma.address.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends AddressCreateManyArgs>(args?: SelectSubset<T, AddressCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Addresses and returns the data saved in the database.
+     * @param {AddressCreateManyAndReturnArgs} args - Arguments to create many Addresses.
+     * @example
+     * // Create many Addresses
+     * const address = await prisma.address.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Addresses and only return the `id`
+     * const addressWithIdOnly = await prisma.address.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends AddressCreateManyAndReturnArgs>(args?: SelectSubset<T, AddressCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Address.
+     * @param {AddressDeleteArgs} args - Arguments to delete one Address.
+     * @example
+     * // Delete one Address
+     * const Address = await prisma.address.delete({
+     *   where: {
+     *     // ... filter to delete one Address
+     *   }
+     * })
+     * 
+     */
+    delete<T extends AddressDeleteArgs>(args: SelectSubset<T, AddressDeleteArgs<ExtArgs>>): Prisma__AddressClient<$Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Address.
+     * @param {AddressUpdateArgs} args - Arguments to update one Address.
+     * @example
+     * // Update one Address
+     * const address = await prisma.address.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends AddressUpdateArgs>(args: SelectSubset<T, AddressUpdateArgs<ExtArgs>>): Prisma__AddressClient<$Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Addresses.
+     * @param {AddressDeleteManyArgs} args - Arguments to filter Addresses to delete.
+     * @example
+     * // Delete a few Addresses
+     * const { count } = await prisma.address.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends AddressDeleteManyArgs>(args?: SelectSubset<T, AddressDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Addresses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AddressUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Addresses
+     * const address = await prisma.address.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends AddressUpdateManyArgs>(args: SelectSubset<T, AddressUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Addresses and returns the data updated in the database.
+     * @param {AddressUpdateManyAndReturnArgs} args - Arguments to update many Addresses.
+     * @example
+     * // Update many Addresses
+     * const address = await prisma.address.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Addresses and only return the `id`
+     * const addressWithIdOnly = await prisma.address.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends AddressUpdateManyAndReturnArgs>(args: SelectSubset<T, AddressUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Address.
+     * @param {AddressUpsertArgs} args - Arguments to update or create a Address.
+     * @example
+     * // Update or create a Address
+     * const address = await prisma.address.upsert({
+     *   create: {
+     *     // ... data to create a Address
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Address we want to update
+     *   }
+     * })
+     */
+    upsert<T extends AddressUpsertArgs>(args: SelectSubset<T, AddressUpsertArgs<ExtArgs>>): Prisma__AddressClient<$Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Addresses.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AddressCountArgs} args - Arguments to filter Addresses to count.
+     * @example
+     * // Count the number of Addresses
+     * const count = await prisma.address.count({
+     *   where: {
+     *     // ... the filter for the Addresses we want to count
+     *   }
+     * })
+    **/
+    count<T extends AddressCountArgs>(
+      args?: Subset<T, AddressCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AddressCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Address.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AddressAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AddressAggregateArgs>(args: Subset<T, AddressAggregateArgs>): Prisma.PrismaPromise<GetAddressAggregateType<T>>
+
+    /**
+     * Group by Address.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AddressGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AddressGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AddressGroupByArgs['orderBy'] }
+        : { orderBy?: AddressGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AddressGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAddressGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Address model
+   */
+  readonly fields: AddressFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Address.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__AddressClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Address model
+   */
+  interface AddressFieldRefs {
+    readonly id: FieldRef<"Address", 'String'>
+    readonly userId: FieldRef<"Address", 'String'>
+    readonly name: FieldRef<"Address", 'String'>
+    readonly fullName: FieldRef<"Address", 'String'>
+    readonly addressLine1: FieldRef<"Address", 'String'>
+    readonly addressLine2: FieldRef<"Address", 'String'>
+    readonly city: FieldRef<"Address", 'String'>
+    readonly state: FieldRef<"Address", 'String'>
+    readonly postalCode: FieldRef<"Address", 'String'>
+    readonly country: FieldRef<"Address", 'String'>
+    readonly phone: FieldRef<"Address", 'String'>
+    readonly isDefault: FieldRef<"Address", 'Boolean'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Address findUnique
+   */
+  export type AddressFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Address
+     */
+    select?: AddressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Address
+     */
+    omit?: AddressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddressInclude<ExtArgs> | null
+    /**
+     * Filter, which Address to fetch.
+     */
+    where: AddressWhereUniqueInput
+  }
+
+  /**
+   * Address findUniqueOrThrow
+   */
+  export type AddressFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Address
+     */
+    select?: AddressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Address
+     */
+    omit?: AddressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddressInclude<ExtArgs> | null
+    /**
+     * Filter, which Address to fetch.
+     */
+    where: AddressWhereUniqueInput
+  }
+
+  /**
+   * Address findFirst
+   */
+  export type AddressFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Address
+     */
+    select?: AddressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Address
+     */
+    omit?: AddressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddressInclude<ExtArgs> | null
+    /**
+     * Filter, which Address to fetch.
+     */
+    where?: AddressWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Addresses to fetch.
+     */
+    orderBy?: AddressOrderByWithRelationInput | AddressOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Addresses.
+     */
+    cursor?: AddressWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Addresses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Addresses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Addresses.
+     */
+    distinct?: AddressScalarFieldEnum | AddressScalarFieldEnum[]
+  }
+
+  /**
+   * Address findFirstOrThrow
+   */
+  export type AddressFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Address
+     */
+    select?: AddressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Address
+     */
+    omit?: AddressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddressInclude<ExtArgs> | null
+    /**
+     * Filter, which Address to fetch.
+     */
+    where?: AddressWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Addresses to fetch.
+     */
+    orderBy?: AddressOrderByWithRelationInput | AddressOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Addresses.
+     */
+    cursor?: AddressWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Addresses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Addresses.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Addresses.
+     */
+    distinct?: AddressScalarFieldEnum | AddressScalarFieldEnum[]
+  }
+
+  /**
+   * Address findMany
+   */
+  export type AddressFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Address
+     */
+    select?: AddressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Address
+     */
+    omit?: AddressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddressInclude<ExtArgs> | null
+    /**
+     * Filter, which Addresses to fetch.
+     */
+    where?: AddressWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Addresses to fetch.
+     */
+    orderBy?: AddressOrderByWithRelationInput | AddressOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Addresses.
+     */
+    cursor?: AddressWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Addresses from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Addresses.
+     */
+    skip?: number
+    distinct?: AddressScalarFieldEnum | AddressScalarFieldEnum[]
+  }
+
+  /**
+   * Address create
+   */
+  export type AddressCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Address
+     */
+    select?: AddressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Address
+     */
+    omit?: AddressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddressInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Address.
+     */
+    data: XOR<AddressCreateInput, AddressUncheckedCreateInput>
+  }
+
+  /**
+   * Address createMany
+   */
+  export type AddressCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Addresses.
+     */
+    data: AddressCreateManyInput | AddressCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Address createManyAndReturn
+   */
+  export type AddressCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Address
+     */
+    select?: AddressSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Address
+     */
+    omit?: AddressOmit<ExtArgs> | null
+    /**
+     * The data used to create many Addresses.
+     */
+    data: AddressCreateManyInput | AddressCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddressIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Address update
+   */
+  export type AddressUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Address
+     */
+    select?: AddressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Address
+     */
+    omit?: AddressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddressInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Address.
+     */
+    data: XOR<AddressUpdateInput, AddressUncheckedUpdateInput>
+    /**
+     * Choose, which Address to update.
+     */
+    where: AddressWhereUniqueInput
+  }
+
+  /**
+   * Address updateMany
+   */
+  export type AddressUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Addresses.
+     */
+    data: XOR<AddressUpdateManyMutationInput, AddressUncheckedUpdateManyInput>
+    /**
+     * Filter which Addresses to update
+     */
+    where?: AddressWhereInput
+    /**
+     * Limit how many Addresses to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Address updateManyAndReturn
+   */
+  export type AddressUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Address
+     */
+    select?: AddressSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Address
+     */
+    omit?: AddressOmit<ExtArgs> | null
+    /**
+     * The data used to update Addresses.
+     */
+    data: XOR<AddressUpdateManyMutationInput, AddressUncheckedUpdateManyInput>
+    /**
+     * Filter which Addresses to update
+     */
+    where?: AddressWhereInput
+    /**
+     * Limit how many Addresses to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddressIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Address upsert
+   */
+  export type AddressUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Address
+     */
+    select?: AddressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Address
+     */
+    omit?: AddressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddressInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Address to update in case it exists.
+     */
+    where: AddressWhereUniqueInput
+    /**
+     * In case the Address found by the `where` argument doesn't exist, create a new Address with this data.
+     */
+    create: XOR<AddressCreateInput, AddressUncheckedCreateInput>
+    /**
+     * In case the Address was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AddressUpdateInput, AddressUncheckedUpdateInput>
+  }
+
+  /**
+   * Address delete
+   */
+  export type AddressDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Address
+     */
+    select?: AddressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Address
+     */
+    omit?: AddressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddressInclude<ExtArgs> | null
+    /**
+     * Filter which Address to delete.
+     */
+    where: AddressWhereUniqueInput
+  }
+
+  /**
+   * Address deleteMany
+   */
+  export type AddressDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Addresses to delete
+     */
+    where?: AddressWhereInput
+    /**
+     * Limit how many Addresses to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Address without action
+   */
+  export type AddressDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Address
+     */
+    select?: AddressSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Address
+     */
+    omit?: AddressOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: AddressInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model PaymentCard
+   */
+
+  export type AggregatePaymentCard = {
+    _count: PaymentCardCountAggregateOutputType | null
+    _min: PaymentCardMinAggregateOutputType | null
+    _max: PaymentCardMaxAggregateOutputType | null
+  }
+
+  export type PaymentCardMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    cardholderName: string | null
+    lastFourDigits: string | null
+    encryptedCardData: string | null
+    encryptedCvv: string | null
+    expiryMonth: string | null
+    expiryYear: string | null
+    cardType: string | null
+    billingAddressId: string | null
+    isDefault: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PaymentCardMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    cardholderName: string | null
+    lastFourDigits: string | null
+    encryptedCardData: string | null
+    encryptedCvv: string | null
+    expiryMonth: string | null
+    expiryYear: string | null
+    cardType: string | null
+    billingAddressId: string | null
+    isDefault: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type PaymentCardCountAggregateOutputType = {
+    id: number
+    userId: number
+    cardholderName: number
+    lastFourDigits: number
+    encryptedCardData: number
+    encryptedCvv: number
+    expiryMonth: number
+    expiryYear: number
+    cardType: number
+    billingAddressId: number
+    isDefault: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type PaymentCardMinAggregateInputType = {
+    id?: true
+    userId?: true
+    cardholderName?: true
+    lastFourDigits?: true
+    encryptedCardData?: true
+    encryptedCvv?: true
+    expiryMonth?: true
+    expiryYear?: true
+    cardType?: true
+    billingAddressId?: true
+    isDefault?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PaymentCardMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    cardholderName?: true
+    lastFourDigits?: true
+    encryptedCardData?: true
+    encryptedCvv?: true
+    expiryMonth?: true
+    expiryYear?: true
+    cardType?: true
+    billingAddressId?: true
+    isDefault?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type PaymentCardCountAggregateInputType = {
+    id?: true
+    userId?: true
+    cardholderName?: true
+    lastFourDigits?: true
+    encryptedCardData?: true
+    encryptedCvv?: true
+    expiryMonth?: true
+    expiryYear?: true
+    cardType?: true
+    billingAddressId?: true
+    isDefault?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type PaymentCardAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentCard to aggregate.
+     */
+    where?: PaymentCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentCards to fetch.
+     */
+    orderBy?: PaymentCardOrderByWithRelationInput | PaymentCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PaymentCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentCards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PaymentCards
+    **/
+    _count?: true | PaymentCardCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PaymentCardMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PaymentCardMaxAggregateInputType
+  }
+
+  export type GetPaymentCardAggregateType<T extends PaymentCardAggregateArgs> = {
+        [P in keyof T & keyof AggregatePaymentCard]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePaymentCard[P]>
+      : GetScalarType<T[P], AggregatePaymentCard[P]>
+  }
+
+
+
+
+  export type PaymentCardGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentCardWhereInput
+    orderBy?: PaymentCardOrderByWithAggregationInput | PaymentCardOrderByWithAggregationInput[]
+    by: PaymentCardScalarFieldEnum[] | PaymentCardScalarFieldEnum
+    having?: PaymentCardScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PaymentCardCountAggregateInputType | true
+    _min?: PaymentCardMinAggregateInputType
+    _max?: PaymentCardMaxAggregateInputType
+  }
+
+  export type PaymentCardGroupByOutputType = {
+    id: string
+    userId: string
+    cardholderName: string
+    lastFourDigits: string
+    encryptedCardData: string
+    encryptedCvv: string | null
+    expiryMonth: string
+    expiryYear: string
+    cardType: string
+    billingAddressId: string | null
+    isDefault: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: PaymentCardCountAggregateOutputType | null
+    _min: PaymentCardMinAggregateOutputType | null
+    _max: PaymentCardMaxAggregateOutputType | null
+  }
+
+  type GetPaymentCardGroupByPayload<T extends PaymentCardGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<PaymentCardGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PaymentCardGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PaymentCardGroupByOutputType[P]>
+            : GetScalarType<T[P], PaymentCardGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PaymentCardSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    cardholderName?: boolean
+    lastFourDigits?: boolean
+    encryptedCardData?: boolean
+    encryptedCvv?: boolean
+    expiryMonth?: boolean
+    expiryYear?: boolean
+    cardType?: boolean
+    billingAddressId?: boolean
+    isDefault?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentCard"]>
+
+  export type PaymentCardSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    cardholderName?: boolean
+    lastFourDigits?: boolean
+    encryptedCardData?: boolean
+    encryptedCvv?: boolean
+    expiryMonth?: boolean
+    expiryYear?: boolean
+    cardType?: boolean
+    billingAddressId?: boolean
+    isDefault?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentCard"]>
+
+  export type PaymentCardSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    cardholderName?: boolean
+    lastFourDigits?: boolean
+    encryptedCardData?: boolean
+    encryptedCvv?: boolean
+    expiryMonth?: boolean
+    expiryYear?: boolean
+    cardType?: boolean
+    billingAddressId?: boolean
+    isDefault?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["paymentCard"]>
+
+  export type PaymentCardSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    cardholderName?: boolean
+    lastFourDigits?: boolean
+    encryptedCardData?: boolean
+    encryptedCvv?: boolean
+    expiryMonth?: boolean
+    expiryYear?: boolean
+    cardType?: boolean
+    billingAddressId?: boolean
+    isDefault?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type PaymentCardOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "cardholderName" | "lastFourDigits" | "encryptedCardData" | "encryptedCvv" | "expiryMonth" | "expiryYear" | "cardType" | "billingAddressId" | "isDefault" | "createdAt" | "updatedAt", ExtArgs["result"]["paymentCard"]>
+  export type PaymentCardInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type PaymentCardIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+  export type PaymentCardIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | UserDefaultArgs<ExtArgs>
+  }
+
+  export type $PaymentCardPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "PaymentCard"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      userId: string
+      cardholderName: string
+      lastFourDigits: string
+      encryptedCardData: string
+      encryptedCvv: string | null
+      expiryMonth: string
+      expiryYear: string
+      cardType: string
+      billingAddressId: string | null
+      isDefault: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["paymentCard"]>
+    composites: {}
+  }
+
+  type PaymentCardGetPayload<S extends boolean | null | undefined | PaymentCardDefaultArgs> = $Result.GetResult<Prisma.$PaymentCardPayload, S>
+
+  type PaymentCardCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<PaymentCardFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: PaymentCardCountAggregateInputType | true
+    }
+
+  export interface PaymentCardDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['PaymentCard'], meta: { name: 'PaymentCard' } }
+    /**
+     * Find zero or one PaymentCard that matches the filter.
+     * @param {PaymentCardFindUniqueArgs} args - Arguments to find a PaymentCard
+     * @example
+     * // Get one PaymentCard
+     * const paymentCard = await prisma.paymentCard.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends PaymentCardFindUniqueArgs>(args: SelectSubset<T, PaymentCardFindUniqueArgs<ExtArgs>>): Prisma__PaymentCardClient<$Result.GetResult<Prisma.$PaymentCardPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one PaymentCard that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {PaymentCardFindUniqueOrThrowArgs} args - Arguments to find a PaymentCard
+     * @example
+     * // Get one PaymentCard
+     * const paymentCard = await prisma.paymentCard.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends PaymentCardFindUniqueOrThrowArgs>(args: SelectSubset<T, PaymentCardFindUniqueOrThrowArgs<ExtArgs>>): Prisma__PaymentCardClient<$Result.GetResult<Prisma.$PaymentCardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentCard that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentCardFindFirstArgs} args - Arguments to find a PaymentCard
+     * @example
+     * // Get one PaymentCard
+     * const paymentCard = await prisma.paymentCard.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends PaymentCardFindFirstArgs>(args?: SelectSubset<T, PaymentCardFindFirstArgs<ExtArgs>>): Prisma__PaymentCardClient<$Result.GetResult<Prisma.$PaymentCardPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first PaymentCard that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentCardFindFirstOrThrowArgs} args - Arguments to find a PaymentCard
+     * @example
+     * // Get one PaymentCard
+     * const paymentCard = await prisma.paymentCard.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends PaymentCardFindFirstOrThrowArgs>(args?: SelectSubset<T, PaymentCardFindFirstOrThrowArgs<ExtArgs>>): Prisma__PaymentCardClient<$Result.GetResult<Prisma.$PaymentCardPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more PaymentCards that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentCardFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PaymentCards
+     * const paymentCards = await prisma.paymentCard.findMany()
+     * 
+     * // Get first 10 PaymentCards
+     * const paymentCards = await prisma.paymentCard.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const paymentCardWithIdOnly = await prisma.paymentCard.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends PaymentCardFindManyArgs>(args?: SelectSubset<T, PaymentCardFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a PaymentCard.
+     * @param {PaymentCardCreateArgs} args - Arguments to create a PaymentCard.
+     * @example
+     * // Create one PaymentCard
+     * const PaymentCard = await prisma.paymentCard.create({
+     *   data: {
+     *     // ... data to create a PaymentCard
+     *   }
+     * })
+     * 
+     */
+    create<T extends PaymentCardCreateArgs>(args: SelectSubset<T, PaymentCardCreateArgs<ExtArgs>>): Prisma__PaymentCardClient<$Result.GetResult<Prisma.$PaymentCardPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many PaymentCards.
+     * @param {PaymentCardCreateManyArgs} args - Arguments to create many PaymentCards.
+     * @example
+     * // Create many PaymentCards
+     * const paymentCard = await prisma.paymentCard.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends PaymentCardCreateManyArgs>(args?: SelectSubset<T, PaymentCardCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many PaymentCards and returns the data saved in the database.
+     * @param {PaymentCardCreateManyAndReturnArgs} args - Arguments to create many PaymentCards.
+     * @example
+     * // Create many PaymentCards
+     * const paymentCard = await prisma.paymentCard.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many PaymentCards and only return the `id`
+     * const paymentCardWithIdOnly = await prisma.paymentCard.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends PaymentCardCreateManyAndReturnArgs>(args?: SelectSubset<T, PaymentCardCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentCardPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a PaymentCard.
+     * @param {PaymentCardDeleteArgs} args - Arguments to delete one PaymentCard.
+     * @example
+     * // Delete one PaymentCard
+     * const PaymentCard = await prisma.paymentCard.delete({
+     *   where: {
+     *     // ... filter to delete one PaymentCard
+     *   }
+     * })
+     * 
+     */
+    delete<T extends PaymentCardDeleteArgs>(args: SelectSubset<T, PaymentCardDeleteArgs<ExtArgs>>): Prisma__PaymentCardClient<$Result.GetResult<Prisma.$PaymentCardPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one PaymentCard.
+     * @param {PaymentCardUpdateArgs} args - Arguments to update one PaymentCard.
+     * @example
+     * // Update one PaymentCard
+     * const paymentCard = await prisma.paymentCard.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends PaymentCardUpdateArgs>(args: SelectSubset<T, PaymentCardUpdateArgs<ExtArgs>>): Prisma__PaymentCardClient<$Result.GetResult<Prisma.$PaymentCardPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more PaymentCards.
+     * @param {PaymentCardDeleteManyArgs} args - Arguments to filter PaymentCards to delete.
+     * @example
+     * // Delete a few PaymentCards
+     * const { count } = await prisma.paymentCard.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends PaymentCardDeleteManyArgs>(args?: SelectSubset<T, PaymentCardDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentCards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentCardUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PaymentCards
+     * const paymentCard = await prisma.paymentCard.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends PaymentCardUpdateManyArgs>(args: SelectSubset<T, PaymentCardUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PaymentCards and returns the data updated in the database.
+     * @param {PaymentCardUpdateManyAndReturnArgs} args - Arguments to update many PaymentCards.
+     * @example
+     * // Update many PaymentCards
+     * const paymentCard = await prisma.paymentCard.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more PaymentCards and only return the `id`
+     * const paymentCardWithIdOnly = await prisma.paymentCard.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends PaymentCardUpdateManyAndReturnArgs>(args: SelectSubset<T, PaymentCardUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentCardPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one PaymentCard.
+     * @param {PaymentCardUpsertArgs} args - Arguments to update or create a PaymentCard.
+     * @example
+     * // Update or create a PaymentCard
+     * const paymentCard = await prisma.paymentCard.upsert({
+     *   create: {
+     *     // ... data to create a PaymentCard
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PaymentCard we want to update
+     *   }
+     * })
+     */
+    upsert<T extends PaymentCardUpsertArgs>(args: SelectSubset<T, PaymentCardUpsertArgs<ExtArgs>>): Prisma__PaymentCardClient<$Result.GetResult<Prisma.$PaymentCardPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of PaymentCards.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentCardCountArgs} args - Arguments to filter PaymentCards to count.
+     * @example
+     * // Count the number of PaymentCards
+     * const count = await prisma.paymentCard.count({
+     *   where: {
+     *     // ... the filter for the PaymentCards we want to count
+     *   }
+     * })
+    **/
+    count<T extends PaymentCardCountArgs>(
+      args?: Subset<T, PaymentCardCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PaymentCardCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PaymentCard.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentCardAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PaymentCardAggregateArgs>(args: Subset<T, PaymentCardAggregateArgs>): Prisma.PrismaPromise<GetPaymentCardAggregateType<T>>
+
+    /**
+     * Group by PaymentCard.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PaymentCardGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PaymentCardGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PaymentCardGroupByArgs['orderBy'] }
+        : { orderBy?: PaymentCardGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PaymentCardGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPaymentCardGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the PaymentCard model
+   */
+  readonly fields: PaymentCardFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PaymentCard.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__PaymentCardClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the PaymentCard model
+   */
+  interface PaymentCardFieldRefs {
+    readonly id: FieldRef<"PaymentCard", 'String'>
+    readonly userId: FieldRef<"PaymentCard", 'String'>
+    readonly cardholderName: FieldRef<"PaymentCard", 'String'>
+    readonly lastFourDigits: FieldRef<"PaymentCard", 'String'>
+    readonly encryptedCardData: FieldRef<"PaymentCard", 'String'>
+    readonly encryptedCvv: FieldRef<"PaymentCard", 'String'>
+    readonly expiryMonth: FieldRef<"PaymentCard", 'String'>
+    readonly expiryYear: FieldRef<"PaymentCard", 'String'>
+    readonly cardType: FieldRef<"PaymentCard", 'String'>
+    readonly billingAddressId: FieldRef<"PaymentCard", 'String'>
+    readonly isDefault: FieldRef<"PaymentCard", 'Boolean'>
+    readonly createdAt: FieldRef<"PaymentCard", 'DateTime'>
+    readonly updatedAt: FieldRef<"PaymentCard", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * PaymentCard findUnique
+   */
+  export type PaymentCardFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentCard
+     */
+    select?: PaymentCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentCard
+     */
+    omit?: PaymentCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentCardInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentCard to fetch.
+     */
+    where: PaymentCardWhereUniqueInput
+  }
+
+  /**
+   * PaymentCard findUniqueOrThrow
+   */
+  export type PaymentCardFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentCard
+     */
+    select?: PaymentCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentCard
+     */
+    omit?: PaymentCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentCardInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentCard to fetch.
+     */
+    where: PaymentCardWhereUniqueInput
+  }
+
+  /**
+   * PaymentCard findFirst
+   */
+  export type PaymentCardFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentCard
+     */
+    select?: PaymentCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentCard
+     */
+    omit?: PaymentCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentCardInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentCard to fetch.
+     */
+    where?: PaymentCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentCards to fetch.
+     */
+    orderBy?: PaymentCardOrderByWithRelationInput | PaymentCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentCards.
+     */
+    cursor?: PaymentCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentCards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentCards.
+     */
+    distinct?: PaymentCardScalarFieldEnum | PaymentCardScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentCard findFirstOrThrow
+   */
+  export type PaymentCardFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentCard
+     */
+    select?: PaymentCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentCard
+     */
+    omit?: PaymentCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentCardInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentCard to fetch.
+     */
+    where?: PaymentCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentCards to fetch.
+     */
+    orderBy?: PaymentCardOrderByWithRelationInput | PaymentCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PaymentCards.
+     */
+    cursor?: PaymentCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentCards.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PaymentCards.
+     */
+    distinct?: PaymentCardScalarFieldEnum | PaymentCardScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentCard findMany
+   */
+  export type PaymentCardFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentCard
+     */
+    select?: PaymentCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentCard
+     */
+    omit?: PaymentCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentCardInclude<ExtArgs> | null
+    /**
+     * Filter, which PaymentCards to fetch.
+     */
+    where?: PaymentCardWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PaymentCards to fetch.
+     */
+    orderBy?: PaymentCardOrderByWithRelationInput | PaymentCardOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PaymentCards.
+     */
+    cursor?: PaymentCardWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PaymentCards from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PaymentCards.
+     */
+    skip?: number
+    distinct?: PaymentCardScalarFieldEnum | PaymentCardScalarFieldEnum[]
+  }
+
+  /**
+   * PaymentCard create
+   */
+  export type PaymentCardCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentCard
+     */
+    select?: PaymentCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentCard
+     */
+    omit?: PaymentCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentCardInclude<ExtArgs> | null
+    /**
+     * The data needed to create a PaymentCard.
+     */
+    data: XOR<PaymentCardCreateInput, PaymentCardUncheckedCreateInput>
+  }
+
+  /**
+   * PaymentCard createMany
+   */
+  export type PaymentCardCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many PaymentCards.
+     */
+    data: PaymentCardCreateManyInput | PaymentCardCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * PaymentCard createManyAndReturn
+   */
+  export type PaymentCardCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentCard
+     */
+    select?: PaymentCardSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentCard
+     */
+    omit?: PaymentCardOmit<ExtArgs> | null
+    /**
+     * The data used to create many PaymentCards.
+     */
+    data: PaymentCardCreateManyInput | PaymentCardCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentCardIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaymentCard update
+   */
+  export type PaymentCardUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentCard
+     */
+    select?: PaymentCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentCard
+     */
+    omit?: PaymentCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentCardInclude<ExtArgs> | null
+    /**
+     * The data needed to update a PaymentCard.
+     */
+    data: XOR<PaymentCardUpdateInput, PaymentCardUncheckedUpdateInput>
+    /**
+     * Choose, which PaymentCard to update.
+     */
+    where: PaymentCardWhereUniqueInput
+  }
+
+  /**
+   * PaymentCard updateMany
+   */
+  export type PaymentCardUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update PaymentCards.
+     */
+    data: XOR<PaymentCardUpdateManyMutationInput, PaymentCardUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentCards to update
+     */
+    where?: PaymentCardWhereInput
+    /**
+     * Limit how many PaymentCards to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentCard updateManyAndReturn
+   */
+  export type PaymentCardUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentCard
+     */
+    select?: PaymentCardSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentCard
+     */
+    omit?: PaymentCardOmit<ExtArgs> | null
+    /**
+     * The data used to update PaymentCards.
+     */
+    data: XOR<PaymentCardUpdateManyMutationInput, PaymentCardUncheckedUpdateManyInput>
+    /**
+     * Filter which PaymentCards to update
+     */
+    where?: PaymentCardWhereInput
+    /**
+     * Limit how many PaymentCards to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentCardIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * PaymentCard upsert
+   */
+  export type PaymentCardUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentCard
+     */
+    select?: PaymentCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentCard
+     */
+    omit?: PaymentCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentCardInclude<ExtArgs> | null
+    /**
+     * The filter to search for the PaymentCard to update in case it exists.
+     */
+    where: PaymentCardWhereUniqueInput
+    /**
+     * In case the PaymentCard found by the `where` argument doesn't exist, create a new PaymentCard with this data.
+     */
+    create: XOR<PaymentCardCreateInput, PaymentCardUncheckedCreateInput>
+    /**
+     * In case the PaymentCard was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PaymentCardUpdateInput, PaymentCardUncheckedUpdateInput>
+  }
+
+  /**
+   * PaymentCard delete
+   */
+  export type PaymentCardDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentCard
+     */
+    select?: PaymentCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentCard
+     */
+    omit?: PaymentCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentCardInclude<ExtArgs> | null
+    /**
+     * Filter which PaymentCard to delete.
+     */
+    where: PaymentCardWhereUniqueInput
+  }
+
+  /**
+   * PaymentCard deleteMany
+   */
+  export type PaymentCardDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which PaymentCards to delete
+     */
+    where?: PaymentCardWhereInput
+    /**
+     * Limit how many PaymentCards to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * PaymentCard without action
+   */
+  export type PaymentCardDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentCard
+     */
+    select?: PaymentCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentCard
+     */
+    omit?: PaymentCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentCardInclude<ExtArgs> | null
   }
 
 
@@ -4497,11 +7172,51 @@ export namespace Prisma {
     email: 'email',
     password: 'password',
     role: 'role',
+    emailVerified: 'emailVerified',
+    verificationToken: 'verificationToken',
+    isActive: 'isActive',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+  export const AddressScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    name: 'name',
+    fullName: 'fullName',
+    addressLine1: 'addressLine1',
+    addressLine2: 'addressLine2',
+    city: 'city',
+    state: 'state',
+    postalCode: 'postalCode',
+    country: 'country',
+    phone: 'phone',
+    isDefault: 'isDefault'
+  };
+
+  export type AddressScalarFieldEnum = (typeof AddressScalarFieldEnum)[keyof typeof AddressScalarFieldEnum]
+
+
+  export const PaymentCardScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    cardholderName: 'cardholderName',
+    lastFourDigits: 'lastFourDigits',
+    encryptedCardData: 'encryptedCardData',
+    encryptedCvv: 'encryptedCvv',
+    expiryMonth: 'expiryMonth',
+    expiryYear: 'expiryYear',
+    cardType: 'cardType',
+    billingAddressId: 'billingAddressId',
+    isDefault: 'isDefault',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type PaymentCardScalarFieldEnum = (typeof PaymentCardScalarFieldEnum)[keyof typeof PaymentCardScalarFieldEnum]
 
 
   export const CategoryScalarFieldEnum: {
@@ -4685,8 +7400,13 @@ export namespace Prisma {
     email?: StringFilter<"User"> | string
     password?: StringFilter<"User"> | string
     role?: EnumRoleFilter<"User"> | $Enums.Role
+    emailVerified?: DateTimeNullableFilter<"User"> | Date | string | null
+    verificationToken?: StringNullableFilter<"User"> | string | null
+    isActive?: BoolFilter<"User"> | boolean
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    addresses?: AddressListRelationFilter
+    paymentCards?: PaymentCardListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -4695,8 +7415,13 @@ export namespace Prisma {
     email?: SortOrder
     password?: SortOrder
     role?: SortOrder
+    emailVerified?: SortOrderInput | SortOrder
+    verificationToken?: SortOrderInput | SortOrder
+    isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    addresses?: AddressOrderByRelationAggregateInput
+    paymentCards?: PaymentCardOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -4708,8 +7433,13 @@ export namespace Prisma {
     name?: StringNullableFilter<"User"> | string | null
     password?: StringFilter<"User"> | string
     role?: EnumRoleFilter<"User"> | $Enums.Role
+    emailVerified?: DateTimeNullableFilter<"User"> | Date | string | null
+    verificationToken?: StringNullableFilter<"User"> | string | null
+    isActive?: BoolFilter<"User"> | boolean
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
+    addresses?: AddressListRelationFilter
+    paymentCards?: PaymentCardListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -4718,6 +7448,9 @@ export namespace Prisma {
     email?: SortOrder
     password?: SortOrder
     role?: SortOrder
+    emailVerified?: SortOrderInput | SortOrder
+    verificationToken?: SortOrderInput | SortOrder
+    isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
@@ -4734,8 +7467,196 @@ export namespace Prisma {
     email?: StringWithAggregatesFilter<"User"> | string
     password?: StringWithAggregatesFilter<"User"> | string
     role?: EnumRoleWithAggregatesFilter<"User"> | $Enums.Role
+    emailVerified?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    verificationToken?: StringNullableWithAggregatesFilter<"User"> | string | null
+    isActive?: BoolWithAggregatesFilter<"User"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+  }
+
+  export type AddressWhereInput = {
+    AND?: AddressWhereInput | AddressWhereInput[]
+    OR?: AddressWhereInput[]
+    NOT?: AddressWhereInput | AddressWhereInput[]
+    id?: StringFilter<"Address"> | string
+    userId?: StringFilter<"Address"> | string
+    name?: StringFilter<"Address"> | string
+    fullName?: StringFilter<"Address"> | string
+    addressLine1?: StringFilter<"Address"> | string
+    addressLine2?: StringNullableFilter<"Address"> | string | null
+    city?: StringFilter<"Address"> | string
+    state?: StringFilter<"Address"> | string
+    postalCode?: StringFilter<"Address"> | string
+    country?: StringFilter<"Address"> | string
+    phone?: StringFilter<"Address"> | string
+    isDefault?: BoolFilter<"Address"> | boolean
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type AddressOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    fullName?: SortOrder
+    addressLine1?: SortOrder
+    addressLine2?: SortOrderInput | SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    postalCode?: SortOrder
+    country?: SortOrder
+    phone?: SortOrder
+    isDefault?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type AddressWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: AddressWhereInput | AddressWhereInput[]
+    OR?: AddressWhereInput[]
+    NOT?: AddressWhereInput | AddressWhereInput[]
+    userId?: StringFilter<"Address"> | string
+    name?: StringFilter<"Address"> | string
+    fullName?: StringFilter<"Address"> | string
+    addressLine1?: StringFilter<"Address"> | string
+    addressLine2?: StringNullableFilter<"Address"> | string | null
+    city?: StringFilter<"Address"> | string
+    state?: StringFilter<"Address"> | string
+    postalCode?: StringFilter<"Address"> | string
+    country?: StringFilter<"Address"> | string
+    phone?: StringFilter<"Address"> | string
+    isDefault?: BoolFilter<"Address"> | boolean
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type AddressOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    fullName?: SortOrder
+    addressLine1?: SortOrder
+    addressLine2?: SortOrderInput | SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    postalCode?: SortOrder
+    country?: SortOrder
+    phone?: SortOrder
+    isDefault?: SortOrder
+    _count?: AddressCountOrderByAggregateInput
+    _max?: AddressMaxOrderByAggregateInput
+    _min?: AddressMinOrderByAggregateInput
+  }
+
+  export type AddressScalarWhereWithAggregatesInput = {
+    AND?: AddressScalarWhereWithAggregatesInput | AddressScalarWhereWithAggregatesInput[]
+    OR?: AddressScalarWhereWithAggregatesInput[]
+    NOT?: AddressScalarWhereWithAggregatesInput | AddressScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Address"> | string
+    userId?: StringWithAggregatesFilter<"Address"> | string
+    name?: StringWithAggregatesFilter<"Address"> | string
+    fullName?: StringWithAggregatesFilter<"Address"> | string
+    addressLine1?: StringWithAggregatesFilter<"Address"> | string
+    addressLine2?: StringNullableWithAggregatesFilter<"Address"> | string | null
+    city?: StringWithAggregatesFilter<"Address"> | string
+    state?: StringWithAggregatesFilter<"Address"> | string
+    postalCode?: StringWithAggregatesFilter<"Address"> | string
+    country?: StringWithAggregatesFilter<"Address"> | string
+    phone?: StringWithAggregatesFilter<"Address"> | string
+    isDefault?: BoolWithAggregatesFilter<"Address"> | boolean
+  }
+
+  export type PaymentCardWhereInput = {
+    AND?: PaymentCardWhereInput | PaymentCardWhereInput[]
+    OR?: PaymentCardWhereInput[]
+    NOT?: PaymentCardWhereInput | PaymentCardWhereInput[]
+    id?: StringFilter<"PaymentCard"> | string
+    userId?: StringFilter<"PaymentCard"> | string
+    cardholderName?: StringFilter<"PaymentCard"> | string
+    lastFourDigits?: StringFilter<"PaymentCard"> | string
+    encryptedCardData?: StringFilter<"PaymentCard"> | string
+    encryptedCvv?: StringNullableFilter<"PaymentCard"> | string | null
+    expiryMonth?: StringFilter<"PaymentCard"> | string
+    expiryYear?: StringFilter<"PaymentCard"> | string
+    cardType?: StringFilter<"PaymentCard"> | string
+    billingAddressId?: StringNullableFilter<"PaymentCard"> | string | null
+    isDefault?: BoolFilter<"PaymentCard"> | boolean
+    createdAt?: DateTimeFilter<"PaymentCard"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentCard"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }
+
+  export type PaymentCardOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    cardholderName?: SortOrder
+    lastFourDigits?: SortOrder
+    encryptedCardData?: SortOrder
+    encryptedCvv?: SortOrderInput | SortOrder
+    expiryMonth?: SortOrder
+    expiryYear?: SortOrder
+    cardType?: SortOrder
+    billingAddressId?: SortOrderInput | SortOrder
+    isDefault?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type PaymentCardWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: PaymentCardWhereInput | PaymentCardWhereInput[]
+    OR?: PaymentCardWhereInput[]
+    NOT?: PaymentCardWhereInput | PaymentCardWhereInput[]
+    userId?: StringFilter<"PaymentCard"> | string
+    cardholderName?: StringFilter<"PaymentCard"> | string
+    lastFourDigits?: StringFilter<"PaymentCard"> | string
+    encryptedCardData?: StringFilter<"PaymentCard"> | string
+    encryptedCvv?: StringNullableFilter<"PaymentCard"> | string | null
+    expiryMonth?: StringFilter<"PaymentCard"> | string
+    expiryYear?: StringFilter<"PaymentCard"> | string
+    cardType?: StringFilter<"PaymentCard"> | string
+    billingAddressId?: StringNullableFilter<"PaymentCard"> | string | null
+    isDefault?: BoolFilter<"PaymentCard"> | boolean
+    createdAt?: DateTimeFilter<"PaymentCard"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentCard"> | Date | string
+    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+  }, "id">
+
+  export type PaymentCardOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    cardholderName?: SortOrder
+    lastFourDigits?: SortOrder
+    encryptedCardData?: SortOrder
+    encryptedCvv?: SortOrderInput | SortOrder
+    expiryMonth?: SortOrder
+    expiryYear?: SortOrder
+    cardType?: SortOrder
+    billingAddressId?: SortOrderInput | SortOrder
+    isDefault?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: PaymentCardCountOrderByAggregateInput
+    _max?: PaymentCardMaxOrderByAggregateInput
+    _min?: PaymentCardMinOrderByAggregateInput
+  }
+
+  export type PaymentCardScalarWhereWithAggregatesInput = {
+    AND?: PaymentCardScalarWhereWithAggregatesInput | PaymentCardScalarWhereWithAggregatesInput[]
+    OR?: PaymentCardScalarWhereWithAggregatesInput[]
+    NOT?: PaymentCardScalarWhereWithAggregatesInput | PaymentCardScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"PaymentCard"> | string
+    userId?: StringWithAggregatesFilter<"PaymentCard"> | string
+    cardholderName?: StringWithAggregatesFilter<"PaymentCard"> | string
+    lastFourDigits?: StringWithAggregatesFilter<"PaymentCard"> | string
+    encryptedCardData?: StringWithAggregatesFilter<"PaymentCard"> | string
+    encryptedCvv?: StringNullableWithAggregatesFilter<"PaymentCard"> | string | null
+    expiryMonth?: StringWithAggregatesFilter<"PaymentCard"> | string
+    expiryYear?: StringWithAggregatesFilter<"PaymentCard"> | string
+    cardType?: StringWithAggregatesFilter<"PaymentCard"> | string
+    billingAddressId?: StringNullableWithAggregatesFilter<"PaymentCard"> | string | null
+    isDefault?: BoolWithAggregatesFilter<"PaymentCard"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"PaymentCard"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"PaymentCard"> | Date | string
   }
 
   export type CategoryWhereInput = {
@@ -4912,8 +7833,13 @@ export namespace Prisma {
     email: string
     password: string
     role?: $Enums.Role
+    emailVerified?: Date | string | null
+    verificationToken?: string | null
+    isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    addresses?: AddressCreateNestedManyWithoutUserInput
+    paymentCards?: PaymentCardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -4922,8 +7848,13 @@ export namespace Prisma {
     email: string
     password: string
     role?: $Enums.Role
+    emailVerified?: Date | string | null
+    verificationToken?: string | null
+    isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    addresses?: AddressUncheckedCreateNestedManyWithoutUserInput
+    paymentCards?: PaymentCardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -4932,8 +7863,13 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    addresses?: AddressUpdateManyWithoutUserNestedInput
+    paymentCards?: PaymentCardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -4942,8 +7878,13 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    addresses?: AddressUncheckedUpdateManyWithoutUserNestedInput
+    paymentCards?: PaymentCardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -4952,6 +7893,9 @@ export namespace Prisma {
     email: string
     password: string
     role?: $Enums.Role
+    emailVerified?: Date | string | null
+    verificationToken?: string | null
+    isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -4962,6 +7906,9 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -4972,6 +7919,224 @@ export namespace Prisma {
     email?: StringFieldUpdateOperationsInput | string
     password?: StringFieldUpdateOperationsInput | string
     role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AddressCreateInput = {
+    id?: string
+    name: string
+    fullName: string
+    addressLine1: string
+    addressLine2?: string | null
+    city: string
+    state: string
+    postalCode: string
+    country: string
+    phone: string
+    isDefault?: boolean
+    user: UserCreateNestedOneWithoutAddressesInput
+  }
+
+  export type AddressUncheckedCreateInput = {
+    id?: string
+    userId: string
+    name: string
+    fullName: string
+    addressLine1: string
+    addressLine2?: string | null
+    city: string
+    state: string
+    postalCode: string
+    country: string
+    phone: string
+    isDefault?: boolean
+  }
+
+  export type AddressUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    addressLine1?: StringFieldUpdateOperationsInput | string
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    user?: UserUpdateOneRequiredWithoutAddressesNestedInput
+  }
+
+  export type AddressUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    addressLine1?: StringFieldUpdateOperationsInput | string
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type AddressCreateManyInput = {
+    id?: string
+    userId: string
+    name: string
+    fullName: string
+    addressLine1: string
+    addressLine2?: string | null
+    city: string
+    state: string
+    postalCode: string
+    country: string
+    phone: string
+    isDefault?: boolean
+  }
+
+  export type AddressUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    addressLine1?: StringFieldUpdateOperationsInput | string
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type AddressUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    addressLine1?: StringFieldUpdateOperationsInput | string
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type PaymentCardCreateInput = {
+    id?: string
+    cardholderName: string
+    lastFourDigits: string
+    encryptedCardData: string
+    encryptedCvv?: string | null
+    expiryMonth: string
+    expiryYear: string
+    cardType: string
+    billingAddressId?: string | null
+    isDefault?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutPaymentCardsInput
+  }
+
+  export type PaymentCardUncheckedCreateInput = {
+    id?: string
+    userId: string
+    cardholderName: string
+    lastFourDigits: string
+    encryptedCardData: string
+    encryptedCvv?: string | null
+    expiryMonth: string
+    expiryYear: string
+    cardType: string
+    billingAddressId?: string | null
+    isDefault?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentCardUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardholderName?: StringFieldUpdateOperationsInput | string
+    lastFourDigits?: StringFieldUpdateOperationsInput | string
+    encryptedCardData?: StringFieldUpdateOperationsInput | string
+    encryptedCvv?: NullableStringFieldUpdateOperationsInput | string | null
+    expiryMonth?: StringFieldUpdateOperationsInput | string
+    expiryYear?: StringFieldUpdateOperationsInput | string
+    cardType?: StringFieldUpdateOperationsInput | string
+    billingAddressId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutPaymentCardsNestedInput
+  }
+
+  export type PaymentCardUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    cardholderName?: StringFieldUpdateOperationsInput | string
+    lastFourDigits?: StringFieldUpdateOperationsInput | string
+    encryptedCardData?: StringFieldUpdateOperationsInput | string
+    encryptedCvv?: NullableStringFieldUpdateOperationsInput | string | null
+    expiryMonth?: StringFieldUpdateOperationsInput | string
+    expiryYear?: StringFieldUpdateOperationsInput | string
+    cardType?: StringFieldUpdateOperationsInput | string
+    billingAddressId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentCardCreateManyInput = {
+    id?: string
+    userId: string
+    cardholderName: string
+    lastFourDigits: string
+    encryptedCardData: string
+    encryptedCvv?: string | null
+    expiryMonth: string
+    expiryYear: string
+    cardType: string
+    billingAddressId?: string | null
+    isDefault?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentCardUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardholderName?: StringFieldUpdateOperationsInput | string
+    lastFourDigits?: StringFieldUpdateOperationsInput | string
+    encryptedCardData?: StringFieldUpdateOperationsInput | string
+    encryptedCvv?: NullableStringFieldUpdateOperationsInput | string | null
+    expiryMonth?: StringFieldUpdateOperationsInput | string
+    expiryYear?: StringFieldUpdateOperationsInput | string
+    cardType?: StringFieldUpdateOperationsInput | string
+    billingAddressId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentCardUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    cardholderName?: StringFieldUpdateOperationsInput | string
+    lastFourDigits?: StringFieldUpdateOperationsInput | string
+    encryptedCardData?: StringFieldUpdateOperationsInput | string
+    encryptedCvv?: NullableStringFieldUpdateOperationsInput | string | null
+    expiryMonth?: StringFieldUpdateOperationsInput | string
+    expiryYear?: StringFieldUpdateOperationsInput | string
+    cardType?: StringFieldUpdateOperationsInput | string
+    billingAddressId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -5201,6 +8366,22 @@ export namespace Prisma {
     not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -5212,9 +8393,29 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type AddressListRelationFilter = {
+    every?: AddressWhereInput
+    some?: AddressWhereInput
+    none?: AddressWhereInput
+  }
+
+  export type PaymentCardListRelationFilter = {
+    every?: PaymentCardWhereInput
+    some?: PaymentCardWhereInput
+    none?: PaymentCardWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
+  }
+
+  export type AddressOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PaymentCardOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type UserCountOrderByAggregateInput = {
@@ -5223,6 +8424,9 @@ export namespace Prisma {
     email?: SortOrder
     password?: SortOrder
     role?: SortOrder
+    emailVerified?: SortOrder
+    verificationToken?: SortOrder
+    isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -5233,6 +8437,9 @@ export namespace Prisma {
     email?: SortOrder
     password?: SortOrder
     role?: SortOrder
+    emailVerified?: SortOrder
+    verificationToken?: SortOrder
+    isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -5243,6 +8450,9 @@ export namespace Prisma {
     email?: SortOrder
     password?: SortOrder
     role?: SortOrder
+    emailVerified?: SortOrder
+    verificationToken?: SortOrder
+    isActive?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -5293,6 +8503,28 @@ export namespace Prisma {
     _max?: NestedEnumRoleFilter<$PrismaModel>
   }
 
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -5307,9 +8539,102 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
+  export type UserScalarRelationFilter = {
+    is?: UserWhereInput
+    isNot?: UserWhereInput
+  }
+
+  export type AddressCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    fullName?: SortOrder
+    addressLine1?: SortOrder
+    addressLine2?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    postalCode?: SortOrder
+    country?: SortOrder
+    phone?: SortOrder
+    isDefault?: SortOrder
+  }
+
+  export type AddressMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    fullName?: SortOrder
+    addressLine1?: SortOrder
+    addressLine2?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    postalCode?: SortOrder
+    country?: SortOrder
+    phone?: SortOrder
+    isDefault?: SortOrder
+  }
+
+  export type AddressMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    name?: SortOrder
+    fullName?: SortOrder
+    addressLine1?: SortOrder
+    addressLine2?: SortOrder
+    city?: SortOrder
+    state?: SortOrder
+    postalCode?: SortOrder
+    country?: SortOrder
+    phone?: SortOrder
+    isDefault?: SortOrder
+  }
+
+  export type PaymentCardCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    cardholderName?: SortOrder
+    lastFourDigits?: SortOrder
+    encryptedCardData?: SortOrder
+    encryptedCvv?: SortOrder
+    expiryMonth?: SortOrder
+    expiryYear?: SortOrder
+    cardType?: SortOrder
+    billingAddressId?: SortOrder
+    isDefault?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentCardMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    cardholderName?: SortOrder
+    lastFourDigits?: SortOrder
+    encryptedCardData?: SortOrder
+    encryptedCvv?: SortOrder
+    expiryMonth?: SortOrder
+    expiryYear?: SortOrder
+    cardType?: SortOrder
+    billingAddressId?: SortOrder
+    isDefault?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type PaymentCardMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    cardholderName?: SortOrder
+    lastFourDigits?: SortOrder
+    encryptedCardData?: SortOrder
+    encryptedCvv?: SortOrder
+    expiryMonth?: SortOrder
+    expiryYear?: SortOrder
+    cardType?: SortOrder
+    billingAddressId?: SortOrder
+    isDefault?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type CategoryNullableScalarRelationFilter = {
@@ -5365,14 +8690,6 @@ export namespace Prisma {
     parentId?: SortOrder
     image?: SortOrder
     isActive?: SortOrder
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type FloatFilter<$PrismaModel = never> = {
@@ -5543,6 +8860,34 @@ export namespace Prisma {
     _max?: NestedJsonNullableFilter<$PrismaModel>
   }
 
+  export type AddressCreateNestedManyWithoutUserInput = {
+    create?: XOR<AddressCreateWithoutUserInput, AddressUncheckedCreateWithoutUserInput> | AddressCreateWithoutUserInput[] | AddressUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AddressCreateOrConnectWithoutUserInput | AddressCreateOrConnectWithoutUserInput[]
+    createMany?: AddressCreateManyUserInputEnvelope
+    connect?: AddressWhereUniqueInput | AddressWhereUniqueInput[]
+  }
+
+  export type PaymentCardCreateNestedManyWithoutUserInput = {
+    create?: XOR<PaymentCardCreateWithoutUserInput, PaymentCardUncheckedCreateWithoutUserInput> | PaymentCardCreateWithoutUserInput[] | PaymentCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PaymentCardCreateOrConnectWithoutUserInput | PaymentCardCreateOrConnectWithoutUserInput[]
+    createMany?: PaymentCardCreateManyUserInputEnvelope
+    connect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+  }
+
+  export type AddressUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<AddressCreateWithoutUserInput, AddressUncheckedCreateWithoutUserInput> | AddressCreateWithoutUserInput[] | AddressUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AddressCreateOrConnectWithoutUserInput | AddressCreateOrConnectWithoutUserInput[]
+    createMany?: AddressCreateManyUserInputEnvelope
+    connect?: AddressWhereUniqueInput | AddressWhereUniqueInput[]
+  }
+
+  export type PaymentCardUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<PaymentCardCreateWithoutUserInput, PaymentCardUncheckedCreateWithoutUserInput> | PaymentCardCreateWithoutUserInput[] | PaymentCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PaymentCardCreateOrConnectWithoutUserInput | PaymentCardCreateOrConnectWithoutUserInput[]
+    createMany?: PaymentCardCreateManyUserInputEnvelope
+    connect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -5555,8 +8900,100 @@ export namespace Prisma {
     set?: $Enums.Role
   }
 
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
   export type DateTimeFieldUpdateOperationsInput = {
     set?: Date | string
+  }
+
+  export type AddressUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AddressCreateWithoutUserInput, AddressUncheckedCreateWithoutUserInput> | AddressCreateWithoutUserInput[] | AddressUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AddressCreateOrConnectWithoutUserInput | AddressCreateOrConnectWithoutUserInput[]
+    upsert?: AddressUpsertWithWhereUniqueWithoutUserInput | AddressUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AddressCreateManyUserInputEnvelope
+    set?: AddressWhereUniqueInput | AddressWhereUniqueInput[]
+    disconnect?: AddressWhereUniqueInput | AddressWhereUniqueInput[]
+    delete?: AddressWhereUniqueInput | AddressWhereUniqueInput[]
+    connect?: AddressWhereUniqueInput | AddressWhereUniqueInput[]
+    update?: AddressUpdateWithWhereUniqueWithoutUserInput | AddressUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AddressUpdateManyWithWhereWithoutUserInput | AddressUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AddressScalarWhereInput | AddressScalarWhereInput[]
+  }
+
+  export type PaymentCardUpdateManyWithoutUserNestedInput = {
+    create?: XOR<PaymentCardCreateWithoutUserInput, PaymentCardUncheckedCreateWithoutUserInput> | PaymentCardCreateWithoutUserInput[] | PaymentCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PaymentCardCreateOrConnectWithoutUserInput | PaymentCardCreateOrConnectWithoutUserInput[]
+    upsert?: PaymentCardUpsertWithWhereUniqueWithoutUserInput | PaymentCardUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: PaymentCardCreateManyUserInputEnvelope
+    set?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    disconnect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    delete?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    connect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    update?: PaymentCardUpdateWithWhereUniqueWithoutUserInput | PaymentCardUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: PaymentCardUpdateManyWithWhereWithoutUserInput | PaymentCardUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: PaymentCardScalarWhereInput | PaymentCardScalarWhereInput[]
+  }
+
+  export type AddressUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<AddressCreateWithoutUserInput, AddressUncheckedCreateWithoutUserInput> | AddressCreateWithoutUserInput[] | AddressUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: AddressCreateOrConnectWithoutUserInput | AddressCreateOrConnectWithoutUserInput[]
+    upsert?: AddressUpsertWithWhereUniqueWithoutUserInput | AddressUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: AddressCreateManyUserInputEnvelope
+    set?: AddressWhereUniqueInput | AddressWhereUniqueInput[]
+    disconnect?: AddressWhereUniqueInput | AddressWhereUniqueInput[]
+    delete?: AddressWhereUniqueInput | AddressWhereUniqueInput[]
+    connect?: AddressWhereUniqueInput | AddressWhereUniqueInput[]
+    update?: AddressUpdateWithWhereUniqueWithoutUserInput | AddressUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: AddressUpdateManyWithWhereWithoutUserInput | AddressUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: AddressScalarWhereInput | AddressScalarWhereInput[]
+  }
+
+  export type PaymentCardUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<PaymentCardCreateWithoutUserInput, PaymentCardUncheckedCreateWithoutUserInput> | PaymentCardCreateWithoutUserInput[] | PaymentCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PaymentCardCreateOrConnectWithoutUserInput | PaymentCardCreateOrConnectWithoutUserInput[]
+    upsert?: PaymentCardUpsertWithWhereUniqueWithoutUserInput | PaymentCardUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: PaymentCardCreateManyUserInputEnvelope
+    set?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    disconnect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    delete?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    connect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    update?: PaymentCardUpdateWithWhereUniqueWithoutUserInput | PaymentCardUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: PaymentCardUpdateManyWithWhereWithoutUserInput | PaymentCardUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: PaymentCardScalarWhereInput | PaymentCardScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutAddressesInput = {
+    create?: XOR<UserCreateWithoutAddressesInput, UserUncheckedCreateWithoutAddressesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAddressesInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutAddressesNestedInput = {
+    create?: XOR<UserCreateWithoutAddressesInput, UserUncheckedCreateWithoutAddressesInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAddressesInput
+    upsert?: UserUpsertWithoutAddressesInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAddressesInput, UserUpdateWithoutAddressesInput>, UserUncheckedUpdateWithoutAddressesInput>
+  }
+
+  export type UserCreateNestedOneWithoutPaymentCardsInput = {
+    create?: XOR<UserCreateWithoutPaymentCardsInput, UserUncheckedCreateWithoutPaymentCardsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPaymentCardsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneRequiredWithoutPaymentCardsNestedInput = {
+    create?: XOR<UserCreateWithoutPaymentCardsInput, UserUncheckedCreateWithoutPaymentCardsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutPaymentCardsInput
+    upsert?: UserUpsertWithoutPaymentCardsInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPaymentCardsInput, UserUpdateWithoutPaymentCardsInput>, UserUncheckedUpdateWithoutPaymentCardsInput>
   }
 
   export type CategoryCreateNestedOneWithoutChildrenInput = {
@@ -5591,10 +9028,6 @@ export namespace Prisma {
     connectOrCreate?: ProductCreateOrConnectWithoutCategoryInput | ProductCreateOrConnectWithoutCategoryInput[]
     createMany?: ProductCreateManyCategoryInputEnvelope
     connect?: ProductWhereUniqueInput | ProductWhereUniqueInput[]
-  }
-
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
   }
 
   export type CategoryUpdateOneWithoutChildrenNestedInput = {
@@ -5746,6 +9179,22 @@ export namespace Prisma {
     not?: NestedEnumRoleFilter<$PrismaModel> | $Enums.Role
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type NestedDateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -5823,6 +9272,28 @@ export namespace Prisma {
     _max?: NestedEnumRoleFilter<$PrismaModel>
   }
 
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -5835,19 +9306,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
-  }
-
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
-  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type NestedFloatFilter<$PrismaModel = never> = {
@@ -5925,6 +9383,297 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type AddressCreateWithoutUserInput = {
+    id?: string
+    name: string
+    fullName: string
+    addressLine1: string
+    addressLine2?: string | null
+    city: string
+    state: string
+    postalCode: string
+    country: string
+    phone: string
+    isDefault?: boolean
+  }
+
+  export type AddressUncheckedCreateWithoutUserInput = {
+    id?: string
+    name: string
+    fullName: string
+    addressLine1: string
+    addressLine2?: string | null
+    city: string
+    state: string
+    postalCode: string
+    country: string
+    phone: string
+    isDefault?: boolean
+  }
+
+  export type AddressCreateOrConnectWithoutUserInput = {
+    where: AddressWhereUniqueInput
+    create: XOR<AddressCreateWithoutUserInput, AddressUncheckedCreateWithoutUserInput>
+  }
+
+  export type AddressCreateManyUserInputEnvelope = {
+    data: AddressCreateManyUserInput | AddressCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PaymentCardCreateWithoutUserInput = {
+    id?: string
+    cardholderName: string
+    lastFourDigits: string
+    encryptedCardData: string
+    encryptedCvv?: string | null
+    expiryMonth: string
+    expiryYear: string
+    cardType: string
+    billingAddressId?: string | null
+    isDefault?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentCardUncheckedCreateWithoutUserInput = {
+    id?: string
+    cardholderName: string
+    lastFourDigits: string
+    encryptedCardData: string
+    encryptedCvv?: string | null
+    expiryMonth: string
+    expiryYear: string
+    cardType: string
+    billingAddressId?: string | null
+    isDefault?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PaymentCardCreateOrConnectWithoutUserInput = {
+    where: PaymentCardWhereUniqueInput
+    create: XOR<PaymentCardCreateWithoutUserInput, PaymentCardUncheckedCreateWithoutUserInput>
+  }
+
+  export type PaymentCardCreateManyUserInputEnvelope = {
+    data: PaymentCardCreateManyUserInput | PaymentCardCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type AddressUpsertWithWhereUniqueWithoutUserInput = {
+    where: AddressWhereUniqueInput
+    update: XOR<AddressUpdateWithoutUserInput, AddressUncheckedUpdateWithoutUserInput>
+    create: XOR<AddressCreateWithoutUserInput, AddressUncheckedCreateWithoutUserInput>
+  }
+
+  export type AddressUpdateWithWhereUniqueWithoutUserInput = {
+    where: AddressWhereUniqueInput
+    data: XOR<AddressUpdateWithoutUserInput, AddressUncheckedUpdateWithoutUserInput>
+  }
+
+  export type AddressUpdateManyWithWhereWithoutUserInput = {
+    where: AddressScalarWhereInput
+    data: XOR<AddressUpdateManyMutationInput, AddressUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type AddressScalarWhereInput = {
+    AND?: AddressScalarWhereInput | AddressScalarWhereInput[]
+    OR?: AddressScalarWhereInput[]
+    NOT?: AddressScalarWhereInput | AddressScalarWhereInput[]
+    id?: StringFilter<"Address"> | string
+    userId?: StringFilter<"Address"> | string
+    name?: StringFilter<"Address"> | string
+    fullName?: StringFilter<"Address"> | string
+    addressLine1?: StringFilter<"Address"> | string
+    addressLine2?: StringNullableFilter<"Address"> | string | null
+    city?: StringFilter<"Address"> | string
+    state?: StringFilter<"Address"> | string
+    postalCode?: StringFilter<"Address"> | string
+    country?: StringFilter<"Address"> | string
+    phone?: StringFilter<"Address"> | string
+    isDefault?: BoolFilter<"Address"> | boolean
+  }
+
+  export type PaymentCardUpsertWithWhereUniqueWithoutUserInput = {
+    where: PaymentCardWhereUniqueInput
+    update: XOR<PaymentCardUpdateWithoutUserInput, PaymentCardUncheckedUpdateWithoutUserInput>
+    create: XOR<PaymentCardCreateWithoutUserInput, PaymentCardUncheckedCreateWithoutUserInput>
+  }
+
+  export type PaymentCardUpdateWithWhereUniqueWithoutUserInput = {
+    where: PaymentCardWhereUniqueInput
+    data: XOR<PaymentCardUpdateWithoutUserInput, PaymentCardUncheckedUpdateWithoutUserInput>
+  }
+
+  export type PaymentCardUpdateManyWithWhereWithoutUserInput = {
+    where: PaymentCardScalarWhereInput
+    data: XOR<PaymentCardUpdateManyMutationInput, PaymentCardUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type PaymentCardScalarWhereInput = {
+    AND?: PaymentCardScalarWhereInput | PaymentCardScalarWhereInput[]
+    OR?: PaymentCardScalarWhereInput[]
+    NOT?: PaymentCardScalarWhereInput | PaymentCardScalarWhereInput[]
+    id?: StringFilter<"PaymentCard"> | string
+    userId?: StringFilter<"PaymentCard"> | string
+    cardholderName?: StringFilter<"PaymentCard"> | string
+    lastFourDigits?: StringFilter<"PaymentCard"> | string
+    encryptedCardData?: StringFilter<"PaymentCard"> | string
+    encryptedCvv?: StringNullableFilter<"PaymentCard"> | string | null
+    expiryMonth?: StringFilter<"PaymentCard"> | string
+    expiryYear?: StringFilter<"PaymentCard"> | string
+    cardType?: StringFilter<"PaymentCard"> | string
+    billingAddressId?: StringNullableFilter<"PaymentCard"> | string | null
+    isDefault?: BoolFilter<"PaymentCard"> | boolean
+    createdAt?: DateTimeFilter<"PaymentCard"> | Date | string
+    updatedAt?: DateTimeFilter<"PaymentCard"> | Date | string
+  }
+
+  export type UserCreateWithoutAddressesInput = {
+    id?: string
+    name?: string | null
+    email: string
+    password: string
+    role?: $Enums.Role
+    emailVerified?: Date | string | null
+    verificationToken?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    paymentCards?: PaymentCardCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutAddressesInput = {
+    id?: string
+    name?: string | null
+    email: string
+    password: string
+    role?: $Enums.Role
+    emailVerified?: Date | string | null
+    verificationToken?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    paymentCards?: PaymentCardUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutAddressesInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAddressesInput, UserUncheckedCreateWithoutAddressesInput>
+  }
+
+  export type UserUpsertWithoutAddressesInput = {
+    update: XOR<UserUpdateWithoutAddressesInput, UserUncheckedUpdateWithoutAddressesInput>
+    create: XOR<UserCreateWithoutAddressesInput, UserUncheckedCreateWithoutAddressesInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAddressesInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAddressesInput, UserUncheckedUpdateWithoutAddressesInput>
+  }
+
+  export type UserUpdateWithoutAddressesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentCards?: PaymentCardUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAddressesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    paymentCards?: PaymentCardUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutPaymentCardsInput = {
+    id?: string
+    name?: string | null
+    email: string
+    password: string
+    role?: $Enums.Role
+    emailVerified?: Date | string | null
+    verificationToken?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    addresses?: AddressCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutPaymentCardsInput = {
+    id?: string
+    name?: string | null
+    email: string
+    password: string
+    role?: $Enums.Role
+    emailVerified?: Date | string | null
+    verificationToken?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    addresses?: AddressUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutPaymentCardsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutPaymentCardsInput, UserUncheckedCreateWithoutPaymentCardsInput>
+  }
+
+  export type UserUpsertWithoutPaymentCardsInput = {
+    update: XOR<UserUpdateWithoutPaymentCardsInput, UserUncheckedUpdateWithoutPaymentCardsInput>
+    create: XOR<UserCreateWithoutPaymentCardsInput, UserUncheckedCreateWithoutPaymentCardsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutPaymentCardsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutPaymentCardsInput, UserUncheckedUpdateWithoutPaymentCardsInput>
+  }
+
+  export type UserUpdateWithoutPaymentCardsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    addresses?: AddressUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutPaymentCardsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    addresses?: AddressUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CategoryCreateWithoutChildrenInput = {
@@ -6181,6 +9930,122 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
     children?: CategoryUncheckedUpdateManyWithoutParentNestedInput
+  }
+
+  export type AddressCreateManyUserInput = {
+    id?: string
+    name: string
+    fullName: string
+    addressLine1: string
+    addressLine2?: string | null
+    city: string
+    state: string
+    postalCode: string
+    country: string
+    phone: string
+    isDefault?: boolean
+  }
+
+  export type PaymentCardCreateManyUserInput = {
+    id?: string
+    cardholderName: string
+    lastFourDigits: string
+    encryptedCardData: string
+    encryptedCvv?: string | null
+    expiryMonth: string
+    expiryYear: string
+    cardType: string
+    billingAddressId?: string | null
+    isDefault?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AddressUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    addressLine1?: StringFieldUpdateOperationsInput | string
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type AddressUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    addressLine1?: StringFieldUpdateOperationsInput | string
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type AddressUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    fullName?: StringFieldUpdateOperationsInput | string
+    addressLine1?: StringFieldUpdateOperationsInput | string
+    addressLine2?: NullableStringFieldUpdateOperationsInput | string | null
+    city?: StringFieldUpdateOperationsInput | string
+    state?: StringFieldUpdateOperationsInput | string
+    postalCode?: StringFieldUpdateOperationsInput | string
+    country?: StringFieldUpdateOperationsInput | string
+    phone?: StringFieldUpdateOperationsInput | string
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type PaymentCardUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardholderName?: StringFieldUpdateOperationsInput | string
+    lastFourDigits?: StringFieldUpdateOperationsInput | string
+    encryptedCardData?: StringFieldUpdateOperationsInput | string
+    encryptedCvv?: NullableStringFieldUpdateOperationsInput | string | null
+    expiryMonth?: StringFieldUpdateOperationsInput | string
+    expiryYear?: StringFieldUpdateOperationsInput | string
+    cardType?: StringFieldUpdateOperationsInput | string
+    billingAddressId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentCardUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardholderName?: StringFieldUpdateOperationsInput | string
+    lastFourDigits?: StringFieldUpdateOperationsInput | string
+    encryptedCardData?: StringFieldUpdateOperationsInput | string
+    encryptedCvv?: NullableStringFieldUpdateOperationsInput | string | null
+    expiryMonth?: StringFieldUpdateOperationsInput | string
+    expiryYear?: StringFieldUpdateOperationsInput | string
+    cardType?: StringFieldUpdateOperationsInput | string
+    billingAddressId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PaymentCardUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    cardholderName?: StringFieldUpdateOperationsInput | string
+    lastFourDigits?: StringFieldUpdateOperationsInput | string
+    encryptedCardData?: StringFieldUpdateOperationsInput | string
+    encryptedCvv?: NullableStringFieldUpdateOperationsInput | string | null
+    expiryMonth?: StringFieldUpdateOperationsInput | string
+    expiryYear?: StringFieldUpdateOperationsInput | string
+    cardType?: StringFieldUpdateOperationsInput | string
+    billingAddressId?: NullableStringFieldUpdateOperationsInput | string | null
+    isDefault?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CategoryCreateManyParentInput = {
