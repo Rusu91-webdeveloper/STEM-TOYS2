@@ -31,7 +31,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Mock products data
+// Add this interface at the top of the file with the imports
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+}
+
+// Mock products data for development
 const products = [
   {
     id: "P001",
@@ -115,14 +124,47 @@ const products = [
   },
 ];
 
-export default function ProductsPage() {
+// And update the getCategories function return type
+async function getCategories(): Promise<Category[]> {
+  try {
+    // In server component, we can directly use db client
+    // For demonstration, using mock data to avoid direct db import in server component
+    // In production, you would use:
+    // import { db } from '@/lib/db';
+    // const categories = await db.category.findMany();
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SITE_URL}/api/categories`,
+      {
+        cache: "no-store",
+      }
+    );
+
+    if (!res.ok) {
+      console.error("Failed to fetch categories");
+      return [];
+    }
+
+    return await res.json();
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    return [];
+  }
+}
+
+export default async function ProductsPage() {
+  const categories = await getCategories();
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold tracking-tight">Products</h1>
-        <Button className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          <span>Add Product</span>
+        <Button
+          className="flex items-center gap-2"
+          asChild>
+          <Link href="/admin/products/create">
+            <Plus className="h-4 w-4" />
+            <span>Add Product</span>
+          </Link>
         </Button>
       </div>
 
@@ -148,10 +190,13 @@ export default function ProductsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Categories</SelectItem>
-                  <SelectItem value="technology">Technology</SelectItem>
-                  <SelectItem value="science">Science</SelectItem>
-                  <SelectItem value="engineering">Engineering</SelectItem>
-                  <SelectItem value="math">Math</SelectItem>
+                  {categories.map((category) => (
+                    <SelectItem
+                      key={category.id}
+                      value={category.slug}>
+                      {category.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <Select defaultValue="all">
@@ -253,56 +298,67 @@ export default function ProductsPage() {
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      {product.featured ? "Yes" : "No"}
+                      {product.featured ? (
+                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                          Featured
+                        </span>
+                      ) : (
+                        <span>-</span>
+                      )}
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Open menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem>
-                            <Edit className="mr-2 h-4 w-4" />
-                            <span>Edit</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            <span>Delete</span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          asChild>
+                          <Link href={`/admin/products/${product.id}/edit`}>
+                            <Edit className="h-4 w-4" />
+                            <span className="sr-only">Edit</span>
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive">
+                          <Trash2 className="h-4 w-4" />
+                          <span className="sr-only">Delete</span>
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon">
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">More</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem asChild>
+                              <Link href={`/admin/products/${product.id}`}>
+                                View Details
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild>
+                              <Link href={`/products/${product.id}`}>
+                                View on Site
+                              </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>Duplicate</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem className="text-destructive">
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </div>
-
-          <div className="mt-4 flex items-center justify-between">
-            <div className="text-sm text-muted-foreground">
-              Showing {products.length} of {products.length} products
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled>
-                Previous
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1">
-                Next
-              </Button>
-            </div>
           </div>
         </CardContent>
       </Card>

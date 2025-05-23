@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Upload } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
 
 interface ProfileFormData {
   name: string;
@@ -26,6 +27,7 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ initialData }: ProfileFormProps) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const {
     register,
@@ -59,9 +61,27 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         return;
       }
 
-      // In a real app, we would send the data to an API
-      // For now, we'll just simulate a successful update
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Prepare request data
+      const requestData = {
+        name: data.name,
+        email: data.email,
+        newPassword: data.newPassword || null,
+      };
+
+      // Call the API
+      const response = await fetch("/api/account/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to update profile");
+      }
 
       // If password is being updated, show specific message
       if (data.newPassword) {
@@ -84,6 +104,9 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         newPassword: "",
         confirmPassword: "",
       });
+
+      // Refresh the page to update user session
+      router.refresh();
     } catch (error) {
       console.error("Error updating profile:", error);
       // Determine if password change failed
@@ -91,13 +114,16 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         toast({
           title: "Password update failed",
           description:
-            "There was an error updating your password. Please try again.",
+            error instanceof Error ? error.message : "Please try again.",
           variant: "destructive",
         });
       } else {
         toast({
           title: "Error",
-          description: "There was an error updating your profile",
+          description:
+            error instanceof Error
+              ? error.message
+              : "There was an error updating your profile",
           variant: "destructive",
         });
       }

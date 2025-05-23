@@ -23,7 +23,7 @@ export default async function AccountLayout({
   }
 
   return (
-    <div className="container py-10">
+    <div className="container py-10 px-4">
       <h1 className="text-3xl font-bold mb-8">My Account</h1>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="md:col-span-1">

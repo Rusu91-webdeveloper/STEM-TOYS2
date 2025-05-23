@@ -198,8 +198,9 @@ export function OrderHistory() {
                 </div>
               </div>
             </CardContent>
-            <CardFooter>
-              <Skeleton className="h-9 w-28" />
+            <CardFooter className="flex justify-between">
+              <Skeleton className="h-9 w-24" />
+              <Skeleton className="h-9 w-24" />
             </CardFooter>
           </Card>
         ))}
@@ -212,10 +213,12 @@ export function OrderHistory() {
     return (
       <div className="text-center py-12 border rounded-lg">
         <ShoppingBag className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-        <h3 className="text-lg font-medium mb-2">No orders found</h3>
-        <p className="text-gray-500 mb-6">You haven't placed any orders yet.</p>
+        <h3 className="text-lg font-medium mb-2">No orders yet</h3>
+        <p className="text-gray-500 mb-6">
+          When you place orders, they will appear here
+        </p>
         <Button asChild>
-          <Link href="/products">Start Shopping</Link>
+          <Link href="/products">Continue Shopping</Link>
         </Button>
       </div>
     );
@@ -225,71 +228,82 @@ export function OrderHistory() {
     <div className="space-y-6">
       <Tabs
         defaultValue="all"
-        onValueChange={setActiveTab}>
-        <TabsList className="grid grid-cols-4 md:w-auto">
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-full">
+        <TabsList className="grid grid-cols-5 mb-6">
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="processing">Processing</TabsTrigger>
           <TabsTrigger value="shipped">Shipped</TabsTrigger>
           <TabsTrigger value="delivered">Delivered</TabsTrigger>
+          <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
         </TabsList>
         <TabsContent
           value={activeTab}
-          className="space-y-4 mt-4">
+          className="space-y-4">
           {filteredOrders.length === 0 ? (
             <div className="text-center py-8 border rounded-lg">
-              <p className="text-gray-500">No orders with this status.</p>
+              <Package className="h-10 w-10 mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium mb-2">
+                No {activeTab} orders
+              </h3>
+              <p className="text-gray-500">
+                You don't have any {activeTab} orders at the moment
+              </p>
             </div>
           ) : (
             filteredOrders.map((order) => (
-              <Card
-                key={order.id}
-                className="overflow-hidden">
-                <CardHeader className="pb-2">
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-2">
+              <Card key={order.id}>
+                <CardHeader className="pb-3">
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                     <div>
                       <CardTitle className="text-base">
                         Order #{order.orderNumber}
                       </CardTitle>
                       <CardDescription>
-                        {formatDate(new Date(order.date))}
+                        Placed on {formatDate(new Date(order.date))}
                       </CardDescription>
                     </div>
-                    <Badge className={getStatusBadgeVariant(order.status)}>
-                      {order.status.charAt(0).toUpperCase() +
-                        order.status.slice(1)}
+                    <Badge
+                      className={`${getStatusBadgeVariant(
+                        order.status
+                      )} capitalize w-fit`}>
+                      {order.status}
                     </Badge>
                   </div>
                 </CardHeader>
-                <CardContent className="pb-2">
+                <CardContent className="pb-3">
                   <div className="space-y-3">
                     {order.items.map((item) => (
                       <div
                         key={item.id}
-                        className="flex items-start gap-3">
-                        <div className="h-16 w-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+                        className="flex gap-3">
+                        <div className="h-16 w-16 rounded bg-muted overflow-hidden relative shrink-0">
                           <img
                             src={item.image}
                             alt={item.productName}
-                            className="w-full h-full object-cover"
+                            className="object-cover h-full w-full"
                           />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">
+                        <div className="flex flex-col">
+                          <span className="font-medium">
                             {item.productName}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {item.quantity} × {formatCurrency(item.price)}
-                          </p>
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            {formatCurrency(item.price)} × {item.quantity}
+                          </span>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div className="mt-4 pt-3 border-t">
-                    <div className="flex justify-between">
-                      <span className="font-medium">Total</span>
-                      <span className="font-medium">
-                        {formatCurrency(order.total)}
-                      </span>
+                  <div className="mt-4 pt-4 border-t flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                    <div className="font-medium">
+                      Total: {formatCurrency(order.total)}
+                    </div>
+                    <div className="text-sm">
+                      Shipping to: {order.shippingAddress.name},{" "}
+                      {order.shippingAddress.city},{" "}
+                      {order.shippingAddress.state}
                     </div>
                   </div>
                 </CardContent>
@@ -299,22 +313,16 @@ export function OrderHistory() {
                     size="sm"
                     asChild>
                     <Link href={`/account/orders/${order.id}`}>
-                      <Eye className="h-4 w-4 mr-1" /> View Details
+                      <Eye className="h-4 w-4 mr-2" /> View Details
                     </Link>
                   </Button>
                   {order.status === "delivered" && (
                     <Button
                       size="sm"
-                      variant="outline">
-                      Buy Again <ArrowRight className="h-4 w-4 ml-1" />
-                    </Button>
-                  )}
-                  {order.status === "processing" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="text-red-500">
-                      Cancel Order
+                      asChild>
+                      <Link href={`/account/orders/${order.id}/review`}>
+                        Write Review <ArrowRight className="h-4 w-4 ml-2" />
+                      </Link>
                     </Button>
                   )}
                 </CardFooter>

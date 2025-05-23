@@ -3,12 +3,16 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { addressSchema } from "@/lib/validations";
 import { z } from "zod";
+import { PrismaClient } from "@/app/generated/prisma";
 
 // Extended schema for creating an address
 const createAddressSchema = addressSchema.extend({
   name: z.string().min(1, "Address nickname is required"),
   isDefault: z.boolean().default(false),
 });
+
+// Initialize Prisma client
+const prisma = new PrismaClient();
 
 // GET - Get all addresses for the current user
 export async function GET() {
@@ -22,7 +26,7 @@ export async function GET() {
       );
     }
 
-    const addresses = await db.address.findMany({
+    const addresses = await prisma.address.findMany({
       where: {
         userId: session.user.id,
       },
@@ -68,7 +72,7 @@ export async function POST(req: Request) {
 
     // If this is the default address, unset any existing default addresses
     if (isDefault) {
-      await db.address.updateMany({
+      await prisma.address.updateMany({
         where: {
           userId: session.user.id,
           isDefault: true,
@@ -80,7 +84,7 @@ export async function POST(req: Request) {
     }
 
     // Create the new address
-    const newAddress = await db.address.create({
+    const newAddress = await prisma.address.create({
       data: {
         ...addressData,
         isDefault,

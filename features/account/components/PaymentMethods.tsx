@@ -246,7 +246,7 @@ export function PaymentMethods() {
         <p className="text-gray-500 mb-6">
           You haven't added any payment methods yet.
         </p>
-        <Button>
+        <Button onClick={() => router.push("/account/payment-methods/new")}>
           <PlusCircle className="h-4 w-4 mr-2" />
           Add Payment Method
         </Button>

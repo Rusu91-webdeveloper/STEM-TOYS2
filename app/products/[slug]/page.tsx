@@ -87,14 +87,20 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
 
   // Fetch product data
   useEffect(() => {
-    const fetchData = () => {
+    const fetchData = async () => {
       try {
-        // Simulate API delay
+        // Convert slug to string to ensure it's not a Promise
+        const slugString = String(params.slug);
+
+        setLoading(true);
+        // Simulate API call with timeout
         setTimeout(() => {
-          const foundProduct = getProductBySlug(params.slug);
+          // Find product by slug
+          const foundProduct = getProductBySlug(slugString);
 
           if (!foundProduct) {
-            notFound();
+            setLoading(false);
+            return;
           }
 
           setProduct(foundProduct);

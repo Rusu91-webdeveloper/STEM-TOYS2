@@ -27,7 +27,9 @@ export interface PaymentDetails {
   cardNumber: string;
   cardholderName: string;
   expiryDate: string;
-  cvv: string;
+  cvv?: string;
+  savedCardId?: string;
+  cardType?: string;
 }
 
 export interface CheckoutData {

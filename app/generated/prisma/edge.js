@@ -242,7 +242,7 @@ const config = {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "postgresql://postgres:Admin1234!@localhost:5432/nextcommerce?schema=public"
+        "value": "postgresql://postgres:postgres@localhost:5432/nextcommerce"
       }
     }
   },

@@ -23,9 +23,24 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
     syncWithServer,
   } = useShoppingCart();
 
+  const [isCheckoutLoading, setIsCheckoutLoading] = React.useState(false);
+
   if (!isOpen) {
     return null;
   }
+
+  const handleCheckout = () => {
+    setIsCheckoutLoading(true);
+    syncWithServer();
+
+    // The Link component will handle the navigation, but we'll keep the loading state
+    // The loading state will remain until the page navigates away
+
+    // Don't close the cart immediately - let users see the loading state
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -145,12 +160,21 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
               <div className="mt-6 space-y-3">
                 <Link
                   href="/checkout"
-                  className="flex w-full items-center justify-center rounded-md bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 px-6 py-3 text-base font-medium text-white shadow-md hover:shadow-lg transition-all hover:from-indigo-700 hover:to-purple-800"
-                  onClick={() => {
-                    syncWithServer();
-                    onClose();
-                  }}>
-                  Checkout
+                  className={`flex w-full items-center justify-center rounded-md bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 px-6 py-3 text-base font-medium text-white shadow-md transition-all ${
+                    isCheckoutLoading
+                      ? "opacity-90 cursor-not-allowed"
+                      : "hover:shadow-lg hover:from-indigo-700 hover:to-purple-800"
+                  }`}
+                  onClick={isCheckoutLoading ? undefined : handleCheckout}
+                  aria-disabled={isCheckoutLoading}>
+                  {isCheckoutLoading ? (
+                    <>
+                      <Loader2 className="h-5 w-5 animate-spin mr-2" />
+                      Processing...
+                    </>
+                  ) : (
+                    "Checkout"
+                  )}
                 </Link>
 
                 <button

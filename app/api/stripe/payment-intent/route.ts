@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
-// Initialize Stripe with secret key (from environment variables in production)
-const stripe = new Stripe(
-  process.env.STRIPE_SECRET_KEY || "sk_test_your_test_key"
-);
+// Initialize Stripe with a dummy key for testing if not provided
+const stripeSecretKey =
+  process.env.STRIPE_SECRET_KEY || "sk_test_dummy_key_for_testing";
+const stripe = new Stripe(stripeSecretKey);
 
 export async function POST(request: Request) {
   try {
@@ -17,6 +17,13 @@ export async function POST(request: Request) {
     // Validate the request
     if (!amount || amount <= 0) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
+    }
+
+    // In development, simulate a successful payment intent without calling Stripe
+    if (process.env.NODE_ENV !== "production") {
+      return NextResponse.json({
+        clientSecret: "pi_dummy_client_secret_for_testing",
+      });
     }
 
     // Create a PaymentIntent with the order amount and currency

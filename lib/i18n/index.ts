@@ -18,12 +18,14 @@ export const languages = [
 // Create a context to store the current language and translations
 type I18nContextType = {
   language: string;
+  locale: string;
   setLanguage: (lang: string) => void;
-  t: (key: TranslationKey) => string;
+  t: (key: TranslationKey, defaultValue?: string) => string;
 };
 
 const I18nContext = createContext<I18nContextType>({
   language: "ro",
+  locale: "ro",
   setLanguage: () => {},
   t: () => "",
 });
@@ -54,15 +56,27 @@ export function I18nProvider({ children }: I18nProviderProps): React.ReactNode {
   }, [language]);
 
   // Translation function
-  const t = (key: TranslationKey): string => {
+  const t = (key: TranslationKey, defaultValue?: string): string => {
     const currentTranslations =
       translations[language as keyof typeof translations];
-    return currentTranslations[key] || translations.en[key] || String(key);
+    return (
+      currentTranslations[key] ||
+      translations.en[key] ||
+      defaultValue ||
+      String(key)
+    );
   };
 
   return React.createElement(
     I18nContext.Provider,
-    { value: { language, setLanguage, t } },
+    {
+      value: {
+        language,
+        locale: language,
+        setLanguage,
+        t,
+      },
+    },
     children
   );
 }

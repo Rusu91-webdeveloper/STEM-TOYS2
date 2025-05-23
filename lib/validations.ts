@@ -27,14 +27,17 @@ export const addressSchema = z.object({
   addressLine1: z.string().min(5, "Address line 1 is required"),
   addressLine2: z.string().optional(),
   city: z.string().min(2, "City is required"),
-  state: z.string().min(2, "State is required"),
+  state: z.string().min(1, "State is required"),
   postalCode: z
     .string()
-    .regex(/^\d{5}(-\d{4})?$/, "Please enter a valid ZIP code"),
+    .regex(/^\d{6}$/, "Please enter a valid Romanian postal code (6 digits)"),
   country: z.string().min(2, "Country is required"),
   phone: z
     .string()
-    .regex(/^\+?[0-9\s\-\(\)]{10,15}$/, "Please enter a valid phone number"),
+    .regex(
+      /^(07\d{8}|\+407\d{8}|0\d{9})$/,
+      "Please enter a valid Romanian phone number"
+    ),
 });
 
 // Product validation schemas

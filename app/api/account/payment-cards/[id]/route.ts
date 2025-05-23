@@ -88,6 +88,11 @@ export async function PUT(
     const cardId = params.id;
     const body = await req.json();
 
+    // Handle "none" value for billingAddressId
+    if (body.billingAddressId === "none") {
+      body.billingAddressId = null;
+    }
+
     // Validate request body
     const result = updateCardSchema.safeParse(body);
     if (!result.success) {

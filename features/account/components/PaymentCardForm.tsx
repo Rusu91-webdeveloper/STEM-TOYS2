@@ -17,7 +17,39 @@ import {
 } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { CreditCard, ShieldCheck } from "lucide-react";
+import {
+  CreditCard,
+  ShieldCheck,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
+
+// Luhn algorithm for credit card validation
+const validateLuhn = (cardNumber: string): boolean => {
+  const cleanNumber = cardNumber.replace(/\D/g, "");
+
+  if (cleanNumber.length < 13 || cleanNumber.length > 19) {
+    return false;
+  }
+
+  let sum = 0;
+  let double = false;
+
+  // Start from the rightmost digit
+  for (let i = cleanNumber.length - 1; i >= 0; i--) {
+    let digit = parseInt(cleanNumber.charAt(i), 10);
+
+    if (double) {
+      digit *= 2;
+      if (digit > 9) digit -= 9;
+    }
+
+    sum += digit;
+    double = !double;
+  }
+
+  return sum % 10 === 0;
+};
 
 // Credit card validation schema
 const cardSchema = z.object({
@@ -26,7 +58,8 @@ const cardSchema = z.object({
     .string()
     .min(13, "Card number must be at least 13 digits")
     .max(19, "Card number must be at most 19 digits")
-    .regex(/^[0-9]+$/, "Card number must only contain digits"),
+    .regex(/^[0-9]+$/, "Card number must only contain digits")
+    .refine(validateLuhn, "Invalid card number - please check the number"),
   expiryMonth: z.string().regex(/^(0[1-9]|1[0-2])$/, "Invalid expiry month"),
   expiryYear: z
     .string()
@@ -87,6 +120,8 @@ export function PaymentCardForm({
     initialData?.cardNumber || ""
   );
   const [cardType, setCardType] = useState<string | null>(null);
+  const [isCardValid, setIsCardValid] = useState<boolean | null>(null);
+  const [isExpired, setIsExpired] = useState<boolean>(false);
 
   const {
     register,
@@ -95,6 +130,7 @@ export function PaymentCardForm({
     setValue,
     watch,
     control,
+    trigger,
   } = useForm<PaymentCardFormValues>({
     resolver: zodResolver(paymentCardSchema),
     defaultValues: {
@@ -104,9 +140,32 @@ export function PaymentCardForm({
       expiryYear: initialData?.expiryYear || "",
       cvv: initialData?.cvv || "",
       isDefault: initialData?.isDefault || false,
-      billingAddressId: initialData?.billingAddressId || undefined,
+      billingAddressId: initialData?.billingAddressId || "none",
     },
   });
+
+  // Watch for changes to expiry date fields
+  const expiryMonth = watch("expiryMonth");
+  const expiryYear = watch("expiryYear");
+
+  // Check expiry date whenever month or year changes
+  useEffect(() => {
+    if (expiryMonth && expiryYear) {
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear() % 100;
+      const currentMonth = currentDate.getMonth() + 1;
+      const expMonth = parseInt(expiryMonth, 10);
+      const expYear = parseInt(expiryYear, 10);
+
+      setIsExpired(
+        expYear < currentYear ||
+          (expYear === currentYear && expMonth < currentMonth)
+      );
+
+      // Trigger validation
+      trigger(["expiryMonth", "expiryYear"]);
+    }
+  }, [expiryMonth, expiryYear, trigger]);
 
   // Function to detect card type from number
   useEffect(() => {
@@ -120,6 +179,14 @@ export function PaymentCardForm({
 
       return null;
     };
+
+    // Validate card number
+    const cleanNumber = cardNumberInput.replace(/\D/g, "");
+    if (cleanNumber.length >= 13) {
+      setIsCardValid(validateLuhn(cleanNumber));
+    } else {
+      setIsCardValid(null);
+    }
 
     setCardType(detectCardType(cardNumberInput));
   }, [cardNumberInput]);
@@ -153,6 +220,7 @@ export function PaymentCardForm({
     const formattedValue = formatCardNumber(value);
     setCardNumberInput(formattedValue);
     setValue("cardNumber", value.replace(/\D/g, "")); // Store only digits
+    trigger("cardNumber"); // Trigger validation
   };
 
   const onSubmit = async (data: PaymentCardFormValues) => {
@@ -163,6 +231,11 @@ export function PaymentCardForm({
         : "/api/account/payment-cards";
 
       const method = isEditing ? "PUT" : "POST";
+
+      // Process the billingAddressId
+      if (data.billingAddressId === "none") {
+        data.billingAddressId = undefined;
+      }
 
       // For editing, we don't need to send card number and CVV
       const payload = isEditing
@@ -272,17 +345,37 @@ export function PaymentCardForm({
             )}
           </div>
         </Label>
-        <Input
-          id="cardNumber"
-          placeholder="XXXX XXXX XXXX XXXX"
-          value={cardNumberInput}
-          onChange={handleCardNumberChange}
-          className={errors.cardNumber ? "border-red-500" : ""}
-          disabled={isEditing} // Card number can't be edited
-        />
+        <div className="relative">
+          <Input
+            id="cardNumber"
+            placeholder="XXXX XXXX XXXX XXXX"
+            value={cardNumberInput}
+            onChange={handleCardNumberChange}
+            className={`${errors.cardNumber ? "border-red-500" : ""} ${
+              isCardValid === true && !errors.cardNumber
+                ? "border-green-500"
+                : ""
+            } pr-10`}
+            disabled={isEditing} // Card number can't be edited
+          />
+          {isCardValid !== null && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              {isCardValid ? (
+                <CheckCircle className="h-5 w-5 text-green-500" />
+              ) : (
+                <AlertCircle className="h-5 w-5 text-red-500" />
+              )}
+            </div>
+          )}
+        </div>
         {errors.cardNumber && (
           <p className="text-sm text-red-500 mt-1">
             {errors.cardNumber.message}
+          </p>
+        )}
+        {cardType === null && cardNumberInput.length > 0 && (
+          <p className="text-sm text-amber-600 mt-1">
+            Card type not recognized. Please check the number.
           </p>
         )}
       </div>
@@ -295,10 +388,10 @@ export function PaymentCardForm({
               onValueChange={(value) => setValue("expiryMonth", value)}
               defaultValue={watch("expiryMonth")}>
               <SelectTrigger
-                className={errors.expiryMonth ? "border-red-500" : ""}>
+                className={`${errors.expiryMonth || isExpired ? "border-red-500" : ""} bg-white`}>
                 <SelectValue placeholder="MM" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {monthOptions.map((month) => (
                   <SelectItem
                     key={month.value}
@@ -313,10 +406,10 @@ export function PaymentCardForm({
               onValueChange={(value) => setValue("expiryYear", value)}
               defaultValue={watch("expiryYear")}>
               <SelectTrigger
-                className={errors.expiryYear ? "border-red-500" : ""}>
+                className={`${errors.expiryYear || isExpired ? "border-red-500" : ""} bg-white`}>
                 <SelectValue placeholder="YY" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white">
                 {yearOptions.map((year) => (
                   <SelectItem
                     key={year.value}
@@ -327,26 +420,39 @@ export function PaymentCardForm({
               </SelectContent>
             </Select>
           </div>
-          {(errors.expiryMonth || errors.expiryYear) && (
+          {(errors.expiryMonth || errors.expiryYear || isExpired) && (
             <p className="text-sm text-red-500 mt-1">
-              {errors.expiryMonth?.message || errors.expiryYear?.message}
+              {errors.expiryMonth?.message ||
+                errors.expiryYear?.message ||
+                "Card has expired"}
             </p>
           )}
         </div>
 
         <div>
           <Label htmlFor="cvv">CVV</Label>
-          <Input
-            id="cvv"
-            placeholder="123"
-            {...register("cvv")}
-            className={errors.cvv ? "border-red-500" : ""}
-            type="password"
-            disabled={isEditing} // CVV can't be edited
-          />
+          <div className="relative">
+            <Input
+              id="cvv"
+              placeholder={cardType === "amex" ? "4 digits" : "3 digits"}
+              {...register("cvv")}
+              className={`${errors.cvv ? "border-red-500" : ""} bg-white`}
+              type="password"
+              disabled={isEditing} // CVV can't be edited
+              maxLength={cardType === "amex" ? 4 : 3}
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+              <CreditCard className="h-4 w-4" />
+            </div>
+          </div>
           {errors.cvv && (
             <p className="text-sm text-red-500 mt-1">{errors.cvv.message}</p>
           )}
+          <p className="text-xs text-gray-500 mt-1">
+            {cardType === "amex"
+              ? "4 digits on the front"
+              : "3 digits on the back of your card"}
+          </p>
         </div>
       </div>
 
@@ -355,12 +461,12 @@ export function PaymentCardForm({
           <Label htmlFor="billingAddressId">Billing Address</Label>
           <Select
             onValueChange={(value) => setValue("billingAddressId", value)}
-            defaultValue={watch("billingAddressId")}>
-            <SelectTrigger>
+            defaultValue={watch("billingAddressId") || "none"}>
+            <SelectTrigger className="bg-white">
               <SelectValue placeholder="Select a billing address" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="">None</SelectItem>
+            <SelectContent className="bg-white">
+              <SelectItem value="none">None</SelectItem>
               {addresses.map((address) => (
                 <SelectItem
                   key={address.id}
@@ -406,7 +512,7 @@ export function PaymentCardForm({
         </Button>
         <Button
           type="submit"
-          disabled={isLoading}>
+          disabled={isLoading || isCardValid === false || isExpired}>
           {isLoading ? "Saving..." : isEditing ? "Update Card" : "Add Card"}
         </Button>
       </div>

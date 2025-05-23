@@ -148,3 +148,47 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - [Stripe](https://stripe.com/) - Payment processing
 - [Uploadthing](https://uploadthing.com/) - File uploads
 - [Resend](https://resend.com/) - Email API
+
+## Admin Access
+
+### Setting Up Admin Credentials (Secure Method)
+
+For security reasons, admin credentials should be stored in environment variables rather than in the codebase. To set up an admin user:
+
+1. Create a `.env.local` file in the root directory with the following variables:
+
+```
+USE_MOCK_DATA="true"
+ADMIN_EMAIL="your-admin-email@example.com"
+ADMIN_NAME="Admin User Name"
+ADMIN_PASSWORD="YourSecurePassword"
+```
+
+2. For development with mock data, the system will automatically authenticate the admin user using these environment variables.
+
+3. For production with a real database, run the following command to create the admin user:
+
+```bash
+node scripts/create-env-admin.js
+```
+
+This approach keeps sensitive credentials out of your codebase, which is important for security.
+
+## Development
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.

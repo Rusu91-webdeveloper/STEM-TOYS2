@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,13 +14,24 @@ import { currencies, useCurrency } from "@/lib/currency";
 
 export function CurrencySwitcher() {
   const router = useRouter();
+  const pathname = usePathname();
   const { currency, setCurrency } = useCurrency();
 
   const switchCurrency = (currencyCode: string) => {
     // Update the currency in the context
     setCurrency(currencyCode);
 
-    // Force a refresh to update all components
+    // Check if we're on a protected route like checkout
+    const isProtectedRoute = pathname.startsWith("/checkout");
+
+    // For protected routes, use a smoother approach without a full refresh
+    if (isProtectedRoute) {
+      // Just update the local state without triggering a navigation
+      // The currency context will update the UI
+      return;
+    }
+
+    // For other routes, refresh the page to apply currency changes globally
     router.refresh();
   };
 

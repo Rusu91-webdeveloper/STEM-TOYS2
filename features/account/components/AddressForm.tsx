@@ -19,73 +19,62 @@ import { toast } from "@/components/ui/use-toast";
 import { addressSchema } from "@/lib/validations";
 import { useRouter } from "next/navigation";
 
-// Sample country list
-const countries = [
-  { code: "US", name: "United States" },
-  { code: "CA", name: "Canada" },
-  { code: "UK", name: "United Kingdom" },
-  { code: "AU", name: "Australia" },
-  { code: "DE", name: "Germany" },
-  { code: "FR", name: "France" },
-  { code: "ES", name: "Spain" },
-  { code: "IT", name: "Italy" },
-  { code: "JP", name: "Japan" },
-  { code: "CN", name: "China" },
+// Romanian counties (județe)
+const romanianCounties = [
+  { code: "AB", name: "Alba" },
+  { code: "AR", name: "Arad" },
+  { code: "AG", name: "Argeș" },
+  { code: "BC", name: "Bacău" },
+  { code: "BH", name: "Bihor" },
+  { code: "BN", name: "Bistrița-Năsăud" },
+  { code: "BT", name: "Botoșani" },
+  { code: "BV", name: "Brașov" },
+  { code: "BR", name: "Brăila" },
+  { code: "B", name: "București" },
+  { code: "BZ", name: "Buzău" },
+  { code: "CS", name: "Caraș-Severin" },
+  { code: "CL", name: "Călărași" },
+  { code: "CJ", name: "Cluj" },
+  { code: "CT", name: "Constanța" },
+  { code: "CV", name: "Covasna" },
+  { code: "DB", name: "Dâmbovița" },
+  { code: "DJ", name: "Dolj" },
+  { code: "GL", name: "Galați" },
+  { code: "GR", name: "Giurgiu" },
+  { code: "GJ", name: "Gorj" },
+  { code: "HR", name: "Harghita" },
+  { code: "HD", name: "Hunedoara" },
+  { code: "IL", name: "Ialomița" },
+  { code: "IS", name: "Iași" },
+  { code: "IF", name: "Ilfov" },
+  { code: "MM", name: "Maramureș" },
+  { code: "MH", name: "Mehedinți" },
+  { code: "MS", name: "Mureș" },
+  { code: "NT", name: "Neamț" },
+  { code: "OT", name: "Olt" },
+  { code: "PH", name: "Prahova" },
+  { code: "SM", name: "Satu Mare" },
+  { code: "SJ", name: "Sălaj" },
+  { code: "SB", name: "Sibiu" },
+  { code: "SV", name: "Suceava" },
+  { code: "TR", name: "Teleorman" },
+  { code: "TM", name: "Timiș" },
+  { code: "TL", name: "Tulcea" },
+  { code: "VS", name: "Vaslui" },
+  { code: "VL", name: "Vâlcea" },
+  { code: "VN", name: "Vrancea" },
 ];
 
-// Sample US states
-const usStates = [
-  { code: "AL", name: "Alabama" },
-  { code: "AK", name: "Alaska" },
-  { code: "AZ", name: "Arizona" },
-  { code: "AR", name: "Arkansas" },
-  { code: "CA", name: "California" },
-  { code: "CO", name: "Colorado" },
-  { code: "CT", name: "Connecticut" },
-  { code: "DE", name: "Delaware" },
-  { code: "FL", name: "Florida" },
-  { code: "GA", name: "Georgia" },
-  { code: "HI", name: "Hawaii" },
-  { code: "ID", name: "Idaho" },
-  { code: "IL", name: "Illinois" },
-  { code: "IN", name: "Indiana" },
-  { code: "IA", name: "Iowa" },
-  { code: "KS", name: "Kansas" },
-  { code: "KY", name: "Kentucky" },
-  { code: "LA", name: "Louisiana" },
-  { code: "ME", name: "Maine" },
-  { code: "MD", name: "Maryland" },
-  { code: "MA", name: "Massachusetts" },
-  { code: "MI", name: "Michigan" },
-  { code: "MN", name: "Minnesota" },
-  { code: "MS", name: "Mississippi" },
-  { code: "MO", name: "Missouri" },
-  { code: "MT", name: "Montana" },
-  { code: "NE", name: "Nebraska" },
-  { code: "NV", name: "Nevada" },
-  { code: "NH", name: "New Hampshire" },
-  { code: "NJ", name: "New Jersey" },
-  { code: "NM", name: "New Mexico" },
-  { code: "NY", name: "New York" },
-  { code: "NC", name: "North Carolina" },
-  { code: "ND", name: "North Dakota" },
-  { code: "OH", name: "Ohio" },
-  { code: "OK", name: "Oklahoma" },
-  { code: "OR", name: "Oregon" },
-  { code: "PA", name: "Pennsylvania" },
-  { code: "RI", name: "Rhode Island" },
-  { code: "SC", name: "South Carolina" },
-  { code: "SD", name: "South Dakota" },
-  { code: "TN", name: "Tennessee" },
-  { code: "TX", name: "Texas" },
-  { code: "UT", name: "Utah" },
-  { code: "VT", name: "Vermont" },
-  { code: "VA", name: "Virginia" },
-  { code: "WA", name: "Washington" },
-  { code: "WV", name: "West Virginia" },
-  { code: "WI", name: "Wisconsin" },
-  { code: "WY", name: "Wyoming" },
-];
+// Major Romanian cities by county
+const romanianCities = {
+  B: ["București"],
+  CJ: ["Cluj-Napoca", "Turda", "Câmpia Turzii", "Gherla", "Dej", "Huedin"],
+  TM: ["Timișoara", "Lugoj", "Sânnicolau Mare", "Jimbolia", "Făget"],
+  IS: ["Iași", "Pașcani", "Târgu Frumos", "Hârlău"],
+  CT: ["Constanța", "Mangalia", "Medgidia", "Cernavodă", "Năvodari"],
+  BV: ["Brașov", "Făgăraș", "Săcele", "Zărnești", "Codlea", "Râșnov"],
+  // Add more cities for other counties as needed
+};
 
 // Extend the address schema to include the name field and isDefault
 const extendedAddressSchema = addressSchema.extend({
@@ -108,6 +97,9 @@ export function AddressForm({
 }: AddressFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedCounty, setSelectedCounty] = useState<string>(
+    initialData?.state || "B"
+  );
 
   const {
     register,
@@ -123,13 +115,21 @@ export function AddressForm({
       addressLine1: initialData?.addressLine1 || "",
       addressLine2: initialData?.addressLine2 || "",
       city: initialData?.city || "",
-      state: initialData?.state || "",
+      state: initialData?.state || "B",
       postalCode: initialData?.postalCode || "",
-      country: initialData?.country || "US",
+      country: "RO", // Default to Romania and don't allow changes
       phone: initialData?.phone || "",
       isDefault: initialData?.isDefault || false,
     },
   });
+
+  // Update available cities when county changes
+  const handleCountyChange = (countyCode: string) => {
+    setValue("state", countyCode);
+    setSelectedCounty(countyCode);
+    // Reset city when county changes
+    setValue("city", "");
+  };
 
   const onSubmit = async (data: AddressFormValues) => {
     setIsLoading(true);
@@ -185,7 +185,7 @@ export function AddressForm({
           <Label htmlFor="name">Address Nickname</Label>
           <Input
             id="name"
-            placeholder="Home, Work, etc."
+            placeholder="Acasă, Serviciu, etc."
             {...register("name")}
             className={errors.name ? "border-red-500" : ""}
           />
@@ -195,10 +195,10 @@ export function AddressForm({
         </div>
 
         <div>
-          <Label htmlFor="fullName">Full Name</Label>
+          <Label htmlFor="fullName">Nume Complet</Label>
           <Input
             id="fullName"
-            placeholder="John Doe"
+            placeholder="Ion Popescu"
             {...register("fullName")}
             className={errors.fullName ? "border-red-500" : ""}
           />
@@ -210,10 +210,10 @@ export function AddressForm({
         </div>
 
         <div>
-          <Label htmlFor="addressLine1">Address Line 1</Label>
+          <Label htmlFor="addressLine1">Adresa</Label>
           <Input
             id="addressLine1"
-            placeholder="123 Main St"
+            placeholder="Strada Victoriei nr. 10"
             {...register("addressLine1")}
             className={errors.addressLine1 ? "border-red-500" : ""}
           />
@@ -225,42 +225,29 @@ export function AddressForm({
         </div>
 
         <div>
-          <Label htmlFor="addressLine2">Address Line 2 (Optional)</Label>
+          <Label htmlFor="addressLine2">Detalii adresă (Opțional)</Label>
           <Input
             id="addressLine2"
-            placeholder="Apt 4B, Floor 2, etc."
+            placeholder="Bloc, Scara, Etaj, Apartament"
             {...register("addressLine2")}
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="city">City</Label>
-            <Input
-              id="city"
-              placeholder="New York"
-              {...register("city")}
-              className={errors.city ? "border-red-500" : ""}
-            />
-            {errors.city && (
-              <p className="text-sm text-red-500 mt-1">{errors.city.message}</p>
-            )}
-          </div>
-
-          <div>
-            <Label htmlFor="state">State / Province</Label>
+            <Label htmlFor="state">Județ</Label>
             <Select
               defaultValue={watch("state")}
-              onValueChange={(value) => setValue("state", value)}>
+              onValueChange={handleCountyChange}>
               <SelectTrigger className={errors.state ? "border-red-500" : ""}>
-                <SelectValue placeholder="Select state" />
+                <SelectValue placeholder="Selectează județul" />
               </SelectTrigger>
               <SelectContent>
-                {usStates.map((state) => (
+                {romanianCounties.map((county) => (
                   <SelectItem
-                    key={state.code}
-                    value={state.code}>
-                    {state.name}
+                    key={county.code}
+                    value={county.code}>
+                    {county.name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -271,14 +258,27 @@ export function AddressForm({
               </p>
             )}
           </div>
+
+          <div>
+            <Label htmlFor="city">Oraș</Label>
+            <Input
+              id="city"
+              placeholder="București"
+              {...register("city")}
+              className={errors.city ? "border-red-500" : ""}
+            />
+            {errors.city && (
+              <p className="text-sm text-red-500 mt-1">{errors.city.message}</p>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="postalCode">ZIP / Postal Code</Label>
+            <Label htmlFor="postalCode">Cod Poștal</Label>
             <Input
               id="postalCode"
-              placeholder="10001"
+              placeholder="010101"
               {...register("postalCode")}
               className={errors.postalCode ? "border-red-500" : ""}
             />
@@ -290,36 +290,26 @@ export function AddressForm({
           </div>
 
           <div>
-            <Label htmlFor="country">Country</Label>
-            <Select
-              defaultValue={watch("country")}
-              onValueChange={(value) => setValue("country", value)}>
-              <SelectTrigger className={errors.country ? "border-red-500" : ""}>
-                <SelectValue placeholder="Select country" />
-              </SelectTrigger>
-              <SelectContent>
-                {countries.map((country) => (
-                  <SelectItem
-                    key={country.code}
-                    value={country.code}>
-                    {country.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.country && (
-              <p className="text-sm text-red-500 mt-1">
-                {errors.country.message}
-              </p>
-            )}
+            <Label htmlFor="country">Țara</Label>
+            <Input
+              id="country"
+              value="România"
+              disabled
+              className="bg-gray-100"
+            />
+            <input
+              type="hidden"
+              value="RO"
+              {...register("country")}
+            />
           </div>
         </div>
 
         <div>
-          <Label htmlFor="phone">Phone Number</Label>
+          <Label htmlFor="phone">Număr de Telefon</Label>
           <Input
             id="phone"
-            placeholder="(555) 123-4567"
+            placeholder="0712 345 678"
             {...register("phone")}
             className={errors.phone ? "border-red-500" : ""}
           />
@@ -339,7 +329,7 @@ export function AddressForm({
           <Label
             htmlFor="isDefault"
             className="text-sm font-medium">
-            Set as default address
+            Setează ca adresă implicită
           </Label>
         </div>
       </div>
@@ -350,16 +340,16 @@ export function AddressForm({
           variant="outline"
           onClick={() => router.push("/account/addresses")}
           disabled={isLoading}>
-          Cancel
+          Anulează
         </Button>
         <Button
           type="submit"
           disabled={isLoading}>
           {isLoading
-            ? "Saving..."
+            ? "Se salvează..."
             : isEditing
-              ? "Update Address"
-              : "Add Address"}
+              ? "Actualizează Adresa"
+              : "Adaugă Adresa"}
         </Button>
       </div>
     </form>

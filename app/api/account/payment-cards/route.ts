@@ -10,6 +10,7 @@ import {
   validateCardExpiry,
 } from "@/lib/encryption";
 import { z } from "zod";
+import { PrismaClient } from "@/app/generated/prisma";
 
 // Schema for card validation
 const paymentCardSchema = z.object({
@@ -18,13 +19,18 @@ const paymentCardSchema = z.object({
     .string()
     .min(13, "Card number is invalid")
     .max(19, "Card number is invalid")
-    .refine(validateCardNumber, "Invalid card number"),
+    .refine(validateCardNumber, {
+      message: "Invalid card number - please check and try again",
+    }),
   expiryMonth: z.string().regex(/^(0[1-9]|1[0-2])$/, "Invalid expiry month"),
   expiryYear: z.string().regex(/^\d{2}$/, "Invalid expiry year"),
   cvv: z.string().regex(/^\d{3,4}$/, "Invalid CVV code"),
   isDefault: z.boolean().default(false),
   billingAddressId: z.string().optional(),
 });
+
+// Initialize Prisma client
+const prisma = new PrismaClient();
 
 // GET - Get all payment cards for the current user
 export async function GET() {
@@ -38,7 +44,7 @@ export async function GET() {
       );
     }
 
-    const cards = await db.paymentCard.findMany({
+    const cards = await prisma.paymentCard.findMany({
       where: {
         userId: session.user.id,
       },
@@ -84,11 +90,39 @@ export async function POST(req: Request) {
 
     const body = await req.json();
 
+    // Handle "none" value for billingAddressId
+    if (body.billingAddressId === "none") {
+      body.billingAddressId = undefined;
+    }
+
     // Validate request body
     const result = paymentCardSchema.safeParse(body);
     if (!result.success) {
+      // Get the first validation error message
+      const errorPath = result.error.errors[0].path.join(".");
+      const errorMessage = result.error.errors[0].message;
+
+      // Add more specific error messages for common issues
+      let specificError = errorMessage;
+
+      if (errorPath === "cardNumber") {
+        const cardType = getCardType(body.cardNumber?.replace(/\D/g, "") || "");
+        if (cardType === "unknown") {
+          specificError = "Card type not recognized. Please check the number.";
+        } else {
+          specificError = `Invalid ${cardType.toUpperCase()} card number. Please verify and try again.`;
+        }
+      } else if (errorPath.includes("expiry")) {
+        if (body.expiryMonth && body.expiryYear) {
+          const isValid = validateCardExpiry(body.expiryMonth, body.expiryYear);
+          if (!isValid) {
+            specificError = "Card has expired or expiry date is invalid.";
+          }
+        }
+      }
+
       return NextResponse.json(
-        { error: result.error.errors[0].message },
+        { error: specificError, field: errorPath },
         { status: 400 }
       );
     }
@@ -105,7 +139,10 @@ export async function POST(req: Request) {
 
     // Validate the expiry date is in the future
     if (!validateCardExpiry(expiryMonth, expiryYear)) {
-      return NextResponse.json({ error: "Card has expired" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Card has expired", field: "expiryMonth" },
+        { status: 400 }
+      );
     }
 
     // Process card data
@@ -118,7 +155,7 @@ export async function POST(req: Request) {
 
     // If this is the default card, unset any existing default cards
     if (isDefault) {
-      await db.paymentCard.updateMany({
+      await prisma.paymentCard.updateMany({
         where: {
           userId: session.user.id,
           isDefault: true,
@@ -130,7 +167,7 @@ export async function POST(req: Request) {
     }
 
     // Create the new payment card
-    const newCard = await db.paymentCard.create({
+    const newCard = await prisma.paymentCard.create({
       data: {
         userId: session.user.id,
         cardholderName,
@@ -141,7 +178,8 @@ export async function POST(req: Request) {
         expiryYear,
         cardType,
         isDefault,
-        billingAddressId,
+        billingAddressId:
+          billingAddressId === "none" ? undefined : billingAddressId,
       },
       select: {
         id: true,

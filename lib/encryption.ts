@@ -1,16 +1,23 @@
 import crypto from "crypto";
 
-// Get encryption key from environment variables
-const ENCRYPTION_KEY =
+// Get encryption key from environment variables and ensure it's 32 bytes
+let ENCRYPTION_KEY =
   process.env.ENCRYPTION_KEY || "fallback-key-for-development-only-32";
+
+// Ensure the key is exactly 32 bytes (32 characters for ASCII/UTF-8)
+if (ENCRYPTION_KEY.length < 32) {
+  // If key is too short, pad it with zeros
+  ENCRYPTION_KEY = ENCRYPTION_KEY.padEnd(32, "0");
+} else if (ENCRYPTION_KEY.length > 32) {
+  // If key is too long, truncate it
+  ENCRYPTION_KEY = ENCRYPTION_KEY.substring(0, 32);
+}
+
 const ALGORITHM = "aes-256-cbc";
 
-if (
-  process.env.NODE_ENV === "production" &&
-  (!process.env.ENCRYPTION_KEY || process.env.ENCRYPTION_KEY.length !== 32)
-) {
+if (process.env.NODE_ENV === "production" && !process.env.ENCRYPTION_KEY) {
   console.error(
-    "WARNING: ENCRYPTION_KEY must be set to a 32 character string in production."
+    "WARNING: ENCRYPTION_KEY is not set in production. Using fallback key which is insecure."
   );
 }
 
@@ -101,19 +108,70 @@ export function getCardType(cardNumber: string): string {
   if (/^5[1-5]/.test(cleanNumber)) return "mastercard";
   if (/^3[47]/.test(cleanNumber)) return "amex";
   if (/^6(?:011|5)/.test(cleanNumber)) return "discover";
+  if (/^62/.test(cleanNumber)) return "unionpay";
+  if (/^35(?:2[89]|[3-8][0-9])/.test(cleanNumber)) return "jcb";
+  if (/^(?:5[0678]\d\d|6304|6390|67\d\d)/.test(cleanNumber)) return "maestro";
+  if (/^(508[5-9]|6050|6051|601[3-4]|57\d\d)/.test(cleanNumber))
+    return "dinersclub";
 
   return "unknown";
 }
 
 /**
- * Validate a credit card number using Luhn algorithm
+ * Card format validation rules by card type
+ */
+const CARD_FORMAT_RULES = {
+  visa: { length: [13, 16, 19], prefixes: ["4"] },
+  mastercard: { length: [16], prefixes: ["51", "52", "53", "54", "55"] },
+  amex: { length: [15], prefixes: ["34", "37"] },
+  discover: {
+    length: [16, 19],
+    prefixes: ["6011", "644", "645", "646", "647", "648", "649", "65"],
+  },
+  unionpay: { length: [16, 17, 18, 19], prefixes: ["62"] },
+  jcb: { length: [15, 16], prefixes: ["35"] },
+  maestro: {
+    length: [12, 13, 14, 15, 16, 17, 18, 19],
+    prefixes: ["5018", "5020", "5038", "6304", "6759", "6761", "6762", "6763"],
+  },
+  dinersclub: { length: [14, 16, 19], prefixes: ["36", "38", "39"] },
+};
+
+/**
+ * Validate a credit card number using Luhn algorithm and card-specific rules
  */
 export function validateCardNumber(cardNumber: string): boolean {
   // Remove all non-numeric characters
   const cleanNumber = cardNumber.replace(/\D/g, "");
 
-  if (cleanNumber.length < 13 || cleanNumber.length > 19) {
+  if (cleanNumber.length < 12 || cleanNumber.length > 19) {
     return false;
+  }
+
+  // Get card type
+  const cardType = getCardType(cleanNumber);
+
+  // If card type is unknown or doesn't match expected length, fail validation
+  if (cardType === "unknown") {
+    return false;
+  }
+
+  // Check card-specific format rules if available
+  const rules = CARD_FORMAT_RULES[cardType as keyof typeof CARD_FORMAT_RULES];
+  if (rules) {
+    // Check length
+    if (!rules.length.includes(cleanNumber.length)) {
+      return false;
+    }
+
+    // Check prefix
+    const validPrefix = rules.prefixes.some(
+      (prefix) => cleanNumber.substring(0, prefix.length) === prefix
+    );
+
+    if (!validPrefix) {
+      return false;
+    }
   }
 
   // Luhn algorithm

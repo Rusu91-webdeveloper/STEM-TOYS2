@@ -9,8 +9,8 @@ import { CartItem } from "@/features/cart";
 const CART_STORAGE = new Map<string, CartItem[]>();
 
 // Generate a unique guest ID for anonymous users - same as in route.ts
-function getGuestId(): string {
-  const cookieStore = cookies();
+async function getGuestId(): Promise<string> {
+  const cookieStore = await cookies();
   let guestId = cookieStore.get("guest_id")?.value;
 
   if (!guestId) {
@@ -30,7 +30,7 @@ async function getCartId(): Promise<string> {
     return session.user.email;
   }
 
-  return getGuestId();
+  return await getGuestId();
 }
 
 // Schema for validating incoming cart item data

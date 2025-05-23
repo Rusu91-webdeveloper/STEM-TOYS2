@@ -1,32 +1,55 @@
+"use client";
+
 import React from "react";
-import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import SidebarNav, { adminNavItems } from "./components/sidebar-nav";
-
-// In a real app, you would use NextAuth for proper authentication
-// This is a simple implementation for demonstration
-const isAdminUser = () => {
-  // Mock authentication check - in production, use a proper auth solution
-  return true;
-};
-
-export const metadata: Metadata = {
-  title: "Admin Dashboard | TechTots",
-  description: "Admin dashboard for managing TechTots e-commerce platform",
-};
+import { useSession, signOut } from "next-auth/react";
+import { useEffect } from "react";
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // Check if user is admin, redirect to login if not
-  if (!isAdminUser()) {
-    redirect("/auth/login?callbackUrl=/admin");
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  // Check if user is authenticated and has admin role
+  const isAuthenticated = status === "authenticated";
+  const isAdmin = isAuthenticated && session?.user?.role === "ADMIN";
+
+  // Handle unauthorized access
+  useEffect(() => {
+    if (status === "loading") return;
+
+    if (!isAuthenticated || !isAdmin) {
+      router.replace("/auth/login?callbackUrl=/admin");
+    }
+  }, [isAuthenticated, isAdmin, router, status]);
+
+  // Show loading state while checking authentication
+  if (status === "loading") {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading admin dashboard...
+      </div>
+    );
   }
+
+  // Don't render anything if not authenticated or not admin
+  if (!isAuthenticated || !isAdmin) {
+    return null;
+  }
+
+  // User name to display in the header
+  const userName = session.user.name || session.user.email;
+
+  const handleSignOut = () => {
+    signOut({ callbackUrl: "/" });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -47,13 +70,13 @@ export default function AdminLayout({
             <span className="text-xl font-bold text-primary">Admin</span>
           </Link>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">Admin User</span>
-            <Link
-              href="/"
-              className="text-sm text-gray-600 hover:text-primary flex items-center gap-1">
+            <span className="text-sm text-gray-600">{userName}</span>
+            <button
+              onClick={handleSignOut}
+              className="text-sm text-gray-600 hover:text-primary flex items-center gap-1 cursor-pointer">
               <LogOut className="h-4 w-4" />
-              <span>Exit to Site</span>
-            </Link>
+              <span>Sign Out</span>
+            </button>
           </div>
         </div>
       </header>

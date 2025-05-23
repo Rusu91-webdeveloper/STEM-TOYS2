@@ -6,16 +6,35 @@ import { securityHeaders, isDevelopment } from "@/lib/security";
 const locales = ["en", "ro"];
 const defaultLocale = "en"; // Changed from "ro" to "en" as default until we have translated content
 
+// Define a name for our redirect tracking cookie
+const REDIRECT_COOKIE = "next-redirect-count";
+
 /**
  * Next.js Middleware for applying security headers, authentication checks,
  * and other global request/response modifications.
  */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const authCookie =
-    request.cookies.get("next-auth.session-token") ||
-    request.cookies.get("__Secure-next-auth.session-token");
+
+  // Check for authentication by looking for auth cookies
+  const sessionCookie = request.cookies.get("next-auth.session-token")?.value;
+  const secureSessionCookie = request.cookies.get(
+    "__Secure-next-auth.session-token"
+  )?.value;
+
+  // We'll use either the regular or secure cookie, depending on which is available
+  const authCookie = sessionCookie || secureSessionCookie;
+
+  // Consider the user authenticated if ANY auth cookie exists
   const isAuthenticated = !!authCookie;
+
+  // Debug authentication state
+  console.log(
+    `Path: ${pathname}, Auth Status: ${isAuthenticated ? "Authenticated" : "Not Authenticated"}`
+  );
+  if (isAuthenticated) {
+    console.log(`Auth Cookie Present: ${authCookie ? "Yes" : "No"}`);
+  }
 
   // Handle auth redirects
   if (pathname === "/auth/signin") {
@@ -25,12 +44,82 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/auth/register", request.url));
   }
 
-  // Protect checkout routes
+  // Protect checkout routes - ONLY if user is not authenticated
   if (pathname.startsWith("/checkout")) {
-    if (!isAuthenticated) {
-      const signInUrl = new URL("/auth/login", request.url);
-      signInUrl.searchParams.set("callbackUrl", pathname);
-      return NextResponse.redirect(signInUrl);
+    if (isAuthenticated) {
+      console.log(`User is authenticated, allowing access to ${pathname}`);
+      // Continue with the request if authenticated
+      return NextResponse.next();
+    } else {
+      // Check referer to avoid redirect loops and allow same-page refreshes
+      const referer = request.headers.get("referer") || "";
+      const currentOrigin = request.nextUrl.origin;
+      const currentPath = pathname;
+
+      // Check for cart in the referer - this means they are coming from the cart page
+      const comingFromCart =
+        referer.includes("/cart") ||
+        referer.includes("minicart") ||
+        referer.includes("shopping-cart");
+
+      // Normalize the referer to check if it's from the same page
+      const refererPath = referer.replace(currentOrigin, "").split("?")[0];
+
+      // Check for potential redirect loops using our cookie
+      const redirectCount = parseInt(
+        request.cookies.get(REDIRECT_COOKIE)?.value || "0"
+      );
+
+      // Don't redirect if:
+      // 1. Coming from login page
+      // 2. Coming from any cart-related UI
+      // 3. Coming from the same page (likely a language/currency change)
+      // 4. We've already redirected too many times in a short period
+      if (
+        referer.includes("/auth/login") ||
+        comingFromCart ||
+        refererPath === currentPath ||
+        redirectCount > 2
+      ) {
+        if (redirectCount > 2) {
+          console.log(
+            `Detected potential redirect loop (${redirectCount} redirects), allowing access`
+          );
+        } else {
+          console.log(
+            `Coming from login page, cart, or same page (${refererPath}), not redirecting again`
+          );
+        }
+
+        // Create a response that allows access
+        const response = NextResponse.next();
+
+        // Reset the redirect counter
+        response.cookies.set(REDIRECT_COOKIE, "0", {
+          maxAge: 60, // 1 minute expiry
+          path: "/",
+        });
+
+        return response;
+      } else {
+        // Store the original checkout URL in a cookie so we can redirect back after login
+        const signInUrl = new URL("/auth/login", request.url);
+        signInUrl.searchParams.set("callbackUrl", pathname);
+        console.log(
+          `Redirecting unauthenticated user to login with callback to ${pathname}`
+        );
+
+        // Create the redirect response
+        const response = NextResponse.redirect(signInUrl);
+
+        // Increment the redirect counter
+        response.cookies.set(REDIRECT_COOKIE, String(redirectCount + 1), {
+          maxAge: 60, // 1 minute expiry
+          path: "/",
+        });
+
+        return response;
+      }
     }
   }
 

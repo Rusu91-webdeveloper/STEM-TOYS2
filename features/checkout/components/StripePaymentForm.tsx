@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { PaymentDetails } from "../types";
 
 interface StripePaymentFormProps {
-  onPaymentSuccess: (paymentDetails: PaymentDetails) => void;
-  onPaymentError: (error: string) => void;
-  total: number;
+  onSuccess: (paymentDetails: PaymentDetails) => void;
+  onError: (error: string) => void;
+  amount: number; // In cents
   billingDetails?: {
     name: string;
     email: string;
@@ -24,9 +24,9 @@ interface StripePaymentFormProps {
 }
 
 export function StripePaymentForm({
-  onPaymentSuccess,
-  onPaymentError,
-  total,
+  onSuccess,
+  onError,
+  amount,
   billingDetails,
 }: StripePaymentFormProps) {
   const stripe = useStripe();
@@ -77,7 +77,7 @@ export function StripePaymentForm({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          amount: total,
+          amount: amount,
           currency: "usd",
         }),
       });
@@ -115,9 +115,10 @@ export function StripePaymentForm({
           cardholderName: billingDetails?.name || "Card Holder",
           expiryDate: "**/**", // We don't store the actual expiry date
           cvv: "***", // Never store the actual CVV
+          cardType: "visa", // Assuming test card is Visa
         };
 
-        onPaymentSuccess(cardInfo);
+        onSuccess(cardInfo);
       } else {
         throw new Error("Payment processing failed");
       }
@@ -125,7 +126,7 @@ export function StripePaymentForm({
       const errorMessage =
         (error as Error).message || "An error occurred with your payment";
       setCardError(errorMessage);
-      onPaymentError(errorMessage);
+      onError(errorMessage);
     } finally {
       setIsProcessing(false);
     }
@@ -169,7 +170,7 @@ export function StripePaymentForm({
           type="submit"
           disabled={!stripe || isProcessing}
           className="px-8">
-          {isProcessing ? "Processing..." : `Pay $${total.toFixed(2)}`}
+          {isProcessing ? "Processing..." : `Pay $${(amount / 100).toFixed(2)}`}
         </Button>
       </div>
     </form>

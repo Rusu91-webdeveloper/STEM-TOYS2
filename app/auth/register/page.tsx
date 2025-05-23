@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { userSchema } from "@/lib/validations";
 import { CheckIcon, ArrowRight } from "lucide-react";
+import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { Separator } from "@/components/ui/separator";
 
 // Create a registration schema based on the user schema
 const registerSchema = userSchema
@@ -299,11 +301,24 @@ export default function RegisterPage() {
 
             <Button
               type="submit"
-              className="w-full mt-2"
+              className="w-full"
               disabled={isLoading}>
-              {isLoading ? "Creating Account..." : "Create Account"}
+              {isLoading ? "Creating account..." : "Create account"}
             </Button>
           </form>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <Separator className="w-full" />
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-card px-2 text-muted-foreground text-sm">
+                or continue with
+              </span>
+            </div>
+          </div>
+
+          <GoogleSignInButton />
 
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}
