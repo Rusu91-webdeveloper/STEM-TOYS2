@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
 import { ArrowLeft, Truck, ShieldCheck, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -80,7 +80,11 @@ const getProductBySlug = (slug: string): Product | undefined => {
   return mockProducts.find((product) => product.slug === slug);
 };
 
-export default function ProductPage({ params }: { params: { slug: string } }) {
+export default function ProductPage() {
+  // Use the useParams hook instead of props.params
+  const params = useParams();
+  const slug = params?.slug as string;
+
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string>("");
@@ -89,14 +93,11 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Convert slug to string to ensure it's not a Promise
-        const slugString = String(params.slug);
-
         setLoading(true);
         // Simulate API call with timeout
         setTimeout(() => {
           // Find product by slug
-          const foundProduct = getProductBySlug(slugString);
+          const foundProduct = getProductBySlug(slug);
 
           if (!foundProduct) {
             setLoading(false);
@@ -115,8 +116,10 @@ export default function ProductPage({ params }: { params: { slug: string } }) {
       }
     };
 
-    fetchData();
-  }, [params.slug]);
+    if (slug) {
+      fetchData();
+    }
+  }, [slug]);
 
   // Loading state
   if (loading) {

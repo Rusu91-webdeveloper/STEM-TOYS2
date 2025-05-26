@@ -3,7 +3,7 @@ import { z } from "zod";
 import { hash } from "bcrypt";
 import { db } from "@/lib/db";
 import { randomBytes } from "crypto";
-import nodemailer from "nodemailer";
+import { sendWelcomeEmail, sendVerificationEmail } from "@/lib/email";
 
 // Registration schema
 const registerSchema = z.object({
@@ -11,62 +11,6 @@ const registerSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
-
-// Function to send verification email
-async function sendVerificationEmail(
-  email: string,
-  name: string,
-  token: string
-) {
-  // Create verification URL
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
-  const verificationUrl = `${baseUrl}/api/auth/verify?token=${token}`;
-
-  // In development, log the verification URL instead of sending an email
-  const isDev =
-    process.env.NODE_ENV === "development" || !process.env.EMAIL_SERVER_HOST;
-  if (isDev) {
-    console.log("\n----------------------------------------------------");
-    console.log("DEVELOPMENT MODE - Email would be sent to:", email);
-    console.log("Verification URL:", verificationUrl);
-    console.log("----------------------------------------------------\n");
-    return; // Don't attempt to send email in development
-  }
-
-  // In production, use actual SMTP configuration
-  const transporter = nodemailer.createTransport({
-    host: process.env.EMAIL_SERVER_HOST,
-    port: parseInt(process.env.EMAIL_SERVER_PORT || "587"),
-    secure: process.env.EMAIL_SERVER_SECURE === "true",
-    auth: {
-      user: process.env.EMAIL_SERVER_USER,
-      pass: process.env.EMAIL_SERVER_PASSWORD,
-    },
-  });
-
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM || "TechTots <no-reply@techtots.com>",
-    to: email,
-    subject: "Verify your TechTots account",
-    html: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2 style="color: #6366f1;">Welcome to TechTots!</h2>
-        <p>Hi ${name},</p>
-        <p>Thank you for registering with TechTots. Please click the button below to verify your email address:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${verificationUrl}" style="background-color: #6366f1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
-            Verify Email Address
-          </a>
-        </div>
-        <p>Or copy and paste this link in your browser:</p>
-        <p style="word-break: break-all; color: #6366f1;">${verificationUrl}</p>
-        <p>This link will expire in 24 hours.</p>
-        <p>If you did not create an account, no further action is required.</p>
-        <p>Thanks,<br>The TechTots Team</p>
-      </div>
-    `,
-  });
-}
 
 export async function POST(req: Request) {
   try {
@@ -115,11 +59,15 @@ export async function POST(req: Request) {
       },
     });
 
-    // Send verification email
+    // Send welcome and verification emails
     try {
-      await sendVerificationEmail(email, name || "User", verificationToken);
+      // Send welcome email
+      await sendWelcomeEmail(email, name);
+
+      // Send verification email
+      await sendVerificationEmail(email, name, verificationToken);
     } catch (emailError) {
-      console.error("Failed to send verification email:", emailError);
+      console.error("Failed to send emails:", emailError);
       // We'll continue the registration process even if email fails
     }
 
@@ -127,8 +75,7 @@ export async function POST(req: Request) {
     const { password: _, ...userWithoutPassword } = newUser;
 
     // Create verification URL for the response in development mode
-    const isDev =
-      process.env.NODE_ENV === "development" || !process.env.EMAIL_SERVER_HOST;
+    const isDev = process.env.NODE_ENV === "development";
     const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
     const verificationUrl = isDev
       ? `${baseUrl}/api/auth/verify?token=${verificationToken}`

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n";
+import { useCurrency } from "@/lib/currency";
 
 // Mock data for featured products
 const featuredProducts = [
@@ -15,7 +16,7 @@ const featuredProducts = [
     price: 59.99,
     category: "technology",
     image: "https://placehold.co/600x400/4F46E5/FFFFFF.png?text=Robot+Kit",
-    slug: "robotic-building-kit",
+    slug: "stem-toy-1",
   },
   {
     id: "2",
@@ -25,7 +26,7 @@ const featuredProducts = [
     price: 49.99,
     category: "science",
     image: "https://placehold.co/600x400/10B981/FFFFFF.png?text=Chemistry+Set",
-    slug: "chemistry-lab-set",
+    slug: "stem-toy-3",
   },
   {
     id: "3",
@@ -35,7 +36,7 @@ const featuredProducts = [
     price: 39.99,
     category: "engineering",
     image: "https://placehold.co/600x400/F59E0B/FFFFFF.png?text=Magnetic+Tiles",
-    slug: "magnetic-building-tiles",
+    slug: "stem-toy-7",
   },
   {
     id: "4",
@@ -44,7 +45,7 @@ const featuredProducts = [
     price: 29.99,
     category: "math",
     image: "https://placehold.co/600x400/3B82F6/FFFFFF.png?text=Math+Puzzle",
-    slug: "math-puzzle-game",
+    slug: "stem-toy-2",
   },
 ];
 
@@ -77,43 +78,54 @@ const categories = [
 ];
 
 export default function Home() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+  const { formatPrice } = useCurrency();
+
+  // Translate category names and descriptions based on current language
+  const translatedCategories = categories.map((category) => ({
+    ...category,
+    name: t((category.slug + "ToysTitle") as any, category.name),
+    description: t(
+      (category.slug + "ToysDescription") as any,
+      category.description
+    ),
+  }));
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Already updated for better visibility */}
-      <section className="relative h-[70vh] min-h-[600px] max-h-[800px] flex items-center">
+      {/* Hero Section - Enhanced for better visibility on all device sizes */}
+      <section className="relative h-[60vh] sm:h-[65vh] md:h-[70vh] min-h-[400px] sm:min-h-[500px] md:min-h-[600px] max-h-[800px] flex items-center">
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/homepage_hero_banner_01.png"
-            alt="Hero image of children playing with STEM toys"
+            alt={t("discoverCollection" as any)}
             fill
             sizes="100vw"
             style={{ objectFit: "cover" }}
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-black/30" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/30" />
         </div>
         <div className="container relative z-10 text-white mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
-          <div className="max-w-3xl">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 drop-shadow-md">
+          <div className="max-w-xl sm:max-w-2xl md:max-w-3xl">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4 drop-shadow-md">
               {t("inspireMinds")}
             </h1>
-            <p className="text-xl md:text-2xl mb-8 max-w-2xl drop-shadow-md">
+            <p className="text-lg sm:text-xl md:text-2xl mb-6 md:mb-8 max-w-2xl drop-shadow-md">
               {t("discoverCollection")}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Button
                 asChild
                 size="lg"
-                className="text-base md:text-lg px-8 py-6 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 bg-gradient-to-r from-blue-600 to-yellow-500 hover:from-blue-700 hover:to-yellow-400 text-white border-0">
+                className="text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 bg-gradient-to-r from-blue-600 to-yellow-500 hover:from-blue-700 hover:to-yellow-400 text-white border-0">
                 <Link href="/products">{t("shopAllProducts")}</Link>
               </Button>
               <Button
                 asChild
                 size="lg"
                 variant="outline"
-                className="text-base md:text-lg px-8 py-6 bg-orange-500 text-white border-orange-500 hover:bg-orange-600 hover:border-orange-600 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
+                className="text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 bg-orange-500 text-white border-orange-500 hover:bg-orange-600 hover:border-orange-600 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 mt-3 sm:mt-0">
                 <Link href="/categories">{t("exploreCategories")}</Link>
               </Button>
             </div>
@@ -121,38 +133,40 @@ export default function Home() {
         </div>
       </section>
 
-      {/* STEM Categories - Updated for better centering */}
-      <section className="py-16 bg-muted">
+      {/* STEM Categories - Improved responsiveness */}
+      <section className="py-10 sm:py-12 md:py-16 bg-muted">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center">
             {t("stemCategories")}
           </h2>
-          <p className="text-center text-muted-foreground mb-10 max-w-3xl mx-auto">
+          <p className="text-center text-muted-foreground mb-8 sm:mb-10 max-w-3xl mx-auto px-2">
             {t("stemCategoriesDesc")}
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
-            {categories.map((category) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+            {translatedCategories.map((category) => (
               <Link
-                href={`/categories/${category.slug}`}
+                href={`/blog/category/${category.slug}`}
                 key={category.slug}>
                 <div className="bg-background rounded-lg overflow-hidden shadow-md transition-all duration-300 hover:shadow-xl hover:translate-y-[-5px] h-full flex flex-col">
-                  <div className="relative h-48 w-full">
+                  <div className="relative h-40 sm:h-48 w-full">
                     <Image
                       src={category.image}
                       alt={category.name}
                       fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
                       style={{ objectFit: "cover" }}
                     />
                   </div>
-                  <div className="p-5 flex flex-col flex-grow">
-                    <h3 className="text-xl font-bold mb-2">{category.name}</h3>
-                    <p className="text-muted-foreground mb-4">
+                  <div className="p-4 sm:p-5 flex flex-col flex-grow">
+                    <h3 className="text-lg sm:text-xl font-bold mb-2">
+                      {category.name}
+                    </h3>
+                    <p className="text-muted-foreground text-sm sm:text-base mb-4">
                       {category.description}
                     </p>
                     <div className="mt-auto">
                       <span className="text-primary text-sm font-medium inline-flex items-center">
-                        Explore {category.name}{" "}
+                        {t("exploreCategories").split(" ")[0]} {category.name}{" "}
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
@@ -176,82 +190,87 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Featured Products - Updated for better centering */}
-      <section className="py-16">
+      {/* Featured Products - Improved responsiveness and currency display */}
+      <section className="py-10 sm:py-12 md:py-16">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-center">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center">
             {t("featuredProducts")}
           </h2>
-          <p className="text-center text-muted-foreground mb-10 max-w-3xl mx-auto">
+          <p className="text-center text-muted-foreground mb-8 sm:mb-10 max-w-3xl mx-auto px-2">
             {t("featuredProductsDesc")}
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
             {featuredProducts.map((product) => (
-              <div
+              <Link
+                href={`/products/${product.slug}`}
                 key={product.id}
-                className="bg-background rounded-lg overflow-hidden shadow-md border border-gray-200 transition-all duration-300 hover:shadow-xl h-full flex flex-col">
-                <div className="relative h-52 w-full">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                    style={{ objectFit: "cover" }}
-                  />
-                </div>
-                <div className="p-5 flex flex-col flex-grow">
-                  <div className="inline-block px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground mb-2">
-                    {product.category.charAt(0).toUpperCase() +
-                      product.category.slice(1)}
+                className="block">
+                <div className="bg-background rounded-lg overflow-hidden shadow-md border border-gray-200 transition-all duration-300 hover:shadow-xl h-full flex flex-col">
+                  <div className="relative h-40 sm:h-52 w-full">
+                    <Image
+                      src={product.image}
+                      alt={product.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
+                      style={{ objectFit: "cover" }}
+                    />
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
-                  <p className="text-muted-foreground text-sm mb-4 flex-grow">
-                    {product.description}
-                  </p>
-                  <div className="flex items-center justify-between mt-auto">
-                    <span className="text-lg font-bold">
-                      ${product.price.toFixed(2)}
-                    </span>
-                    <Button
-                      asChild
-                      size="sm"
-                      className="transition-all hover:scale-105">
-                      <Link href={`/products/${product.slug}`}>
+                  <div className="p-4 sm:p-5 flex flex-col flex-grow">
+                    <div className="inline-block px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground mb-2">
+                      {t(
+                        product.category as any,
+                        product.category.charAt(0).toUpperCase() +
+                          product.category.slice(1)
+                      )}
+                    </div>
+                    <h3 className="text-base sm:text-lg font-semibold mb-2">
+                      {product.name}
+                    </h3>
+                    <p className="text-muted-foreground text-sm mb-4 flex-grow">
+                      {product.description}
+                    </p>
+                    <div className="flex items-center justify-between mt-auto">
+                      <span className="text-base sm:text-lg font-bold">
+                        {formatPrice(product.price)}
+                      </span>
+                      <Button
+                        size="sm"
+                        className="transition-all hover:scale-105">
                         {t("viewDetails")}
-                      </Link>
-                    </Button>
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
-          <div className="mt-12 text-center">
+          <div className="mt-8 sm:mt-10 md:mt-12 text-center">
             <Button
               asChild
               size="lg"
-              className="text-base px-8 py-6 rounded-lg shadow-md hover:shadow-lg transition-all hover:scale-105">
+              className="text-base px-6 py-5 sm:px-8 sm:py-6 rounded-lg shadow-md hover:shadow-lg transition-all hover:scale-105">
               <Link href="/products">{t("viewAllProducts")}</Link>
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Value Proposition - Updated for better centering */}
-      <section className="py-16 bg-primary text-primary-foreground">
+      {/* Value Proposition - Improved for better centering and responsiveness */}
+      <section className="py-10 sm:py-12 md:py-16 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
-          <h2 className="text-3xl font-bold mb-12 text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-8 sm:mb-10 md:mb-12 text-center">
             {t("whyChooseTechTots")}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
-            <div className="text-center bg-primary-foreground/10 rounded-lg p-8 transition-transform hover:scale-105">
-              <div className="flex justify-center mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-12">
+            <div className="text-center bg-primary-foreground/10 rounded-lg p-6 sm:p-8 transition-transform hover:scale-105">
+              <div className="flex justify-center mb-5 sm:mb-6">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-14 h-14">
+                  className="w-12 sm:w-14 h-12 sm:h-14">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -259,22 +278,23 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold mb-3">Educational Value</h3>
-              <p className="text-primary-foreground/90">
-                Our toys are designed to teach STEM concepts in a fun and
-                engaging way.
+              <h3 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3">
+                {t("cognitiveDevelopment" as any)}
+              </h3>
+              <p className="text-primary-foreground/90 text-sm sm:text-base">
+                {t("cognitiveDevelopmentDesc" as any)}
               </p>
             </div>
 
-            <div className="text-center bg-primary-foreground/10 rounded-lg p-8 transition-transform hover:scale-105">
-              <div className="flex justify-center mb-6">
+            <div className="text-center bg-primary-foreground/10 rounded-lg p-6 sm:p-8 transition-transform hover:scale-105">
+              <div className="flex justify-center mb-5 sm:mb-6">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-14 h-14">
+                  className="w-12 sm:w-14 h-12 sm:h-14">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -282,22 +302,26 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold mb-3">Quality & Safety</h3>
-              <p className="text-primary-foreground/90">
-                All our products meet or exceed safety standards and are built
-                to last.
+              <h3 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3">
+                {t("qualitySafety" as any, "Quality & Safety")}
+              </h3>
+              <p className="text-primary-foreground/90 text-sm sm:text-base">
+                {t(
+                  "qualitySafetyDesc" as any,
+                  "All our products meet or exceed safety standards and are built to last."
+                )}
               </p>
             </div>
 
-            <div className="text-center bg-primary-foreground/10 rounded-lg p-8 transition-transform hover:scale-105">
-              <div className="flex justify-center mb-6">
+            <div className="text-center bg-primary-foreground/10 rounded-lg p-6 sm:p-8 transition-transform hover:scale-105">
+              <div className="flex justify-center mb-5 sm:mb-6">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-14 h-14">
+                  className="w-12 sm:w-14 h-12 sm:h-14">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -305,37 +329,39 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold mb-3">Expert Selection</h3>
-              <p className="text-primary-foreground/90">
-                Each toy is carefully selected by our team of educators and STEM
-                experts.
+              <h3 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3">
+                {t("futureReady" as any)}
+              </h3>
+              <p className="text-primary-foreground/90 text-sm sm:text-base">
+                {t("futureReadyDesc" as any)}
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Newsletter - Updated for better centering */}
-      <section className="py-16 bg-background">
+      {/* Newsletter - Improved for better responsiveness */}
+      <section className="py-10 sm:py-12 md:py-16 bg-background">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-5xl">
-          <div className="bg-muted rounded-2xl p-8 md:p-12 shadow-lg">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold mb-4">Stay Updated</h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                Subscribe to our newsletter for new product announcements,
-                special offers, and STEM activity ideas for your children.
+          <div className="bg-muted rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-12 shadow-lg">
+            <div className="text-center mb-6 sm:mb-8">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
+                {t("stayUpdated")}
+              </h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
+                {t("newsletterDescription")}
               </p>
             </div>
-            <form className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto">
+            <form className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md sm:max-w-xl mx-auto">
               <input
                 type="email"
-                placeholder="Your email address"
-                className="flex h-12 w-full rounded-md border border-input bg-background px-4 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                placeholder={t("emailPlaceholder")}
+                className="flex h-10 sm:h-12 w-full rounded-md border border-input bg-background px-3 sm:px-4 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               />
               <Button
                 type="submit"
-                className="h-12 px-6 text-base transition-all hover:scale-105">
-                Subscribe
+                className="h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base transition-all hover:scale-105">
+                {t("subscribe")}
               </Button>
             </form>
           </div>

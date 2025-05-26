@@ -1,10 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { ShoppingCart, X, Trash2, Plus, Minus, Loader2 } from "lucide-react";
 import { useShoppingCart } from "../hooks/useShoppingCart";
+import { useSession } from "next-auth/react";
+import { useCheckoutTransition } from "../context/CheckoutTransitionContext";
 
 interface MiniCartProps {
   isOpen: boolean;
@@ -12,6 +15,9 @@ interface MiniCartProps {
 }
 
 export function MiniCart({ isOpen, onClose }: MiniCartProps) {
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const { startTransition } = useCheckoutTransition();
   const {
     items,
     getTotal,
@@ -23,23 +29,69 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
     syncWithServer,
   } = useShoppingCart();
 
-  const [isCheckoutLoading, setIsCheckoutLoading] = React.useState(false);
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
+  const [checkoutStatus, setCheckoutStatus] = useState<string>("idle");
 
   if (!isOpen) {
     return null;
   }
 
   const handleCheckout = () => {
+    // Close the cart immediately before starting the transition
+    onClose();
+
+    // Then initiate checkout
     setIsCheckoutLoading(true);
+    setCheckoutStatus("processing");
+
+    // Sync cart with server first
     syncWithServer();
 
-    // The Link component will handle the navigation, but we'll keep the loading state
-    // The loading state will remain until the page navigates away
+    // First wait to ensure session is fully loaded
+    if (status === "loading") {
+      console.log("Session status is loading, waiting...");
+      const checkInterval = setInterval(() => {
+        if (status !== "loading") {
+          clearInterval(checkInterval);
+          // Now we have the final authentication status
+          proceedWithCheckout();
+        }
+      }, 100);
+    } else {
+      // Session is already loaded, proceed directly
+      proceedWithCheckout();
+    }
+  };
 
-    // Don't close the cart immediately - let users see the loading state
-    setTimeout(() => {
-      onClose();
-    }, 300);
+  // Separate function to handle checkout after session is loaded
+  const proceedWithCheckout = () => {
+    try {
+      // Check if the user is authenticated
+      if (status === "authenticated") {
+        // User is logged in, create a transition to checkout
+        console.log("User is authenticated, proceeding to checkout");
+        setCheckoutStatus("redirecting");
+        startTransition("checkout");
+      } else {
+        // User is not logged in, create a transition to login
+        console.log("User is not authenticated, redirecting to login");
+        setCheckoutStatus("auth_required");
+
+        // Make sure we get the current origin for correct port
+        const origin = window.location.origin;
+        console.log("Current origin:", origin);
+
+        startTransition("login", "/checkout");
+      }
+    } catch (error) {
+      console.error("Error during checkout transition:", error);
+      // Fallback to direct navigation with correct origin
+      const origin = window.location.origin;
+      window.location.href =
+        status === "authenticated"
+          ? `${origin}/checkout`
+          : `${origin}/auth/login?callbackUrl=${encodeURIComponent("/checkout")}`;
+    }
   };
 
   return (
@@ -158,24 +210,28 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
               </p>
 
               <div className="mt-6 space-y-3">
-                <Link
-                  href="/checkout"
+                <button
+                  onClick={handleCheckout}
+                  disabled={isCheckoutLoading}
                   className={`flex w-full items-center justify-center rounded-md bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 px-6 py-3 text-base font-medium text-white shadow-md transition-all ${
                     isCheckoutLoading
                       ? "opacity-90 cursor-not-allowed"
                       : "hover:shadow-lg hover:from-indigo-700 hover:to-purple-800"
                   }`}
-                  onClick={isCheckoutLoading ? undefined : handleCheckout}
                   aria-disabled={isCheckoutLoading}>
                   {isCheckoutLoading ? (
                     <>
                       <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                      Processing...
+                      {checkoutStatus === "processing" && "Processing..."}
+                      {checkoutStatus === "redirecting" &&
+                        "Going to checkout..."}
+                      {checkoutStatus === "auth_required" &&
+                        "Taking you to login..."}
                     </>
                   ) : (
                     "Checkout"
                   )}
-                </Link>
+                </button>
 
                 <button
                   onClick={() => {

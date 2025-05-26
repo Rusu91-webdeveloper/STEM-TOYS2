@@ -146,7 +146,9 @@ export default function BlogPage() {
                       className="bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 hover:from-indigo-100 hover:to-purple-100 border border-indigo-200 shadow-sm transition-all"
                       size="sm"
                       asChild>
-                      <Link href={`/blog/${post.id}`}>{t("readMore")}</Link>
+                      <Link href={`/blog/post/${post.id}`}>
+                        {t("readMore")}
+                      </Link>
                     </Button>
                   </div>
                 </div>

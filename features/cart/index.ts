@@ -4,10 +4,15 @@ export { CartProviderWrapper } from "./components/CartProviderWrapper";
 export { CartButton } from "./components/CartButton";
 export { CartIcon } from "./components/CartIcon";
 export { MiniCart } from "./components/MiniCart";
+export { CheckoutTransition } from "./components/CheckoutTransition";
 
-// Re-export hooks
+// Re-export contexts and hooks
 export { useCart } from "./context/CartContext";
 export { useShoppingCart } from "./hooks/useShoppingCart";
+export {
+  CheckoutTransitionProvider,
+  useCheckoutTransition,
+} from "./context/CheckoutTransitionContext";
 
 // Re-export types
 export type { CartItem } from "./context/CartContext";
