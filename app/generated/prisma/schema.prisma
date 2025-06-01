@@ -23,6 +23,7 @@ model User {
   blogs               Blog[]
   passwordResetTokens PasswordResetToken[]
   paymentCards        PaymentCard[]
+  wishlistItems       Wishlist[]
 }
 
 model PasswordResetToken {
@@ -87,9 +88,9 @@ model Category {
 }
 
 model Product {
-  id             String   @id @default(cuid())
+  id             String     @id @default(cuid())
   name           String
-  slug           String   @unique
+  slug           String     @unique
   description    String
   price          Float
   compareAtPrice Float?
@@ -97,17 +98,31 @@ model Product {
   categoryId     String
   tags           String[]
   attributes     Json?
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  isActive       Boolean    @default(true)
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
   barcode        String?
   dimensions     Json?
   metadata       Json?
   sku            String?
-  stockQuantity  Int      @default(0)
+  stockQuantity  Int        @default(0)
   weight         Float?
-  featured       Boolean  @default(false)
-  category       Category @relation(fields: [categoryId], references: [id])
+  featured       Boolean    @default(false)
+  category       Category   @relation(fields: [categoryId], references: [id])
+  wishlistItems  Wishlist[]
+}
+
+model Wishlist {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+  @@index([productId])
 }
 
 model Blog {

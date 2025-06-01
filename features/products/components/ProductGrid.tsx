@@ -82,27 +82,43 @@ export function ProductGrid({
   );
 
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("space-y-4 sm:space-y-6", className)}>
       {(showLayoutToggle || showSortOptions) && (
-        <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+        <div className="flex flex-col gap-3 sm:gap-4 sm:flex-row sm:justify-between sm:items-center">
           {showSortOptions && (
             <div className="w-full sm:w-48">
               <Select
                 value={sortOption}
                 onValueChange={setSortOption}>
-                <SelectTrigger>
+                <SelectTrigger className="h-8 sm:h-10 text-xs sm:text-sm">
                   <SelectValue placeholder={t("sortBy")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="featured">{t("featured")}</SelectItem>
-                  <SelectItem value="price-low">
+                  <SelectItem
+                    value="featured"
+                    className="text-xs sm:text-sm">
+                    {t("featured")}
+                  </SelectItem>
+                  <SelectItem
+                    value="price-low"
+                    className="text-xs sm:text-sm">
                     {t("priceLowToHigh")}
                   </SelectItem>
-                  <SelectItem value="price-high">
+                  <SelectItem
+                    value="price-high"
+                    className="text-xs sm:text-sm">
                     {t("priceHighToLow")}
                   </SelectItem>
-                  <SelectItem value="newest">{t("newest")}</SelectItem>
-                  <SelectItem value="rating">{t("topRated")}</SelectItem>
+                  <SelectItem
+                    value="newest"
+                    className="text-xs sm:text-sm">
+                    {t("newest")}
+                  </SelectItem>
+                  <SelectItem
+                    value="rating"
+                    className="text-xs sm:text-sm">
+                    {t("topRated")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -110,24 +126,24 @@ export function ProductGrid({
 
           {showLayoutToggle && (
             <div className="flex items-center space-x-2">
-              <span className="text-sm text-muted-foreground mr-2">
+              <span className="text-xs sm:text-sm text-muted-foreground mr-1 sm:mr-2">
                 {t("view")}:
               </span>
               <Button
                 variant={layout === "grid" ? "default" : "outline"}
                 size="sm"
-                className="px-2"
+                className="px-1.5 sm:px-2 h-7 sm:h-8"
                 onClick={() => setLayout("grid")}
                 aria-label={t("gridView")}>
-                <Grid2X2 className="h-4 w-4" />
+                <Grid2X2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
               <Button
                 variant={layout === "list" ? "default" : "outline"}
                 size="sm"
-                className="px-2"
+                className="px-1.5 sm:px-2 h-7 sm:h-8"
                 onClick={() => setLayout("list")}
                 aria-label={t("listView")}>
-                <List className="h-4 w-4" />
+                <List className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
             </div>
           )}
@@ -135,11 +151,11 @@ export function ProductGrid({
       )}
 
       {sortedProducts.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
+        <div className="text-center py-8 sm:py-12 text-muted-foreground text-xs sm:text-sm">
           {t("noProductsFound")}
         </div>
       ) : layout === "grid" ? (
-        <div className={cn("grid gap-6", gridColsClass)}>
+        <div className={cn("grid gap-3 sm:gap-6", gridColsClass)}>
           {sortedProducts.map((product) => (
             <ProductCard
               key={product.id}
@@ -149,7 +165,7 @@ export function ProductGrid({
           ))}
         </div>
       ) : (
-        <div className="flex flex-col space-y-6">
+        <div className="flex flex-col space-y-3 sm:space-y-6">
           {sortedProducts.map((product) => (
             <ProductCard
               key={product.id}

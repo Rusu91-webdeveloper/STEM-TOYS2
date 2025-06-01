@@ -298,7 +298,7 @@ export default function BlogCategoryPage() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[300px] md:h-[350px] flex items-center">
+      <section className="relative h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] flex items-center">
         <div className="absolute inset-0 z-0">
           <Image
             src={`/images/category_banner_${categorySlug}_01.png`}
@@ -310,24 +310,27 @@ export default function BlogCategoryPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-900/70 via-purple-900/60 to-pink-900/70" />
         </div>
-        <div className="container relative z-10 text-white px-4 sm:px-6 lg:px-8">
-          <div className="mb-4">
+        <div className="container relative z-10 text-white px-3 sm:px-4 lg:px-8">
+          <div className="mb-2 sm:mb-4">
             <Button
               variant="ghost"
-              className="text-white hover:text-white/90 p-0 h-auto"
+              className="text-white hover:text-white/90 p-0 h-auto text-xs sm:text-sm"
               asChild>
               <Link
                 href="/blog"
                 className="flex items-center gap-1">
-                <ArrowLeft size={16} />
+                <ArrowLeft
+                  size={14}
+                  className="sm:w-4 sm:h-4"
+                />
                 <span>{t("backToBlog")}</span>
               </Link>
             </Button>
           </div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 drop-shadow-md">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 sm:mb-4 drop-shadow-md">
             {categoryName} Blogs
           </h1>
-          <p className="text-lg md:text-xl mb-6 max-w-2xl leading-relaxed drop-shadow-sm">
+          <p className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl mb-3 sm:mb-6 max-w-2xl leading-relaxed drop-shadow-sm">
             Discover our collection of articles about{" "}
             {categoryName.toLowerCase()} topics for children and learning.
           </p>
@@ -335,47 +338,47 @@ export default function BlogCategoryPage() {
       </section>
 
       {/* Category Posts */}
-      <section className="py-12 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
-        <div className="container px-4 sm:px-6 lg:px-8 mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mx-auto max-w-7xl">
+      <section className="py-6 sm:py-8 md:py-12 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
+        <div className="container px-3 sm:px-4 lg:px-8 mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mx-auto max-w-7xl">
             {posts.map((post) => (
               <div
                 key={post.id}
                 className="bg-white rounded-lg overflow-hidden shadow-md border border-indigo-100 hover:shadow-xl hover:border-indigo-200 transition-all transform hover:-translate-y-1 duration-300">
-                <div className="relative h-48 w-full">
+                <div className="relative h-40 sm:h-48 w-full">
                   <Image
                     src={post.image}
                     alt={post.title}
                     fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     style={{ objectFit: "cover" }}
                     className="transition-transform hover:scale-105 duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                  <div className="absolute bottom-3 left-3">
-                    <span className="inline-block px-2 py-1 text-xs rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 font-medium shadow-sm border border-indigo-200/50">
+                  <div className="absolute bottom-2 sm:bottom-3 left-2 sm:left-3">
+                    <span className="inline-block px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 font-medium shadow-sm border border-indigo-200/50">
                       {post.category}
                     </span>
                   </div>
                 </div>
-                <div className="p-4">
-                  <div className="mb-2 flex justify-between items-center">
-                    <span className="text-xs text-indigo-600 font-medium">
+                <div className="p-3 sm:p-4">
+                  <div className="mb-1 sm:mb-2 flex justify-between items-center">
+                    <span className="text-[10px] sm:text-xs text-indigo-600 font-medium">
                       {post.date}
                     </span>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2 text-indigo-900 line-clamp-2 hover:text-indigo-700 transition-colors">
+                  <h3 className="text-sm sm:text-base md:text-lg font-semibold mb-1 sm:mb-2 text-indigo-900 line-clamp-2 hover:text-indigo-700 transition-colors">
                     {post.title}
                   </h3>
-                  <p className="text-sm text-gray-700 mb-4 line-clamp-3 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-gray-700 mb-2 sm:mb-4 line-clamp-2 sm:line-clamp-3 leading-relaxed">
                     {post.excerpt}
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-indigo-600 font-medium">
+                    <span className="text-[10px] sm:text-xs md:text-sm text-indigo-600 font-medium truncate max-w-[120px]">
                       By {post.author}
                     </span>
                     <Button
-                      className="bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 hover:from-indigo-100 hover:to-purple-100 border border-indigo-200 shadow-sm transition-all"
+                      className="bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 hover:from-indigo-100 hover:to-purple-100 border border-indigo-200 shadow-sm transition-all h-7 sm:h-8 text-[10px] sm:text-xs px-2 sm:px-3 py-0"
                       size="sm"
                       asChild>
                       <Link href={`/blog/post/${post.id}`}>
@@ -391,18 +394,18 @@ export default function BlogCategoryPage() {
       </section>
 
       {/* Related Categories */}
-      <section className="py-8 bg-white">
-        <div className="container px-4 sm:px-6 lg:px-8 mx-auto">
-          <h2 className="text-xl md:text-2xl font-bold mb-6 text-indigo-900">
+      <section className="py-6 sm:py-8 bg-white">
+        <div className="container px-3 sm:px-4 lg:px-8 mx-auto">
+          <h2 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-6 text-indigo-900">
             Explore Other Categories
           </h2>
-          <div className="flex flex-wrap gap-3 max-w-4xl">
+          <div className="flex flex-wrap gap-2 sm:gap-3 max-w-4xl">
             {Object.keys(blogPostsByCategory)
               .filter((cat) => cat !== categorySlug)
               .map((cat) => (
                 <Button
                   key={cat}
-                  className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white border-none shadow-md transition-all"
+                  className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white border-none shadow-md transition-all h-7 sm:h-8 text-xs sm:text-sm px-2 sm:px-3 py-0"
                   size="sm"
                   asChild>
                   <Link href={`/blog/category/${cat}`}>
@@ -415,22 +418,22 @@ export default function BlogCategoryPage() {
       </section>
 
       {/* Newsletter Signup */}
-      <section className="py-12 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white">
-        <div className="container px-4 sm:px-6 lg:px-8 mx-auto">
+      <section className="py-8 sm:py-10 md:py-12 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white">
+        <div className="container px-3 sm:px-4 lg:px-8 mx-auto">
           <div className="flex flex-col items-center text-center max-w-3xl mx-auto">
-            <h2 className="text-2xl md:text-3xl font-bold mb-4 drop-shadow-md">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-4 drop-shadow-md">
               {t("stayUpdated")}
             </h2>
-            <p className="mb-6 max-w-2xl leading-relaxed drop-shadow-sm">
+            <p className="text-xs sm:text-sm md:text-base mb-4 sm:mb-6 max-w-2xl leading-relaxed drop-shadow-sm">
               {t("newsletterDescription")}
             </p>
             <div className="w-full max-w-md flex gap-2">
               <input
                 type="email"
                 placeholder={t("emailPlaceholder")}
-                className="flex-1 px-4 py-2 rounded-md border border-white/30 bg-white/10 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 shadow-inner transition-all"
+                className="flex-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md border border-white/30 bg-white/10 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 shadow-inner transition-all text-xs sm:text-sm"
               />
-              <Button className="bg-white text-indigo-700 hover:bg-white/90 border-none shadow-md transition-all">
+              <Button className="bg-white text-indigo-700 hover:bg-white/90 border-none shadow-md transition-all text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
                 {t("subscribe")}
               </Button>
             </div>

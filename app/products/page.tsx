@@ -482,7 +482,7 @@ export default function ProductsPage() {
       {/* Hero section with dynamic background based on selected category */}
       <div className="relative">
         {/* Hero Image */}
-        <div className="relative h-[25vh] min-h-[200px] max-h-[300px] w-full">
+        <div className="relative h-[20vh] sm:h-[25vh] min-h-[180px] max-h-[300px] w-full">
           <Image
             src={categoryImagePath}
             alt={
@@ -498,43 +498,41 @@ export default function ProductsPage() {
 
           {/* Hero Content Overlay */}
           <div className="absolute inset-0 flex items-center">
-            <div className="container mx-auto px-4 text-white">
+            <div className="container mx-auto px-4 sm:px-6 text-white">
               <div className="max-w-3xl">
-                <div className="flex items-center gap-3 mb-2">
+                <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
                   <div
-                    className={`${activeCategoryInfo.bgColor} p-2 rounded-full`}>
-                    <IconComponent className="h-5 w-5 text-white" />
+                    className={`${activeCategoryInfo.bgColor} p-1.5 sm:p-2 rounded-full`}>
+                    <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
-                  <span className="text-lg font-bold bg-primary/80 text-white px-3 py-1 rounded-md">
+                  <span className="text-xs sm:text-sm md:text-lg font-bold bg-primary/80 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-md">
                     {activeCategory ? activeCategory.label : t("allCategories")}
                   </span>
                 </div>
 
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 drop-shadow-lg">
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-1 sm:mb-2 drop-shadow-lg">
                   {getCategoryTitle()}
                 </h1>
-                <p className="text-sm sm:text-base max-w-2xl text-white/90 drop-shadow-md hidden sm:block">
+                <p className="text-xs sm:text-sm max-w-2xl text-white/90 drop-shadow-md hidden sm:block">
                   {getCategoryDescription()}
                 </p>
-
-                {/* Removing duplicate STEM Category filter buttons from hero section */}
               </div>
             </div>
           </div>
         </div>
 
         {/* Bubble decorations - made smaller and less distracting */}
-        <div className="absolute -bottom-4 left-0 w-16 h-16 rounded-full bg-blue-500/20 blur-xl"></div>
-        <div className="absolute -bottom-6 left-1/4 w-20 h-20 rounded-full bg-green-500/20 blur-xl"></div>
-        <div className="absolute -bottom-8 right-1/3 w-24 h-24 rounded-full bg-yellow-500/20 blur-xl"></div>
-        <div className="absolute -bottom-5 right-0 w-16 h-16 rounded-full bg-purple-500/20 blur-xl"></div>
+        <div className="absolute -bottom-4 left-0 w-8 sm:w-16 h-8 sm:h-16 rounded-full bg-blue-500/20 blur-xl"></div>
+        <div className="absolute -bottom-6 left-1/4 w-10 sm:w-20 h-10 sm:h-20 rounded-full bg-green-500/20 blur-xl"></div>
+        <div className="absolute -bottom-8 right-1/3 w-12 sm:w-24 h-12 sm:h-24 rounded-full bg-yellow-500/20 blur-xl"></div>
+        <div className="absolute -bottom-5 right-0 w-8 sm:w-16 h-8 sm:h-16 rounded-full bg-purple-500/20 blur-xl"></div>
       </div>
 
       {/* Enhanced STEM Category Filters - Prominent positioning */}
-      <div className="sticky top-16 z-20 bg-white border-b border-gray-200 shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <div className="flex flex-wrap gap-3 justify-center">
+      <div className="sticky top-14 sm:top-16 z-20 bg-white border-b border-gray-200 shadow-sm">
+        <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4">
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
+            <div className="flex flex-wrap gap-1.5 sm:gap-3 justify-center">
               {Object.entries(categoryInfo).map(([key, category]) => {
                 const CategoryIcon = category.icon;
                 const categoryColor =
@@ -564,16 +562,16 @@ export default function ProductsPage() {
                   <Button
                     key={key}
                     variant="outline"
-                    size="lg"
-                    className={`h-12 px-5 rounded-full text-sm font-medium flex items-center gap-2 border-2 transition-all hover:scale-105 ${
+                    size="sm"
+                    className={`h-8 sm:h-12 px-2 sm:px-5 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 border-2 transition-all hover:scale-105 ${
                       isSelected ? activeColor : categoryColor
                     }`}
                     onClick={() => handleCategoryChange(key)}>
-                    <CategoryIcon className="h-5 w-5" />
-                    <span className="hidden sm:inline">
+                    <CategoryIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                    <span className="hidden xs:inline">
                       {key.charAt(0).toUpperCase() + key.slice(1)}
                     </span>
-                    <span className="sm:hidden">{category.letter}</span>
+                    <span className="xs:hidden">{category.letter}</span>
                   </Button>
                 );
               })}
@@ -584,22 +582,22 @@ export default function ProductsPage() {
 
       {/* STEM Benefits Section - Made more compact and only show when no category is selected */}
       {!activeCategory && (
-        <div className="bg-white py-8">
+        <div className="bg-white py-6 sm:py-8">
           <div className="container mx-auto px-4">
-            <h2 className="text-xl font-bold text-center mb-6">
+            <h2 className="text-lg sm:text-xl font-bold text-center mb-4 sm:mb-6">
               {t("whyStemEssential")}
             </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
               {stemBenefits.map((benefit, index) => {
                 const BenefitIcon = benefit.icon;
                 return (
                   <div
                     key={index}
-                    className="bg-gray-50 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col items-center text-center">
-                    <div className="p-2 rounded-full bg-primary/10 text-primary mb-2">
-                      <BenefitIcon className="h-5 w-5" />
+                    className="bg-gray-50 rounded-xl p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow border border-gray-100 flex flex-col items-center text-center">
+                    <div className="p-1.5 sm:p-2 rounded-full bg-primary/10 text-primary mb-1.5 sm:mb-2">
+                      <BenefitIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
-                    <h3 className="font-bold text-sm mb-1">
+                    <h3 className="font-bold text-xs sm:text-sm mb-1">
                       {t(benefit.titleKey)}
                     </h3>
                     <p className="text-gray-600 text-xs">
@@ -613,15 +611,15 @@ export default function ProductsPage() {
         </div>
       )}
 
-      <div className="container mx-auto px-4 py-6 relative z-10">
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 relative z-10">
         {/* Filter and sorting bar - Add STEM category filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-full bg-primary/10">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-2 sm:p-3 mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-2 sm:gap-4">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <div className="p-1 sm:p-1.5 rounded-full bg-primary/10">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
+                width="14"
+                height="14"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -632,18 +630,20 @@ export default function ProductsPage() {
                 <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
               </svg>
             </div>
-            <span className="text-sm font-medium">{t("filterBy")}</span>
+            <span className="text-xs sm:text-sm font-medium">
+              {t("filterBy")}
+            </span>
           </div>
           <div className="flex items-center gap-1">
             <Button
               variant={viewMode === "grid" ? "default" : "outline"}
               size="sm"
               onClick={() => setViewMode("grid")}
-              className="w-8 h-7 p-0">
+              className="w-7 sm:w-8 h-6 sm:h-7 p-0">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
+                width="12"
+                height="12"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -684,11 +684,11 @@ export default function ProductsPage() {
               variant={viewMode === "list" ? "default" : "outline"}
               size="sm"
               onClick={() => setViewMode("list")}
-              className="w-8 h-7 p-0">
+              className="w-7 sm:w-8 h-6 sm:h-7 p-0">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
+                width="12"
+                height="12"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -719,24 +719,24 @@ export default function ProductsPage() {
         </div>
 
         {/* Main product area with showing products count */}
-        <div className="mb-4 px-2">
-          <p className="text-sm text-muted-foreground">
+        <div className="mb-3 sm:mb-4 px-1 sm:px-2">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             {t("showingProducts")
               .replace("{0}", filteredProducts.length.toString())
               .replace("{1}", products.length.toString())}
           </p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
           {/* Sidebar with filters */}
           <div className="w-full md:w-64 shrink-0">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sticky top-24">
-              <h3 className="text-base font-bold mb-3 flex items-center gap-2">
-                <div className="p-1.5 rounded-full bg-primary/10">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-4 sticky top-20 sm:top-24">
+              <h3 className="text-sm sm:text-base font-bold mb-2 sm:mb-3 flex items-center gap-1.5 sm:gap-2">
+                <div className="p-1 sm:p-1.5 rounded-full bg-primary/10">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
+                    width="12"
+                    height="12"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -772,7 +772,7 @@ export default function ProductsPage() {
             {/* Educational categories banner for additional context - only show when filtering */}
             {activeCategory && filteredProducts.length > 0 && (
               <div
-                className={`mb-4 p-3 rounded-xl bg-gradient-to-r 
+                className={`mb-3 sm:mb-4 p-2 sm:p-3 rounded-xl bg-gradient-to-r 
                 ${
                   activeCategory.id === "science"
                     ? "from-blue-50 to-blue-100 border-blue-200"
@@ -782,16 +782,16 @@ export default function ProductsPage() {
                         ? "from-orange-50 to-orange-100 border-orange-200"
                         : "from-purple-50 to-purple-100 border-purple-200"
                 } border shadow-sm`}>
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <div className="flex flex-col xs:flex-row items-start xs:items-center gap-2 sm:gap-3">
                   <div
-                    className={`p-3 rounded-full ${categoryInfo[activeCategory.id as keyof typeof categoryInfo].bgColor} flex-shrink-0`}>
-                    <IconComponent className="h-5 w-5 text-white" />
+                    className={`p-2 sm:p-3 rounded-full ${categoryInfo[activeCategory.id as keyof typeof categoryInfo].bgColor} flex-shrink-0`}>
+                    <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-base font-semibold mb-1">
+                    <h3 className="text-sm sm:text-base font-semibold mb-0.5 sm:mb-1">
                       {getLearningTitle()}
                     </h3>
-                    <p className="text-sm text-gray-600 line-clamp-2">
+                    <p className="text-xs sm:text-sm text-gray-600 line-clamp-2">
                       {getLearningDescription()}
                     </p>
                   </div>
@@ -800,25 +800,26 @@ export default function ProductsPage() {
             )}
 
             {/* Products display */}
-            <div className={viewMode === "list" ? "space-y-4" : ""}>
+            <div
+              className={viewMode === "list" ? "space-y-3 sm:space-y-4" : ""}>
               {viewMode === "grid" ? (
-                <div className="bg-gray-50/50 rounded-xl p-4">
+                <div className="bg-gray-50/50 rounded-xl p-2 sm:p-4">
                   <ProductGrid
                     products={filteredProducts as unknown as Product[]}
                     columns={{ sm: 1, md: 2, lg: 3, xl: 3 }}
                   />
                 </div>
               ) : (
-                <div className="bg-gray-50/50 rounded-xl p-4 space-y-3">
+                <div className="bg-gray-50/50 rounded-xl p-2 sm:p-4 space-y-2 sm:space-y-3">
                   {filteredProducts.map((product) => (
                     <div
                       key={product.id}
-                      className="flex flex-col sm:flex-row gap-4 bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow relative group">
+                      className="flex flex-col xs:flex-row gap-3 sm:gap-4 bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow relative group">
                       {/* Fun shape decoration - smaller size */}
-                      <div className="absolute -left-2 -top-2 w-8 h-8 rounded-full bg-primary/10 transition-transform group-hover:scale-110 -z-0 hidden sm:block"></div>
-                      <div className="absolute -right-2 -bottom-2 w-6 h-6 rounded-full bg-yellow-200/30 transition-transform group-hover:scale-110 -z-0 hidden sm:block"></div>
+                      <div className="absolute -left-2 -top-2 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary/10 transition-transform group-hover:scale-110 -z-0 hidden sm:block"></div>
+                      <div className="absolute -right-2 -bottom-2 w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-yellow-200/30 transition-transform group-hover:scale-110 -z-0 hidden sm:block"></div>
 
-                      <div className="sm:w-1/3 relative h-40 z-10">
+                      <div className="xs:w-1/3 relative h-32 xs:h-36 sm:h-40 z-10">
                         <Image
                           src={product.images[0]}
                           alt={product.name}
@@ -827,16 +828,16 @@ export default function ProductsPage() {
                           className="transition-transform hover:scale-105 duration-300"
                         />
                         {product.compareAtPrice && (
-                          <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md">
+                          <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md">
                             Sale
                           </div>
                         )}
                       </div>
-                      <div className="p-4 sm:w-2/3 z-10">
-                        <div className="flex flex-wrap gap-2 mb-2">
+                      <div className="p-3 sm:p-4 xs:w-2/3 z-10">
+                        <div className="flex flex-wrap gap-1 sm:gap-2 mb-1.5 sm:mb-2">
                           <Badge
                             variant="outline"
-                            className={`
+                            className={`text-xs px-1.5 py-0 sm:px-2 sm:py-0.5
                             ${
                               product.category?.name.toLowerCase() === "science"
                                 ? "bg-blue-100 text-blue-700 border-blue-200"
@@ -853,24 +854,24 @@ export default function ProductsPage() {
                           </Badge>
                           <Badge
                             variant="outline"
-                            className="bg-gray-100 text-gray-700 border-gray-200">
+                            className="bg-gray-100 text-gray-700 border-gray-200 text-xs px-1.5 py-0 sm:px-2 sm:py-0.5">
                             {product.ageRange} years
                           </Badge>
                           <Badge
                             variant="outline"
-                            className="bg-gray-100 text-gray-700 border-gray-200">
+                            className="bg-gray-100 text-gray-700 border-gray-200 text-xs px-1.5 py-0 sm:px-2 sm:py-0.5">
                             {product.attributes?.difficulty}
                           </Badge>
                         </div>
-                        <h3 className="text-base font-semibold mb-1">
+                        <h3 className="text-sm sm:text-base font-semibold mb-0.5 sm:mb-1">
                           {product.name}
                         </h3>
-                        <p className="text-xs text-gray-600 mb-3 line-clamp-2">
+                        <p className="text-xs text-gray-600 mb-2 sm:mb-3 line-clamp-2">
                           {product.description}
                         </p>
                         <div className="flex justify-between items-center">
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-base font-bold">
+                          <div className="flex items-baseline gap-1 sm:gap-2">
+                            <span className="text-sm sm:text-base font-bold">
                               ${product.price.toFixed(2)}
                             </span>
                             {product.compareAtPrice && (
@@ -882,7 +883,7 @@ export default function ProductsPage() {
                           <Link href={`/products/${product.slug}`}>
                             <Button
                               size="sm"
-                              className="rounded-full px-3 text-xs py-1 h-7 transition-transform hover:scale-105">
+                              className="rounded-full px-2 sm:px-3 text-xs py-0.5 sm:py-1 h-6 sm:h-7 transition-transform hover:scale-105">
                               {t("viewDetails")}
                             </Button>
                           </Link>
@@ -895,12 +896,12 @@ export default function ProductsPage() {
             </div>
 
             {filteredProducts.length === 0 && (
-              <div className="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-100">
-                <div className="mx-auto w-12 h-12 mb-3 bg-gray-100 rounded-full flex items-center justify-center">
+              <div className="text-center py-8 sm:py-12 bg-white rounded-xl shadow-sm border border-gray-100">
+                <div className="mx-auto w-10 h-10 sm:w-12 sm:h-12 mb-2 sm:mb-3 bg-gray-100 rounded-full flex items-center justify-center">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
+                    width="16"
+                    height="16"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
@@ -916,15 +917,15 @@ export default function ProductsPage() {
                     <path d="m21 21-4.3-4.3" />
                   </svg>
                 </div>
-                <h3 className="text-base font-medium mb-2">
+                <h3 className="text-sm sm:text-base font-medium mb-1 sm:mb-2">
                   {t("noProductsFound")}
                 </h3>
-                <p className="text-xs text-muted-foreground mb-4">
+                <p className="text-xs text-muted-foreground mb-3 sm:mb-4">
                   {t("tryAdjustingFilters")}
                 </p>
                 <Button
                   onClick={handleClearFilters}
-                  className="rounded-full px-4 text-sm py-1 h-8">
+                  className="rounded-full px-3 sm:px-4 text-xs sm:text-sm py-1 h-7 sm:h-8">
                   {t("clearAllFilters")}
                 </Button>
               </div>

@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/components/ui/use-toast";
 import { Trash, Heart, ShoppingCart, Share2, AlertCircle } from "lucide-react";
-import { formatCurrency } from "@/lib/utils";
+import { useTranslation } from "@/lib/i18n";
+import { useShoppingCart } from "@/features/cart";
+import { useCurrency } from "@/lib/currency";
 
 // Define wishlist item interface
 interface WishlistItem {
@@ -21,53 +23,31 @@ interface WishlistItem {
   dateAdded: string;
 }
 
-// Sample wishlist items
-const SAMPLE_WISHLIST: WishlistItem[] = [
-  {
-    id: "w1",
-    productId: "p1",
-    name: "Science Microscope Kit for Kids",
-    price: 79.99,
-    image: "/images/product-placeholder.jpg",
-    slug: "science-microscope-kit-for-kids",
-    inStock: true,
-    dateAdded: "2023-11-15T12:30:00Z",
-  },
-  {
-    id: "w2",
-    productId: "p2",
-    name: "Robotics Building Set with Remote Control",
-    price: 129.99,
-    image: "/images/product-placeholder.jpg",
-    slug: "robotics-building-set-with-remote-control",
-    inStock: true,
-    dateAdded: "2023-11-10T09:15:00Z",
-  },
-  {
-    id: "w3",
-    productId: "p3",
-    name: "Interactive Solar System Model",
-    price: 54.99,
-    image: "/images/product-placeholder.jpg",
-    slug: "interactive-solar-system-model",
-    inStock: false,
-    dateAdded: "2023-10-25T15:45:00Z",
-  },
-];
-
 export function Wishlist() {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const { addItem } = useShoppingCart();
+  const { formatPrice } = useCurrency();
 
   useEffect(() => {
-    // Simulate fetching wishlist items from API
+    // Fetch wishlist items from API
     const fetchWishlist = async () => {
       try {
-        // In a real app, this would be an API call
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        setWishlistItems(SAMPLE_WISHLIST);
+        setIsLoading(true);
+        const response = await fetch("/api/account/wishlist");
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setWishlistItems(data);
+        setError(null);
       } catch (error) {
         console.error("Error fetching wishlist:", error);
+        setError("Failed to load your wishlist");
       } finally {
         setIsLoading(false);
       }
@@ -78,20 +58,31 @@ export function Wishlist() {
 
   const handleRemoveFromWishlist = async (id: string) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      const response = await fetch(`/api/account/wishlist?id=${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
 
       // Update local state
       setWishlistItems(wishlistItems.filter((item) => item.id !== id));
 
       toast({
-        title: "Item removed from wishlist",
-        description: "The item has been removed from your wishlist.",
+        title: t("itemRemovedFromWishlist", "Item removed from wishlist"),
+        description: t(
+          "itemRemovedDesc",
+          "The item has been removed from your wishlist."
+        ),
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to remove item from wishlist.",
+        title: t("error", "Error"),
+        description: t(
+          "removeWishlistError",
+          "Failed to remove item from wishlist."
+        ),
         variant: "destructive",
       });
     }
@@ -99,17 +90,27 @@ export function Wishlist() {
 
   const handleAddToCart = async (item: WishlistItem) => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      // Use the shopping cart hook to add the item directly to cart
+      addItem({
+        productId: item.productId,
+        name: item.name,
+        price: item.price,
+        quantity: 1,
+        image: item.image,
+      });
 
       toast({
-        title: "Added to cart",
-        description: `${item.name} has been added to your cart.`,
+        title: t("addedToCart", "Added to cart"),
+        description: t(
+          "productAddedToCart",
+          "Product has been added to your cart"
+        ),
+        variant: "cart",
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to add item to cart.",
+        title: t("error", "Error"),
+        description: t("addToCartError", "Failed to add item to cart."),
         variant: "destructive",
       });
     }
@@ -124,26 +125,51 @@ export function Wishlist() {
         .writeText(shareUrl)
         .then(() => {
           toast({
-            title: "Link copied",
-            description: "Product link has been copied to clipboard.",
+            title: t("linkCopied", "Link copied"),
+            description: t(
+              "linkCopiedDesc",
+              "Product link has been copied to clipboard."
+            ),
           });
         })
         .catch(() => {
           toast({
-            title: "Error",
-            description: "Failed to copy link.",
+            title: t("error", "Error"),
+            description: t("copyLinkError", "Failed to copy link."),
             variant: "destructive",
           });
         });
     } else {
       // Fallback for browsers that don't support clipboard API
       toast({
-        title: "Sharing not supported",
-        description: "Your browser doesn't support sharing.",
+        title: t("sharingNotSupported", "Sharing not supported"),
+        description: t(
+          "browserNotSupport",
+          "Your browser doesn't support sharing."
+        ),
         variant: "destructive",
       });
     }
   };
+
+  // Error state
+  if (error) {
+    return (
+      <div className="text-center py-12 border rounded-lg">
+        <AlertCircle className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+        <h3 className="text-lg font-medium mb-2">{error}</h3>
+        <p className="text-gray-500 mb-6">
+          {t(
+            "wishlistErrorDesc",
+            "We couldn't load your wishlist. Please try again later."
+          )}
+        </p>
+        <Button onClick={() => window.location.reload()}>
+          {t("tryAgain", "Try Again")}
+        </Button>
+      </div>
+    );
+  }
 
   // Loading state
   if (isLoading) {
@@ -176,12 +202,17 @@ export function Wishlist() {
     return (
       <div className="text-center py-12 border rounded-lg">
         <Heart className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-        <h3 className="text-lg font-medium mb-2">Your wishlist is empty</h3>
+        <h3 className="text-lg font-medium mb-2">
+          {t("emptyWishlist", "Your wishlist is empty")}
+        </h3>
         <p className="text-gray-500 mb-6">
-          You haven't added any products to your wishlist yet.
+          {t(
+            "noProductsWishlist",
+            "You haven't added any products to your wishlist yet."
+          )}
         </p>
         <Button asChild>
-          <Link href="/products">Start Shopping</Link>
+          <Link href="/products">{t("startShopping", "Start Shopping")}</Link>
         </Button>
       </div>
     );
@@ -206,7 +237,7 @@ export function Wishlist() {
               size="icon"
               className="absolute top-2 right-2 h-8 w-8 bg-white/70 hover:bg-white/90 text-red-500"
               onClick={() => handleRemoveFromWishlist(item.id)}
-              title="Remove from wishlist">
+              title={t("removeFromWishlist", "Remove from wishlist")}>
               <Trash className="h-4 w-4" />
             </Button>
           </div>
@@ -216,11 +247,11 @@ export function Wishlist() {
               className="text-sm font-medium line-clamp-2 hover:underline mb-2">
               {item.name}
             </Link>
-            <p className="text-lg font-bold">{formatCurrency(item.price)}</p>
+            <p className="text-lg font-bold">{formatPrice(item.price)}</p>
             {!item.inStock && (
               <div className="flex items-center gap-1 text-amber-600 text-sm mt-2">
                 <AlertCircle className="h-4 w-4" />
-                Out of stock
+                {t("outOfStock", "Out of stock")}
               </div>
             )}
           </CardContent>
@@ -231,14 +262,16 @@ export function Wishlist() {
               className="text-gray-600"
               onClick={() => handleShare(item)}>
               <Share2 className="h-4 w-4 mr-1" />
-              Share
+              {t("share", "Share")}
             </Button>
             <Button
               size="sm"
               onClick={() => handleAddToCart(item)}
               disabled={!item.inStock}>
               <ShoppingCart className="h-4 w-4 mr-1" />
-              {item.inStock ? "Add to Cart" : "Unavailable"}
+              {item.inStock
+                ? t("addToCart", "Add to Cart")
+                : t("unavailable", "Unavailable")}
             </Button>
           </CardFooter>
         </Card>

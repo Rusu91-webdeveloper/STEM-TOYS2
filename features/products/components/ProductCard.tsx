@@ -67,8 +67,12 @@ export function ProductCard({
 
   if (layout === "list") {
     return (
-      <div className={cn("flex border rounded-lg overflow-hidden", className)}>
-        <div className="relative w-1/3 max-w-[240px]">
+      <div
+        className={cn(
+          "flex flex-col xs:flex-row border rounded-lg overflow-hidden",
+          className
+        )}>
+        <div className="relative w-full xs:w-1/3 h-48 xs:h-auto xs:max-w-[240px]">
           <Link href={`/products/${product.slug}`}>
             <div className="relative h-full w-full">
               <Image
@@ -80,47 +84,49 @@ export function ProductCard({
               />
             </div>
             {isOnSale && (
-              <Badge className="absolute top-2 left-2 bg-red-500">Sale</Badge>
+              <Badge className="absolute top-2 left-2 bg-red-500 text-xs px-1.5 py-0.5 sm:px-2 sm:py-0.5">
+                Sale
+              </Badge>
             )}
             {product.stemCategory && (
               <Badge
-                className="absolute top-2 right-2 capitalize"
+                className="absolute top-2 right-2 capitalize text-xs px-1.5 py-0.5 sm:px-2 sm:py-0.5"
                 variant="outline">
                 {product.stemCategory}
               </Badge>
             )}
           </Link>
         </div>
-        <div className="flex flex-col flex-1 p-4 justify-between">
-          <div className="space-y-2">
+        <div className="flex flex-col flex-1 p-3 sm:p-4 justify-between">
+          <div className="space-y-1 sm:space-y-2">
             <Link
               href={`/products/${product.slug}`}
               className="block">
-              <h3 className="font-medium line-clamp-2 hover:underline">
+              <h3 className="font-medium text-sm sm:text-base line-clamp-2 hover:underline">
                 {product.name}
               </h3>
             </Link>
             {product.ageRange && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Ages: {product.ageRange}
               </p>
             )}
             {renderRating()}
-            <p className="text-sm line-clamp-3 text-muted-foreground">
+            <p className="text-xs line-clamp-2 sm:line-clamp-3 text-muted-foreground">
               {product.description}
             </p>
           </div>
-          <div className="flex items-end justify-between mt-4">
-            <div className="flex items-baseline space-x-2">
+          <div className="flex items-end justify-between mt-3 sm:mt-4">
+            <div className="flex items-baseline space-x-1 sm:space-x-2">
               <span
                 className={cn(
-                  "font-medium text-lg",
+                  "font-medium text-sm sm:text-lg",
                   isOnSale && "text-red-500"
                 )}>
                 {formatPrice(product.price)}
               </span>
               {isOnSale && product.compareAtPrice && (
-                <span className="text-sm line-through text-muted-foreground">
+                <span className="text-xs line-through text-muted-foreground">
                   {formatPrice(product.compareAtPrice)}
                 </span>
               )}
@@ -128,6 +134,7 @@ export function ProductCard({
             <ProductAddToCartButton
               product={productData}
               showQuantity={false}
+              className="scale-90 sm:scale-100"
             />
           </div>
         </div>
@@ -144,7 +151,12 @@ export function ProductCard({
       )}>
       <div
         className="relative overflow-hidden"
-        style={{ height: imageHeight }}>
+        style={{
+          height: Math.min(
+            imageHeight,
+            window.innerWidth < 640 ? 200 : imageHeight
+          ),
+        }}>
         <Link href={`/products/${product.slug}`}>
           <Image
             src={product.images[0] || "/placeholder-product.png"}
@@ -154,38 +166,44 @@ export function ProductCard({
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
           {isOnSale && (
-            <Badge className="absolute top-2 left-2 bg-red-500">Sale</Badge>
+            <Badge className="absolute top-2 left-2 bg-red-500 text-xs px-1.5 py-0.5 sm:px-2 sm:py-0.5">
+              Sale
+            </Badge>
           )}
           {product.stemCategory && (
             <Badge
-              className="absolute top-2 right-2 capitalize"
+              className="absolute top-2 right-2 capitalize text-xs px-1.5 py-0.5 sm:px-2 sm:py-0.5"
               variant="outline">
               {product.stemCategory}
             </Badge>
           )}
         </Link>
       </div>
-      <div className="flex flex-col flex-1 p-4 space-y-2">
+      <div className="flex flex-col flex-1 p-3 sm:p-4 space-y-1 sm:space-y-2">
         <Link
           href={`/products/${product.slug}`}
           className="block flex-grow">
-          <h3 className="font-medium line-clamp-2 group-hover:underline">
+          <h3 className="font-medium text-sm sm:text-base line-clamp-2 group-hover:underline">
             {product.name}
           </h3>
         </Link>
         {product.ageRange && (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground">
             Ages: {product.ageRange}
           </p>
         )}
         {renderRating()}
         <div className="flex items-end justify-between mt-auto pt-2">
-          <div className="flex items-baseline space-x-2">
-            <span className={cn("font-medium", isOnSale && "text-red-500")}>
+          <div className="flex items-baseline space-x-1 sm:space-x-2">
+            <span
+              className={cn(
+                "font-medium text-sm sm:text-base",
+                isOnSale && "text-red-500"
+              )}>
               {formatPrice(product.price)}
             </span>
             {isOnSale && product.compareAtPrice && (
-              <span className="text-sm line-through text-muted-foreground">
+              <span className="text-xs line-through text-muted-foreground">
                 {formatPrice(product.compareAtPrice)}
               </span>
             )}
@@ -193,7 +211,7 @@ export function ProductCard({
           <ProductAddToCartButton
             product={productData}
             showQuantity={false}
-            className="min-w-[90px]"
+            className="scale-90 sm:scale-100 min-w-[80px] sm:min-w-[90px]"
           />
         </div>
       </div>

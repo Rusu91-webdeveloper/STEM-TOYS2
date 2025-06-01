@@ -205,6 +205,13 @@ exports.Prisma.ProductScalarFieldEnum = {
   featured: 'featured'
 };
 
+exports.Prisma.WishlistScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  productId: 'productId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.BlogScalarFieldEnum = {
   id: 'id',
   title: 'title',
@@ -291,6 +298,7 @@ exports.Prisma.ModelName = {
   PaymentCard: 'PaymentCard',
   Category: 'Category',
   Product: 'Product',
+  Wishlist: 'Wishlist',
   Blog: 'Blog',
   Book: 'Book',
   Language: 'Language'

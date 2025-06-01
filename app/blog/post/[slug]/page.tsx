@@ -103,21 +103,21 @@ export default function BlogPostPage() {
 
   if (isLoading) {
     return (
-      <div className="container py-12 flex justify-center items-center min-h-[60vh]">
-        <p className="text-lg">{t("loading")} ...</p>
+      <div className="container py-8 sm:py-12 flex justify-center items-center min-h-[60vh]">
+        <p className="text-base sm:text-lg">{t("loading")} ...</p>
       </div>
     );
   }
 
   if (error || !blogPost) {
     return (
-      <div className="container py-12 flex flex-col justify-center items-center min-h-[60vh]">
-        <p className="text-lg text-red-500 mb-4">
+      <div className="container py-8 sm:py-12 flex flex-col justify-center items-center min-h-[60vh]">
+        <p className="text-base sm:text-lg text-red-500 mb-4">
           {error || t("blogPostNotFound")}
         </p>
         <Link href="/blog">
           <Button>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+            <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-2" />
             {t("backToBlog")}
           </Button>
         </Link>
@@ -128,7 +128,7 @@ export default function BlogPostPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header Image */}
-      <div className="relative h-[400px] md:h-[500px]">
+      <div className="relative h-[200px] sm:h-[300px] md:h-[400px] lg:h-[500px]">
         <Image
           src={blogPost.coverImage || getDefaultImage(blogPost.stemCategory)}
           alt={blogPost.title}
@@ -140,56 +140,64 @@ export default function BlogPostPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
 
         {/* Back button - desktop */}
-        <div className="absolute top-4 left-4 hidden md:block">
+        <div className="absolute top-3 sm:top-4 left-3 sm:left-4 hidden md:block">
           <Link href="/blog">
             <Button
               variant="outline"
-              className="bg-white/80 backdrop-blur-sm hover:bg-white">
-              <ArrowLeft className="h-4 w-4 mr-2" />
+              size="sm"
+              className="bg-white/80 backdrop-blur-sm hover:bg-white h-8 sm:h-9 text-xs sm:text-sm">
+              <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
               {t("backToBlog")}
             </Button>
           </Link>
         </div>
 
         {/* Language indicator - displayed on desktop */}
-        <div className="absolute top-4 right-4 hidden md:flex items-center gap-2 bg-white/80 px-3 py-1 rounded-full backdrop-blur-sm">
+        <div className="absolute top-3 sm:top-4 right-3 sm:right-4 hidden md:flex items-center gap-1.5 sm:gap-2 bg-white/80 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full backdrop-blur-sm">
           {language === "ro" ? "🇷🇴" : "🇬🇧"}
-          <span className="text-sm font-medium text-gray-900">
+          <span className="text-xs sm:text-sm font-medium text-gray-900">
             {language === "ro" ? "Română" : "English"}
           </span>
         </div>
 
         {/* Title overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 bg-gradient-to-t from-black/80 to-transparent">
+        <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-6 md:p-10 bg-gradient-to-t from-black/80 to-transparent">
           <div className="container mx-auto">
-            <div className="flex items-center space-x-2 text-white/80 mb-3">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-white/80 mb-1.5 sm:mb-3 text-xs sm:text-sm">
               <Link
                 href={`/blog/category/${blogPost.category.slug}`}
                 className="hover:text-white transition-colors">
                 {blogPost.category.name}
               </Link>
-              <span>•</span>
+              <span className="hidden xs:inline">•</span>
               <span className="flex items-center">
-                <Calendar className="w-4 h-4 mr-1" />
-                {format(new Date(blogPost.publishedAt), "MMMM d, yyyy")}
+                <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                <span className="hidden xs:inline">
+                  {format(new Date(blogPost.publishedAt), "MMMM d, yyyy")}
+                </span>
+                <span className="xs:hidden">
+                  {format(new Date(blogPost.publishedAt), "MM/dd/yyyy")}
+                </span>
               </span>
               {blogPost.author?.name && (
                 <>
-                  <span>•</span>
+                  <span className="hidden xs:inline">•</span>
                   <span className="flex items-center">
-                    <User className="w-4 h-4 mr-1" />
-                    {blogPost.author.name}
+                    <User className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    <span className="truncate max-w-[80px] sm:max-w-none">
+                      {blogPost.author.name}
+                    </span>
                   </span>
                 </>
               )}
 
               {/* Mobile language indicator */}
-              <span className="md:hidden">•</span>
+              <span className="md:hidden hidden xs:inline">•</span>
               <span className="flex items-center md:hidden">
                 {language === "ro" ? "🇷🇴" : "🇬🇧"}
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-sm">
+            <h1 className="text-xl xs:text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-sm">
               {blogPost.title}
             </h1>
           </div>
@@ -197,39 +205,43 @@ export default function BlogPostPage() {
       </div>
 
       {/* Back button - mobile */}
-      <div className="container mx-auto md:hidden py-4">
+      <div className="container mx-auto md:hidden py-3 sm:py-4 px-3 sm:px-4">
         <Link href="/blog">
-          <Button size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
+          <Button
+            size="sm"
+            className="h-8 text-xs">
+            <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
             {t("backToBlog")}
           </Button>
         </Link>
       </div>
 
-      <main className="container mx-auto max-w-4xl py-10 px-4">
+      <main className="container mx-auto max-w-4xl py-6 sm:py-8 md:py-10 px-3 sm:px-4">
         {/* Article content */}
-        <article className="bg-white p-6 rounded-lg shadow-sm">
-          <div className="prose prose-indigo max-w-none">
-            <p className="text-xl text-gray-600 mb-6 font-medium leading-relaxed">
+        <article className="bg-white p-3 sm:p-4 md:p-6 rounded-lg shadow-sm">
+          <div className="prose prose-sm sm:prose prose-indigo max-w-none">
+            <p className="text-base sm:text-lg md:text-xl text-gray-600 mb-4 sm:mb-6 font-medium leading-relaxed">
               {blogPost.excerpt}
             </p>
-            <Separator className="my-8" />
-            <div className="whitespace-pre-line">{blogPost.content}</div>
+            <Separator className="my-4 sm:my-6 md:my-8" />
+            <div className="whitespace-pre-line text-sm sm:text-base">
+              {blogPost.content}
+            </div>
           </div>
 
           {/* Tags */}
           {blogPost.tags && blogPost.tags.length > 0 && (
-            <div className="mt-10 pt-6 border-t">
-              <h3 className="text-lg font-medium mb-3 flex items-center">
-                <Tag className="h-4 w-4 mr-2" />
+            <div className="mt-6 sm:mt-8 md:mt-10 pt-4 sm:pt-6 border-t">
+              <h3 className="text-base sm:text-lg font-medium mb-2 sm:mb-3 flex items-center">
+                <Tag className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
                 {t("tags")}
               </h3>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {blogPost.tags.map((tag) => (
                   <Badge
                     key={tag}
                     variant="outline"
-                    className="bg-gray-100">
+                    className="bg-gray-100 text-xs sm:text-sm">
                     {tag}
                   </Badge>
                 ))}
@@ -239,10 +251,10 @@ export default function BlogPostPage() {
         </article>
 
         {/* Back to blog link */}
-        <div className="flex justify-center mt-10">
+        <div className="flex justify-center mt-6 sm:mt-8 md:mt-10">
           <Link href="/blog">
-            <Button>
-              <ArrowLeft className="h-4 w-4 mr-2" />
+            <Button className="text-xs sm:text-sm h-8 sm:h-9">
+              <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
               {t("backToBlog")}
             </Button>
           </Link>

@@ -50,7 +50,7 @@ export default function AboutPage() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative h-[400px] flex items-center">
+      <section className="relative h-[250px] sm:h-[300px] md:h-[400px] flex items-center">
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/category_banner_science_01.png"
@@ -62,34 +62,34 @@ export default function AboutPage() {
           />
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-900/70 via-purple-900/60 to-pink-900/70" />
         </div>
-        <div className="container relative z-10 text-white px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-md">
+        <div className="container relative z-10 text-white px-3 sm:px-4 lg:px-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-2 sm:mb-4 drop-shadow-md">
             {t("aboutTitle")}
           </h1>
-          <p className="text-xl md:text-2xl mb-8 max-w-2xl leading-relaxed drop-shadow-sm">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl mb-4 sm:mb-6 max-w-2xl leading-relaxed drop-shadow-sm">
             {t("aboutDescription")}
           </p>
         </div>
       </section>
 
       {/* Our Story */}
-      <section className="py-16 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
-        <div className="container px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <section className="py-8 sm:py-10 md:py-16 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
+        <div className="container px-3 sm:px-4 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
             <div>
-              <div className="flex items-center mb-6">
+              <div className="flex items-center mb-4 sm:mb-6">
                 <Image
                   src="/TechTots_LOGO.png"
                   alt="TechTots Logo"
-                  width={100}
-                  height={50}
-                  className="mr-4"
+                  width={80}
+                  height={40}
+                  className="mr-3 sm:mr-4 h-8 sm:h-10 w-auto"
                 />
-                <h2 className="text-3xl font-bold text-indigo-900">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-indigo-900">
                   {t("ourStory")}
                 </h2>
               </div>
-              <div className="space-y-4 text-lg text-gray-700">
+              <div className="space-y-3 sm:space-y-4 text-sm sm:text-base md:text-lg text-gray-700">
                 <p className="leading-relaxed">
                   {t("language") !== "en" ? (
                     <>
@@ -159,74 +159,74 @@ export default function AboutPage() {
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="relative h-[450px] rounded-lg overflow-hidden shadow-xl group flex items-center justify-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6 lg:mt-0">
+              <div className="relative h-[300px] sm:h-[350px] md:h-[400px] rounded-lg overflow-hidden shadow-xl group flex items-center justify-center">
                 <div className="absolute inset-0">
                   <Image
                     src={getBookImageSrc("book1")}
                     alt={getBookTitle("book1")}
                     fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     style={{ objectFit: "contain", objectPosition: "center" }}
                     className="transition-transform group-hover:scale-105 duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
                 </div>
-                <div className="absolute bottom-4 right-4 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
+                <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 flex items-center bg-white/80 p-1.5 sm:p-2 rounded-lg shadow-md">
                   <Image
                     src="/TechTots_LOGO.png"
                     alt="TechTots Logo"
-                    width={40}
-                    height={20}
-                    className="mr-2"
+                    width={30}
+                    height={15}
+                    className="mr-1.5 sm:mr-2 h-4 sm:h-5 w-auto"
                   />
-                  <span className="text-sm font-medium text-indigo-900">
+                  <span className="text-xs sm:text-sm font-medium text-indigo-900">
                     {t("inspiredOurMission")}
                   </span>
                 </div>
-                <div className="absolute top-4 right-4 z-10">
+                <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-10">
                   <Button
                     size="sm"
                     variant="outline"
-                    className="bg-white/80 hover:bg-white border-indigo-300 text-indigo-700 text-xs"
+                    className="bg-white/80 hover:bg-white border-indigo-300 text-indigo-700 text-xs h-6 sm:h-7 px-1.5 sm:px-2 py-0"
                     onClick={() => toggleBookLanguage("book1")}>
                     {bookVersions.book1 === "english" ? "🇷🇴 RO" : "🇬🇧 EN"}
                   </Button>
                 </div>
-                <div className="absolute top-4 left-4 z-10">
-                  <div className="bg-white/80 px-3 py-1 rounded-md font-medium text-indigo-900 text-sm">
+                <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10">
+                  <div className="bg-white/80 px-2 sm:px-3 py-0.5 sm:py-1 rounded-md font-medium text-indigo-900 text-xs sm:text-sm">
                     {getBookTitle("book1")}
                   </div>
                 </div>
               </div>
-              <div className="relative h-[450px] rounded-lg overflow-hidden shadow-xl group flex items-center justify-center">
+              <div className="relative h-[300px] sm:h-[350px] md:h-[400px] rounded-lg overflow-hidden shadow-xl group flex items-center justify-center">
                 <div className="absolute inset-0">
                   <Image
                     src={getBookImageSrc("book2")}
                     alt={getBookTitle("book2")}
                     fill
-                    sizes="(max-width: 768px) 100vw, 50vw"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     style={{ objectFit: "cover", objectPosition: "center" }}
                     className="transition-transform group-hover:scale-105 duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                 </div>
-                <div className="absolute bottom-4 right-4 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
-                  <span className="text-sm font-medium text-indigo-900">
+                <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 flex items-center bg-white/80 p-1.5 sm:p-2 rounded-lg shadow-md">
+                  <span className="text-xs sm:text-sm font-medium text-indigo-900">
                     {t("empoweringNeurodiverse")}
                   </span>
                 </div>
-                <div className="absolute top-4 right-4 z-10">
+                <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-10">
                   <Button
                     size="sm"
                     variant="outline"
-                    className="bg-white/80 hover:bg-white border-indigo-300 text-indigo-700 text-xs"
+                    className="bg-white/80 hover:bg-white border-indigo-300 text-indigo-700 text-xs h-6 sm:h-7 px-1.5 sm:px-2 py-0"
                     onClick={() => toggleBookLanguage("book2")}>
                     {bookVersions.book2 === "english" ? "🇷🇴 RO" : "🇬🇧 EN"}
                   </Button>
                 </div>
-                <div className="absolute top-4 left-4 z-10">
-                  <div className="bg-white/80 px-3 py-1 rounded-md font-medium text-indigo-900 text-sm">
+                <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10">
+                  <div className="bg-white/80 px-2 sm:px-3 py-0.5 sm:py-1 rounded-md font-medium text-indigo-900 text-xs sm:text-sm">
                     {getBookTitle("book2")}
                   </div>
                 </div>
@@ -237,25 +237,25 @@ export default function AboutPage() {
       </section>
 
       {/* Our Values */}
-      <section className="py-16 bg-white">
-        <div className="container px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold mb-12 text-center text-indigo-900">
+      <section className="py-8 sm:py-10 md:py-16 bg-white">
+        <div className="container px-3 sm:px-4 lg:px-8">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8 md:mb-12 text-center text-indigo-900">
             {t("ourValues")}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-lg shadow-md hover:shadow-lg transition-all border border-indigo-100 transform hover:-translate-y-1 duration-300">
-              <div className="w-16 h-16 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 rounded-full flex items-center justify-center mb-6 mx-auto shadow-md">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 max-w-4xl mx-auto">
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-4 sm:p-6 md:p-8 rounded-lg shadow-md hover:shadow-lg transition-all border border-indigo-100 transform hover:-translate-y-1 duration-300">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 rounded-full flex items-center justify-center mb-4 sm:mb-6 mx-auto shadow-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-white">
+                  className="text-white sm:w-6 sm:h-6">
                   <circle
                     cx="12"
                     cy="12"
@@ -275,57 +275,57 @@ export default function AboutPage() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-4 text-center text-indigo-900">
+              <h3 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 md:mb-4 text-center text-indigo-900">
                 {t("qualitySafety")}
               </h3>
-              <p className="text-center text-gray-700 leading-relaxed">
+              <p className="text-center text-gray-700 leading-relaxed text-xs sm:text-sm md:text-base">
                 {t("qualitySafetyDesc")}
               </p>
             </div>
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-lg shadow-md hover:shadow-lg transition-all border border-indigo-100 transform hover:-translate-y-1 duration-300">
-              <div className="w-16 h-16 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 rounded-full flex items-center justify-center mb-6 mx-auto shadow-md">
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-4 sm:p-6 md:p-8 rounded-lg shadow-md hover:shadow-lg transition-all border border-indigo-100 transform hover:-translate-y-1 duration-300">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 rounded-full flex items-center justify-center mb-4 sm:mb-6 mx-auto shadow-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-white">
+                  className="text-white sm:w-6 sm:h-6">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-4 text-center text-indigo-900">
+              <h3 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 md:mb-4 text-center text-indigo-900">
                 {t("educationalImpact")}
               </h3>
-              <p className="text-center text-gray-700 leading-relaxed">
+              <p className="text-center text-gray-700 leading-relaxed text-xs sm:text-sm md:text-base">
                 {t("educationalImpactDesc")}
               </p>
             </div>
-            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-8 rounded-lg shadow-md hover:shadow-lg transition-all border border-indigo-100 transform hover:-translate-y-1 duration-300">
-              <div className="w-16 h-16 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 rounded-full flex items-center justify-center mb-6 mx-auto shadow-md">
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-4 sm:p-6 md:p-8 rounded-lg shadow-md hover:shadow-lg transition-all border border-indigo-100 transform hover:-translate-y-1 duration-300 sm:col-span-2 md:col-span-1 sm:max-w-md sm:mx-auto md:max-w-none">
+              <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 rounded-full flex items-center justify-center mb-4 sm:mb-6 mx-auto shadow-md">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
+                  width="20"
+                  height="20"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-white">
+                  className="text-white sm:w-6 sm:h-6">
                   <path d="M7 3a4 4 0 0 1 8 0 5 5 0 0 1 4 5.5c0 3-2 4.5-4 5.5C13 16 12 18 12 20m-1-4v-2a4 4 0 0 0-4-4c-2 0-3 1-3 2a3 3 0 0 0 3 3c1 0 3 .5 3 2Z"></path>
                   <path d="M13 20a1 1 0 0 1-1-1v-1a1 1 0 1 1 2 0v1a1 1 0 0 1-1 1Z"></path>
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-4 text-center text-indigo-900">
+              <h3 className="text-base sm:text-lg md:text-xl font-bold mb-2 sm:mb-3 md:mb-4 text-center text-indigo-900">
                 {t("sustainability")}
               </h3>
-              <p className="text-center text-gray-700 leading-relaxed">
+              <p className="text-center text-gray-700 leading-relaxed text-xs sm:text-sm md:text-base">
                 {t("sustainabilityDesc")}
               </p>
             </div>
@@ -334,35 +334,35 @@ export default function AboutPage() {
       </section>
 
       {/* Our Team */}
-      <section className="py-16 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
-        <div className="container px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold mb-12 text-center text-indigo-900">
+      <section className="py-8 sm:py-10 md:py-16 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
+        <div className="container px-3 sm:px-4 lg:px-8">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8 md:mb-12 text-center text-indigo-900">
             {t("ourTeam")}
           </h2>
           <div className="flex justify-center">
             {/* Rusu Emanuel Marius profile */}
-            <div className="bg-white rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transition-all border-2 border-indigo-200 transform hover:-translate-y-2 duration-300 max-w-2xl w-full">
-              <div className="relative h-80 w-full group">
+            <div className="bg-white rounded-xl overflow-hidden shadow-xl hover:shadow-2xl transition-all border-2 border-indigo-200 transform hover:-translate-y-2 duration-300 max-w-md sm:max-w-lg md:max-w-2xl w-full">
+              <div className="relative h-60 sm:h-70 md:h-80 w-full group">
                 <Image
                   src="/images/category_banner_math_01.png"
                   alt="RUSU EMANUEL MARIUS"
                   fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 75vw, 50vw"
                   style={{ objectFit: "cover" }}
                   className="transition-transform group-hover:scale-105 duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                <div className="absolute bottom-6 left-6 right-6 text-white">
-                  <p className="text-lg font-medium text-indigo-200 drop-shadow-md">
+                <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 text-white">
+                  <p className="text-base sm:text-lg font-medium text-indigo-200 drop-shadow-md">
                     FOUNDER & CEO
                   </p>
                 </div>
               </div>
-              <div className="p-8">
-                <h3 className="text-2xl font-bold mb-4 text-indigo-900 border-b-2 border-indigo-200 pb-2">
+              <div className="p-4 sm:p-6 md:p-8">
+                <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-3 sm:mb-4 text-indigo-900 border-b-2 border-indigo-200 pb-2">
                   RUSU EMANUEL MARIUS
                 </h3>
-                <p className="text-gray-700 leading-relaxed text-lg">
+                <p className="text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg">
                   Visionary entrepreneur with extensive expertise in
                   development, design, and marketing. Passionate about creating
                   educational technology that empowers children to explore,
@@ -370,13 +370,13 @@ export default function AboutPage() {
                   revolutionize how children interact with STEM subjects through
                   thoughtfully designed educational toys.
                 </p>
-                <div className="mt-6 flex gap-4">
-                  <Button className="bg-indigo-600 hover:bg-indigo-700">
+                <div className="mt-4 sm:mt-6 flex gap-2 sm:gap-4 flex-wrap">
+                  <Button className="bg-indigo-600 hover:bg-indigo-700 text-xs sm:text-sm h-8 sm:h-9">
                     Contact
                   </Button>
                   <Button
                     variant="outline"
-                    className="border-indigo-600 text-indigo-600 hover:bg-indigo-50">
+                    className="border-indigo-600 text-indigo-600 hover:bg-indigo-50 text-xs sm:text-sm h-8 sm:h-9">
                     LinkedIn
                   </Button>
                 </div>
@@ -387,19 +387,19 @@ export default function AboutPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white">
-        <div className="container text-center px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold mb-6 drop-shadow-md">
+      <section className="py-8 sm:py-10 md:py-16 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 text-white">
+        <div className="container text-center px-3 sm:px-4 lg:px-8">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-3 sm:mb-4 md:mb-6 drop-shadow-md">
             {t("joinStemJourney")}
           </h2>
-          <p className="text-xl mb-8 max-w-2xl mx-auto leading-relaxed drop-shadow-sm">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl mb-4 sm:mb-6 md:mb-8 max-w-2xl mx-auto leading-relaxed drop-shadow-sm">
             {t("joinStemJourneyDesc") ||
               "Discover our carefully curated selection of educational toys and start inspiring curiosity today!"}
           </p>
           <Button
             asChild
             size="lg"
-            className="bg-white hover:bg-white/90 text-indigo-700 border-none shadow-md transition-all hover:shadow-lg">
+            className="bg-white hover:bg-white/90 text-indigo-700 border-none shadow-md transition-all hover:shadow-lg text-xs sm:text-sm md:text-base h-9 sm:h-10 md:h-12">
             <Link href="/products">{t("shopCollection")}</Link>
           </Button>
         </div>

@@ -61,6 +61,136 @@ export const ro = {
   paymentMethod: "Metoda de plată",
   deliveryOnlyRomania: "Livrarea este disponibilă doar în România",
 
+  // Account page
+  profile: "Profil",
+  profileDescription: "Vizualizează și editează informațiile profilului tău",
+  managePersonalInfo: "Gestionează informațiile tale personale",
+  profilePicture: "Poză de profil",
+  profilePictureDescription: "Aceasta va fi afișată pe profilul tău",
+  change: "Schimbă",
+  remove: "Elimină",
+  name: "Nume",
+  nameRequired: "Numele este obligatoriu",
+  yourName: "Numele tău",
+  email: "Email",
+  emailRequired: "Emailul este obligatoriu",
+  invalidEmail: "Adresă de email invalidă",
+  yourEmail: "Emailul tău",
+  password: "Parolă",
+  newPassword: "Parolă nouă",
+  confirmNewPassword: "Confirmă parola nouă",
+  leaveBlankPassword: "Lasă gol pentru a păstra parola actuală",
+  confirmNewPasswordPlaceholder: "Confirmă parola nouă",
+  passwordsDontMatch: "Parolele nu se potrivesc",
+  passwordsMatchError: "Te rugăm să te asiguri că parolele se potrivesc",
+  passwordUpdated: "Parola a fost actualizată",
+  passwordUpdateSuccess: "Parola ta a fost schimbată cu succes.",
+  profileUpdated: "Profilul a fost actualizat",
+  profileUpdateSuccess:
+    "Informațiile profilului tău au fost actualizate cu succes.",
+  passwordUpdateFailed: "Actualizarea parolei a eșuat",
+  tryAgain: "Te rugăm să încerci din nou.",
+  error: "Eroare",
+  profileUpdateError: "A apărut o eroare la actualizarea profilului tău",
+  profileUpdateFailed: "Nu s-a putut actualiza profilul",
+  saving: "Se salvează...",
+  saveChanges: "Salvează modificările",
+
+  // Account navigation
+  orders: "Comenzi",
+  addresses: "Adrese",
+  paymentMethods: "Metode de plată",
+  wishlist: "Lista de dorințe",
+  settings: "Setări",
+
+  // Account settings
+  emailNotifications: "Notificări prin Email",
+  chooseUpdates: "Alege ce actualizări dorești să primești",
+  marketingEmails: "Email-uri de marketing",
+  receiveMarketingEmails:
+    "Primește email-uri despre produse noi, funcții și altele.",
+  receiveOrderEmails:
+    "Primește email-uri despre starea comenzii, expediere și livrare.",
+  receiveNewProductNotifications:
+    "Primește notificări când sunt disponibile produse noi.",
+  receiveAccountNotifications:
+    "Primește notificări importante despre activitatea contului tău.",
+  settingsUpdated: "Setări actualizate",
+  notificationPreferencesSaved:
+    "Preferințele tale de notificare au fost salvate.",
+  failedToUpdateSettings:
+    "Nu s-au putut actualiza setările. Te rugăm să încerci din nou.",
+  accountPreferences: "Preferințe Cont",
+  manageAccountSettings: "Gestionează setările și preferințele contului tău",
+  language: "Limbă",
+  selectLanguage: "Selectează limba",
+  romanian: "Română",
+  english: "Engleză",
+  currency: "Monedă",
+  selectCurrency: "Selectează moneda",
+  preferencesUpdated: "Preferințe actualizate",
+  accountPreferencesSaved: "Preferințele contului tău au fost salvate.",
+  failedToUpdatePreferences:
+    "Nu s-au putut actualiza preferințele. Te rugăm să încerci din nou.",
+  saveNotificationPreferences: "Salvează preferințele de notificare",
+  savePreferences: "Salvează preferințele",
+  dangerZone: "Zonă de Pericol",
+  permanentlyDelete: "Șterge definitiv contul tău și toate datele tale",
+  deleteAccount: "Șterge Contul",
+  accountDeletionRequested: "Ștergere cont solicitată",
+  contactSupportToComplete:
+    "Te rugăm să contactezi asistența pentru a finaliza ștergerea contului.",
+
+  // Wishlist
+  emptyWishlist: "Lista ta de dorințe este goală",
+  noProductsWishlist: "Nu ai adăugat încă produse în lista de dorințe.",
+  startShopping: "Începe Cumpărăturile",
+  wishlistErrorDesc:
+    "Nu am putut încărca lista ta de dorințe. Te rugăm să încerci din nou mai târziu.",
+  itemRemovedFromWishlist: "Articol eliminat din lista de dorințe",
+  itemRemovedDesc: "Articolul a fost eliminat din lista ta de dorințe.",
+  removeWishlistError: "Nu s-a putut elimina articolul din lista de dorințe.",
+  productAddedToCart: "Produsul a fost adăugat în coșul tău",
+  addToCartError: "Nu s-a putut adăuga articolul în coș.",
+  linkCopied: "Link copiat",
+  linkCopiedDesc: "Link-ul produsului a fost copiat în clipboard.",
+  copyLinkError: "Nu s-a putut copia link-ul.",
+  sharingNotSupported: "Partajarea nu este suportată",
+  browserNotSupport: "Browserul tău nu suportă partajarea.",
+  share: "Partajează",
+  unavailable: "Indisponibil",
+  removeFromWishlist: "Elimină din Lista de Dorințe",
+  addToWishlist: "Adaugă la Lista de Dorințe",
+  addedToWishlist: "Adăugat la lista de dorințe",
+  productAddedToWishlist: "Produsul a fost adăugat la lista ta de dorințe.",
+  removedFromWishlist: "Eliminat din lista de dorințe",
+  productRemovedFromWishlist:
+    "Produsul a fost eliminat din lista ta de dorințe.",
+  wishlistUpdateError:
+    "Nu s-a putut actualiza lista de dorințe. Te rugăm să încerci din nou.",
+
+  // Order history
+  all: "Toate",
+  processing: "În procesare",
+  shipped: "Expediat",
+  delivered: "Livrat",
+  cancelled: "Anulat",
+  orderNumber: "Comanda #",
+  placedOn: "Plasată pe",
+  shippingTo: "Livrare către",
+  viewDetails: "Vezi detalii",
+  writeReview: "Scrie o recenzie",
+  noOrdersYet: "Nu există comenzi încă",
+  whenPlaceOrders: "Când plasezi comenzi, acestea vor apărea aici",
+  continueShopping: "Continuă cumpărăturile",
+  noFilteredOrders: "Nu există comenzi {0}",
+  noFilteredOrdersDescription: "Nu ai nicio comandă {0} în acest moment",
+  orderHistoryErrorDescription:
+    "Nu am putut încărca istoricul comenzilor tale. Te rugăm să încerci din nou mai târziu.",
+  myOrders: "Comenzile Mele",
+  viewOrderHistory:
+    "Vizualizează istoricul comenzilor și urmărește achizițiile recente",
+
   // Romanian counties
   counties: {
     AB: "Alba",
@@ -107,24 +237,10 @@ export const ro = {
     VN: "Vrancea",
   },
 
-  // Product Grid and Filtering
-  sortBy: "Sortează după",
-  featured: "Recomandate",
-  priceLowToHigh: "Preț: De la mic la mare",
-  priceHighToLow: "Preț: De la mare la mic",
-  newest: "Cele mai noi",
-  topRated: "Cel mai bine evaluate",
-  view: "Vizualizare",
-  gridView: "Vizualizare grilă",
-  listView: "Vizualizare listă",
-  noProductsFound:
-    "Nu s-au găsit produse. Încercați filtre diferite sau termeni de căutare diferiți.",
-  filterOptions: "Opțiuni de Filtrare",
-  filterBy: "Filtrează După:",
-  allCategories: "Toate Categoriile",
-  tryAdjustingFilters:
-    "Încearcă să ajustezi filtrele sau criteriile de căutare",
-  clearAllFilters: "Șterge Toate Filtrele",
+  // Products page
+  stemToysTitle: "Jucării Educaționale STEM",
+  stemToysDescription:
+    "Explorează colecția noastră de jucării educaționale concepute pentru a inspira curiozitatea și a încuraja învățarea în știință, tehnologie, inginerie și matematică.",
 
   // Homepage specific translations
   inspireMinds: "Inspiră Minți Curioase",
@@ -138,25 +254,20 @@ export const ro = {
   featuredProducts: "Produse Recomandate",
   featuredProductsDesc:
     "Produse atent selectate care s-au dovedit a fi preferate de părinți și educatori pentru valoarea lor educațională excepțională.",
-  viewDetails: "Vezi Detalii",
   viewAllProducts: "Vezi Toate Produsele",
   whyChooseTechTots: "De ce să alegi TechTots?",
 
-  // Educational Books translations
-  educationalBooks: "Cărți Educaționale",
-  educationalBooksDesc:
-    "Descoperă colecția noastră de cărți educaționale concepute pentru a inspira mințile tinere",
-  stemPlayBook: "Joacă STEM pentru Minți Neurodiverse",
-  stemPlayBookDesc:
-    "Un ghid cuprinzător pentru implicarea copiilor neurodiverși în activități STEM care promovează învățarea prin joc.",
-  bornFutureBook: "Născut pentru Viitor",
-  bornFutureBookDesc:
-    "O carte inspirațională care pregătește copiii pentru lumea tehnologică de mâine prin povești și activități captivante.",
-  availableInTwoLanguages: "Disponibil în 2 limbi",
-  buyInEnglish: "Cumpără în Engleză",
-  buyInRomanian: "Cumpără în Română",
-  viewAllBooks: "Vezi Toate Cărțile Educaționale",
-  recommendedForYou: "Recomandate pentru tine",
+  // Categories page
+  categoryProducts: "{0} Produse",
+  explorerCategoryToys: "Explorează jucăriile {0}",
+  scienceCategoryDesc:
+    "Descoperă minunile lumii naturale prin experimente practice și explorare. Jucăriile noastre științifice promovează curiozitatea, abilitățile de observare și o înțelegere mai profundă a modului în care funcționează lucrurile.",
+  technologyCategoryDesc:
+    "Explorează programarea, robotica și inovația digitală cu jucăriile noastre tehnologice. Aceste produse ajută copiii să dezvolte gândirea computațională și să se pregătească pentru un viitor digital.",
+  engineeringCategoryDesc:
+    "Construiește, proiectează și rezolvă probleme cu jucăriile și kiturile noastre de inginerie. Aceste produse încurajează gândirea critică, raționamentul spațial și procesul de proiectare inginerească.",
+  mathCategoryDesc:
+    "Fă matematica distractivă și atractivă cu jucăriile și jocurile noastre matematice. Aceste produse dezvoltă abilități matematice fundamentale prin joc și ajută copiii să dezvolte gândirea logică.",
 
   // Footer specific translations
   shop: "Magazin",
@@ -173,72 +284,18 @@ export const ro = {
   metaDescription:
     "Descoperă cele mai bune jucării STEM pentru minți curioase la TechTots. Jucării educaționale care fac învățarea distractivă.",
 
-  // Products Page
-  productsTitle: "Colecția noastră de jucării STEM | TechTots",
-  productsDescription:
-    "Explorează colecția noastră de jucării educaționale STEM concepute pentru a inspira curiozitatea și învățarea la copiii de toate vârstele.",
-  showingProducts: "Se afișează {0} din {1} produse",
-  filterByCategory: "Filtrează după categorie",
-  stemToysTitle: "Jucării Educaționale STEM",
-  stemToysDescription:
-    "Explorează colecția noastră de jucării educaționale concepute pentru a inspira curiozitatea și a încuraja învățarea în știință, tehnologie, inginerie și matematică.",
-
-  // Product Categories
-  scienceToysTitle: "Jucării și Kituri de Învățare Științifice",
-  scienceToysDescription:
-    "Inspiră tinerii oameni de știință cu experimente practice și kituri de descoperire",
-  technologyToysTitle: "Jucării și Kituri de Învățare Tehnologice",
-  technologyToysDescription:
-    "Împuternicește viitorii inovatori cu instrumente de programare, robotică și învățare digitală",
-  engineeringToysTitle: "Jucării și Kituri de Învățare de Inginerie",
-  engineeringToysDescription:
-    "Formează tineri ingineri cu seturi de construcție și provocări de rezolvare a problemelor",
-  mathematicsToysTitle: "Jucării și Kituri de Învățare Matematică",
-  mathematicsToysDescription:
-    "Fă matematica magică cu puzzle-uri, jocuri și instrumente interactive de învățare",
-  discoverStemToys: "Descoperă Jucării Educaționale STEM Uimitoare",
-
-  // Category Pages
-  categoryProducts: "{0} Produse",
-  explorerCategoryToys: "Explorează jucăriile {0}",
-  scienceCategoryDesc:
-    "Descoperă minunile lumii naturale prin experimente practice și explorare. Jucăriile noastre științifice promovează curiozitatea, abilitățile de observare și o înțelegere mai profundă a modului în care funcționează lucrurile.",
-  technologyCategoryDesc:
-    "Explorează programarea, robotica și inovația digitală cu jucăriile noastre tehnologice. Aceste produse ajută copiii să dezvolte gândirea computațională și să se pregătească pentru un viitor digital.",
-  engineeringCategoryDesc:
-    "Construiește, proiectează și rezolvă probleme cu jucăriile și kiturile noastre de inginerie. Aceste produse încurajează gândirea critică, raționamentul spațial și procesul de proiectare inginerească.",
-  mathCategoryDesc:
-    "Fă matematica distractivă și atractivă cu jucăriile și jocurile noastre matematice. Aceste produse dezvoltă abilități matematice fundamentale prin joc și ajută copiii să dezvolte gândirea logică.",
-  categoriesTitle: "Categorii STEM | TechTots",
-  categoriesDescription:
-    "Explorează categoriile noastre STEM atent selecționate. Fiecare categorie este concepută pentru a dezvolta abilități specifice în timp ce face învățarea distractivă.",
-
-  // STEM Benefits
-  whyStemEssential: "De ce Jucăriile STEM Sunt Esențiale",
-  cognitiveDevelopment: "Dezvoltare Cognitivă",
-  cognitiveDevelopmentDesc:
-    "Îmbunătățește abilitățile de rezolvare a problemelor și gândirea critică",
-  creativityInnovation: "Creativitate și Inovație",
-  creativityInnovationDesc: "Încurajează gândirea creativă și ideile noi",
-  futureReady: "Pregătit pentru Viitor",
-  futureReadyDesc: "Pregătește copiii pentru cariere în știință și tehnologie",
-  funLearning: "Învățare Distractivă",
-  funLearningDesc: "Face educația captivantă și plăcută",
-
-  // Learning Benefits
-  learningBenefits: "Beneficii Educaționale",
-  scienceLearning: "Învățare Științifică",
-  scienceLearningDesc:
-    "Descoperă minunile explorării științifice cu jucării care fac învățarea distractivă și captivantă.",
-  technologyLearning: "Învățare Tehnologică",
-  technologyLearningDesc:
-    "Ajută-ți copilul să dezvolte abilități tehnologice esențiale pentru viitor cu jucăriile noastre inovatoare.",
-  engineeringLearning: "Învățare de Inginerie",
-  engineeringLearningDesc:
-    "Jucăriile de inginerie dezvoltă abilitățile spațiale, capacitățile de rezolvare a problemelor și creativitatea.",
-  mathematicsLearning: "Învățare Matematică",
-  mathematicsLearningDesc:
-    "Jocurile matematice fac numerele distractive în timp ce construiesc abilități esențiale pentru succesul academic.",
+  // ProductGrid component
+  sortBy: "Sortează după",
+  featured: "Recomandate",
+  priceLowToHigh: "Preț: De la mic la mare",
+  priceHighToLow: "Preț: De la mare la mic",
+  newest: "Cele mai noi",
+  topRated: "Cel mai bine evaluate",
+  view: "Vizualizare",
+  gridView: "Vizualizare grilă",
+  listView: "Vizualizare listă",
+  noProductsFound:
+    "Nu s-au găsit produse. Încercați filtre diferite sau termeni de căutare diferiți.",
 
   // Blog Page
   blogTitle: "Blog educațional STEM | TechTots",
@@ -253,12 +310,13 @@ export const ro = {
     "Abonează-te la newsletter-ul nostru pentru cele mai recente sfaturi și actualizări despre educația STEM.",
   emailPlaceholder: "Introduceți email-ul",
   subscribe: "Abonează-te",
+  // Blog Post Page
   backToBlog: "Înapoi la Blog",
+  relatedArticles: "Articole conexe",
+  viewAllArticles: "Vezi toate articolele",
   blogPostNotFound: "Articolul nu a fost găsit",
   loading: "Se încarcă articolul",
   tags: "Etichete",
-  viewAllArticles: "Vezi toate articolele",
-  relatedArticles: "Articole conexe",
 
   // About Page
   aboutTitle: "Despre TechTots | Povestea Noastră",
@@ -268,9 +326,6 @@ export const ro = {
   ourValues: "Valorile Noastre",
   ourTeam: "Echipa Noastră",
   joinStemJourney: "Alătură-te Călătoriei Noastre STEM",
-  joinStemJourneyDesc:
-    "Descoperă selecția noastră atent aleasă de jucării educaționale și începe să inspiri curiozitatea astăzi!",
-  shopCollection: "Explorează Colecția Noastră",
 
   // About page paragraphs
   ourStoryParagraph1:
@@ -290,6 +345,34 @@ export const ro = {
   sustainability: "Sustenabilitate",
   sustainabilityDesc:
     "Suntem dedicați reducerii amprentei noastre de mediu prin materiale sustenabile, ambalaje responsabile și practici de afaceri conștiente.",
+
+  // CTA section
+  joinStemJourneyDesc:
+    "Descoperă selecția noastră atent aleasă de jucării educaționale și începe să inspiri curiozitatea astăzi!",
+  shopCollection: "Explorează Colecția Noastră",
+
+  // Product & Category Specific Content
+  scienceToysTitle: "Jucării și Kituri de Învățare Științifice",
+  scienceToysDescription:
+    "Inspiră tinerii oameni de știință cu experimente practice și kituri de descoperire",
+  technologyToysTitle: "Jucării și Kituri de Învățare Tehnologice",
+  technologyToysDescription:
+    "Împuternicește viitorii inovatori cu instrumente de programare, robotică și învățare digitală",
+  engineeringToysTitle: "Jucării și Kituri de Învățare de Inginerie",
+  engineeringToysDescription:
+    "Formează tineri ingineri cu seturi de construcție și provocări de rezolvare a problemelor",
+  mathematicsToysTitle: "Jucării și Kituri de Învățare Matematică",
+  mathematicsToysDescription:
+    "Fă matematica magică cu puzzle-uri, jocuri și instrumente interactive de învățare",
+
+  // Filter and Sort UI
+  filterOptions: "Opțiuni de Filtrare",
+  filterBy: "Filtrează După:",
+  filterBySTEM: "Filtrează după Categoria STEM",
+  allCategories: "Toate Categoriile",
+  tryAdjustingFilters:
+    "Încearcă să ajustezi filtrele sau criteriile de căutare",
+  clearAllFilters: "Șterge Toate Filtrele",
 
   // Product page specific translations
   backToProducts: "Înapoi la Produse",
@@ -328,11 +411,28 @@ export const ro = {
   defaultProductDescription:
     "Această jucărie educațională STEM este proiectată pentru a inspira și educa copiii prin joc interactiv și explorare.",
 
-  // 404 Page
-  pageNotFound: "Pagina nu a fost găsită",
-  pageNotFoundDesc:
-    "Ne pare rău, dar pagina pe care o căutați nu există sau a fost mutată.",
-  returnHome: "Înapoi la pagina principală",
+  // Additional product page translations
+  productsTitle: "Colecția noastră de jucării STEM | TechTots",
+  productsDescription:
+    "Explorează colecția noastră de jucării educaționale STEM concepute pentru a inspira curiozitatea și învățarea la copiii de toate vârstele.",
+  showingProducts: "Se afișează {0} din {1} produse",
+  filterByCategory: "Filtrează după categorie",
+
+  // Educational Books translations
+  educationalBooks: "Cărți Educaționale",
+  educationalBooksDesc:
+    "Descoperă colecția noastră de cărți educaționale concepute pentru a inspira mințile tinere",
+  stemPlayBook: "Joacă STEM pentru Minți Neurodiverse",
+  stemPlayBookDesc:
+    "Un ghid cuprinzător pentru implicarea copiilor neurodiverși în activități STEM care promovează învățarea prin joc.",
+  bornFutureBook: "Născut pentru Viitor",
+  bornFutureBookDesc:
+    "O carte inspirațională care pregătește copiii pentru lumea tehnologică de mâine prin povești și activități captivante.",
+  availableInTwoLanguages: "Disponibil în 2 limbi",
+  buyInEnglish: "Cumpără în Engleză",
+  buyInRomanian: "Cumpără în Română",
+  viewAllBooks: "Vezi Toate Cărțile Educaționale",
+  recommendedForYou: "Recomandate pentru tine",
 
   // Additional about page translations
   inspiredOurMission: "Ne-a inspirat misiunea",
@@ -345,7 +445,7 @@ export const ro = {
   educationalConsultantTitle: "Consultant Educațional",
   seniorDesignerTitle: "Designer Senior",
   contactUs: "Contactează-ne",
-  ourOfficeTitles: "Sediile Noastre",
-  joinNewsletter: "Alătură-te Buletinului Nostru Informativ",
+  ourOfficeTitles: "Birourile Noastre",
+  joinNewsletter: "Abonează-te la Newsletter",
   subscribeCTA: "Abonează-te",
 };

@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Upload } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/lib/i18n";
 
 interface ProfileFormData {
   name: string;
@@ -28,6 +29,7 @@ interface ProfileFormProps {
 
 export function ProfileForm({ initialData }: ProfileFormProps) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const {
     register,
@@ -53,8 +55,11 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       // Validate password match if new password is provided
       if (data.newPassword && data.newPassword !== data.confirmPassword) {
         toast({
-          title: "Passwords do not match",
-          description: "Please make sure your passwords match",
+          title: t("passwordsDontMatch", "Passwords do not match"),
+          description: t(
+            "passwordsMatchError",
+            "Please make sure your passwords match"
+          ),
           variant: "destructive",
         });
         setIsLoading(false);
@@ -80,21 +85,28 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to update profile");
+        throw new Error(
+          result.error || t("profileUpdateFailed", "Failed to update profile")
+        );
       }
 
       // If password is being updated, show specific message
       if (data.newPassword) {
         toast({
-          title: "Password updated",
-          description: "Your password has been changed successfully.",
+          title: t("passwordUpdated", "Password updated"),
+          description: t(
+            "passwordUpdateSuccess",
+            "Your password has been changed successfully."
+          ),
           variant: "default",
         });
       } else {
         toast({
-          title: "Profile updated",
-          description:
-            "Your profile information has been updated successfully.",
+          title: t("profileUpdated", "Profile updated"),
+          description: t(
+            "profileUpdateSuccess",
+            "Your profile information has been updated successfully."
+          ),
         });
       }
 
@@ -112,18 +124,23 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       // Determine if password change failed
       if (watchNewPassword) {
         toast({
-          title: "Password update failed",
+          title: t("passwordUpdateFailed", "Password update failed"),
           description:
-            error instanceof Error ? error.message : "Please try again.",
+            error instanceof Error
+              ? error.message
+              : t("tryAgain", "Please try again."),
           variant: "destructive",
         });
       } else {
         toast({
-          title: "Error",
+          title: t("error", "Error"),
           description:
             error instanceof Error
               ? error.message
-              : "There was an error updating your profile",
+              : t(
+                  "profileUpdateError",
+                  "There was an error updating your profile"
+                ),
           variant: "destructive",
         });
       }
@@ -149,9 +166,14 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           </Avatar>
         </div>
         <div>
-          <h3 className="text-lg font-medium mb-2">Profile Picture</h3>
+          <h3 className="text-lg font-medium mb-2">
+            {t("profilePicture", "Profile Picture")}
+          </h3>
           <p className="text-sm text-muted-foreground mb-4">
-            This will be displayed on your profile
+            {t(
+              "profilePictureDescription",
+              "This will be displayed on your profile"
+            )}
           </p>
           <div className="flex gap-4">
             <Button
@@ -159,13 +181,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               size="sm"
               variant="outline">
               <Upload className="h-4 w-4 mr-2" />
-              Change
+              {t("change", "Change")}
             </Button>
             <Button
               type="button"
               size="sm"
               variant="outline">
-              Remove
+              {t("remove", "Remove")}
             </Button>
           </div>
         </div>
@@ -174,11 +196,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name">{t("name", "Name")}</Label>
             <Input
               id="name"
-              {...register("name", { required: "Name is required" })}
-              placeholder="Your name"
+              {...register("name", {
+                required: t("nameRequired", "Name is required"),
+              })}
+              placeholder={t("yourName", "Your name")}
               disabled={isLoading}
             />
             {errors.name && (
@@ -186,18 +210,18 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("email", "Email")}</Label>
             <Input
               id="email"
               type="email"
               {...register("email", {
-                required: "Email is required",
+                required: t("emailRequired", "Email is required"),
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Invalid email address",
+                  message: t("invalidEmail", "Invalid email address"),
                 },
               })}
-              placeholder="Your email"
+              placeholder={t("yourEmail", "Your email")}
               disabled={isLoading}
             />
             {errors.email && (
@@ -208,20 +232,29 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       </div>
 
       <div>
-        <h3 className="text-lg font-medium mb-4">Password</h3>
+        <h3 className="text-lg font-medium mb-4">
+          {t("password", "Password")}
+        </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="newPassword">New Password</Label>
+            <Label htmlFor="newPassword">
+              {t("newPassword", "New Password")}
+            </Label>
             <Input
               id="newPassword"
               type="password"
               {...register("newPassword")}
-              placeholder="Leave blank to keep current password"
+              placeholder={t(
+                "leaveBlankPassword",
+                "Leave blank to keep current password"
+              )}
               disabled={isLoading}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirm New Password</Label>
+            <Label htmlFor="confirmPassword">
+              {t("confirmNewPassword", "Confirm New Password")}
+            </Label>
             <Input
               id="confirmPassword"
               type="password"
@@ -229,9 +262,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                 validate: (value) =>
                   !watchNewPassword ||
                   value === watchNewPassword ||
-                  "Passwords do not match",
+                  t("passwordsDontMatch", "Passwords do not match"),
               })}
-              placeholder="Confirm new password"
+              placeholder={t(
+                "confirmNewPasswordPlaceholder",
+                "Confirm new password"
+              )}
               disabled={isLoading || !watchNewPassword}
             />
             {errors.confirmPassword && (
@@ -247,7 +283,9 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         <Button
           type="submit"
           disabled={isLoading}>
-          {isLoading ? "Saving..." : "Save Changes"}
+          {isLoading
+            ? t("saving", "Saving...")
+            : t("saveChanges", "Save Changes")}
         </Button>
       </div>
     </form>

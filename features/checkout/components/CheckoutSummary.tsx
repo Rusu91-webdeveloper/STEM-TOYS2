@@ -2,6 +2,7 @@
 
 import React from "react";
 import { useCart } from "@/features/cart";
+import { useCurrency } from "@/lib/currency";
 
 interface CheckoutSummaryProps {
   shippingCost?: number;
@@ -9,6 +10,7 @@ interface CheckoutSummaryProps {
 
 export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
   const { cartItems, getCartTotal, isLoading } = useCart();
+  const { formatPrice } = useCurrency();
 
   const subtotal = getCartTotal();
   const tax = subtotal * 0.1; // 10% tax for example
@@ -79,7 +81,7 @@ export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
             <div>
               <p className="font-medium">{item.name}</p>
               <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-              <p className="text-sm">${item.price.toFixed(2)}</p>
+              <p className="text-sm">{formatPrice(item.price)}</p>
             </div>
           </div>
         ))}
@@ -88,19 +90,19 @@ export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
       <div className="space-y-2 pt-4 border-t">
         <div className="flex justify-between">
           <span className="text-gray-600">Subtotal</span>
-          <span>${subtotal.toFixed(2)}</span>
+          <span>{formatPrice(subtotal)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-600">Tax (10%)</span>
-          <span>${tax.toFixed(2)}</span>
+          <span>{formatPrice(tax)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-600">Shipping</span>
-          <span>${shippingCost.toFixed(2)}</span>
+          <span>{formatPrice(shippingCost)}</span>
         </div>
         <div className="flex justify-between font-semibold text-lg pt-2 border-t">
           <span>Total</span>
-          <span>${total.toFixed(2)}</span>
+          <span>{formatPrice(total)}</span>
         </div>
       </div>
     </div>

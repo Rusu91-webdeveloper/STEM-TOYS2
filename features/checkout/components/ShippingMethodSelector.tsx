@@ -5,6 +5,7 @@ import { ShippingMethod } from "../types";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { useCurrency } from "@/lib/currency";
 
 interface ShippingMethodSelectorProps {
   initialMethod?: ShippingMethod;
@@ -45,6 +46,7 @@ export function ShippingMethodSelector({
   const [selectedMethodId, setSelectedMethodId] = useState<string>(
     initialMethod?.id || "standard"
   );
+  const { formatPrice } = useCurrency();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,7 +85,7 @@ export function ShippingMethodSelector({
                     {method.name}
                   </Label>
                   <span className="font-semibold">
-                    ${method.price.toFixed(2)}
+                    {formatPrice(method.price)}
                   </span>
                 </div>
                 <p className="text-sm text-gray-500">{method.description}</p>

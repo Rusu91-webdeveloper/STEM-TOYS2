@@ -96,7 +96,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section - Enhanced for better visibility on all device sizes */}
-      <section className="relative h-[60vh] sm:h-[65vh] md:h-[70vh] min-h-[400px] sm:min-h-[500px] md:min-h-[600px] max-h-[800px] flex items-center">
+      <section className="relative h-[50vh] sm:h-[60vh] md:h-[70vh] min-h-[300px] sm:min-h-[400px] md:min-h-[600px] max-h-[800px] flex items-center">
         <div className="absolute inset-0 z-0">
           <Image
             src="/images/homepage_hero_banner_01.png"
@@ -110,17 +110,17 @@ export default function Home() {
         </div>
         <div className="container relative z-10 text-white mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
           <div className="max-w-xl sm:max-w-2xl md:max-w-3xl">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4 drop-shadow-md">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-2 md:mb-4 drop-shadow-md">
               {t("inspireMinds")}
             </h1>
-            <p className="text-lg sm:text-xl md:text-2xl mb-6 md:mb-8 max-w-2xl drop-shadow-md">
+            <p className="text-base sm:text-lg md:text-2xl mb-4 md:mb-8 max-w-2xl drop-shadow-md">
               {t("discoverCollection")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Button
                 asChild
                 size="lg"
-                className="text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0 relative overflow-hidden group">
+                className="text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-2 sm:py-5 md:py-6 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0 relative overflow-hidden group">
                 <Link
                   href="/products"
                   className="flex items-center">
@@ -132,7 +132,7 @@ export default function Home() {
                       viewBox="0 0 24 24"
                       strokeWidth={2}
                       stroke="currentColor"
-                      className="w-5 h-5">
+                      className="w-4 h-4 sm:w-5 sm:h-5">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -147,7 +147,7 @@ export default function Home() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 bg-orange-500 text-white border-orange-500 hover:bg-orange-600 hover:border-orange-600 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 mt-3 sm:mt-0">
+                className="text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-2 sm:py-5 md:py-6 bg-orange-500 text-white border-orange-500 hover:bg-orange-600 hover:border-orange-600 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 mt-3 sm:mt-0">
                 <Link href="/categories">{t("exploreCategories")}</Link>
               </Button>
             </div>
@@ -170,7 +170,7 @@ export default function Home() {
                 href={`/products?category=${category.slug}`}
                 key={category.slug}>
                 <div className="bg-background rounded-lg overflow-hidden shadow-md transition-all duration-300 hover:shadow-xl hover:translate-y-[-5px] h-full flex flex-col">
-                  <div className="relative h-40 sm:h-48 w-full">
+                  <div className="relative h-32 sm:h-40 md:h-48 w-full">
                     <Image
                       src={category.image}
                       alt={category.name}
@@ -179,15 +179,15 @@ export default function Home() {
                       style={{ objectFit: "cover" }}
                     />
                   </div>
-                  <div className="p-4 sm:p-5 flex flex-col flex-grow">
-                    <h3 className="text-lg sm:text-xl font-bold mb-2">
+                  <div className="p-3 sm:p-4 md:p-5 flex flex-col flex-grow">
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2">
                       {category.name}
                     </h3>
-                    <p className="text-muted-foreground text-sm sm:text-base mb-4">
+                    <p className="text-muted-foreground text-xs sm:text-sm md:text-base mb-3 sm:mb-4">
                       {category.description}
                     </p>
                     <div className="mt-auto">
-                      <span className="text-primary text-sm font-medium inline-flex items-center">
+                      <span className="text-primary text-xs sm:text-sm font-medium inline-flex items-center">
                         {t("exploreCategories").split(" ")[0]} {category.name}{" "}
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -195,7 +195,7 @@ export default function Home() {
                           viewBox="0 0 24 24"
                           strokeWidth={1.5}
                           stroke="currentColor"
-                          className="w-4 h-4 ml-1">
+                          className="w-3 h-3 sm:w-4 sm:h-4 ml-1">
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -216,7 +216,7 @@ export default function Home() {
       <section className="py-10 sm:py-12 md:py-16">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
           <div className="mb-8 text-center">
-            <span className="inline-block px-3 py-1 text-sm font-medium text-purple-700 bg-purple-100 rounded-full mb-2">
+            <span className="inline-block px-3 py-1 text-xs font-medium text-purple-700 bg-purple-100 rounded-full mb-2">
               {t("recommendedForYou" as any, "Recommended For You")}
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center">
@@ -295,19 +295,19 @@ export default function Home() {
                               .toLowerCase()
                         )}
                       </div>
-                      <h3 className="text-base sm:text-lg font-semibold mb-2">
+                      <h3 className="text-sm sm:text-base md:text-lg font-semibold mb-2">
                         {product.name}
                       </h3>
-                      <p className="text-muted-foreground text-sm mb-4 flex-grow line-clamp-2">
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-4 flex-grow line-clamp-2">
                         {product.description}
                       </p>
                       <div className="flex items-center justify-between mt-auto">
-                        <span className="text-base sm:text-lg font-bold">
+                        <span className="text-sm sm:text-base md:text-lg font-bold">
                           {formatPrice(product.price)}
                         </span>
                         <Button
                           size="sm"
-                          className="transition-all hover:scale-105">
+                          className="transition-all hover:scale-105 text-xs sm:text-sm py-1 px-2 sm:px-3">
                           {t("viewDetails")}
                         </Button>
                       </div>
@@ -322,7 +322,7 @@ export default function Home() {
             <Button
               asChild
               size="lg"
-              className="text-base px-6 py-5 sm:px-8 sm:py-6 rounded-lg shadow-md hover:shadow-lg transition-all hover:scale-105 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white border-0">
+              className="text-sm sm:text-base px-4 sm:px-6 py-2 sm:py-5 rounded-lg shadow-md hover:shadow-lg transition-all hover:scale-105 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white border-0">
               <Link
                 href="/products"
                 className="flex items-center">
@@ -333,7 +333,7 @@ export default function Home() {
                   viewBox="0 0 24 24"
                   strokeWidth={2}
                   stroke="currentColor"
-                  className="w-5 h-5 ml-2">
+                  className="w-4 h-4 sm:w-5 sm:h-5 ml-2">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -400,18 +400,18 @@ export default function Home() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Button
                       asChild
-                      className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-800">
+                      className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-800 px-1 text-xs sm:text-sm md:text-base h-auto py-2 sm:py-2.5">
                       <Link href="/products/stem-play-neurodiverse-minds-english">
                         <span className="mr-2">🇬🇧</span>{" "}
-                        {t("buyInEnglish" as any, "Buy in English")}
+                        {t("buyInEnglish" as any, "Buy")}
                       </Link>
                     </Button>
                     <Button
                       asChild
-                      className="flex items-center justify-center bg-gradient-to-r from-yellow-600 to-red-600">
+                      className="flex items-center justify-center bg-gradient-to-r from-yellow-600 to-red-600 px-1 text-xs sm:text-sm md:text-base h-auto py-2 sm:py-2.5">
                       <Link href="/products/stem-play-neurodiverse-minds-romanian">
                         <span className="mr-2">🇷🇴</span>{" "}
-                        {t("buyInRomanian" as any, "Buy in Romanian")}
+                        {t("buyInRomanian" as any, "Buy")}
                       </Link>
                     </Button>
                   </div>
@@ -456,18 +456,18 @@ export default function Home() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Button
                       asChild
-                      className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-800">
+                      className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-800 px-1 text-xs sm:text-sm md:text-base h-auto py-2 sm:py-2.5">
                       <Link href="/products/born-for-the-future-english">
                         <span className="mr-2">🇬🇧</span>{" "}
-                        {t("buyInEnglish" as any, "Buy in English")}
+                        {t("buyInEnglish" as any, "Buy")}
                       </Link>
                     </Button>
                     <Button
                       asChild
-                      className="flex items-center justify-center bg-gradient-to-r from-yellow-600 to-red-600">
+                      className="flex items-center justify-center bg-gradient-to-r from-yellow-600 to-red-600 px-1 text-xs sm:text-sm md:text-base h-auto py-2 sm:py-2.5">
                       <Link href="/products/born-for-the-future-romanian">
                         <span className="mr-2">🇷🇴</span>{" "}
-                        {t("buyInRomanian" as any, "Buy in Romanian")}
+                        {t("buyInRomanian" as any, "Buy")}
                       </Link>
                     </Button>
                   </div>
@@ -504,21 +504,21 @@ export default function Home() {
       `}</style>
 
       {/* Value Proposition - Improved for better centering and responsiveness */}
-      <section className="py-10 sm:py-12 md:py-16 bg-primary text-primary-foreground">
+      <section className="py-8 sm:py-10 md:py-16 bg-primary text-primary-foreground">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-8 sm:mb-10 md:mb-12 text-center">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-6 sm:mb-8 md:mb-12 text-center">
             {t("whyChooseTechTots")}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8 lg:gap-12">
-            <div className="text-center bg-primary-foreground/10 rounded-lg p-6 sm:p-8 transition-transform hover:scale-105">
-              <div className="flex justify-center mb-5 sm:mb-6">
+            <div className="text-center bg-primary-foreground/10 rounded-lg p-4 sm:p-6 md:p-8 transition-transform hover:scale-105">
+              <div className="flex justify-center mb-4 sm:mb-5 md:mb-6">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-12 sm:w-14 h-12 sm:h-14">
+                  className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-14">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -526,23 +526,23 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2 md:mb-3">
                 {t("cognitiveDevelopment" as any)}
               </h3>
-              <p className="text-primary-foreground/90 text-sm sm:text-base">
+              <p className="text-primary-foreground/90 text-xs sm:text-sm md:text-base">
                 {t("cognitiveDevelopmentDesc" as any)}
               </p>
             </div>
 
-            <div className="text-center bg-primary-foreground/10 rounded-lg p-6 sm:p-8 transition-transform hover:scale-105">
-              <div className="flex justify-center mb-5 sm:mb-6">
+            <div className="text-center bg-primary-foreground/10 rounded-lg p-4 sm:p-6 md:p-8 transition-transform hover:scale-105">
+              <div className="flex justify-center mb-4 sm:mb-5 md:mb-6">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-12 sm:w-14 h-12 sm:h-14">
+                  className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-14">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -550,10 +550,10 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2 md:mb-3">
                 {t("qualitySafety" as any, "Quality & Safety")}
               </h3>
-              <p className="text-primary-foreground/90 text-sm sm:text-base">
+              <p className="text-primary-foreground/90 text-xs sm:text-sm md:text-base">
                 {t(
                   "qualitySafetyDesc" as any,
                   "All our products meet or exceed safety standards and are built to last."
@@ -561,15 +561,15 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="text-center bg-primary-foreground/10 rounded-lg p-6 sm:p-8 transition-transform hover:scale-105">
-              <div className="flex justify-center mb-5 sm:mb-6">
+            <div className="text-center bg-primary-foreground/10 rounded-lg p-4 sm:p-6 md:p-8 transition-transform hover:scale-105">
+              <div className="flex justify-center mb-4 sm:mb-5 md:mb-6">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="w-12 sm:w-14 h-12 sm:h-14">
+                  className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-14">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -577,10 +577,10 @@ export default function Home() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-3">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2 md:mb-3">
                 {t("futureReady" as any)}
               </h3>
-              <p className="text-primary-foreground/90 text-sm sm:text-base">
+              <p className="text-primary-foreground/90 text-xs sm:text-sm md:text-base">
                 {t("futureReadyDesc" as any)}
               </p>
             </div>
@@ -589,14 +589,14 @@ export default function Home() {
       </section>
 
       {/* Newsletter - Improved for better responsiveness */}
-      <section className="py-10 sm:py-12 md:py-16 bg-background">
+      <section className="py-8 sm:py-10 md:py-16 bg-background">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-5xl">
-          <div className="bg-muted rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-12 shadow-lg">
-            <div className="text-center mb-6 sm:mb-8">
-              <h2 className="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">
+          <div className="bg-muted rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-12 shadow-lg">
+            <div className="text-center mb-4 sm:mb-6 md:mb-8">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 sm:mb-3 md:mb-4">
                 {t("stayUpdated")}
               </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto text-sm sm:text-base">
+              <p className="text-muted-foreground max-w-2xl mx-auto text-xs sm:text-sm md:text-base">
                 {t("newsletterDescription")}
               </p>
             </div>
@@ -636,7 +636,7 @@ export default function Home() {
               />
               <Button
                 type="submit"
-                className="h-10 sm:h-12 px-4 sm:px-6 text-sm sm:text-base transition-all hover:scale-105">
+                className="h-10 sm:h-12 px-3 sm:px-6 text-xs sm:text-sm md:text-base transition-all hover:scale-105">
                 {t("subscribe")}
               </Button>
             </form>

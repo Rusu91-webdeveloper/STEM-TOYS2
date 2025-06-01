@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { Button } from "@/components/ui/button";
 import { PaymentDetails } from "../types";
+import { useCurrency } from "@/lib/currency";
 
 interface StripePaymentFormProps {
   onSuccess: (paymentDetails: PaymentDetails) => void;
@@ -33,6 +34,10 @@ export function StripePaymentForm({
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
   const [cardError, setCardError] = useState<string | undefined>();
+  const { formatPrice } = useCurrency();
+
+  // Convert amount from cents to dollars for display
+  const displayAmount = amount / 100;
 
   const cardElementOptions = {
     style: {
@@ -78,7 +83,7 @@ export function StripePaymentForm({
         },
         body: JSON.stringify({
           amount: amount,
-          currency: "usd",
+          currency: "usd", // This should match your base currency
         }),
       });
 
@@ -170,7 +175,7 @@ export function StripePaymentForm({
           type="submit"
           disabled={!stripe || isProcessing}
           className="px-8">
-          {isProcessing ? "Processing..." : `Pay $${(amount / 100).toFixed(2)}`}
+          {isProcessing ? "Processing..." : `Pay ${formatPrice(displayAmount)}`}
         </Button>
       </div>
     </form>

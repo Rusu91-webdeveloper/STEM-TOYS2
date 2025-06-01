@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { notFound, useParams } from "next/navigation";
-import { ArrowLeft, Truck, ShieldCheck, RotateCcw } from "lucide-react";
+import { ArrowLeft, Truck, ShieldCheck, RotateCcw, Heart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import {
 } from "@/features/products";
 import { useTranslation } from "@/lib/i18n";
 import { useCurrency } from "@/lib/currency";
+import { toast } from "@/components/ui/use-toast";
 import type { Product } from "@/types/product";
 
 export default function ProductPage() {
@@ -28,6 +29,8 @@ export default function ProductPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string>("");
+  const [isAddingToWishlist, setIsAddingToWishlist] = useState(false);
+  const [isInWishlist, setIsInWishlist] = useState(false);
 
   // Fetch product data
   useEffect(() => {
@@ -53,6 +56,9 @@ export default function ProductPage() {
           setSelectedImage(productData.images[0]);
         }
 
+        // Check if product is in the user's wishlist
+        checkWishlistStatus(productData.id);
+
         setLoading(false);
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -64,6 +70,108 @@ export default function ProductPage() {
       fetchData();
     }
   }, [slug]);
+
+  // Check if the product is in the user's wishlist
+  const checkWishlistStatus = async (productId: string) => {
+    try {
+      const response = await fetch("/api/account/wishlist");
+
+      if (!response.ok) {
+        // If it's a 401, the user is not logged in, which is fine
+        if (response.status !== 401) {
+          console.error("Error checking wishlist status:", response.statusText);
+        }
+        return;
+      }
+
+      const wishlistItems = await response.json();
+      const isInList = wishlistItems.some(
+        (item: any) => item.productId === productId
+      );
+      setIsInWishlist(isInList);
+    } catch (error) {
+      console.error("Error checking wishlist status:", error);
+    }
+  };
+
+  // Handle add to wishlist
+  const handleToggleWishlist = async () => {
+    if (!product) return;
+
+    setIsAddingToWishlist(true);
+
+    try {
+      if (isInWishlist) {
+        // Find the wishlist item ID
+        const response = await fetch("/api/account/wishlist");
+        if (!response.ok) {
+          throw new Error("Failed to fetch wishlist");
+        }
+
+        const wishlistItems = await response.json();
+        const wishlistItem = wishlistItems.find(
+          (item: any) => item.productId === product.id
+        );
+
+        if (wishlistItem) {
+          // Remove from wishlist
+          const deleteResponse = await fetch(
+            `/api/account/wishlist?id=${wishlistItem.id}`,
+            {
+              method: "DELETE",
+            }
+          );
+
+          if (!deleteResponse.ok) {
+            throw new Error("Failed to remove from wishlist");
+          }
+
+          setIsInWishlist(false);
+          toast({
+            title: t("removedFromWishlist", "Removed from wishlist"),
+            description: t(
+              "productRemovedFromWishlist",
+              "Product has been removed from your wishlist."
+            ),
+          });
+        }
+      } else {
+        // Add to wishlist
+        const addResponse = await fetch("/api/account/wishlist", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ productId: product.id }),
+        });
+
+        if (!addResponse.ok) {
+          throw new Error("Failed to add to wishlist");
+        }
+
+        setIsInWishlist(true);
+        toast({
+          title: t("addedToWishlist", "Added to wishlist"),
+          description: t(
+            "productAddedToWishlist",
+            "Product has been added to your wishlist."
+          ),
+        });
+      }
+    } catch (error) {
+      console.error("Error updating wishlist:", error);
+      toast({
+        title: t("error", "Error"),
+        description: t(
+          "wishlistUpdateError",
+          "Failed to update wishlist. Please try again."
+        ),
+        variant: "destructive",
+      });
+    } finally {
+      setIsAddingToWishlist(false);
+    }
+  };
 
   // Loading state
   if (loading) {
@@ -212,9 +320,21 @@ export default function ProductPage() {
               </div>
             </div>
 
-            {/* Add to Cart Button */}
-            <div className="pt-4">
+            {/* Action Buttons */}
+            <div className="pt-4 flex flex-col gap-3">
               <ProductAddToCartButton product={product} />
+              <Button
+                variant="outline"
+                className={`flex items-center gap-2 ${isInWishlist ? "text-red-500" : ""}`}
+                onClick={handleToggleWishlist}
+                disabled={isAddingToWishlist}>
+                <Heart
+                  className={`h-4 w-4 ${isInWishlist ? "fill-current" : ""}`}
+                />
+                {isInWishlist
+                  ? t("removeFromWishlist", "Remove from Wishlist")
+                  : t("addToWishlist", "Add to Wishlist")}
+              </Button>
             </div>
 
             {/* Shipping Info */}

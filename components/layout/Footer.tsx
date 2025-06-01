@@ -37,9 +37,9 @@ export default function Footer() {
 
   return (
     <footer className="bg-muted">
-      <div className="container mx-auto py-12 px-4 md:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
-          <div className="lg:col-span-2">
+      <div className="container mx-auto py-8 sm:py-10 md:py-12 px-3 sm:px-4 md:px-6">
+        <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 sm:gap-8">
+          <div className="col-span-2 xs:col-span-2 sm:col-span-3 lg:col-span-2">
             <Link
               href="/"
               className="flex items-center">
@@ -48,19 +48,19 @@ export default function Footer() {
                 alt="TechTots Logo"
                 width={130}
                 height={40}
-                className="h-9 w-auto"
+                className="h-7 sm:h-8 md:h-9 w-auto"
               />
             </Link>
-            <p className="mt-4 text-sm text-muted-foreground max-w-md">
+            <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-muted-foreground max-w-md">
               {t("discoverCollection")}
             </p>
-            <div className="mt-6 flex space-x-4">
+            <div className="mt-4 sm:mt-6 flex space-x-3 sm:space-x-4">
               <a
                 href="#"
                 className="text-muted-foreground hover:text-primary">
                 <span className="sr-only">Facebook</span>
                 <svg
-                  className="h-6 w-6"
+                  className="h-5 w-5 sm:h-6 sm:w-6"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   aria-hidden="true">
@@ -76,7 +76,7 @@ export default function Footer() {
                 className="text-muted-foreground hover:text-primary">
                 <span className="sr-only">Instagram</span>
                 <svg
-                  className="h-6 w-6"
+                  className="h-5 w-5 sm:h-6 sm:w-6"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   aria-hidden="true">
@@ -92,7 +92,7 @@ export default function Footer() {
                 className="text-muted-foreground hover:text-primary">
                 <span className="sr-only">Twitter</span>
                 <svg
-                  className="h-6 w-6"
+                  className="h-5 w-5 sm:h-6 sm:w-6"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   aria-hidden="true">
@@ -104,7 +104,7 @@ export default function Footer() {
                 className="text-muted-foreground hover:text-primary">
                 <span className="sr-only">YouTube</span>
                 <svg
-                  className="h-6 w-6"
+                  className="h-5 w-5 sm:h-6 sm:w-6"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   aria-hidden="true">
@@ -119,15 +119,15 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-foreground">
               {t("shop")}
             </h3>
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-2 sm:mt-4 space-y-1.5 sm:space-y-2">
               {footerLinks.shop.map((item) => (
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-sm text-muted-foreground hover:text-primary">
+                    className="text-xs sm:text-sm text-muted-foreground hover:text-primary">
                     {item.name}
                   </Link>
                 </li>
@@ -136,15 +136,15 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-foreground">
               {t("company")}
             </h3>
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-2 sm:mt-4 space-y-1.5 sm:space-y-2">
               {footerLinks.company.map((item) => (
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-sm text-muted-foreground hover:text-primary">
+                    className="text-xs sm:text-sm text-muted-foreground hover:text-primary">
                     {item.name}
                   </Link>
                 </li>
@@ -152,30 +152,30 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">
+          <div className="col-span-2 xs:col-span-1 sm:col-span-1">
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-foreground">
               {t("support")}
             </h3>
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-2 sm:mt-4 space-y-1.5 sm:space-y-2">
               {footerLinks.support.map((item) => (
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-sm text-muted-foreground hover:text-primary">
+                    className="text-xs sm:text-sm text-muted-foreground hover:text-primary">
                     {item.name}
                   </Link>
                 </li>
               ))}
             </ul>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground mt-8">
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-foreground mt-6 sm:mt-8">
               {t("legal")}
             </h3>
-            <ul className="mt-4 space-y-2">
+            <ul className="mt-2 sm:mt-4 space-y-1.5 sm:space-y-2">
               {footerLinks.legal.map((item) => (
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-sm text-muted-foreground hover:text-primary">
+                    className="text-xs sm:text-sm text-muted-foreground hover:text-primary">
                     {item.name}
                   </Link>
                 </li>
@@ -184,25 +184,25 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 border-t border-[hsl(var(--border))] pt-8 flex flex-col md:flex-row justify-between">
-          <p className="text-xs text-muted-foreground">
+        <div className="mt-8 sm:mt-10 md:mt-12 border-t border-[hsl(var(--border))] pt-4 sm:pt-6 md:pt-8 flex flex-col md:flex-row justify-between">
+          <p className="text-[10px] xs:text-xs text-muted-foreground">
             &copy; {new Date().getFullYear()} TechTots, Inc.{" "}
             {t("allRightsReserved")}
           </p>
-          <div className="mt-4 md:mt-0 flex space-x-6">
+          <div className="mt-3 md:mt-0 flex flex-wrap gap-4 sm:gap-6">
             <Link
               href="/terms"
-              className="text-xs text-muted-foreground hover:text-primary">
+              className="text-[10px] xs:text-xs text-muted-foreground hover:text-primary">
               {t("termsOfService")}
             </Link>
             <Link
               href="/privacy"
-              className="text-xs text-muted-foreground hover:text-primary">
+              className="text-[10px] xs:text-xs text-muted-foreground hover:text-primary">
               {t("privacyPolicy")}
             </Link>
             <Link
               href="/cookies"
-              className="text-xs text-muted-foreground hover:text-primary">
+              className="text-[10px] xs:text-xs text-muted-foreground hover:text-primary">
               {t("cookiePolicy")}
             </Link>
           </div>

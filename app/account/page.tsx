@@ -2,14 +2,20 @@ import React from "react";
 import { ProfileForm } from "@/features/account/components/ProfileForm";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { getTranslations } from "@/lib/i18n/server";
 
-export const metadata = {
-  title: "Profile | My Account",
-  description: "View and edit your profile information",
-};
+export async function generateMetadata() {
+  const t = await getTranslations("ro"); // Default to Romanian
+
+  return {
+    title: `${t("profile")} | ${t("account")}`,
+    description: t("profileDescription"),
+  };
+}
 
 export default async function ProfilePage() {
   const session = await auth();
+  const t = await getTranslations("ro"); // Default to Romanian
 
   if (!session?.user) {
     // This should never happen since layout handles auth check
@@ -51,9 +57,9 @@ export default async function ProfilePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-xl font-semibold tracking-tight">Profile</h2>
+        <h2 className="text-xl font-semibold tracking-tight">{t("profile")}</h2>
         <p className="text-sm text-muted-foreground">
-          Manage your personal information
+          {t("managePersonalInfo")}
         </p>
       </div>
       <ProfileForm initialData={userData} />

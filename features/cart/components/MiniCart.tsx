@@ -8,6 +8,7 @@ import { ShoppingCart, X, Trash2, Plus, Minus, Loader2 } from "lucide-react";
 import { useShoppingCart } from "../hooks/useShoppingCart";
 import { useSession } from "next-auth/react";
 import { useCheckoutTransition } from "../context/CheckoutTransitionContext";
+import { useCurrency } from "@/lib/currency";
 
 interface MiniCartProps {
   isOpen: boolean;
@@ -28,6 +29,7 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
     isLoading,
     syncWithServer,
   } = useShoppingCart();
+  const { formatPrice } = useCurrency();
 
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   const [checkoutStatus, setCheckoutStatus] = useState<string>("idle");
@@ -159,7 +161,7 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
                     <div className="flex justify-between text-base font-medium">
                       <h3 className="text-indigo-900">{item.name}</h3>
                       <p className="ml-4 text-indigo-700 font-bold">
-                        ${item.price.toFixed(2)}
+                        {formatPrice(item.price)}
                       </p>
                     </div>
 
@@ -202,7 +204,7 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
               <div className="flex justify-between text-base font-medium">
                 <p className="text-indigo-900">Subtotal</p>
                 <p className="text-indigo-700 font-bold">
-                  ${getTotal().toFixed(2)}
+                  {formatPrice(getTotal())}
                 </p>
               </div>
               <p className="mt-1 text-sm text-indigo-600">

@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Package, Eye, ArrowRight, ShoppingBag } from "lucide-react";
 import { formatDate, formatCurrency } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useTranslation } from "@/lib/i18n";
 
 // Define order status type
 type OrderStatus = "processing" | "shipped" | "delivered" | "cancelled";
@@ -47,89 +48,6 @@ interface Order {
   };
 }
 
-// Sample orders data
-const SAMPLE_ORDERS: Order[] = [
-  {
-    id: "1",
-    orderNumber: "ORD-2023-9876",
-    date: "2023-11-15T12:30:00Z",
-    status: "delivered",
-    total: 129.99,
-    items: [
-      {
-        id: "item1",
-        productName: "STEM Learning Robot Kit",
-        price: 79.99,
-        quantity: 1,
-        image: "/images/product-placeholder.jpg",
-      },
-      {
-        id: "item2",
-        productName: "Beginner Coding Blocks",
-        price: 49.99,
-        quantity: 1,
-        image: "/images/product-placeholder.jpg",
-      },
-    ],
-    shippingAddress: {
-      name: "John Doe",
-      street: "123 Main St",
-      city: "Anytown",
-      state: "CA",
-      zipCode: "90210",
-      country: "USA",
-    },
-  },
-  {
-    id: "2",
-    orderNumber: "ORD-2023-8765",
-    date: "2023-10-25T09:15:00Z",
-    status: "shipped",
-    total: 59.98,
-    items: [
-      {
-        id: "item3",
-        productName: "Science Experiment Kit",
-        price: 29.99,
-        quantity: 2,
-        image: "/images/product-placeholder.jpg",
-      },
-    ],
-    shippingAddress: {
-      name: "John Doe",
-      street: "123 Main St",
-      city: "Anytown",
-      state: "CA",
-      zipCode: "90210",
-      country: "USA",
-    },
-  },
-  {
-    id: "3",
-    orderNumber: "ORD-2023-7654",
-    date: "2023-09-05T14:45:00Z",
-    status: "processing",
-    total: 149.99,
-    items: [
-      {
-        id: "item4",
-        productName: "Microscope for Kids",
-        price: 149.99,
-        quantity: 1,
-        image: "/images/product-placeholder.jpg",
-      },
-    ],
-    shippingAddress: {
-      name: "John Doe",
-      street: "123 Main St",
-      city: "Anytown",
-      state: "CA",
-      zipCode: "90210",
-      country: "USA",
-    },
-  },
-];
-
 // Function to get the status badge variant
 const getStatusBadgeVariant = (status: OrderStatus) => {
   switch (status) {
@@ -147,19 +65,29 @@ const getStatusBadgeVariant = (status: OrderStatus) => {
 };
 
 export function OrderHistory() {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
   const [orders, setOrders] = useState<Order[]>([]);
   const [activeTab, setActiveTab] = useState("all");
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Simulate fetching orders from API
     const fetchOrders = async () => {
+      setIsLoading(true);
       try {
-        // In a real app, this would be an API call
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        setOrders(SAMPLE_ORDERS);
+        const response = await fetch("/api/account/orders");
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setOrders(data);
+        setError(null);
       } catch (error) {
         console.error("Error fetching orders:", error);
+        setError("Failed to load order history");
+        setOrders([]);
       } finally {
         setIsLoading(false);
       }
@@ -208,17 +136,40 @@ export function OrderHistory() {
     );
   }
 
+  // Error state
+  if (error) {
+    return (
+      <div className="text-center py-12 border rounded-lg">
+        <Package className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+        <h3 className="text-lg font-medium mb-2">{error}</h3>
+        <p className="text-gray-500 mb-6">
+          {t(
+            "orderHistoryErrorDescription",
+            "We couldn't load your order history. Please try again later."
+          )}
+        </p>
+        <Button onClick={() => window.location.reload()}>
+          {t("tryAgain", "Try Again")}
+        </Button>
+      </div>
+    );
+  }
+
   // Empty state
   if (orders.length === 0) {
     return (
       <div className="text-center py-12 border rounded-lg">
         <ShoppingBag className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-        <h3 className="text-lg font-medium mb-2">No orders yet</h3>
+        <h3 className="text-lg font-medium mb-2">
+          {t("noOrdersYet", "No orders yet")}
+        </h3>
         <p className="text-gray-500 mb-6">
-          When you place orders, they will appear here
+          {t("whenPlaceOrders", "When you place orders, they will appear here")}
         </p>
         <Button asChild>
-          <Link href="/products">Continue Shopping</Link>
+          <Link href="/products">
+            {t("continueShopping", "Continue Shopping")}
+          </Link>
         </Button>
       </div>
     );
@@ -232,11 +183,17 @@ export function OrderHistory() {
         onValueChange={setActiveTab}
         className="w-full">
         <TabsList className="grid grid-cols-5 mb-6">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="processing">Processing</TabsTrigger>
-          <TabsTrigger value="shipped">Shipped</TabsTrigger>
-          <TabsTrigger value="delivered">Delivered</TabsTrigger>
-          <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
+          <TabsTrigger value="all">{t("all", "All")}</TabsTrigger>
+          <TabsTrigger value="processing">
+            {t("processing", "Processing")}
+          </TabsTrigger>
+          <TabsTrigger value="shipped">{t("shipped", "Shipped")}</TabsTrigger>
+          <TabsTrigger value="delivered">
+            {t("delivered", "Delivered")}
+          </TabsTrigger>
+          <TabsTrigger value="cancelled">
+            {t("cancelled", "Cancelled")}
+          </TabsTrigger>
         </TabsList>
         <TabsContent
           value={activeTab}
@@ -245,10 +202,14 @@ export function OrderHistory() {
             <div className="text-center py-8 border rounded-lg">
               <Package className="h-10 w-10 mx-auto text-gray-400 mb-4" />
               <h3 className="text-lg font-medium mb-2">
-                No {activeTab} orders
+                {t("noFilteredOrders", "No {0} orders", { 0: activeTab })}
               </h3>
               <p className="text-gray-500">
-                You don't have any {activeTab} orders at the moment
+                {t(
+                  "noFilteredOrdersDescription",
+                  "You don't have any {0} orders at the moment",
+                  { 0: activeTab }
+                )}
               </p>
             </div>
           ) : (
@@ -258,17 +219,19 @@ export function OrderHistory() {
                   <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                     <div>
                       <CardTitle className="text-base">
-                        Order #{order.orderNumber}
+                        {t("orderNumber", "Order #")}
+                        {order.orderNumber}
                       </CardTitle>
                       <CardDescription>
-                        Placed on {formatDate(new Date(order.date))}
+                        {t("placedOn", "Placed on ")}{" "}
+                        {formatDate(new Date(order.date))}
                       </CardDescription>
                     </div>
                     <Badge
                       className={`${getStatusBadgeVariant(
                         order.status
                       )} capitalize w-fit`}>
-                      {order.status}
+                      {t(order.status, order.status)}
                     </Badge>
                   </div>
                 </CardHeader>
@@ -298,12 +261,12 @@ export function OrderHistory() {
                   </div>
                   <div className="mt-4 pt-4 border-t flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                     <div className="font-medium">
-                      Total: {formatCurrency(order.total)}
+                      {t("total", "Total")}: {formatCurrency(order.total)}
                     </div>
                     <div className="text-sm">
-                      Shipping to: {order.shippingAddress.name},{" "}
-                      {order.shippingAddress.city},{" "}
-                      {order.shippingAddress.state}
+                      {t("shippingTo", "Shipping to")}:{" "}
+                      {order.shippingAddress.name}, {order.shippingAddress.city}
+                      , {order.shippingAddress.state}
                     </div>
                   </div>
                 </CardContent>
@@ -313,7 +276,8 @@ export function OrderHistory() {
                     size="sm"
                     asChild>
                     <Link href={`/account/orders/${order.id}`}>
-                      <Eye className="h-4 w-4 mr-2" /> View Details
+                      <Eye className="h-4 w-4 mr-2" />{" "}
+                      {t("viewDetails", "View Details")}
                     </Link>
                   </Button>
                   {order.status === "delivered" && (
@@ -321,7 +285,8 @@ export function OrderHistory() {
                       size="sm"
                       asChild>
                       <Link href={`/account/orders/${order.id}/review`}>
-                        Write Review <ArrowRight className="h-4 w-4 ml-2" />
+                        {t("writeReview", "Write Review")}{" "}
+                        <ArrowRight className="h-4 w-4 ml-2" />
                       </Link>
                     </Button>
                   )}

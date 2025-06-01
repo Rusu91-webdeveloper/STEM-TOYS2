@@ -5,6 +5,7 @@ import { CheckoutData, CheckoutStep } from "../types";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/features/cart";
 import { Edit, AlertCircle } from "lucide-react";
+import { useCurrency } from "@/lib/currency";
 
 interface OrderReviewProps {
   checkoutData: CheckoutData;
@@ -24,6 +25,7 @@ export function OrderReview({
   orderError = null,
 }: OrderReviewProps) {
   const { cartItems, getCartTotal } = useCart();
+  const { formatPrice } = useCurrency();
 
   // Calculate totals
   const subtotal = getCartTotal();
@@ -104,7 +106,7 @@ export function OrderReview({
                 {checkoutData.shippingMethod.estimatedDelivery}
               </p>
               <p className="font-medium">
-                ${checkoutData.shippingMethod.price.toFixed(2)}
+                {formatPrice(checkoutData.shippingMethod.price)}
               </p>
             </div>
           ) : (
@@ -198,7 +200,7 @@ export function OrderReview({
               <div>
                 <p className="font-medium">{item.name}</p>
                 <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                <p className="text-sm">${item.price.toFixed(2)}</p>
+                <p className="text-sm">{formatPrice(item.price)}</p>
               </div>
             </div>
           ))}
@@ -207,19 +209,19 @@ export function OrderReview({
         <div className="space-y-2 pt-4 mt-4 border-t">
           <div className="flex justify-between">
             <span className="text-gray-600">Subtotal</span>
-            <span>${subtotal.toFixed(2)}</span>
+            <span>{formatPrice(subtotal)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Tax (10%)</span>
-            <span>${tax.toFixed(2)}</span>
+            <span>{formatPrice(tax)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-600">Shipping</span>
-            <span>${shippingCost.toFixed(2)}</span>
+            <span>{formatPrice(shippingCost)}</span>
           </div>
           <div className="flex justify-between font-semibold text-lg pt-2 border-t">
             <span>Total</span>
-            <span>${total.toFixed(2)}</span>
+            <span>{formatPrice(total)}</span>
           </div>
         </div>
       </div>
@@ -248,8 +250,33 @@ export function OrderReview({
         <Button
           onClick={onPlaceOrder}
           disabled={isProcessingOrder}
-          className="bg-green-600 hover:bg-green-700">
-          {isProcessingOrder ? "Processing..." : "Place Order"}
+          className="relative">
+          {isProcessingOrder ? (
+            <>
+              <span className="opacity-0">Place Order</span>
+              <span className="absolute inset-0 flex items-center justify-center">
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24">
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </span>
+            </>
+          ) : (
+            "Place Order"
+          )}
         </Button>
       </div>
     </div>
