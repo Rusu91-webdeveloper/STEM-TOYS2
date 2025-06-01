@@ -213,6 +213,8 @@ exports.Prisma.BlogScalarFieldEnum = {
   coverImage: 'coverImage',
   categoryId: 'categoryId',
   authorId: 'authorId',
+  stemCategory: 'stemCategory',
+  readingTime: 'readingTime',
   tags: 'tags',
   metadata: 'metadata',
   isPublished: 'isPublished',
@@ -249,6 +251,14 @@ exports.Prisma.JsonNullValueFilter = {
 exports.Role = exports.$Enums.Role = {
   CUSTOMER: 'CUSTOMER',
   ADMIN: 'ADMIN'
+};
+
+exports.StemCategory = exports.$Enums.StemCategory = {
+  SCIENCE: 'SCIENCE',
+  TECHNOLOGY: 'TECHNOLOGY',
+  ENGINEERING: 'ENGINEERING',
+  MATHEMATICS: 'MATHEMATICS',
+  GENERAL: 'GENERAL'
 };
 
 exports.Prisma.ModelName = {

@@ -1,0 +1,201 @@
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { PrismaClient } from "@/app/generated/prisma";
+
+const prisma = new PrismaClient();
+
+// GET a single blog post by slug
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { slug: string } }
+) {
+  const { slug } = params;
+
+  try {
+    const blog = await prisma.blog.findUnique({
+      where: { slug },
+      include: {
+        author: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
+    });
+
+    if (!blog) {
+      return NextResponse.json(
+        { error: "Blog post not found" },
+        { status: 404 }
+      );
+    }
+
+    // For unpublished blogs, check authentication and permission
+    if (!blog.isPublished) {
+      const session = await auth();
+
+      if (!session?.user || session.user.role !== "ADMIN") {
+        return NextResponse.json(
+          { error: "Blog post not found" },
+          { status: 404 }
+        );
+      }
+    }
+
+    return NextResponse.json(blog);
+  } catch (error) {
+    console.error(`Error fetching blog post with slug ${slug}:`, error);
+    return NextResponse.json(
+      { error: "Failed to fetch blog post" },
+      { status: 500 }
+    );
+  }
+}
+
+// PUT/PATCH to update a blog post
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { slug: string } }
+) {
+  const { slug } = params;
+
+  try {
+    const session = await auth();
+
+    // Check if user is authenticated
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "You must be logged in to update a blog post" },
+        { status: 401 }
+      );
+    }
+
+    // Check if user is an admin
+    if (session.user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Only administrators can update blog posts" },
+        { status: 403 }
+      );
+    }
+
+    const data = await request.json();
+
+    // Process tags from comma-separated string to array
+    let tags: string[] = [];
+    if (typeof data.tags === "string") {
+      tags = data.tags
+        .split(",")
+        .map((tag: string) => tag.trim())
+        .filter(Boolean);
+    } else if (Array.isArray(data.tags)) {
+      tags = data.tags;
+    }
+
+    // Check if blog exists
+    const existingBlog = await prisma.blog.findUnique({
+      where: { slug },
+    });
+
+    if (!existingBlog) {
+      return NextResponse.json(
+        { error: "Blog post not found" },
+        { status: 404 }
+      );
+    }
+
+    // Set published date if the blog is being published for the first time
+    let publishedAt = existingBlog.publishedAt;
+    if (data.isPublished && !existingBlog.isPublished) {
+      publishedAt = new Date();
+    }
+
+    const updatedBlog = await prisma.blog.update({
+      where: { slug },
+      data: {
+        title: data.title,
+        excerpt: data.excerpt,
+        content: data.content,
+        coverImage: data.coverImage,
+        categoryId: data.categoryId,
+        stemCategory: data.stemCategory,
+        tags,
+        isPublished: data.isPublished,
+        publishedAt,
+        readingTime: Math.ceil(data.content.split(" ").length / 200), // Rough estimate: 200 words per minute
+        updatedAt: new Date(),
+      },
+    });
+
+    return NextResponse.json(updatedBlog);
+  } catch (error: any) {
+    console.error(`Error updating blog post with slug ${slug}:`, error);
+    return NextResponse.json(
+      { error: "Failed to update blog post" },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE a blog post
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { slug: string } }
+) {
+  const { slug } = params;
+
+  try {
+    const session = await auth();
+
+    // Check if user is authenticated
+    if (!session?.user) {
+      return NextResponse.json(
+        { error: "You must be logged in to delete a blog post" },
+        { status: 401 }
+      );
+    }
+
+    // Check if user is an admin
+    if (session.user.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Only administrators can delete blog posts" },
+        { status: 403 }
+      );
+    }
+
+    // Check if blog exists
+    const existingBlog = await prisma.blog.findUnique({
+      where: { slug },
+    });
+
+    if (!existingBlog) {
+      return NextResponse.json(
+        { error: "Blog post not found" },
+        { status: 404 }
+      );
+    }
+
+    await prisma.blog.delete({
+      where: { slug },
+    });
+
+    return NextResponse.json(
+      { message: "Blog post deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error(`Error deleting blog post with slug ${slug}:`, error);
+    return NextResponse.json(
+      { error: "Failed to delete blog post" },
+      { status: 500 }
+    );
+  }
+}

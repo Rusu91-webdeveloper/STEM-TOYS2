@@ -158,6 +158,8 @@ export const en = {
   blogDescription:
     "Insights, tips, and the latest research on educational toys and STEM learning for children of all ages.",
   latestArticles: "Latest Articles",
+  articles: "Articles",
+  noArticlesInCategory: "No articles found in this category yet.",
   readMore: "Read More",
   stayUpdated: "Stay Updated",
   newsletterDescription:

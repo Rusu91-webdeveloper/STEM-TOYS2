@@ -232,6 +232,8 @@ export const ro = {
   blogDescription:
     "Informații, sfaturi și cele mai recente cercetări despre jucăriile educaționale și învățarea STEM pentru copiii de toate vârstele.",
   latestArticles: "Cele mai recente articole",
+  articles: "Articole",
+  noArticlesInCategory: "Nu s-au găsit articole în această categorie încă.",
   readMore: "Citește mai mult",
   stayUpdated: "Rămâi la curent",
   newsletterDescription:

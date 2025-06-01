@@ -60,11 +60,26 @@ export namespace $Enums {
 
 export type Role = (typeof Role)[keyof typeof Role]
 
+
+export const StemCategory: {
+  SCIENCE: 'SCIENCE',
+  TECHNOLOGY: 'TECHNOLOGY',
+  ENGINEERING: 'ENGINEERING',
+  MATHEMATICS: 'MATHEMATICS',
+  GENERAL: 'GENERAL'
+};
+
+export type StemCategory = (typeof StemCategory)[keyof typeof StemCategory]
+
 }
 
 export type Role = $Enums.Role
 
 export const Role: typeof $Enums.Role
+
+export type StemCategory = $Enums.StemCategory
+
+export const StemCategory: typeof $Enums.StemCategory
 
 /**
  * ##  Prisma Client ʲˢ
@@ -8587,8 +8602,18 @@ export namespace Prisma {
 
   export type AggregateBlog = {
     _count: BlogCountAggregateOutputType | null
+    _avg: BlogAvgAggregateOutputType | null
+    _sum: BlogSumAggregateOutputType | null
     _min: BlogMinAggregateOutputType | null
     _max: BlogMaxAggregateOutputType | null
+  }
+
+  export type BlogAvgAggregateOutputType = {
+    readingTime: number | null
+  }
+
+  export type BlogSumAggregateOutputType = {
+    readingTime: number | null
   }
 
   export type BlogMinAggregateOutputType = {
@@ -8600,6 +8625,8 @@ export namespace Prisma {
     coverImage: string | null
     categoryId: string | null
     authorId: string | null
+    stemCategory: $Enums.StemCategory | null
+    readingTime: number | null
     isPublished: boolean | null
     publishedAt: Date | null
     createdAt: Date | null
@@ -8615,6 +8642,8 @@ export namespace Prisma {
     coverImage: string | null
     categoryId: string | null
     authorId: string | null
+    stemCategory: $Enums.StemCategory | null
+    readingTime: number | null
     isPublished: boolean | null
     publishedAt: Date | null
     createdAt: Date | null
@@ -8630,6 +8659,8 @@ export namespace Prisma {
     coverImage: number
     categoryId: number
     authorId: number
+    stemCategory: number
+    readingTime: number
     tags: number
     metadata: number
     isPublished: number
@@ -8640,6 +8671,14 @@ export namespace Prisma {
   }
 
 
+  export type BlogAvgAggregateInputType = {
+    readingTime?: true
+  }
+
+  export type BlogSumAggregateInputType = {
+    readingTime?: true
+  }
+
   export type BlogMinAggregateInputType = {
     id?: true
     title?: true
@@ -8649,6 +8688,8 @@ export namespace Prisma {
     coverImage?: true
     categoryId?: true
     authorId?: true
+    stemCategory?: true
+    readingTime?: true
     isPublished?: true
     publishedAt?: true
     createdAt?: true
@@ -8664,6 +8705,8 @@ export namespace Prisma {
     coverImage?: true
     categoryId?: true
     authorId?: true
+    stemCategory?: true
+    readingTime?: true
     isPublished?: true
     publishedAt?: true
     createdAt?: true
@@ -8679,6 +8722,8 @@ export namespace Prisma {
     coverImage?: true
     categoryId?: true
     authorId?: true
+    stemCategory?: true
+    readingTime?: true
     tags?: true
     metadata?: true
     isPublished?: true
@@ -8726,6 +8771,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: BlogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BlogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: BlogMinAggregateInputType
@@ -8756,6 +8813,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: BlogCountAggregateInputType | true
+    _avg?: BlogAvgAggregateInputType
+    _sum?: BlogSumAggregateInputType
     _min?: BlogMinAggregateInputType
     _max?: BlogMaxAggregateInputType
   }
@@ -8769,6 +8828,8 @@ export namespace Prisma {
     coverImage: string | null
     categoryId: string
     authorId: string
+    stemCategory: $Enums.StemCategory
+    readingTime: number | null
     tags: string[]
     metadata: JsonValue | null
     isPublished: boolean
@@ -8776,6 +8837,8 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     _count: BlogCountAggregateOutputType | null
+    _avg: BlogAvgAggregateOutputType | null
+    _sum: BlogSumAggregateOutputType | null
     _min: BlogMinAggregateOutputType | null
     _max: BlogMaxAggregateOutputType | null
   }
@@ -8803,6 +8866,8 @@ export namespace Prisma {
     coverImage?: boolean
     categoryId?: boolean
     authorId?: boolean
+    stemCategory?: boolean
+    readingTime?: boolean
     tags?: boolean
     metadata?: boolean
     isPublished?: boolean
@@ -8822,6 +8887,8 @@ export namespace Prisma {
     coverImage?: boolean
     categoryId?: boolean
     authorId?: boolean
+    stemCategory?: boolean
+    readingTime?: boolean
     tags?: boolean
     metadata?: boolean
     isPublished?: boolean
@@ -8841,6 +8908,8 @@ export namespace Prisma {
     coverImage?: boolean
     categoryId?: boolean
     authorId?: boolean
+    stemCategory?: boolean
+    readingTime?: boolean
     tags?: boolean
     metadata?: boolean
     isPublished?: boolean
@@ -8860,6 +8929,8 @@ export namespace Prisma {
     coverImage?: boolean
     categoryId?: boolean
     authorId?: boolean
+    stemCategory?: boolean
+    readingTime?: boolean
     tags?: boolean
     metadata?: boolean
     isPublished?: boolean
@@ -8868,7 +8939,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type BlogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "slug" | "excerpt" | "content" | "coverImage" | "categoryId" | "authorId" | "tags" | "metadata" | "isPublished" | "publishedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["blog"]>
+  export type BlogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "slug" | "excerpt" | "content" | "coverImage" | "categoryId" | "authorId" | "stemCategory" | "readingTime" | "tags" | "metadata" | "isPublished" | "publishedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["blog"]>
   export type BlogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | CategoryDefaultArgs<ExtArgs>
     author?: boolean | UserDefaultArgs<ExtArgs>
@@ -8897,6 +8968,8 @@ export namespace Prisma {
       coverImage: string | null
       categoryId: string
       authorId: string
+      stemCategory: $Enums.StemCategory
+      readingTime: number | null
       tags: string[]
       metadata: Prisma.JsonValue | null
       isPublished: boolean
@@ -9336,6 +9409,8 @@ export namespace Prisma {
     readonly coverImage: FieldRef<"Blog", 'String'>
     readonly categoryId: FieldRef<"Blog", 'String'>
     readonly authorId: FieldRef<"Blog", 'String'>
+    readonly stemCategory: FieldRef<"Blog", 'StemCategory'>
+    readonly readingTime: FieldRef<"Blog", 'Int'>
     readonly tags: FieldRef<"Blog", 'String[]'>
     readonly metadata: FieldRef<"Blog", 'Json'>
     readonly isPublished: FieldRef<"Blog", 'Boolean'>
@@ -9881,6 +9956,8 @@ export namespace Prisma {
     coverImage: 'coverImage',
     categoryId: 'categoryId',
     authorId: 'authorId',
+    stemCategory: 'stemCategory',
+    readingTime: 'readingTime',
     tags: 'tags',
     metadata: 'metadata',
     isPublished: 'isPublished',
@@ -10026,6 +10103,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'StemCategory'
+   */
+  export type EnumStemCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StemCategory'>
+    
+
+
+  /**
+   * Reference to a field of type 'StemCategory[]'
+   */
+  export type ListEnumStemCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'StemCategory[]'>
     
   /**
    * Deep Input Types
@@ -10574,6 +10665,8 @@ export namespace Prisma {
     coverImage?: StringNullableFilter<"Blog"> | string | null
     categoryId?: StringFilter<"Blog"> | string
     authorId?: StringFilter<"Blog"> | string
+    stemCategory?: EnumStemCategoryFilter<"Blog"> | $Enums.StemCategory
+    readingTime?: IntNullableFilter<"Blog"> | number | null
     tags?: StringNullableListFilter<"Blog">
     metadata?: JsonNullableFilter<"Blog">
     isPublished?: BoolFilter<"Blog"> | boolean
@@ -10593,6 +10686,8 @@ export namespace Prisma {
     coverImage?: SortOrderInput | SortOrder
     categoryId?: SortOrder
     authorId?: SortOrder
+    stemCategory?: SortOrder
+    readingTime?: SortOrderInput | SortOrder
     tags?: SortOrder
     metadata?: SortOrderInput | SortOrder
     isPublished?: SortOrder
@@ -10615,6 +10710,8 @@ export namespace Prisma {
     coverImage?: StringNullableFilter<"Blog"> | string | null
     categoryId?: StringFilter<"Blog"> | string
     authorId?: StringFilter<"Blog"> | string
+    stemCategory?: EnumStemCategoryFilter<"Blog"> | $Enums.StemCategory
+    readingTime?: IntNullableFilter<"Blog"> | number | null
     tags?: StringNullableListFilter<"Blog">
     metadata?: JsonNullableFilter<"Blog">
     isPublished?: BoolFilter<"Blog"> | boolean
@@ -10634,6 +10731,8 @@ export namespace Prisma {
     coverImage?: SortOrderInput | SortOrder
     categoryId?: SortOrder
     authorId?: SortOrder
+    stemCategory?: SortOrder
+    readingTime?: SortOrderInput | SortOrder
     tags?: SortOrder
     metadata?: SortOrderInput | SortOrder
     isPublished?: SortOrder
@@ -10641,8 +10740,10 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: BlogCountOrderByAggregateInput
+    _avg?: BlogAvgOrderByAggregateInput
     _max?: BlogMaxOrderByAggregateInput
     _min?: BlogMinOrderByAggregateInput
+    _sum?: BlogSumOrderByAggregateInput
   }
 
   export type BlogScalarWhereWithAggregatesInput = {
@@ -10657,6 +10758,8 @@ export namespace Prisma {
     coverImage?: StringNullableWithAggregatesFilter<"Blog"> | string | null
     categoryId?: StringWithAggregatesFilter<"Blog"> | string
     authorId?: StringWithAggregatesFilter<"Blog"> | string
+    stemCategory?: EnumStemCategoryWithAggregatesFilter<"Blog"> | $Enums.StemCategory
+    readingTime?: IntNullableWithAggregatesFilter<"Blog"> | number | null
     tags?: StringNullableListFilter<"Blog">
     metadata?: JsonNullableWithAggregatesFilter<"Blog">
     isPublished?: BoolWithAggregatesFilter<"Blog"> | boolean
@@ -11283,6 +11386,8 @@ export namespace Prisma {
     excerpt: string
     content: string
     coverImage?: string | null
+    stemCategory?: $Enums.StemCategory
+    readingTime?: number | null
     tags?: BlogCreatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: boolean
@@ -11302,6 +11407,8 @@ export namespace Prisma {
     coverImage?: string | null
     categoryId: string
     authorId: string
+    stemCategory?: $Enums.StemCategory
+    readingTime?: number | null
     tags?: BlogCreatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: boolean
@@ -11317,6 +11424,8 @@ export namespace Prisma {
     excerpt?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
     tags?: BlogUpdatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -11336,6 +11445,8 @@ export namespace Prisma {
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     authorId?: StringFieldUpdateOperationsInput | string
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
     tags?: BlogUpdatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -11353,6 +11464,8 @@ export namespace Prisma {
     coverImage?: string | null
     categoryId: string
     authorId: string
+    stemCategory?: $Enums.StemCategory
+    readingTime?: number | null
     tags?: BlogCreatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: boolean
@@ -11368,6 +11481,8 @@ export namespace Prisma {
     excerpt?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
     tags?: BlogUpdatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -11385,6 +11500,8 @@ export namespace Prisma {
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     authorId?: StringFieldUpdateOperationsInput | string
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
     tags?: BlogUpdatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -12013,6 +12130,24 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
+  export type EnumStemCategoryFilter<$PrismaModel = never> = {
+    equals?: $Enums.StemCategory | EnumStemCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumStemCategoryFilter<$PrismaModel> | $Enums.StemCategory
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type BlogCountOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
@@ -12022,12 +12157,18 @@ export namespace Prisma {
     coverImage?: SortOrder
     categoryId?: SortOrder
     authorId?: SortOrder
+    stemCategory?: SortOrder
+    readingTime?: SortOrder
     tags?: SortOrder
     metadata?: SortOrder
     isPublished?: SortOrder
     publishedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type BlogAvgOrderByAggregateInput = {
+    readingTime?: SortOrder
   }
 
   export type BlogMaxOrderByAggregateInput = {
@@ -12039,6 +12180,8 @@ export namespace Prisma {
     coverImage?: SortOrder
     categoryId?: SortOrder
     authorId?: SortOrder
+    stemCategory?: SortOrder
+    readingTime?: SortOrder
     isPublished?: SortOrder
     publishedAt?: SortOrder
     createdAt?: SortOrder
@@ -12054,10 +12197,42 @@ export namespace Prisma {
     coverImage?: SortOrder
     categoryId?: SortOrder
     authorId?: SortOrder
+    stemCategory?: SortOrder
+    readingTime?: SortOrder
     isPublished?: SortOrder
     publishedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type BlogSumOrderByAggregateInput = {
+    readingTime?: SortOrder
+  }
+
+  export type EnumStemCategoryWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StemCategory | EnumStemCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumStemCategoryWithAggregatesFilter<$PrismaModel> | $Enums.StemCategory
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStemCategoryFilter<$PrismaModel>
+    _max?: NestedEnumStemCategoryFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type AddressCreateNestedManyWithoutUserInput = {
@@ -12508,6 +12683,18 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type EnumStemCategoryFieldUpdateOperationsInput = {
+    set?: $Enums.StemCategory
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type BlogUpdatetagsInput = {
     set?: string[]
     push?: string | string[]
@@ -12786,6 +12973,39 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
+  export type NestedEnumStemCategoryFilter<$PrismaModel = never> = {
+    equals?: $Enums.StemCategory | EnumStemCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumStemCategoryFilter<$PrismaModel> | $Enums.StemCategory
+  }
+
+  export type NestedEnumStemCategoryWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StemCategory | EnumStemCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumStemCategoryWithAggregatesFilter<$PrismaModel> | $Enums.StemCategory
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStemCategoryFilter<$PrismaModel>
+    _max?: NestedEnumStemCategoryFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
   export type AddressCreateWithoutUserInput = {
     id?: string
     name: string
@@ -12871,6 +13091,8 @@ export namespace Prisma {
     excerpt: string
     content: string
     coverImage?: string | null
+    stemCategory?: $Enums.StemCategory
+    readingTime?: number | null
     tags?: BlogCreatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: boolean
@@ -12888,6 +13110,8 @@ export namespace Prisma {
     content: string
     coverImage?: string | null
     categoryId: string
+    stemCategory?: $Enums.StemCategory
+    readingTime?: number | null
     tags?: BlogCreatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: boolean
@@ -13027,6 +13251,8 @@ export namespace Prisma {
     coverImage?: StringNullableFilter<"Blog"> | string | null
     categoryId?: StringFilter<"Blog"> | string
     authorId?: StringFilter<"Blog"> | string
+    stemCategory?: EnumStemCategoryFilter<"Blog"> | $Enums.StemCategory
+    readingTime?: IntNullableFilter<"Blog"> | number | null
     tags?: StringNullableListFilter<"Blog">
     metadata?: JsonNullableFilter<"Blog">
     isPublished?: BoolFilter<"Blog"> | boolean
@@ -13424,6 +13650,8 @@ export namespace Prisma {
     excerpt: string
     content: string
     coverImage?: string | null
+    stemCategory?: $Enums.StemCategory
+    readingTime?: number | null
     tags?: BlogCreatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: boolean
@@ -13441,6 +13669,8 @@ export namespace Prisma {
     content: string
     coverImage?: string | null
     authorId: string
+    stemCategory?: $Enums.StemCategory
+    readingTime?: number | null
     tags?: BlogCreatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: boolean
@@ -13825,6 +14055,8 @@ export namespace Prisma {
     content: string
     coverImage?: string | null
     categoryId: string
+    stemCategory?: $Enums.StemCategory
+    readingTime?: number | null
     tags?: BlogCreatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: boolean
@@ -13934,6 +14166,8 @@ export namespace Prisma {
     excerpt?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
     tags?: BlogUpdatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -13951,6 +14185,8 @@ export namespace Prisma {
     content?: StringFieldUpdateOperationsInput | string
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
     tags?: BlogUpdatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -13967,6 +14203,8 @@ export namespace Prisma {
     content?: StringFieldUpdateOperationsInput | string
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
     tags?: BlogUpdatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -14034,6 +14272,8 @@ export namespace Prisma {
     content: string
     coverImage?: string | null
     authorId: string
+    stemCategory?: $Enums.StemCategory
+    readingTime?: number | null
     tags?: BlogCreatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: boolean
@@ -14145,6 +14385,8 @@ export namespace Prisma {
     excerpt?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
     tags?: BlogUpdatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -14162,6 +14404,8 @@ export namespace Prisma {
     content?: StringFieldUpdateOperationsInput | string
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
     tags?: BlogUpdatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: BoolFieldUpdateOperationsInput | boolean
@@ -14178,6 +14422,8 @@ export namespace Prisma {
     content?: StringFieldUpdateOperationsInput | string
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
     tags?: BlogUpdatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: BoolFieldUpdateOperationsInput | boolean

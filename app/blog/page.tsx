@@ -1,56 +1,152 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n";
+import { format } from "date-fns";
 
-// Mock data for blog posts
-const blogPosts = [
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  coverImage: string | null;
+  stemCategory: string;
+  publishedAt: string;
+  author: {
+    name: string | null;
+  };
+  category: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+  isActive: boolean;
+}
+
+// Define STEM categories
+const stemCategories = [
   {
-    id: "1",
-    title: "Top 10 STEM Toys for Early Childhood Development",
-    excerpt:
-      "Discover the best STEM toys that help preschoolers develop essential early skills while having fun.",
-    date: "May 15, 2023",
-    category: "Early Learning",
-    image: "/images/category_banner_science_01.png",
-    author: "Emily Johnson",
+    key: "all",
+    label: "All",
+    color: "from-indigo-600 via-indigo-700 to-purple-700",
+  },
+  { key: "SCIENCE", label: "Science (S)", color: "from-blue-600 to-blue-700" },
+  {
+    key: "TECHNOLOGY",
+    label: "Technology (T)",
+    color: "from-green-600 to-green-700",
   },
   {
-    id: "2",
-    title: "How Coding Toys Prepare Children for the Future",
-    excerpt:
-      "Learn how coding toys and games can help develop computational thinking and prepare kids for tomorrow's jobs.",
-    date: "April 28, 2023",
-    category: "Technology",
-    image: "/images/category_banner_technology_01.png",
-    author: "Michael Chen",
+    key: "ENGINEERING",
+    label: "Engineering (E)",
+    color: "from-yellow-600 to-yellow-700",
   },
   {
-    id: "3",
-    title: "The Science Behind Effective Educational Toys",
-    excerpt:
-      "Understanding how educational toys are designed to maximize learning outcomes through play-based approaches.",
-    date: "March 12, 2023",
-    category: "Research",
-    image: "/images/category_banner_engineering_01.png",
-    author: "Dr. Sarah Williams",
-  },
-  {
-    id: "4",
-    title: "Building Skills Through Construction Toys",
-    excerpt:
-      "How construction and building toys help develop spatial reasoning, planning, and problem-solving abilities.",
-    date: "February 20, 2023",
-    category: "Engineering",
-    image: "/images/category_banner_math_01.png",
-    author: "David Rodriguez",
+    key: "MATHEMATICS",
+    label: "Mathematics (M)",
+    color: "from-red-600 to-red-700",
   },
 ];
 
 export default function BlogPage() {
   const { t } = useTranslation();
+  const [activeCategory, setActiveCategory] = useState("all");
+  const [activeCategoryId, setActiveCategoryId] = useState("all");
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/categories");
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+
+        const data = await response.json();
+        setCategories(data);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        setIsLoading(true);
+        // Build URL with appropriate filters
+        let url = "/api/blog";
+        const params = new URLSearchParams();
+
+        if (activeCategory !== "all") {
+          params.append("stemCategory", activeCategory);
+        }
+
+        if (activeCategoryId !== "all") {
+          params.append("category", activeCategoryId);
+        }
+
+        if (params.toString()) {
+          url += `?${params.toString()}`;
+        }
+
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch blogs");
+        }
+
+        const data = await response.json();
+        setBlogPosts(data);
+      } catch (err) {
+        console.error("Error fetching blogs:", err);
+        setError("Failed to load blog posts. Please try again later.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBlogs();
+  }, [activeCategory, activeCategoryId]);
+
+  // Get default image based on STEM category
+  const getDefaultImage = (category: string) => {
+    switch (category) {
+      case "SCIENCE":
+        return "/images/category_banner_science_01.png";
+      case "TECHNOLOGY":
+        return "/images/category_banner_technology_01.png";
+      case "ENGINEERING":
+        return "/images/category_banner_engineering_01.png";
+      case "MATHEMATICS":
+        return "/images/category_banner_math_01.png";
+      default:
+        return "/images/category_banner_science_01.png";
+    }
+  };
+
+  // Reset all filters
+  const resetFilters = () => {
+    setActiveCategory("all");
+    setActiveCategoryId("all");
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -74,28 +170,74 @@ export default function BlogPage() {
           <p className="text-lg md:text-xl mb-6 max-w-2xl leading-relaxed drop-shadow-sm">
             {t("blogDescription")}
           </p>
-          <div className="flex flex-wrap gap-3">
-            <Button
-              className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white border-none shadow-md transition-all"
-              size="sm">
-              <Link href="/blog/category/early-learning">Early Learning</Link>
-            </Button>
-            <Button
-              className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white border-none shadow-md transition-all"
-              size="sm">
-              <Link href="/blog/category/technology">Technology</Link>
-            </Button>
-            <Button
-              className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white border-none shadow-md transition-all"
-              size="sm">
-              <Link href="/blog/category/research">Research</Link>
-            </Button>
-            <Button
-              className="bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white border-none shadow-md transition-all"
-              size="sm">
-              <Link href="/blog/category/engineering">Engineering</Link>
-            </Button>
+
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold mb-2">STEM Categories</h3>
+            <div className="flex flex-wrap gap-3">
+              {stemCategories.map((category) => (
+                <Button
+                  key={category.key}
+                  className={`bg-gradient-to-r ${category.color} hover:opacity-90 text-white border-none shadow-md transition-all ${
+                    activeCategory === category.key ? "ring-2 ring-white" : ""
+                  }`}
+                  size="sm"
+                  onClick={() => {
+                    setActiveCategory(category.key);
+                    if (category.key === "all") {
+                      setActiveCategoryId("all"); // Reset category filter when selecting "All"
+                    }
+                  }}>
+                  {category.label}
+                </Button>
+              ))}
+            </div>
           </div>
+
+          {categories.length > 0 && (
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Content Categories</h3>
+              <div className="flex flex-wrap gap-3">
+                <Button
+                  className={`bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:opacity-90 text-white border-none shadow-md transition-all ${
+                    activeCategoryId === "all" ? "ring-2 ring-white" : ""
+                  }`}
+                  size="sm"
+                  onClick={() => setActiveCategoryId("all")}>
+                  All Categories
+                </Button>
+                {categories.map((category) => (
+                  <Button
+                    key={category.id}
+                    className={`bg-gradient-to-r from-purple-600 to-purple-700 hover:opacity-90 text-white border-none shadow-md transition-all ${
+                      activeCategoryId === category.id
+                        ? "ring-2 ring-white"
+                        : ""
+                    }`}
+                    size="sm"
+                    onClick={() => {
+                      setActiveCategoryId(category.id);
+                      if (activeCategory !== "all") {
+                        setActiveCategory("all"); // Reset STEM filter when selecting a category
+                      }
+                    }}>
+                    {category.name}
+                  </Button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {(activeCategory !== "all" || activeCategoryId !== "all") && (
+            <div className="mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                className="bg-white/20 hover:bg-white/30 text-white border-white/30"
+                onClick={resetFilters}>
+                Clear Filters
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -103,58 +245,67 @@ export default function BlogPage() {
       <section className="py-12 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
         <div className="container px-4 sm:px-6 lg:px-8 mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold mb-8 text-indigo-900">
-            {t("latestArticles")}
+            {activeCategory !== "all"
+              ? `${stemCategories.find((c) => c.key === activeCategory)?.label} Articles`
+              : activeCategoryId !== "all"
+                ? `${categories.find((c) => c.id === activeCategoryId)?.name || ""} Articles`
+                : t("latestArticles")}
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mx-auto max-w-7xl">
-            {blogPosts.map((post) => (
-              <div
-                key={post.id}
-                className="bg-white rounded-lg overflow-hidden shadow-md border border-indigo-100 hover:shadow-xl hover:border-indigo-200 transition-all transform hover:-translate-y-1 duration-300">
-                <div className="relative h-48 w-full">
-                  <Image
-                    src={post.image}
-                    alt={post.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                    style={{ objectFit: "cover" }}
-                    className="transition-transform hover:scale-105 duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
-                  <div className="absolute bottom-3 left-3">
-                    <span className="inline-block px-2 py-1 text-xs rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 font-medium shadow-sm border border-indigo-200/50">
-                      {post.category}
-                    </span>
+
+          {isLoading ? (
+            <div className="text-center py-10">Loading blog posts...</div>
+          ) : error ? (
+            <div className="text-center py-10 text-red-500">{error}</div>
+          ) : blogPosts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mx-auto max-w-7xl">
+              {blogPosts.map((post) => (
+                <div
+                  key={post.id}
+                  className="bg-white rounded-lg overflow-hidden shadow-md border border-indigo-100 hover:shadow-xl hover:border-indigo-200 transition-all transform hover:-translate-y-1 duration-300">
+                  <div className="relative h-48 w-full">
+                    <Image
+                      src={
+                        post.coverImage || getDefaultImage(post.stemCategory)
+                      }
+                      alt={post.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                      style={{ objectFit: "cover" }}
+                      className="transition-transform hover:scale-105 duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                    <div className="absolute bottom-3 left-3">
+                      <span className="inline-block px-2 py-1 text-xs rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 font-medium shadow-sm border border-indigo-200/50">
+                        {post.category?.name || post.stemCategory}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <Link href={`/blog/post/${post.slug}`}>
+                      <h3 className="text-lg font-semibold mb-2 hover:text-indigo-700 transition-colors">
+                        {post.title}
+                      </h3>
+                    </Link>
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                      {post.excerpt}
+                    </p>
+                    <div className="flex justify-between items-center text-xs text-gray-500">
+                      <span>{post.author?.name || "TechTots Team"}</span>
+                      <span>
+                        {post.publishedAt
+                          ? format(new Date(post.publishedAt), "MMM d, yyyy")
+                          : ""}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                <div className="p-4">
-                  <div className="mb-2 flex justify-between items-center">
-                    <span className="text-xs text-indigo-600 font-medium">
-                      {post.date}
-                    </span>
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2 text-indigo-900 line-clamp-2 hover:text-indigo-700 transition-colors">
-                    {post.title}
-                  </h3>
-                  <p className="text-sm text-gray-700 mb-4 line-clamp-3 leading-relaxed">
-                    {post.excerpt}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-indigo-600 font-medium">
-                      By {post.author}
-                    </span>
-                    <Button
-                      className="bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 hover:from-indigo-100 hover:to-purple-100 border border-indigo-200 shadow-sm transition-all"
-                      size="sm"
-                      asChild>
-                      <Link href={`/blog/post/${post.id}`}>
-                        {t("readMore")}
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10">
+              No blog posts found in this category. Check back soon!
+            </div>
+          )}
         </div>
       </section>
 

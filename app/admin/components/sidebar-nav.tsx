@@ -10,6 +10,7 @@ import {
   Settings,
   BarChart,
   LucideIcon,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -63,6 +64,11 @@ export const adminNavItems = [
     title: "Products",
     href: "/admin/products",
     icon: Package,
+  },
+  {
+    title: "Blog",
+    href: "/admin/blog",
+    icon: FileText,
   },
   {
     title: "Orders",
