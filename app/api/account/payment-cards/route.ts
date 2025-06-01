@@ -10,7 +10,6 @@ import {
   validateCardExpiry,
 } from "@/lib/encryption";
 import { z } from "zod";
-import { PrismaClient } from "@/app/generated/prisma";
 
 // Schema for card validation
 const paymentCardSchema = z.object({
@@ -29,9 +28,6 @@ const paymentCardSchema = z.object({
   billingAddressId: z.string().optional(),
 });
 
-// Initialize Prisma client
-const prisma = new PrismaClient();
-
 // GET - Get all payment cards for the current user
 export async function GET() {
   try {
@@ -44,7 +40,7 @@ export async function GET() {
       );
     }
 
-    const cards = await prisma.paymentCard.findMany({
+    const cards = await db.paymentCard.findMany({
       where: {
         userId: session.user.id,
       },
@@ -54,15 +50,14 @@ export async function GET() {
       select: {
         id: true,
         lastFourDigits: true,
+        cardholderName: true,
         expiryMonth: true,
         expiryYear: true,
-        cardholderName: true,
         cardType: true,
         isDefault: true,
-        createdAt: true,
-        updatedAt: true,
         billingAddressId: true,
-        // Important: Do not select encryptedCardData or encryptedCvv in API responses
+        createdAt: true,
+        // Do not include encrypted fields
       },
     });
 
@@ -153,46 +148,49 @@ export async function POST(req: Request) {
     const encryptedCardData = encryptData(cardNumber);
     const encryptedCvv = encryptData(cvv);
 
-    // If this is the default card, unset any existing default cards
-    if (isDefault) {
-      await prisma.paymentCard.updateMany({
-        where: {
-          userId: session.user.id,
-          isDefault: true,
-        },
+    // Use transaction to ensure operations are atomic
+    const newCard = await db.$transaction(async (tx) => {
+      // If this is the default card, unset any existing default cards
+      if (isDefault) {
+        await tx.paymentCard.updateMany({
+          where: {
+            userId: session.user.id,
+            isDefault: true,
+          },
+          data: {
+            isDefault: false,
+          },
+        });
+      }
+
+      // Create the new payment card
+      return tx.paymentCard.create({
         data: {
-          isDefault: false,
+          userId: session.user.id,
+          cardholderName,
+          lastFourDigits,
+          encryptedCardData,
+          encryptedCvv,
+          expiryMonth,
+          expiryYear,
+          cardType,
+          isDefault,
+          billingAddressId:
+            billingAddressId === "none" ? undefined : billingAddressId,
+        },
+        select: {
+          id: true,
+          lastFourDigits: true,
+          expiryMonth: true,
+          expiryYear: true,
+          cardholderName: true,
+          cardType: true,
+          isDefault: true,
+          billingAddressId: true,
+          createdAt: true,
+          // Do not include encrypted fields
         },
       });
-    }
-
-    // Create the new payment card
-    const newCard = await prisma.paymentCard.create({
-      data: {
-        userId: session.user.id,
-        cardholderName,
-        lastFourDigits,
-        encryptedCardData,
-        encryptedCvv,
-        expiryMonth,
-        expiryYear,
-        cardType,
-        isDefault,
-        billingAddressId:
-          billingAddressId === "none" ? undefined : billingAddressId,
-      },
-      select: {
-        id: true,
-        lastFourDigits: true,
-        expiryMonth: true,
-        expiryYear: true,
-        cardholderName: true,
-        cardType: true,
-        isDefault: true,
-        billingAddressId: true,
-        createdAt: true,
-        // Do not include encrypted fields
-      },
     });
 
     return NextResponse.json(newCard, { status: 201 });

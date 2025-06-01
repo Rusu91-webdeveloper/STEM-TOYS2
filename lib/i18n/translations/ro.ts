@@ -271,4 +271,41 @@ export const ro = {
   joinStemJourneyDesc:
     "Descoperă selecția noastră atent aleasă de jucării educaționale și începe să inspiri curiozitatea astăzi!",
   shopCollection: "Explorează Colecția Noastră",
+
+  // Product page specific translations
+  backToProducts: "Înapoi la Produse",
+  productDescription: "Descrierea Produsului",
+  ageRange: "Interval de Vârstă",
+  category: "Categorie",
+  off: "REDUCERE",
+  freeShipping: "Transport Gratuit",
+  onOrdersOver: "La comenzi peste",
+  returnPeriod: "Returnare în 30 de Zile",
+  moneyBackGuarantee: "Garanția returnării banilor",
+  secureCheckout: "Plată Securizată",
+  protectedBySSL: "Protejat prin SSL",
+  stemToyDesigned:
+    "Această jucărie STEM este concepută pentru a inspira mințile tinere și a prezenta copiilor minunata lume a",
+  providesHandsOn:
+    "Oferă experiențe practice de învățare care sunt atât educative, cât și distractive.",
+  featuresBenefits: "Caracteristici și Beneficii",
+  developsCriticalThinking:
+    "Dezvoltă gândirea critică și abilitățile de rezolvare a problemelor",
+  encouragesCreativity: "Încurajează creativitatea și inovația",
+  buildsConfidence: "Construiește încrederea prin realizare",
+  teachesFundamentalConcepts: "Predă concepte fundamentale în",
+  inEngagingWay: "într-un mod captivant",
+  safeMaterials: "Materiale sigure, potrivite pentru copii",
+
+  // Product description translations
+  roboticsDescription:
+    "Această jucărie educațională ajută copiii să învețe despre robotică și programare. Ideal pentru vârste între 6-12 ani.",
+  chemistryDescription:
+    "Această jucărie educațională ajută copiii să învețe despre chimie și experimente științifice. Ideal pentru a dezvolta aptitudini științifice de la o vârstă fragedă.",
+  mathDescription:
+    "Această jucărie educațională ajută copiii să învețe concepte matematice într-un mod distractiv și interactiv. Perfectă pentru dezvoltarea abilităților numerice.",
+  codingDescription:
+    "Această jucărie educațională ajută copiii să învețe bazele programării prin joc. O modalitate excelentă de a introduce concepte tehnologice.",
+  defaultProductDescription:
+    "Această jucărie educațională STEM este proiectată pentru a inspira și educa copiii prin joc interactiv și explorare.",
 };

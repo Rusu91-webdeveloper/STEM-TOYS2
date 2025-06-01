@@ -108,23 +108,26 @@ export async function PUT(req: Request) {
         updateData.password = await hash(newPassword, 10);
       }
 
-      // Update the user in the database
-      updatedUser = await db.user.update({
-        where: {
-          id: session.user.id,
-        },
-        data: updateData,
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          isActive: true,
-          role: true,
-          emailVerified: true,
-          createdAt: true,
-          updatedAt: true,
-          // Do not include password in response
-        },
+      // Use transaction to ensure atomicity
+      updatedUser = await db.$transaction(async (tx) => {
+        // Update the user in the database
+        return tx.user.update({
+          where: {
+            id: session.user.id,
+          },
+          data: updateData,
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            isActive: true,
+            role: true,
+            emailVerified: true,
+            createdAt: true,
+            updatedAt: true,
+            // Do not include password in response
+          },
+        });
       });
     }
 

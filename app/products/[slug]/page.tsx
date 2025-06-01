@@ -12,6 +12,8 @@ import {
   ProductVariantProvider,
   ProductAddToCartButton,
 } from "@/features/products";
+import { useTranslation } from "@/lib/i18n";
+import { useCurrency } from "@/lib/currency";
 import type { Product } from "@/types/product";
 
 // Mock data for demonstration
@@ -36,6 +38,14 @@ const mockProducts: Product[] = Array.from({ length: 12 }).map((_, i) => ({
           ? "mathematical concepts"
           : "the basics of coding"
   }. Great for ages ${6 + (i % 5)}-${12 + (i % 5)}.`,
+  translationKey:
+    i % 4 === 0
+      ? "roboticsDescription"
+      : i % 3 === 0
+        ? "chemistryDescription"
+        : i % 2 === 0
+          ? "mathDescription"
+          : "codingDescription",
   price: 29.99 + i * 5,
   compareAtPrice: i % 3 === 0 ? (29.99 + i * 5) * 1.2 : undefined,
   images: Array.from(
@@ -84,6 +94,10 @@ export default function ProductPage() {
   // Use the useParams hook instead of props.params
   const params = useParams();
   const slug = params?.slug as string;
+
+  // Add translation and currency hooks
+  const { t } = useTranslation();
+  const { formatPrice } = useCurrency();
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -145,14 +159,6 @@ export default function ProductPage() {
     return notFound();
   }
 
-  // Format price with currency
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(price);
-  };
-
   // Determine if product is on sale
   const isOnSale =
     product.compareAtPrice && product.compareAtPrice > product.price;
@@ -174,7 +180,7 @@ export default function ProductPage() {
             href="/products"
             className="flex items-center text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="mr-1 h-4 w-4" />
-            Back to Products
+            {t("backToProducts")}
           </Link>
         </div>
 
@@ -237,7 +243,7 @@ export default function ProductPage() {
                   ))}
                 </div>
                 <span className="ml-2 text-sm text-muted-foreground">
-                  ({product.reviewCount || 0} reviews)
+                  ({product.reviewCount || 0} {t("reviews")})
                 </span>
               </div>
             </div>
@@ -252,21 +258,26 @@ export default function ProductPage() {
                     {formatPrice(product.compareAtPrice!)}
                   </div>
                   <Badge className="ml-2 bg-red-500">
-                    {discountPercentage}% OFF
+                    {discountPercentage}% {t("off")}
                   </Badge>
                 </>
               )}
             </div>
 
-            <p className="text-muted-foreground">{product.description}</p>
+            <p className="text-muted-foreground">
+              {t(
+                product.translationKey || "defaultProductDescription",
+                product.description
+              )}
+            </p>
 
             <div className="space-y-4">
               <div>
-                <span className="font-medium">Age Range:</span>{" "}
+                <span className="font-medium">{t("ageRange")}:</span>{" "}
                 {product.ageRange}
               </div>
               <div>
-                <span className="font-medium">Category:</span>{" "}
+                <span className="font-medium">{t("category")}:</span>{" "}
                 <span className="capitalize">{product.stemCategory}</span>
               </div>
             </div>
@@ -282,23 +293,25 @@ export default function ProductPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
                 <div className="flex flex-col items-center text-center p-4">
                   <Truck className="h-5 w-5 mb-2" />
-                  <div className="text-sm font-medium">Free Shipping</div>
+                  <div className="text-sm font-medium">{t("freeShipping")}</div>
                   <div className="text-xs text-muted-foreground">
-                    On orders over $50
+                    {t("onOrdersOver")} {formatPrice(50)}
                   </div>
                 </div>
                 <div className="flex flex-col items-center text-center p-4">
                   <RotateCcw className="h-5 w-5 mb-2" />
-                  <div className="text-sm font-medium">30-Day Returns</div>
+                  <div className="text-sm font-medium">{t("returnPeriod")}</div>
                   <div className="text-xs text-muted-foreground">
-                    Money back guarantee
+                    {t("moneyBackGuarantee")}
                   </div>
                 </div>
                 <div className="flex flex-col items-center text-center p-4">
                   <ShieldCheck className="h-5 w-5 mb-2" />
-                  <div className="text-sm font-medium">Secure Checkout</div>
+                  <div className="text-sm font-medium">
+                    {t("secureCheckout")}
+                  </div>
                   <div className="text-xs text-muted-foreground">
-                    Protected by SSL
+                    {t("protectedBySSL")}
                   </div>
                 </div>
               </div>
@@ -308,26 +321,31 @@ export default function ProductPage() {
 
         {/* Description Section */}
         <div className="mt-16">
-          <h2 className="text-2xl font-bold mb-4">Product Description</h2>
+          <h2 className="text-2xl font-bold mb-4">{t("productDescription")}</h2>
           <Separator className="mb-6" />
           <div className="prose max-w-none">
-            <p>{product.description}</p>
             <p>
-              This STEM toy is designed to inspire young minds and introduce
-              children to the wonderful world of {product.stemCategory}. It
-              provides hands-on learning experiences that are both educational
-              and fun.
+              {t(
+                product.translationKey || "defaultProductDescription",
+                product.description
+              )}
             </p>
-            <h3 className="text-xl font-semibold mt-6">Features & Benefits</h3>
+            <p>
+              {t("stemToyDesigned")} {product.stemCategory}.{" "}
+              {t("providesHandsOn")}
+            </p>
+            <h3 className="text-xl font-semibold mt-6">
+              {t("featuresBenefits")}
+            </h3>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Develops critical thinking and problem-solving skills</li>
-              <li>Encourages creativity and innovation</li>
-              <li>Builds confidence through accomplishment</li>
+              <li>{t("developsCriticalThinking")}</li>
+              <li>{t("encouragesCreativity")}</li>
+              <li>{t("buildsConfidence")}</li>
               <li>
-                Teaches fundamental concepts in {product.stemCategory} in an
-                engaging way
+                {t("teachesFundamentalConcepts")} {product.stemCategory}{" "}
+                {t("inEngagingWay")}
               </li>
-              <li>Safe materials suitable for children</li>
+              <li>{t("safeMaterials")}</li>
             </ul>
           </div>
         </div>

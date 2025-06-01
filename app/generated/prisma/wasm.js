@@ -133,6 +133,14 @@ exports.Prisma.UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.PasswordResetTokenScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  email: 'email',
+  expires: 'expires',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.AddressScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -185,7 +193,30 @@ exports.Prisma.ProductScalarFieldEnum = {
   categoryId: 'categoryId',
   tags: 'tags',
   attributes: 'attributes',
+  metadata: 'metadata',
   isActive: 'isActive',
+  stockQuantity: 'stockQuantity',
+  weight: 'weight',
+  dimensions: 'dimensions',
+  sku: 'sku',
+  barcode: 'barcode',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BlogScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  slug: 'slug',
+  excerpt: 'excerpt',
+  content: 'content',
+  coverImage: 'coverImage',
+  categoryId: 'categoryId',
+  authorId: 'authorId',
+  tags: 'tags',
+  metadata: 'metadata',
+  isPublished: 'isPublished',
+  publishedAt: 'publishedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -222,10 +253,12 @@ exports.Role = exports.$Enums.Role = {
 
 exports.Prisma.ModelName = {
   User: 'User',
+  PasswordResetToken: 'PasswordResetToken',
   Address: 'Address',
   PaymentCard: 'PaymentCard',
   Category: 'Category',
-  Product: 'Product'
+  Product: 'Product',
+  Blog: 'Blog'
 };
 
 /**

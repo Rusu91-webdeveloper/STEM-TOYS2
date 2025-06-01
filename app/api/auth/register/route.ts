@@ -3,7 +3,11 @@ import { z } from "zod";
 import { hash } from "bcrypt";
 import { db } from "@/lib/db";
 import { randomBytes } from "crypto";
-import { sendWelcomeEmail, sendVerificationEmail } from "@/lib/email";
+import {
+  sendUserVerificationEmails,
+  sendWelcomeEmail,
+  sendVerificationEmail,
+} from "@/lib/email";
 
 // Registration schema
 const registerSchema = z.object({
@@ -48,58 +52,83 @@ export async function POST(req: Request) {
     // Generate verification token
     const verificationToken = randomBytes(32).toString("hex");
 
-    // Create user with verification token
-    const newUser = await db.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        verificationToken,
-        isActive: false,
-      },
+    // Create user with verification token using transaction
+    const newUser = await db.$transaction(async (tx) => {
+      return tx.user.create({
+        data: {
+          name,
+          email,
+          password: hashedPassword,
+          verificationToken,
+          isActive: false,
+        },
+      });
     });
 
-    // Send welcome and verification emails
-    try {
-      // Send welcome email
-      await sendWelcomeEmail(email, name);
+    // In a production environment, we would send verification email here
+    // For demo purposes, we'll simulate a successful email delivery
+    if (process.env.NODE_ENV === "development") {
+      console.log(`\n------- VERIFICATION DETAILS -------`);
+      console.log(`Email: ${email}`);
+      console.log(`Name: ${name}`);
+      console.log(`Token: ${verificationToken}`);
 
-      // Send verification email
-      await sendVerificationEmail(email, name, verificationToken);
-    } catch (emailError) {
-      console.error("Failed to send emails:", emailError);
-      // We'll continue the registration process even if email fails
+      // Generate the verification link for easy testing
+      const baseUrl =
+        process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+      const verificationLink = `${baseUrl}/auth/verify?token=${verificationToken}&email=${encodeURIComponent(email)}`;
+      console.log(`\n🔗 Verification Link (click or copy/paste):`);
+      console.log(verificationLink);
+      console.log(`---------------------------------------\n`);
+
+      // In development, still try to send the email for testing
+      try {
+        const emailSent = await sendVerificationEmail(
+          email,
+          name || "User",
+          verificationToken
+        );
+        console.log(
+          `📧 Verification email ${emailSent ? "sent" : "failed to send"} to ${email}`
+        );
+      } catch (emailError) {
+        console.error("⚠️ Failed to send verification email:", emailError);
+        // We don't fail the registration if email sending fails
+      }
+    } else {
+      // In production, send an actual email
+      try {
+        const emailSent = await sendVerificationEmail(
+          email,
+          name || "User",
+          verificationToken
+        );
+        console.log(
+          `📧 Verification email ${emailSent ? "sent" : "failed to send"} to ${email}`
+        );
+      } catch (emailError) {
+        console.error("⚠️ Failed to send verification email:", emailError);
+        // We don't fail the registration if email sending fails
+      }
     }
-
-    // Remove password from response
-    const { password: _, ...userWithoutPassword } = newUser;
-
-    // Create verification URL for the response in development mode
-    const isDev = process.env.NODE_ENV === "development";
-    const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
-    const verificationUrl = isDev
-      ? `${baseUrl}/api/auth/verify?token=${verificationToken}`
-      : undefined;
 
     return NextResponse.json(
       {
-        user: userWithoutPassword,
         message:
-          "User registered successfully. Please check your email to verify your account.",
-        requiresVerification: true,
-        ...(isDev && {
-          devInfo: {
-            verificationUrl,
-            note: "This verification URL is only included in development mode",
-          },
-        }),
+          "Registration successful. Please check your email to verify your account.",
+        user: {
+          id: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          // Do not include sensitive fields
+        },
       },
       { status: 201 }
     );
   } catch (error) {
     console.error("Registration error:", error);
     return NextResponse.json(
-      { error: "Something went wrong. Please try again." },
+      { error: "Failed to create account" },
       { status: 500 }
     );
   }

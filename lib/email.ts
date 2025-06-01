@@ -1,10 +1,10 @@
 /**
  * Email service for NextCommerce
- * In development mode, emails are logged to the console
- * In production, this would connect to a real email service like SendGrid, Mailgun, etc.
+ * Uses Nodemailer for sending emails
  */
 
 import { isDevelopment } from "./security";
+import { sendMail, emailTemplates as nodemailerTemplates } from "./nodemailer";
 
 // Email types
 export type EmailTemplate =
@@ -33,32 +33,81 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
     console.log(`Subject: ${options.subject}`);
     console.log(`Template: ${options.template}`);
     console.log("Data:", options.data);
-
-    const previewUrl = await generateDevelopmentEmailPreview(options);
-    console.log(`Email preview: ${previewUrl}`);
     console.log("---------------------------------------\n");
-
-    // Create simulated preview URL for development
-    return true;
   }
 
   try {
-    // In production, we would use a real email service
-    // For example, with SendGrid:
-    // const msg = {
-    //   to: options.to,
-    //   from: 'noreply@example.com',
-    //   subject: options.subject,
-    //   templateId: getTemplateId(options.template),
-    //   dynamicTemplateData: options.data
-    // };
-    // await sendgrid.send(msg);
+    // Check if email configuration is set
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.log("⚠️ Email credentials are not set. Using development mode.");
+      return true; // Return success in development mode
+    }
 
-    // For demonstration purposes, we'll just pretend it was sent
-    await simulateNetworkDelay();
+    // Send the email using the appropriate template
+    switch (options.template) {
+      case "welcome":
+        // Use the nodemailer welcome template
+        await nodemailerTemplates.welcome({
+          to: options.to,
+          name: options.data.name as string,
+        });
+        break;
+
+      case "verification":
+        // Use the nodemailer verification template
+        await nodemailerTemplates.verification({
+          to: options.to,
+          name: options.data.name as string,
+          verificationLink: options.data.verificationLink as string,
+          expiresIn: options.data.expiresIn as string,
+        });
+        break;
+
+      case "password-reset":
+        // Use the existing nodemailer template
+        await nodemailerTemplates.passwordReset({
+          to: options.to,
+          resetLink: options.data.resetLink as string,
+        });
+        break;
+
+      case "order-confirmation":
+        // Use the existing nodemailer template
+        await nodemailerTemplates.orderConfirmation({
+          to: options.to,
+          order: options.data.order,
+        });
+        break;
+
+      default:
+        throw new Error(`Unsupported email template: ${options.template}`);
+    }
+
     return true;
   } catch (error) {
     console.error("Failed to send email:", error);
+
+    // If we're in development mode, we'll simulate a successful email delivery
+    if (isDevelopment()) {
+      console.log("📧 DEV MODE: Email would have been sent successfully.");
+
+      // Print the verification link for easy testing if available
+      if (
+        options.template === "verification" &&
+        options.data.verificationLink
+      ) {
+        console.log(`\n🔗 Verification Link for testing:`);
+        console.log(options.data.verificationLink);
+      }
+
+      if (options.template === "password-reset" && options.data.resetLink) {
+        console.log(`\n🔗 Password Reset Link for testing:`);
+        console.log(options.data.resetLink);
+      }
+
+      return true; // Simulate success
+    }
+
     return false;
   }
 }
@@ -70,7 +119,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
  * @returns The verification URL
  */
 export function generateVerificationLink(email: string, token: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   return `${baseUrl}/auth/verify?token=${token}&email=${encodeURIComponent(email)}`;
 }
 
@@ -84,7 +133,7 @@ export function generatePasswordResetLink(
   email: string,
   token: string
 ): string {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   return `${baseUrl}/auth/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
 }
 
@@ -100,7 +149,7 @@ export async function sendWelcomeEmail(
 ): Promise<boolean> {
   return sendEmail({
     to: email,
-    subject: "Welcome to NextCommerce!",
+    subject: "Welcome to TeechTots!",
     template: "welcome",
     data: { name },
   });
@@ -155,35 +204,28 @@ export async function sendPasswordResetEmail(
   });
 }
 
-// Helpers
-
 /**
- * Simulate a network delay for development
- * @param ms Milliseconds to delay
+ * Send all necessary emails for a new user
+ * @param email User's email address
+ * @param name User's name
+ * @param verificationToken Verification token
+ * @returns Promise that resolves when all emails are sent
  */
-function simulateNetworkDelay(ms = 800): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
+export async function sendUserVerificationEmails(
+  email: string,
+  name: string,
+  verificationToken: string
+): Promise<boolean> {
+  try {
+    // Send welcome email
+    await sendWelcomeEmail(email, name);
 
-/**
- * Generate a simulated development email preview URL
- * This would typically create a local preview using something like Ethereal or Mailtrap
- */
-async function generateDevelopmentEmailPreview(
-  options: EmailOptions
-): Promise<string> {
-  // In a real implementation, this might:
-  // 1. Save the email to a local database
-  // 2. Generate a preview URL with an email service like Ethereal or Mailtrap
+    // Send verification email
+    await sendVerificationEmail(email, name, verificationToken);
 
-  // For now, just generate a mock URL
-  const token = Buffer.from(
-    JSON.stringify({
-      to: options.to,
-      template: options.template,
-      timestamp: Date.now(),
-    })
-  ).toString("base64");
-
-  return `http://localhost:3000/api/dev/email-preview?id=${token}`;
+    return true;
+  } catch (error) {
+    console.error("Failed to send user verification emails:", error);
+    return false;
+  }
 }

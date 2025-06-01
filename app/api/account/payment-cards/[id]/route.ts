@@ -116,40 +116,43 @@ export async function PUT(
 
     const { isDefault, ...cardData } = result.data;
 
-    // If this is being set as the default card, unset any existing default cards
-    if (isDefault && !existingCard.isDefault) {
-      await db.paymentCard.updateMany({
+    // Use transaction to ensure all operations are atomic
+    const updatedCard = await db.$transaction(async (tx) => {
+      // If this is being set as the default card, unset any existing default cards
+      if (isDefault && !existingCard.isDefault) {
+        await tx.paymentCard.updateMany({
+          where: {
+            userId: session.user.id,
+            isDefault: true,
+          },
+          data: {
+            isDefault: false,
+          },
+        });
+      }
+
+      // Update the card
+      return tx.paymentCard.update({
         where: {
-          userId: session.user.id,
-          isDefault: true,
+          id: cardId,
         },
         data: {
-          isDefault: false,
+          ...cardData,
+          isDefault: isDefault ?? existingCard.isDefault,
+        },
+        select: {
+          id: true,
+          lastFourDigits: true,
+          expiryMonth: true,
+          expiryYear: true,
+          cardholderName: true,
+          cardType: true,
+          isDefault: true,
+          billingAddressId: true,
+          createdAt: true,
+          updatedAt: true,
         },
       });
-    }
-
-    // Update the card
-    const updatedCard = await db.paymentCard.update({
-      where: {
-        id: cardId,
-      },
-      data: {
-        ...cardData,
-        isDefault: isDefault ?? existingCard.isDefault,
-      },
-      select: {
-        id: true,
-        lastFourDigits: true,
-        expiryMonth: true,
-        expiryYear: true,
-        cardholderName: true,
-        cardType: true,
-        isDefault: true,
-        billingAddressId: true,
-        createdAt: true,
-        updatedAt: true,
-      },
     });
 
     return NextResponse.json(updatedCard);

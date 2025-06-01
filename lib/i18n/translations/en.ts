@@ -222,4 +222,41 @@ export const en = {
   allCategories: "All Categories",
   tryAdjustingFilters: "Try adjusting your filters or search criteria",
   clearAllFilters: "Clear All Filters",
+
+  // Product page specific translations
+  backToProducts: "Back to Products",
+  productDescription: "Product Description",
+  ageRange: "Age Range",
+  category: "Category",
+  off: "OFF",
+  freeShipping: "Free Shipping",
+  onOrdersOver: "On orders over",
+  returnPeriod: "30-Day Returns",
+  moneyBackGuarantee: "Money back guarantee",
+  secureCheckout: "Secure Checkout",
+  protectedBySSL: "Protected by SSL",
+  stemToyDesigned:
+    "This STEM toy is designed to inspire young minds and introduce children to the wonderful world of",
+  providesHandsOn:
+    "It provides hands-on learning experiences that are both educational and fun.",
+  featuresBenefits: "Features & Benefits",
+  developsCriticalThinking:
+    "Develops critical thinking and problem-solving skills",
+  encouragesCreativity: "Encourages creativity and innovation",
+  buildsConfidence: "Builds confidence through accomplishment",
+  teachesFundamentalConcepts: "Teaches fundamental concepts in",
+  inEngagingWay: "in an engaging way",
+  safeMaterials: "Safe materials suitable for children",
+
+  // Product description translations
+  roboticsDescription:
+    "This educational toy helps children learn about robotics and programming. Great for ages 6-12.",
+  chemistryDescription:
+    "This educational toy helps children learn about chemistry and scientific experiments. Ideal for developing scientific skills from an early age.",
+  mathDescription:
+    "This educational toy helps children learn mathematical concepts in a fun and interactive way. Perfect for developing numerical skills.",
+  codingDescription:
+    "This educational toy helps children learn the basics of coding through play. An excellent way to introduce technological concepts.",
+  defaultProductDescription:
+    "This educational STEM toy is designed to inspire and educate children through interactive play and exploration.",
 };

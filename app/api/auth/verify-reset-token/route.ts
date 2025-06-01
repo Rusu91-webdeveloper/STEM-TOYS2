@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { resetTokens } from "../forgot-password/route";
+import { db } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,29 +9,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ valid: false }, { status: 400 });
     }
 
-    // Find the token in our store
-    let found = false;
-    let expired = true;
+    // Check if the token exists and is valid
+    const resetToken = await db.passwordResetToken.findUnique({
+      where: { token },
+    });
 
-    for (const email of Object.keys(resetTokens)) {
-      const resetData = resetTokens[email];
-
-      if (resetData.token === token) {
-        found = true;
-
-        // Check if token is expired
-        if (resetData.expires > Date.now()) {
-          expired = false;
-          break;
-        }
-      }
-    }
-
-    if (!found) {
+    if (!resetToken) {
       return NextResponse.json({ valid: false, reason: "token_not_found" });
     }
 
-    if (expired) {
+    // Check if token is expired
+    if (resetToken.expires < new Date()) {
       return NextResponse.json({ valid: false, reason: "token_expired" });
     }
 

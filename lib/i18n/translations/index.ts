@@ -6,4 +6,4 @@ export const translations = {
   ro,
 };
 
-export type TranslationKey = keyof typeof en;
+export type TranslationKey = string;

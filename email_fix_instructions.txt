@@ -1,0 +1,14 @@
+To fix the email issue, you need to generate an App Password from your Google account. Here's how:
+1. Go to your Google Account: https://myaccount.google.com/
+2. Click on 'Security'
+3. Under 'Signing in to Google', click on '2-Step Verification'
+4. Scroll to the bottom and click on 'App passwords'
+5. Select 'Mail' as the app and 'Other' as the device (name it 'TechTots')
+6. Click 'Generate' and Google will create a 16-character password
+7. Copy this password and update your .env.local file:
+   EMAIL_HOST=smtp.gmail.com
+   EMAIL_PORT=587
+   EMAIL_USER=webira.rem.srl@gmail.com
+   EMAIL_PASS=your-16-character-app-password
+   EMAIL_FROM=TechTots Toys <webira.rem.srl@gmail.com>
+8. After updating, restart your development server with 'npm run dev'

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import crypto from "crypto";
 import { sendPasswordResetEmail } from "@/lib/email";
+import { db } from "@/lib/db";
 
 // Token expiration time (1 hour)
 const TOKEN_EXPIRY = 60 * 60 * 1000; // 1 hour in milliseconds
@@ -10,10 +11,6 @@ const TOKEN_EXPIRY = 60 * 60 * 1000; // 1 hour in milliseconds
 const forgotPasswordSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
 });
-
-// In-memory store for password reset tokens (replace with database in production)
-// Format: { [email]: { token: string, expires: number } }
-const resetTokens: { [key: string]: { token: string; expires: number } } = {};
 
 export async function POST(request: NextRequest) {
   try {
@@ -30,29 +27,66 @@ export async function POST(request: NextRequest) {
 
     const { email } = validationResult.data;
 
-    // In a real implementation, you would check if the email exists in your database
-    // For now, we'll accept any email and generate a token
-
-    // Generate a random token
-    const token = crypto.randomBytes(32).toString("hex");
-    const expires = Date.now() + TOKEN_EXPIRY;
-
-    // Store the token (in a real app, this would be in a database)
-    resetTokens[email] = { token, expires };
-
-    // Remove expired tokens
-    Object.keys(resetTokens).forEach((key) => {
-      if (resetTokens[key].expires < Date.now()) {
-        delete resetTokens[key];
-      }
+    // Check if user exists
+    const user = await db.user.findUnique({
+      where: { email },
     });
 
-    // Log token for development purposes
-    console.log(`Password reset token for ${email}: ${token}`);
-    console.log(`All current tokens:`, resetTokens);
+    // We'll continue even if the user doesn't exist for security reasons
+    // (prevents user enumeration)
 
-    // Send password reset email
-    await sendPasswordResetEmail(email, token);
+    if (user) {
+      // Generate a random token
+      const token = crypto.randomBytes(32).toString("hex");
+      const expires = new Date(Date.now() + TOKEN_EXPIRY);
+
+      // Delete any existing tokens for this user
+      await db.passwordResetToken.deleteMany({
+        where: { email },
+      });
+
+      // Store the token in the database
+      await db.passwordResetToken.create({
+        data: {
+          token,
+          email,
+          expires,
+        },
+      });
+
+      // Log token for development purposes
+      if (process.env.NODE_ENV === "development") {
+        console.log(`Password reset token for ${email}: ${token}`);
+      }
+
+      // Send password reset email
+      try {
+        // In development mode, always send to the Resend account owner's email
+        // This is a workaround for Resend's testing mode restrictions
+        const isDev = process.env.NODE_ENV === "development";
+        const resendAccountEmail =
+          process.env.RESEND_ACCOUNT_EMAIL || "webira.rem.srl@gmail.com";
+
+        // In development, we'll send the test email to the account owner
+        // but still store the reset token for the actual user
+        const emailRecipient = isDev ? resendAccountEmail : email;
+
+        await sendPasswordResetEmail(emailRecipient, token);
+
+        // In development mode, log the reset link to console
+        if (isDev) {
+          const baseUrl =
+            process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+          const resetLink = `${baseUrl}/auth/reset-password?token=${token}&email=${encodeURIComponent(email)}`;
+          console.log("\n------- FOR TESTING: PASSWORD RESET LINK -------");
+          console.log(resetLink);
+          console.log("--------------------------------------------------\n");
+        }
+      } catch (emailError) {
+        console.error("Failed to send reset email:", emailError);
+        // Continue even if email fails
+      }
+    }
 
     // Always return success for security reasons
     // (prevents user enumeration)
@@ -62,6 +96,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "An error occurred" }, { status: 500 });
   }
 }
-
-// Export the token store for use by the verification endpoint
-export { resetTokens };

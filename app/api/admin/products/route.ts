@@ -140,42 +140,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create product in database
-    const product = await db.product.create({
-      data: {
-        name: data.name,
-        slug: data.slug,
-        description: data.description,
-        price: data.price,
-        compareAtPrice: data.compareAtPrice,
-        images: data.images,
-        categoryId: data.categoryId,
-        tags: data.tags || [],
-        attributes: {
-          // Include SEO metadata in attributes
-          metaTitle: data.metaTitle || data.name,
-          metaDescription:
-            data.metaDescription || data.description.substring(0, 160),
-          metaKeywords: data.metaKeywords || data.tags || [],
-          ageRange: data.ageRange,
-          stemCategory: data.stemCategory,
-          difficultyLevel: data.difficultyLevel,
-          learningObjectives: data.learningObjectives,
-          // Any other custom attributes
-          ...(data.attributes || {}),
+    // Create product in database using transaction
+    const product = await db.$transaction(async (tx) => {
+      return tx.product.create({
+        data: {
+          name: data.name,
+          slug: data.slug,
+          description: data.description,
+          price: data.price,
+          compareAtPrice: data.compareAtPrice,
+          images: data.images,
+          categoryId: data.categoryId,
+          tags: data.tags || [],
+          attributes: {
+            // Include SEO metadata in attributes
+            metaTitle: data.metaTitle || data.name,
+            metaDescription:
+              data.metaDescription || data.description.substring(0, 160),
+            metaKeywords: data.metaKeywords || data.tags || [],
+            ageRange: data.ageRange,
+            stemCategory: data.stemCategory,
+            difficultyLevel: data.difficultyLevel,
+            learningObjectives: data.learningObjectives,
+            // Any other custom attributes
+            ...(data.attributes || {}),
+          },
+          isActive: data.isActive,
         },
-        isActive: data.isActive,
-      },
-      include: {
-        category: true,
-      },
+        include: {
+          category: true,
+        },
+      });
     });
 
     return NextResponse.json(product, { status: 201 });
   } catch (error) {
     console.error("Error creating product:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: "Failed to create product" },
       { status: 500 }
     );
   }

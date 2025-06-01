@@ -4,8 +4,8 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 
 // Define available currencies
 export const currencies = [
-  { code: "RON", symbol: "lei", exchangeRate: 1 },
-  { code: "EUR", symbol: "€", exchangeRate: 0.2 }, // Approximate exchange rate
+  { code: "EUR", symbol: "€", exchangeRate: 0.2 }, // Euro as default
+  { code: "RON", symbol: "lei", exchangeRate: 1 }
 ];
 
 type CurrencyType = {

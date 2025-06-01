@@ -90,28 +90,31 @@ export async function PUT(
 
     const { isDefault, ...addressData } = result.data;
 
-    // If this is being set as the default address, unset any existing default addresses
-    if (isDefault && !existingAddress.isDefault) {
-      await db.address.updateMany({
+    // Use transaction to ensure all operations are atomic
+    const updatedAddress = await db.$transaction(async (tx) => {
+      // If this is being set as the default address, unset any existing default addresses
+      if (isDefault && !existingAddress.isDefault) {
+        await tx.address.updateMany({
+          where: {
+            userId: session.user.id,
+            isDefault: true,
+          },
+          data: {
+            isDefault: false,
+          },
+        });
+      }
+
+      // Update the address
+      return tx.address.update({
         where: {
-          userId: session.user.id,
-          isDefault: true,
+          id: addressId,
         },
         data: {
-          isDefault: false,
+          ...addressData,
+          isDefault,
         },
       });
-    }
-
-    // Update the address
-    const updatedAddress = await db.address.update({
-      where: {
-        id: addressId,
-      },
-      data: {
-        ...addressData,
-        isDefault,
-      },
     });
 
     return NextResponse.json(updatedAddress);
@@ -153,32 +156,35 @@ export async function DELETE(
       return NextResponse.json({ error: "Address not found" }, { status: 404 });
     }
 
-    // Delete the address
-    await db.address.delete({
-      where: {
-        id: addressId,
-      },
-    });
-
-    // If the deleted address was the default, set another address as default if available
-    if (existingAddress.isDefault) {
-      const anotherAddress = await db.address.findFirst({
+    // Use transaction to ensure all operations are atomic
+    await db.$transaction(async (tx) => {
+      // Delete the address
+      await tx.address.delete({
         where: {
-          userId: session.user.id,
+          id: addressId,
         },
       });
 
-      if (anotherAddress) {
-        await db.address.update({
+      // If the deleted address was the default, set another address as default if available
+      if (existingAddress.isDefault) {
+        const anotherAddress = await tx.address.findFirst({
           where: {
-            id: anotherAddress.id,
-          },
-          data: {
-            isDefault: true,
+            userId: session.user.id,
           },
         });
+
+        if (anotherAddress) {
+          await tx.address.update({
+            where: {
+              id: anotherAddress.id,
+            },
+            data: {
+              isDefault: true,
+            },
+          });
+        }
       }
-    }
+    });
 
     return NextResponse.json(
       { message: "Address deleted successfully" },

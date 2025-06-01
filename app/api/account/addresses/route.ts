@@ -3,16 +3,12 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { addressSchema } from "@/lib/validations";
 import { z } from "zod";
-import { PrismaClient } from "@/app/generated/prisma";
 
 // Extended schema for creating an address
 const createAddressSchema = addressSchema.extend({
   name: z.string().min(1, "Address nickname is required"),
   isDefault: z.boolean().default(false),
 });
-
-// Initialize Prisma client
-const prisma = new PrismaClient();
 
 // GET - Get all addresses for the current user
 export async function GET() {
@@ -26,7 +22,7 @@ export async function GET() {
       );
     }
 
-    const addresses = await prisma.address.findMany({
+    const addresses = await db.address.findMany({
       where: {
         userId: session.user.id,
       },
@@ -70,26 +66,29 @@ export async function POST(req: Request) {
 
     const { isDefault, ...addressData } = result.data;
 
-    // If this is the default address, unset any existing default addresses
-    if (isDefault) {
-      await prisma.address.updateMany({
-        where: {
-          userId: session.user.id,
-          isDefault: true,
-        },
+    // Use transaction to ensure operations are atomic
+    const newAddress = await db.$transaction(async (tx) => {
+      // If this is the default address, unset any existing default addresses
+      if (isDefault) {
+        await tx.address.updateMany({
+          where: {
+            userId: session.user.id,
+            isDefault: true,
+          },
+          data: {
+            isDefault: false,
+          },
+        });
+      }
+
+      // Create the new address
+      return tx.address.create({
         data: {
-          isDefault: false,
+          ...addressData,
+          isDefault,
+          userId: session.user.id,
         },
       });
-    }
-
-    // Create the new address
-    const newAddress = await prisma.address.create({
-      data: {
-        ...addressData,
-        isDefault,
-        userId: session.user.id,
-      },
     });
 
     return NextResponse.json(newAddress, { status: 201 });

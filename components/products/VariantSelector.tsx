@@ -83,41 +83,55 @@ export function VariantSelector({
         setSelectedAttributes(selectedVariant.attributes);
       }
     }
-  }, [variants, selectedVariantId]);
+  }, [variants]);
 
-  // Find the matching variant when attributes change
+  // Update selected attributes when selectedVariantId changes
   useEffect(() => {
-    if (Object.keys(selectedAttributes).length === 0) {
-      return;
+    if (selectedVariantId) {
+      const selectedVariant = variants.find((v) => v.id === selectedVariantId);
+      if (selectedVariant?.attributes) {
+        setSelectedAttributes(selectedVariant.attributes);
+      }
     }
+  }, [selectedVariantId, variants]);
 
+  // Find the matching variant based on attributes
+  const findMatchingVariant = (attrs: Record<string, string>) => {
     // Check if all groups have a selection
-    const allGroupsSelected = variantGroups.every(
-      (group) => selectedAttributes[group.name]
-    );
+    const allGroupsSelected = variantGroups.every((group) => attrs[group.name]);
 
     if (!allGroupsSelected) {
-      // Don't try to find a variant until all attributes are selected
-      return;
+      return undefined;
     }
 
     // Find the variant that matches all selected attributes
-    const matchingVariant = variants.find((variant) => {
+    return variants.find((variant) => {
       if (!variant.attributes) return false;
 
-      return Object.entries(selectedAttributes).every(
+      return Object.entries(attrs).every(
         ([key, value]) => variant.attributes?.[key] === value
       );
     });
-
-    onVariantChange(matchingVariant?.id);
-  }, [selectedAttributes, variants, variantGroups, onVariantChange]);
+  };
 
   const handleAttributeChange = (attributeName: string, value: string) => {
-    setSelectedAttributes((prev) => ({
-      ...prev,
+    const newAttributes = {
+      ...selectedAttributes,
       [attributeName]: value,
-    }));
+    };
+
+    setSelectedAttributes(newAttributes);
+
+    // Find matching variant after attribute change and notify parent
+    const matchingVariant = findMatchingVariant(newAttributes);
+
+    // Only call onVariantChange if we found a matching variant or if all attributes are selected
+    if (
+      matchingVariant ||
+      variantGroups.every((group) => newAttributes[group.name])
+    ) {
+      onVariantChange(matchingVariant?.id);
+    }
   };
 
   if (!variants || variants.length <= 1) {

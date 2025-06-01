@@ -16,6 +16,7 @@ export interface Product {
   name: string;
   slug: string;
   description: string;
+  translationKey?: string;
   price: number;
   compareAtPrice?: number;
   images: string[];
