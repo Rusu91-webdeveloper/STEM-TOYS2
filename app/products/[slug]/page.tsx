@@ -16,80 +16,6 @@ import { useTranslation } from "@/lib/i18n";
 import { useCurrency } from "@/lib/currency";
 import type { Product } from "@/types/product";
 
-// Mock data for demonstration
-const mockProducts: Product[] = Array.from({ length: 12 }).map((_, i) => ({
-  id: `product-${i + 1}`,
-  name: `STEM Educational ${
-    i % 4 === 0
-      ? "Robot"
-      : i % 3 === 0
-        ? "Chemistry Set"
-        : i % 2 === 0
-          ? "Math Puzzle"
-          : "Coding Kit"
-  } ${i + 1}`,
-  slug: `stem-toy-${i + 1}`,
-  description: `This educational toy helps children learn about ${
-    i % 4 === 0
-      ? "robotics and programming"
-      : i % 3 === 0
-        ? "chemistry and scientific experiments"
-        : i % 2 === 0
-          ? "mathematical concepts"
-          : "the basics of coding"
-  }. Great for ages ${6 + (i % 5)}-${12 + (i % 5)}.`,
-  translationKey:
-    i % 4 === 0
-      ? "roboticsDescription"
-      : i % 3 === 0
-        ? "chemistryDescription"
-        : i % 2 === 0
-          ? "mathDescription"
-          : "codingDescription",
-  price: 29.99 + i * 5,
-  compareAtPrice: i % 3 === 0 ? (29.99 + i * 5) * 1.2 : undefined,
-  images: Array.from(
-    { length: Math.min(1 + (i % 4), 5) },
-    (_, imgIndex) =>
-      `https://picsum.photos/seed/stem-toy-${i + 1}-${imgIndex}/600/400`
-  ),
-  stemCategory:
-    i % 4 === 0
-      ? "technology"
-      : i % 3 === 0
-        ? "science"
-        : i % 2 === 0
-          ? "mathematics"
-          : "engineering",
-  ageRange: `${6 + (i % 5)}-${12 + (i % 5)}`,
-  rating: 3 + (i % 3),
-  reviewCount: 10 + i,
-  variants:
-    i % 2 === 0
-      ? [
-          {
-            id: `variant-${i}-1`,
-            name: "Standard Edition",
-            price: 29.99 + i * 5,
-            attributes: { edition: "Standard" },
-            isAvailable: true,
-          },
-          {
-            id: `variant-${i}-2`,
-            name: "Deluxe Edition",
-            price: (29.99 + i * 5) * 1.5,
-            attributes: { edition: "Deluxe" },
-            isAvailable: true,
-          },
-        ]
-      : undefined,
-}));
-
-// In a real app, this would get the product from an API or database
-const getProductBySlug = (slug: string): Product | undefined => {
-  return mockProducts.find((product) => product.slug === slug);
-};
-
 export default function ProductPage() {
   // Use the useParams hook instead of props.params
   const params = useParams();
@@ -108,22 +34,26 @@ export default function ProductPage() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        // Simulate API call with timeout
-        setTimeout(() => {
-          // Find product by slug
-          const foundProduct = getProductBySlug(slug);
 
-          if (!foundProduct) {
+        // Fetch real product data from API
+        const response = await fetch(`/api/products/${slug}`);
+
+        if (!response.ok) {
+          if (response.status === 404) {
             setLoading(false);
-            return;
+            return notFound();
           }
+          throw new Error(`Failed to fetch product: ${response.statusText}`);
+        }
 
-          setProduct(foundProduct);
-          if (foundProduct.images && foundProduct.images.length > 0) {
-            setSelectedImage(foundProduct.images[0]);
-          }
-          setLoading(false);
-        }, 300);
+        const productData = await response.json();
+        setProduct(productData);
+
+        if (productData.images && productData.images.length > 0) {
+          setSelectedImage(productData.images[0]);
+        }
+
+        setLoading(false);
       } catch (error) {
         console.error("Error fetching product:", error);
         setLoading(false);

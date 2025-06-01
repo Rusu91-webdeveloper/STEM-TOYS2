@@ -5,49 +5,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n";
 import { useCurrency } from "@/lib/currency";
-
-// Mock data for featured products
-const featuredProducts = [
-  {
-    id: "1",
-    name: "Robotic Building Kit",
-    description:
-      "Build and program your own robot with this beginner-friendly kit.",
-    price: 59.99,
-    category: "technology",
-    image: "https://placehold.co/600x400/4F46E5/FFFFFF.png?text=Robot+Kit",
-    slug: "stem-toy-1",
-  },
-  {
-    id: "2",
-    name: "Chemistry Lab Set",
-    description:
-      "Explore the fascinating world of chemistry with safe and fun experiments.",
-    price: 49.99,
-    category: "science",
-    image: "https://placehold.co/600x400/10B981/FFFFFF.png?text=Chemistry+Set",
-    slug: "stem-toy-3",
-  },
-  {
-    id: "3",
-    name: "Magnetic Building Tiles",
-    description:
-      "Create amazing 3D structures with these colorful magnetic tiles.",
-    price: 39.99,
-    category: "engineering",
-    image: "https://placehold.co/600x400/F59E0B/FFFFFF.png?text=Magnetic+Tiles",
-    slug: "stem-toy-7",
-  },
-  {
-    id: "4",
-    name: "Math Puzzle Game",
-    description: "Develop math skills through fun and challenging puzzles.",
-    price: 29.99,
-    category: "math",
-    image: "https://placehold.co/600x400/3B82F6/FFFFFF.png?text=Math+Puzzle",
-    slug: "stem-toy-2",
-  },
-];
+import { useState, useEffect } from "react";
+import type { Product } from "@/types/product";
 
 // Mock data for STEM categories
 const categories = [
@@ -80,6 +39,31 @@ const categories = [
 export default function Home() {
   const { t, language } = useTranslation();
   const { formatPrice } = useCurrency();
+  const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch featured products from the database
+  useEffect(() => {
+    const fetchFeaturedProducts = async () => {
+      try {
+        const response = await fetch("/api/products?featured=true");
+        if (!response.ok) {
+          throw new Error("Failed to fetch featured products");
+        }
+        const data = await response.json();
+
+        // Limit to 4 products to display on the home page
+        const limitedData = data.slice(0, 4);
+        setFeaturedProducts(limitedData);
+      } catch (error) {
+        console.error("Error fetching featured products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchFeaturedProducts();
+  }, []);
 
   // Translate category names and descriptions based on current language
   const translatedCategories = categories.map((category) => ({
@@ -90,6 +74,24 @@ export default function Home() {
       category.description
     ),
   }));
+
+  // Function to get a fallback image based on stem category
+  const getFallbackImage = (product: Product) => {
+    const stemCategory = product.attributes?.stemCategory as string | undefined;
+
+    switch (stemCategory?.toLowerCase()) {
+      case "science":
+        return "https://placehold.co/600x400/10B981/FFFFFF.png?text=Science";
+      case "technology":
+        return "https://placehold.co/600x400/4F46E5/FFFFFF.png?text=Technology";
+      case "engineering":
+        return "https://placehold.co/600x400/F59E0B/FFFFFF.png?text=Engineering";
+      case "mathematics":
+        return "https://placehold.co/600x400/3B82F6/FFFFFF.png?text=Math";
+      default:
+        return "https://placehold.co/600x400/6B7280/FFFFFF.png?text=STEM+Toy";
+    }
+  };
 
   return (
     <div className="flex flex-col">
@@ -145,7 +147,7 @@ export default function Home() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
             {translatedCategories.map((category) => (
               <Link
-                href={`/blog/category/${category.slug}`}
+                href={`/products?category=${category.slug}`}
                 key={category.slug}>
                 <div className="bg-background rounded-lg overflow-hidden shadow-md transition-all duration-300 hover:shadow-xl hover:translate-y-[-5px] h-full flex flex-col">
                   <div className="relative h-40 sm:h-48 w-full">
@@ -199,51 +201,98 @@ export default function Home() {
           <p className="text-center text-muted-foreground mb-8 sm:mb-10 max-w-3xl mx-auto px-2">
             {t("featuredProductsDesc")}
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
-            {featuredProducts.map((product) => (
-              <Link
-                href={`/products/${product.slug}`}
-                key={product.id}
-                className="block">
-                <div className="bg-background rounded-lg overflow-hidden shadow-md border border-gray-200 transition-all duration-300 hover:shadow-xl h-full flex flex-col">
-                  <div className="relative h-40 sm:h-52 w-full">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
-                      style={{ objectFit: "cover" }}
-                    />
-                  </div>
-                  <div className="p-4 sm:p-5 flex flex-col flex-grow">
-                    <div className="inline-block px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground mb-2">
-                      {t(
-                        product.category as any,
-                        product.category.charAt(0).toUpperCase() +
-                          product.category.slice(1)
-                      )}
-                    </div>
-                    <h3 className="text-base sm:text-lg font-semibold mb-2">
-                      {product.name}
-                    </h3>
-                    <p className="text-muted-foreground text-sm mb-4 flex-grow">
-                      {product.description}
-                    </p>
+
+          {isLoading ? (
+            // Loading skeleton
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-background rounded-lg overflow-hidden shadow-md border border-gray-200 h-full flex flex-col animate-pulse">
+                  <div className="relative h-40 sm:h-52 w-full bg-gray-200"></div>
+                  <div className="p-4 sm:p-5 flex flex-col flex-grow space-y-2">
+                    <div className="h-4 bg-gray-200 rounded w-1/3"></div>
+                    <div className="h-6 bg-gray-200 rounded w-2/3"></div>
+                    <div className="h-16 bg-gray-200 rounded w-full"></div>
                     <div className="flex items-center justify-between mt-auto">
-                      <span className="text-base sm:text-lg font-bold">
-                        {formatPrice(product.price)}
-                      </span>
-                      <Button
-                        size="sm"
-                        className="transition-all hover:scale-105">
-                        {t("viewDetails")}
-                      </Button>
+                      <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+                      <div className="h-8 bg-gray-200 rounded w-1/4"></div>
                     </div>
                   </div>
                 </div>
-              </Link>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : featuredProducts.length === 0 ? (
+            // No products found message
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">
+                {t("noFeaturedProducts" as any, "No featured products found.")}
+              </p>
+            </div>
+          ) : (
+            // Product grid
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+              {featuredProducts.map((product) => (
+                <Link
+                  href={`/products/${product.slug}`}
+                  key={product.id}
+                  className="block">
+                  <div className="bg-background rounded-lg overflow-hidden shadow-md border border-gray-200 transition-all duration-300 hover:shadow-xl h-full flex flex-col">
+                    <div className="relative h-40 sm:h-52 w-full">
+                      <Image
+                        src={
+                          product.images && product.images.length > 0
+                            ? product.images[0]
+                            : getFallbackImage(product)
+                        }
+                        alt={product.name}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
+                        style={{ objectFit: "cover" }}
+                      />
+                    </div>
+                    <div className="p-4 sm:p-5 flex flex-col flex-grow">
+                      <div className="inline-block px-2 py-1 text-xs rounded-full bg-muted text-muted-foreground mb-2">
+                        {t(
+                          ((product.attributes?.stemCategory as string) ||
+                            "general") as any,
+                          (
+                            (product.attributes?.stemCategory as string) ||
+                            "General"
+                          )
+                            .charAt(0)
+                            .toUpperCase() +
+                            (
+                              (product.attributes?.stemCategory as string) ||
+                              "general"
+                            )
+                              .slice(1)
+                              .toLowerCase()
+                        )}
+                      </div>
+                      <h3 className="text-base sm:text-lg font-semibold mb-2">
+                        {product.name}
+                      </h3>
+                      <p className="text-muted-foreground text-sm mb-4 flex-grow line-clamp-2">
+                        {product.description}
+                      </p>
+                      <div className="flex items-center justify-between mt-auto">
+                        <span className="text-base sm:text-lg font-bold">
+                          {formatPrice(product.price)}
+                        </span>
+                        <Button
+                          size="sm"
+                          className="transition-all hover:scale-105">
+                          {t("viewDetails")}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+
           <div className="mt-8 sm:mt-10 md:mt-12 text-center">
             <Button
               asChild
@@ -352,11 +401,39 @@ export default function Home() {
                 {t("newsletterDescription")}
               </p>
             </div>
-            <form className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md sm:max-w-xl mx-auto">
+            <form
+              className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md sm:max-w-xl mx-auto"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const email = form.email.value;
+
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                  alert(
+                    t(
+                      "invalidEmailMessage" as any,
+                      "Please enter a valid email address"
+                    )
+                  );
+                  return;
+                }
+
+                // Here you would typically send this to an API endpoint
+                // For now just show a success message
+                alert(
+                  t(
+                    "subscribedSuccessMessage" as any,
+                    "Thank you for subscribing to our newsletter!"
+                  )
+                );
+                form.reset();
+              }}>
               <input
                 type="email"
+                name="email"
                 placeholder={t("emailPlaceholder")}
                 className="flex h-10 sm:h-12 w-full rounded-md border border-input bg-background px-3 sm:px-4 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                required
               />
               <Button
                 type="submit"

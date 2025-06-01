@@ -32,52 +32,11 @@ import { Badge } from "@/components/ui/badge";
 // Metadata is now exported from a separate file since this is a client component
 // and metadata needs to be static and server-rendered
 
-// Mock data for demonstration
-const mockProducts: Product[] = Array.from({ length: 12 }).map((_, i) => ({
-  id: `product-${i + 1}`,
-  name: `STEM Educational ${
-    i % 4 === 0
-      ? "Robot"
-      : i % 3 === 0
-        ? "Chemistry Set"
-        : i % 2 === 0
-          ? "Math Puzzle"
-          : "Coding Kit"
-  } ${i + 1}`,
-  slug: `stem-toy-${i + 1}`,
-  description: `This educational toy helps children learn about ${
-    i % 4 === 0
-      ? "robotics and programming"
-      : i % 3 === 0
-        ? "chemistry and scientific experiments"
-        : i % 2 === 0
-          ? "mathematical concepts"
-          : "the basics of coding"
-  }. Great for ages ${6 + (i % 5)}-${12 + (i % 5)}.`,
-  price: 29.99 + i * 5,
-  compareAtPrice: i % 3 === 0 ? (29.99 + i * 5) * 1.2 : undefined,
-  images: [`https://picsum.photos/seed/stem-toy-${i + 1}/600/400`],
-  stemCategory:
-    i % 4 === 0
-      ? "technology"
-      : i % 3 === 0
-        ? "science"
-        : i % 2 === 0
-          ? "mathematics"
-          : "engineering",
-  ageRange: `${6 + (i % 5)}-${12 + (i % 5)}`,
-  rating: 3 + (i % 3),
-  reviewCount: 10 + i,
-  attributes: {
-    difficulty:
-      i % 3 === 0 ? "beginner" : i % 2 === 0 ? "intermediate" : "advanced",
-  },
-}));
-
 interface CategoryIconInfo {
   icon: LucideIcon;
   bgColor: string;
   textColor: string;
+  letter: string;
 }
 
 // Category icons and styling for better visual representation
@@ -86,21 +45,25 @@ const categoryInfo: Record<string, CategoryIconInfo> = {
     icon: Atom,
     bgColor: "bg-blue-500",
     textColor: "text-blue-500",
+    letter: "S",
   },
   technology: {
     icon: Lightbulb,
     bgColor: "bg-green-500",
     textColor: "text-green-500",
+    letter: "T",
   },
   engineering: {
     icon: Microscope,
     bgColor: "bg-orange-500",
     textColor: "text-orange-500",
+    letter: "E",
   },
   mathematics: {
     icon: ShieldQuestion,
     bgColor: "bg-purple-500",
     textColor: "text-purple-500",
+    letter: "M",
   },
 };
 
@@ -128,61 +91,27 @@ const stemBenefits = [
   },
 ];
 
-// Mock categories
-const mockCategories: FilterGroup = {
-  id: "stemCategory",
-  name: "STEM Category",
-  options: [
-    {
-      id: "science",
-      label: "Science",
-      count: mockProducts.filter((p) => p.stemCategory === "science").length,
-    },
-    {
-      id: "technology",
-      label: "Technology",
-      count: mockProducts.filter((p) => p.stemCategory === "technology").length,
-    },
-    {
-      id: "engineering",
-      label: "Engineering",
-      count: mockProducts.filter((p) => p.stemCategory === "engineering")
-        .length,
-    },
-    {
-      id: "mathematics",
-      label: "Mathematics",
-      count: mockProducts.filter((p) => p.stemCategory === "mathematics")
-        .length,
-    },
-  ],
-};
+// Interface for the category object returned by the API
+interface CategoryData {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+}
 
-// Mock filters
-const mockFilters: FilterGroup[] = [
-  {
-    id: "ageRange",
-    name: "Age Range",
-    options: [
-      { id: "6-10", label: "6-10 years", count: 5 },
-      { id: "8-12", label: "8-12 years", count: 4 },
-      { id: "10-14", label: "10-14 years", count: 3 },
-    ],
-  },
-  {
-    id: "difficulty",
-    name: "Difficulty Level",
-    options: [
-      { id: "beginner", label: "Beginner", count: 4 },
-      { id: "intermediate", label: "Intermediate", count: 5 },
-      { id: "advanced", label: "Advanced", count: 3 },
-    ],
-  },
-];
+// Actual product type as returned by the API
+interface ProductData extends Omit<Product, "category"> {
+  category?: CategoryData;
+  stemCategory?: string;
+}
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
   const { t } = useTranslation();
+
+  // Add state for real products
+  const [products, setProducts] = useState<ProductData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // State for filters
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -190,17 +119,106 @@ export default function ProductsPage() {
     Record<string, string[]>
   >({});
   const [priceRangeFilter, setPriceRangeFilter] = useState<PriceRange>({
-    min: 20,
-    max: 100,
+    min: 0,
+    max: 200,
   });
-  const [filteredProducts, setFilteredProducts] =
-    useState<Product[]>(mockProducts);
+  const [filteredProducts, setFilteredProducts] = useState<ProductData[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  // Initialize price range based on products
-  const prices = mockProducts.map((p) => p.price);
-  const minPrice = Math.floor(Math.min(...prices));
-  const maxPrice = Math.ceil(Math.max(...prices));
+  // Create category filter
+  const [categoryFilter, setCategoryFilter] = useState<FilterGroup>({
+    id: "category",
+    name: "STEM Category",
+    options: [],
+  });
+
+  // Fetch real products from the database
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch("/api/products");
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
+
+        const data = await response.json();
+        // Log first product to debug structure
+        if (data.length > 0) {
+          console.log("First product structure:", {
+            id: data[0].id,
+            name: data[0].name,
+            category: data[0].category,
+            stemCategory: data[0].stemCategory,
+            attributes: data[0].attributes,
+          });
+        }
+
+        setProducts(data);
+        setFilteredProducts(data);
+
+        // Create category options from real data based on category.name
+        const categories = [
+          ...new Set(
+            data
+              .filter((p: ProductData) => p.category?.name)
+              .map((p: ProductData) => p.category!.name.toLowerCase())
+          ),
+        ] as string[];
+
+        setCategoryFilter({
+          id: "category",
+          name: "STEM Category",
+          options: categories.map((category) => ({
+            id: category.toLowerCase(),
+            label: category.charAt(0).toUpperCase() + category.slice(1),
+            count: data.filter(
+              (p: ProductData) =>
+                p.category?.name.toLowerCase() === category.toLowerCase()
+            ).length,
+          })),
+        });
+
+        // Set price range based on actual products
+        if (data.length > 0) {
+          const prices = data.map((p: ProductData) => p.price);
+          const minPrice = Math.floor(Math.min(...prices));
+          const maxPrice = Math.ceil(Math.max(...prices));
+          setPriceRangeFilter({ min: minPrice, max: maxPrice });
+        }
+
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Mock filters
+  const mockFilters: FilterGroup[] = [
+    {
+      id: "ageRange",
+      name: "Age Range",
+      options: [
+        { id: "6-10", label: "6-10 years", count: 5 },
+        { id: "8-12", label: "8-12 years", count: 4 },
+        { id: "10-14", label: "10-14 years", count: 3 },
+      ],
+    },
+    {
+      id: "difficulty",
+      name: "Difficulty Level",
+      options: [
+        { id: "beginner", label: "Beginner", count: 4 },
+        { id: "intermediate", label: "Intermediate", count: 5 },
+        { id: "advanced", label: "Advanced", count: 3 },
+      ],
+    },
+  ];
 
   // Effect to apply filters
   useEffect(() => {
@@ -211,13 +229,19 @@ export default function ProductsPage() {
     }
 
     // Apply all filters
-    let filtered = [...mockProducts];
+    let filtered = [...products];
 
-    // Filter by category
+    // Filter by category - using category.name
     if (selectedCategories.length > 0) {
-      filtered = filtered.filter((product) =>
-        selectedCategories.includes(product.stemCategory || "")
-      );
+      filtered = filtered.filter((product) => {
+        // Get category name from the category object
+        const categoryName = product.category?.name.toLowerCase() || "";
+
+        return selectedCategories.some((cat) => {
+          const lowerCat = cat.toLowerCase();
+          return categoryName === lowerCat;
+        });
+      });
     }
 
     // Filter by attributes
@@ -248,11 +272,6 @@ export default function ProductsPage() {
               (value) => product.attributes?.difficulty === value
             );
           });
-        } else {
-          // Generic attribute filtering (for other filters)
-          filtered = filtered.filter((product) =>
-            values.some((v) => product[filterId as keyof Product] === v)
-          );
         }
       }
     });
@@ -265,15 +284,35 @@ export default function ProductsPage() {
     );
 
     setFilteredProducts(filtered);
-  }, [selectedCategories, selectedFilters, priceRangeFilter, searchParams]);
+
+    // Log for debugging
+    console.log(`Selected categories: ${selectedCategories.join(", ")}`);
+    console.log(`Filtered products count: ${filtered.length}`);
+  }, [
+    selectedCategories,
+    selectedFilters,
+    priceRangeFilter,
+    searchParams,
+    products,
+  ]);
 
   // Handler for category filter changes
   const handleCategoryChange = (categoryId: string) => {
     setSelectedCategories((prev) => {
-      if (prev.includes(categoryId)) {
-        return prev.filter((id) => id !== categoryId);
+      // Check if this category is already selected (case insensitive comparison)
+      const isAlreadySelected = prev.some(
+        (cat) => cat.toLowerCase() === categoryId.toLowerCase()
+      );
+
+      if (isAlreadySelected) {
+        // Remove this category
+        return prev.filter(
+          (id) => id.toLowerCase() !== categoryId.toLowerCase()
+        );
       } else {
-        return [...prev, categoryId];
+        // Add this category, replacing any existing ones
+        // This ensures only one category is selected at a time
+        return [categoryId];
       }
     });
   };
@@ -306,13 +345,13 @@ export default function ProductsPage() {
   const handleClearFilters = () => {
     setSelectedCategories([]);
     setSelectedFilters({});
-    setPriceRangeFilter({ min: minPrice, max: maxPrice });
+    setPriceRangeFilter({ min: 0, max: 200 });
   };
 
   // Get the active category for the header
   const activeCategory =
     selectedCategories.length === 1
-      ? mockCategories.options.find((c) => c.id === selectedCategories[0])
+      ? categoryFilter.options.find((c) => c.id === selectedCategories[0])
       : null;
 
   // Get appropriate category info
@@ -439,33 +478,7 @@ export default function ProductsPage() {
                   {getCategoryDescription()}
                 </p>
 
-                {/* Category quick links */}
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {mockCategories.options.map((category) => {
-                    const CategoryIcon =
-                      categoryInfo[category.id as keyof typeof categoryInfo]
-                        .icon;
-                    return (
-                      <Button
-                        key={category.id}
-                        variant={
-                          selectedCategories.includes(category.id)
-                            ? "secondary"
-                            : "outline"
-                        }
-                        size="sm"
-                        className={`flex items-center gap-1 rounded-full text-xs py-1 px-3 ${
-                          selectedCategories.includes(category.id)
-                            ? "bg-white text-primary border-white"
-                            : "bg-black/40 text-white hover:bg-white/90 hover:text-primary backdrop-blur-sm border-white/30"
-                        }`}
-                        onClick={() => handleCategoryChange(category.id)}>
-                        <CategoryIcon className="h-3 w-3 mr-1" />
-                        {category.label}
-                      </Button>
-                    );
-                  })}
-                </div>
+                {/* Removing duplicate STEM Category filter buttons from hero section */}
               </div>
             </div>
           </div>
@@ -476,6 +489,58 @@ export default function ProductsPage() {
         <div className="absolute -bottom-6 left-1/4 w-20 h-20 rounded-full bg-green-500/20 blur-xl"></div>
         <div className="absolute -bottom-8 right-1/3 w-24 h-24 rounded-full bg-yellow-500/20 blur-xl"></div>
         <div className="absolute -bottom-5 right-0 w-16 h-16 rounded-full bg-purple-500/20 blur-xl"></div>
+      </div>
+
+      {/* Enhanced STEM Category Filters - Prominent positioning */}
+      <div className="sticky top-16 z-20 bg-white border-b border-gray-200 shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <div className="flex flex-wrap gap-3 justify-center">
+              {Object.entries(categoryInfo).map(([key, category]) => {
+                const CategoryIcon = category.icon;
+                const categoryColor =
+                  key === "science"
+                    ? "border-blue-500 text-blue-700 hover:bg-blue-50"
+                    : key === "technology"
+                      ? "border-green-500 text-green-700 hover:bg-green-50"
+                      : key === "engineering"
+                        ? "border-orange-500 text-orange-700 hover:bg-orange-50"
+                        : "border-purple-500 text-purple-700 hover:bg-purple-50";
+
+                const activeColor =
+                  key === "science"
+                    ? "bg-blue-500 text-white"
+                    : key === "technology"
+                      ? "bg-green-500 text-white"
+                      : key === "engineering"
+                        ? "bg-orange-500 text-white"
+                        : "bg-purple-500 text-white";
+
+                // Convert both to lowercase for comparison
+                const isSelected = selectedCategories.some(
+                  (cat) => cat.toLowerCase() === key.toLowerCase()
+                );
+
+                return (
+                  <Button
+                    key={key}
+                    variant="outline"
+                    size="lg"
+                    className={`h-12 px-5 rounded-full text-sm font-medium flex items-center gap-2 border-2 transition-all hover:scale-105 ${
+                      isSelected ? activeColor : categoryColor
+                    }`}
+                    onClick={() => handleCategoryChange(key)}>
+                    <CategoryIcon className="h-5 w-5" />
+                    <span className="hidden sm:inline">
+                      {key.charAt(0).toUpperCase() + key.slice(1)}
+                    </span>
+                    <span className="sm:hidden">{category.letter}</span>
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* STEM Benefits Section - Made more compact and only show when no category is selected */}
@@ -512,7 +577,7 @@ export default function ProductsPage() {
       )}
 
       <div className="container mx-auto px-4 py-6 relative z-10">
-        {/* Filter and sorting bar - Added as a compact row */}
+        {/* Filter and sorting bar - Add STEM category filters */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 mb-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-full bg-primary/10">
@@ -531,119 +596,98 @@ export default function ProductsPage() {
               </svg>
             </div>
             <span className="text-sm font-medium">{t("filterBy")}</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <Button
+              variant={viewMode === "grid" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("grid")}
+              className="w-8 h-7 p-0">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round">
+                <rect
+                  width="7"
+                  height="7"
+                  x="3"
+                  y="3"
+                  rx="1"
+                />
+                <rect
+                  width="7"
+                  height="7"
+                  x="14"
+                  y="3"
+                  rx="1"
+                />
+                <rect
+                  width="7"
+                  height="7"
+                  x="14"
+                  y="14"
+                  rx="1"
+                />
+                <rect
+                  width="7"
+                  height="7"
+                  x="3"
+                  y="14"
+                  rx="1"
+                />
+              </svg>
+            </Button>
+            <Button
+              variant={viewMode === "list" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setViewMode("list")}
+              className="w-8 h-7 p-0">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round">
+                <line
+                  x1="3"
+                  x2="21"
+                  y1="6"
+                  y2="6"
+                />
+                <line
+                  x1="3"
+                  x2="21"
+                  y1="12"
+                  y2="12"
+                />
+                <line
+                  x1="3"
+                  x2="21"
+                  y1="18"
+                  y2="18"
+                />
+              </svg>
+            </Button>
+          </div>
+        </div>
 
-            {/* Quick filter chips - most frequently used filters */}
-            <div className="hidden md:flex gap-2">
-              {mockCategories.options.map((category) => {
-                const CategoryIcon =
-                  categoryInfo[category.id as keyof typeof categoryInfo].icon;
-                return (
-                  <Button
-                    key={category.id}
-                    variant={
-                      selectedCategories.includes(category.id)
-                        ? "default"
-                        : "outline"
-                    }
-                    size="sm"
-                    className="h-7 text-xs rounded-full"
-                    onClick={() => handleCategoryChange(category.id)}>
-                    <CategoryIcon className="h-3 w-3 mr-1" />
-                    {category.label}
-                  </Button>
-                );
-              })}
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <p className="text-xs text-muted-foreground">
-              {t("showingProducts")
-                .replace("{0}", filteredProducts.length.toString())
-                .replace("{1}", mockProducts.length.toString())}
-            </p>
-            <div className="flex items-center gap-1">
-              <Button
-                variant={viewMode === "grid" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("grid")}
-                className="w-8 h-7 p-0">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round">
-                  <rect
-                    width="7"
-                    height="7"
-                    x="3"
-                    y="3"
-                    rx="1"
-                  />
-                  <rect
-                    width="7"
-                    height="7"
-                    x="14"
-                    y="3"
-                    rx="1"
-                  />
-                  <rect
-                    width="7"
-                    height="7"
-                    x="14"
-                    y="14"
-                    rx="1"
-                  />
-                  <rect
-                    width="7"
-                    height="7"
-                    x="3"
-                    y="14"
-                    rx="1"
-                  />
-                </svg>
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "default" : "outline"}
-                size="sm"
-                onClick={() => setViewMode("list")}
-                className="w-8 h-7 p-0">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round">
-                  <line
-                    x1="3"
-                    x2="21"
-                    y1="6"
-                    y2="6"
-                  />
-                  <line
-                    x1="3"
-                    x2="21"
-                    y1="12"
-                    y2="12"
-                  />
-                  <line
-                    x1="3"
-                    x2="21"
-                    y1="18"
-                    y2="18"
-                  />
-                </svg>
-              </Button>
-            </div>
-          </div>
+        {/* Main product area with showing products count */}
+        <div className="mb-4 px-2">
+          <p className="text-sm text-muted-foreground">
+            {t("showingProducts")
+              .replace("{0}", filteredProducts.length.toString())
+              .replace("{1}", products.length.toString())}
+          </p>
         </div>
 
         <div className="flex flex-col md:flex-row gap-6">
@@ -669,11 +713,11 @@ export default function ProductsPage() {
                 {t("filterOptions")}
               </h3>
               <ProductFilters
-                categories={mockCategories}
+                categories={categoryFilter}
                 filters={mockFilters}
                 priceRange={{
-                  min: minPrice,
-                  max: maxPrice,
+                  min: priceRangeFilter.min,
+                  max: priceRangeFilter.max,
                   current: priceRangeFilter,
                 }}
                 selectedCategories={selectedCategories}
@@ -731,7 +775,7 @@ export default function ProductsPage() {
               {viewMode === "grid" ? (
                 <div className="bg-gray-50/50 rounded-xl p-4">
                   <ProductGrid
-                    products={filteredProducts}
+                    products={filteredProducts as unknown as Product[]}
                     columns={{ sm: 1, md: 2, lg: 3, xl: 3 }}
                   />
                 </div>
@@ -765,16 +809,18 @@ export default function ProductsPage() {
                             variant="outline"
                             className={`
                             ${
-                              product.stemCategory === "science"
+                              product.category?.name.toLowerCase() === "science"
                                 ? "bg-blue-100 text-blue-700 border-blue-200"
-                                : product.stemCategory === "technology"
+                                : product.category?.name.toLowerCase() ===
+                                    "technology"
                                   ? "bg-green-100 text-green-700 border-green-200"
-                                  : product.stemCategory === "engineering"
+                                  : product.category?.name.toLowerCase() ===
+                                      "engineering"
                                     ? "bg-orange-100 text-orange-700 border-orange-200"
                                     : "bg-purple-100 text-purple-700 border-purple-200"
                             }
                           `}>
-                            {product.stemCategory}
+                            {product.category?.name}
                           </Badge>
                           <Badge
                             variant="outline"

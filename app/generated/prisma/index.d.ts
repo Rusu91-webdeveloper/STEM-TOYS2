@@ -1448,16 +1448,16 @@ export namespace Prisma {
 
   export type UserCountOutputType = {
     addresses: number
-    paymentCards: number
     blogs: number
     passwordResetTokens: number
+    paymentCards: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     addresses?: boolean | UserCountOutputTypeCountAddressesArgs
-    paymentCards?: boolean | UserCountOutputTypeCountPaymentCardsArgs
     blogs?: boolean | UserCountOutputTypeCountBlogsArgs
     passwordResetTokens?: boolean | UserCountOutputTypeCountPasswordResetTokensArgs
+    paymentCards?: boolean | UserCountOutputTypeCountPaymentCardsArgs
   }
 
   // Custom InputTypes
@@ -1481,13 +1481,6 @@ export namespace Prisma {
   /**
    * UserCountOutputType without action
    */
-  export type UserCountOutputTypeCountPaymentCardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: PaymentCardWhereInput
-  }
-
-  /**
-   * UserCountOutputType without action
-   */
   export type UserCountOutputTypeCountBlogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: BlogWhereInput
   }
@@ -1499,21 +1492,28 @@ export namespace Prisma {
     where?: PasswordResetTokenWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountPaymentCardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: PaymentCardWhereInput
+  }
+
 
   /**
    * Count Type CategoryCountOutputType
    */
 
   export type CategoryCountOutputType = {
+    blogs: number
     children: number
     products: number
-    blogs: number
   }
 
   export type CategoryCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    blogs?: boolean | CategoryCountOutputTypeCountBlogsArgs
     children?: boolean | CategoryCountOutputTypeCountChildrenArgs
     products?: boolean | CategoryCountOutputTypeCountProductsArgs
-    blogs?: boolean | CategoryCountOutputTypeCountBlogsArgs
   }
 
   // Custom InputTypes
@@ -1530,6 +1530,13 @@ export namespace Prisma {
   /**
    * CategoryCountOutputType without action
    */
+  export type CategoryCountOutputTypeCountBlogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BlogWhereInput
+  }
+
+  /**
+   * CategoryCountOutputType without action
+   */
   export type CategoryCountOutputTypeCountChildrenArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: CategoryWhereInput
   }
@@ -1539,13 +1546,6 @@ export namespace Prisma {
    */
   export type CategoryCountOutputTypeCountProductsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProductWhereInput
-  }
-
-  /**
-   * CategoryCountOutputType without action
-   */
-  export type CategoryCountOutputTypeCountBlogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    where?: BlogWhereInput
   }
 
 
@@ -1758,9 +1758,9 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     addresses?: boolean | User$addressesArgs<ExtArgs>
-    paymentCards?: boolean | User$paymentCardsArgs<ExtArgs>
     blogs?: boolean | User$blogsArgs<ExtArgs>
     passwordResetTokens?: boolean | User$passwordResetTokensArgs<ExtArgs>
+    paymentCards?: boolean | User$paymentCardsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -1806,9 +1806,9 @@ export namespace Prisma {
   export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password" | "role" | "emailVerified" | "verificationToken" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     addresses?: boolean | User$addressesArgs<ExtArgs>
-    paymentCards?: boolean | User$paymentCardsArgs<ExtArgs>
     blogs?: boolean | User$blogsArgs<ExtArgs>
     passwordResetTokens?: boolean | User$passwordResetTokensArgs<ExtArgs>
+    paymentCards?: boolean | User$paymentCardsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -1818,9 +1818,9 @@ export namespace Prisma {
     name: "User"
     objects: {
       addresses: Prisma.$AddressPayload<ExtArgs>[]
-      paymentCards: Prisma.$PaymentCardPayload<ExtArgs>[]
       blogs: Prisma.$BlogPayload<ExtArgs>[]
       passwordResetTokens: Prisma.$PasswordResetTokenPayload<ExtArgs>[]
+      paymentCards: Prisma.$PaymentCardPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2228,9 +2228,9 @@ export namespace Prisma {
   export interface Prisma__UserClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     addresses<T extends User$addressesArgs<ExtArgs> = {}>(args?: Subset<T, User$addressesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AddressPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    paymentCards<T extends User$paymentCardsArgs<ExtArgs> = {}>(args?: Subset<T, User$paymentCardsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     blogs<T extends User$blogsArgs<ExtArgs> = {}>(args?: Subset<T, User$blogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     passwordResetTokens<T extends User$passwordResetTokensArgs<ExtArgs> = {}>(args?: Subset<T, User$passwordResetTokensArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PasswordResetTokenPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    paymentCards<T extends User$paymentCardsArgs<ExtArgs> = {}>(args?: Subset<T, User$paymentCardsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PaymentCardPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2682,30 +2682,6 @@ export namespace Prisma {
   }
 
   /**
-   * User.paymentCards
-   */
-  export type User$paymentCardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the PaymentCard
-     */
-    select?: PaymentCardSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the PaymentCard
-     */
-    omit?: PaymentCardOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: PaymentCardInclude<ExtArgs> | null
-    where?: PaymentCardWhereInput
-    orderBy?: PaymentCardOrderByWithRelationInput | PaymentCardOrderByWithRelationInput[]
-    cursor?: PaymentCardWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: PaymentCardScalarFieldEnum | PaymentCardScalarFieldEnum[]
-  }
-
-  /**
    * User.blogs
    */
   export type User$blogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2751,6 +2727,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: PasswordResetTokenScalarFieldEnum | PasswordResetTokenScalarFieldEnum[]
+  }
+
+  /**
+   * User.paymentCards
+   */
+  export type User$paymentCardsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the PaymentCard
+     */
+    select?: PaymentCardSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the PaymentCard
+     */
+    omit?: PaymentCardOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: PaymentCardInclude<ExtArgs> | null
+    where?: PaymentCardWhereInput
+    orderBy?: PaymentCardOrderByWithRelationInput | PaymentCardOrderByWithRelationInput[]
+    cursor?: PaymentCardWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: PaymentCardScalarFieldEnum | PaymentCardScalarFieldEnum[]
   }
 
   /**
@@ -6321,10 +6321,10 @@ export namespace Prisma {
     parentId?: boolean
     image?: boolean
     isActive?: boolean
+    blogs?: boolean | Category$blogsArgs<ExtArgs>
     parent?: boolean | Category$parentArgs<ExtArgs>
     children?: boolean | Category$childrenArgs<ExtArgs>
     products?: boolean | Category$productsArgs<ExtArgs>
-    blogs?: boolean | Category$blogsArgs<ExtArgs>
     _count?: boolean | CategoryCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["category"]>
 
@@ -6362,10 +6362,10 @@ export namespace Prisma {
 
   export type CategoryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "description" | "parentId" | "image" | "isActive", ExtArgs["result"]["category"]>
   export type CategoryInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    blogs?: boolean | Category$blogsArgs<ExtArgs>
     parent?: boolean | Category$parentArgs<ExtArgs>
     children?: boolean | Category$childrenArgs<ExtArgs>
     products?: boolean | Category$productsArgs<ExtArgs>
-    blogs?: boolean | Category$blogsArgs<ExtArgs>
     _count?: boolean | CategoryCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CategoryIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6378,10 +6378,10 @@ export namespace Prisma {
   export type $CategoryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Category"
     objects: {
+      blogs: Prisma.$BlogPayload<ExtArgs>[]
       parent: Prisma.$CategoryPayload<ExtArgs> | null
       children: Prisma.$CategoryPayload<ExtArgs>[]
       products: Prisma.$ProductPayload<ExtArgs>[]
-      blogs: Prisma.$BlogPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6785,10 +6785,10 @@ export namespace Prisma {
    */
   export interface Prisma__CategoryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
+    blogs<T extends Category$blogsArgs<ExtArgs> = {}>(args?: Subset<T, Category$blogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     parent<T extends Category$parentArgs<ExtArgs> = {}>(args?: Subset<T, Category$parentArgs<ExtArgs>>): Prisma__CategoryClient<$Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     children<T extends Category$childrenArgs<ExtArgs> = {}>(args?: Subset<T, Category$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     products<T extends Category$productsArgs<ExtArgs> = {}>(args?: Subset<T, Category$productsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$ProductPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    blogs<T extends Category$blogsArgs<ExtArgs> = {}>(args?: Subset<T, Category$blogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BlogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -7221,6 +7221,30 @@ export namespace Prisma {
   }
 
   /**
+   * Category.blogs
+   */
+  export type Category$blogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Blog
+     */
+    select?: BlogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Blog
+     */
+    omit?: BlogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BlogInclude<ExtArgs> | null
+    where?: BlogWhereInput
+    orderBy?: BlogOrderByWithRelationInput | BlogOrderByWithRelationInput[]
+    cursor?: BlogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BlogScalarFieldEnum | BlogScalarFieldEnum[]
+  }
+
+  /**
    * Category.parent
    */
   export type Category$parentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7288,30 +7312,6 @@ export namespace Prisma {
   }
 
   /**
-   * Category.blogs
-   */
-  export type Category$blogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Blog
-     */
-    select?: BlogSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Blog
-     */
-    omit?: BlogOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: BlogInclude<ExtArgs> | null
-    where?: BlogWhereInput
-    orderBy?: BlogOrderByWithRelationInput | BlogOrderByWithRelationInput[]
-    cursor?: BlogWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: BlogScalarFieldEnum | BlogScalarFieldEnum[]
-  }
-
-  /**
    * Category without action
    */
   export type CategoryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7365,12 +7365,13 @@ export namespace Prisma {
     compareAtPrice: number | null
     categoryId: string | null
     isActive: boolean | null
-    stockQuantity: number | null
-    weight: number | null
-    sku: string | null
-    barcode: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    barcode: string | null
+    sku: string | null
+    stockQuantity: number | null
+    weight: number | null
+    featured: boolean | null
   }
 
   export type ProductMaxAggregateOutputType = {
@@ -7382,12 +7383,13 @@ export namespace Prisma {
     compareAtPrice: number | null
     categoryId: string | null
     isActive: boolean | null
-    stockQuantity: number | null
-    weight: number | null
-    sku: string | null
-    barcode: string | null
     createdAt: Date | null
     updatedAt: Date | null
+    barcode: string | null
+    sku: string | null
+    stockQuantity: number | null
+    weight: number | null
+    featured: boolean | null
   }
 
   export type ProductCountAggregateOutputType = {
@@ -7401,15 +7403,16 @@ export namespace Prisma {
     categoryId: number
     tags: number
     attributes: number
-    metadata: number
     isActive: number
-    stockQuantity: number
-    weight: number
-    dimensions: number
-    sku: number
-    barcode: number
     createdAt: number
     updatedAt: number
+    barcode: number
+    dimensions: number
+    metadata: number
+    sku: number
+    stockQuantity: number
+    weight: number
+    featured: number
     _all: number
   }
 
@@ -7437,12 +7440,13 @@ export namespace Prisma {
     compareAtPrice?: true
     categoryId?: true
     isActive?: true
-    stockQuantity?: true
-    weight?: true
-    sku?: true
-    barcode?: true
     createdAt?: true
     updatedAt?: true
+    barcode?: true
+    sku?: true
+    stockQuantity?: true
+    weight?: true
+    featured?: true
   }
 
   export type ProductMaxAggregateInputType = {
@@ -7454,12 +7458,13 @@ export namespace Prisma {
     compareAtPrice?: true
     categoryId?: true
     isActive?: true
-    stockQuantity?: true
-    weight?: true
-    sku?: true
-    barcode?: true
     createdAt?: true
     updatedAt?: true
+    barcode?: true
+    sku?: true
+    stockQuantity?: true
+    weight?: true
+    featured?: true
   }
 
   export type ProductCountAggregateInputType = {
@@ -7473,15 +7478,16 @@ export namespace Prisma {
     categoryId?: true
     tags?: true
     attributes?: true
-    metadata?: true
     isActive?: true
-    stockQuantity?: true
-    weight?: true
-    dimensions?: true
-    sku?: true
-    barcode?: true
     createdAt?: true
     updatedAt?: true
+    barcode?: true
+    dimensions?: true
+    metadata?: true
+    sku?: true
+    stockQuantity?: true
+    weight?: true
+    featured?: true
     _all?: true
   }
 
@@ -7582,15 +7588,16 @@ export namespace Prisma {
     categoryId: string
     tags: string[]
     attributes: JsonValue | null
-    metadata: JsonValue | null
     isActive: boolean
-    stockQuantity: number
-    weight: number | null
-    dimensions: JsonValue | null
-    sku: string | null
-    barcode: string | null
     createdAt: Date
     updatedAt: Date
+    barcode: string | null
+    dimensions: JsonValue | null
+    metadata: JsonValue | null
+    sku: string | null
+    stockQuantity: number
+    weight: number | null
+    featured: boolean
     _count: ProductCountAggregateOutputType | null
     _avg: ProductAvgAggregateOutputType | null
     _sum: ProductSumAggregateOutputType | null
@@ -7623,15 +7630,16 @@ export namespace Prisma {
     categoryId?: boolean
     tags?: boolean
     attributes?: boolean
-    metadata?: boolean
     isActive?: boolean
-    stockQuantity?: boolean
-    weight?: boolean
-    dimensions?: boolean
-    sku?: boolean
-    barcode?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    barcode?: boolean
+    dimensions?: boolean
+    metadata?: boolean
+    sku?: boolean
+    stockQuantity?: boolean
+    weight?: boolean
+    featured?: boolean
     category?: boolean | CategoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["product"]>
 
@@ -7646,15 +7654,16 @@ export namespace Prisma {
     categoryId?: boolean
     tags?: boolean
     attributes?: boolean
-    metadata?: boolean
     isActive?: boolean
-    stockQuantity?: boolean
-    weight?: boolean
-    dimensions?: boolean
-    sku?: boolean
-    barcode?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    barcode?: boolean
+    dimensions?: boolean
+    metadata?: boolean
+    sku?: boolean
+    stockQuantity?: boolean
+    weight?: boolean
+    featured?: boolean
     category?: boolean | CategoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["product"]>
 
@@ -7669,15 +7678,16 @@ export namespace Prisma {
     categoryId?: boolean
     tags?: boolean
     attributes?: boolean
-    metadata?: boolean
     isActive?: boolean
-    stockQuantity?: boolean
-    weight?: boolean
-    dimensions?: boolean
-    sku?: boolean
-    barcode?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    barcode?: boolean
+    dimensions?: boolean
+    metadata?: boolean
+    sku?: boolean
+    stockQuantity?: boolean
+    weight?: boolean
+    featured?: boolean
     category?: boolean | CategoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["product"]>
 
@@ -7692,18 +7702,19 @@ export namespace Prisma {
     categoryId?: boolean
     tags?: boolean
     attributes?: boolean
-    metadata?: boolean
     isActive?: boolean
-    stockQuantity?: boolean
-    weight?: boolean
-    dimensions?: boolean
-    sku?: boolean
-    barcode?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    barcode?: boolean
+    dimensions?: boolean
+    metadata?: boolean
+    sku?: boolean
+    stockQuantity?: boolean
+    weight?: boolean
+    featured?: boolean
   }
 
-  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "description" | "price" | "compareAtPrice" | "images" | "categoryId" | "tags" | "attributes" | "metadata" | "isActive" | "stockQuantity" | "weight" | "dimensions" | "sku" | "barcode" | "createdAt" | "updatedAt", ExtArgs["result"]["product"]>
+  export type ProductOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "description" | "price" | "compareAtPrice" | "images" | "categoryId" | "tags" | "attributes" | "isActive" | "createdAt" | "updatedAt" | "barcode" | "dimensions" | "metadata" | "sku" | "stockQuantity" | "weight" | "featured", ExtArgs["result"]["product"]>
   export type ProductInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     category?: boolean | CategoryDefaultArgs<ExtArgs>
   }
@@ -7730,15 +7741,16 @@ export namespace Prisma {
       categoryId: string
       tags: string[]
       attributes: Prisma.JsonValue | null
-      metadata: Prisma.JsonValue | null
       isActive: boolean
-      stockQuantity: number
-      weight: number | null
-      dimensions: Prisma.JsonValue | null
-      sku: string | null
-      barcode: string | null
       createdAt: Date
       updatedAt: Date
+      barcode: string | null
+      dimensions: Prisma.JsonValue | null
+      metadata: Prisma.JsonValue | null
+      sku: string | null
+      stockQuantity: number
+      weight: number | null
+      featured: boolean
     }, ExtArgs["result"]["product"]>
     composites: {}
   }
@@ -8173,15 +8185,16 @@ export namespace Prisma {
     readonly categoryId: FieldRef<"Product", 'String'>
     readonly tags: FieldRef<"Product", 'String[]'>
     readonly attributes: FieldRef<"Product", 'Json'>
-    readonly metadata: FieldRef<"Product", 'Json'>
     readonly isActive: FieldRef<"Product", 'Boolean'>
-    readonly stockQuantity: FieldRef<"Product", 'Int'>
-    readonly weight: FieldRef<"Product", 'Float'>
-    readonly dimensions: FieldRef<"Product", 'Json'>
-    readonly sku: FieldRef<"Product", 'String'>
-    readonly barcode: FieldRef<"Product", 'String'>
     readonly createdAt: FieldRef<"Product", 'DateTime'>
     readonly updatedAt: FieldRef<"Product", 'DateTime'>
+    readonly barcode: FieldRef<"Product", 'String'>
+    readonly dimensions: FieldRef<"Product", 'Json'>
+    readonly metadata: FieldRef<"Product", 'Json'>
+    readonly sku: FieldRef<"Product", 'String'>
+    readonly stockQuantity: FieldRef<"Product", 'Int'>
+    readonly weight: FieldRef<"Product", 'Float'>
+    readonly featured: FieldRef<"Product", 'Boolean'>
   }
     
 
@@ -8625,12 +8638,12 @@ export namespace Prisma {
     coverImage: string | null
     categoryId: string | null
     authorId: string | null
-    stemCategory: $Enums.StemCategory | null
-    readingTime: number | null
     isPublished: boolean | null
     publishedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
+    readingTime: number | null
+    stemCategory: $Enums.StemCategory | null
   }
 
   export type BlogMaxAggregateOutputType = {
@@ -8642,12 +8655,12 @@ export namespace Prisma {
     coverImage: string | null
     categoryId: string | null
     authorId: string | null
-    stemCategory: $Enums.StemCategory | null
-    readingTime: number | null
     isPublished: boolean | null
     publishedAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
+    readingTime: number | null
+    stemCategory: $Enums.StemCategory | null
   }
 
   export type BlogCountAggregateOutputType = {
@@ -8659,14 +8672,14 @@ export namespace Prisma {
     coverImage: number
     categoryId: number
     authorId: number
-    stemCategory: number
-    readingTime: number
     tags: number
     metadata: number
     isPublished: number
     publishedAt: number
     createdAt: number
     updatedAt: number
+    readingTime: number
+    stemCategory: number
     _all: number
   }
 
@@ -8688,12 +8701,12 @@ export namespace Prisma {
     coverImage?: true
     categoryId?: true
     authorId?: true
-    stemCategory?: true
-    readingTime?: true
     isPublished?: true
     publishedAt?: true
     createdAt?: true
     updatedAt?: true
+    readingTime?: true
+    stemCategory?: true
   }
 
   export type BlogMaxAggregateInputType = {
@@ -8705,12 +8718,12 @@ export namespace Prisma {
     coverImage?: true
     categoryId?: true
     authorId?: true
-    stemCategory?: true
-    readingTime?: true
     isPublished?: true
     publishedAt?: true
     createdAt?: true
     updatedAt?: true
+    readingTime?: true
+    stemCategory?: true
   }
 
   export type BlogCountAggregateInputType = {
@@ -8722,14 +8735,14 @@ export namespace Prisma {
     coverImage?: true
     categoryId?: true
     authorId?: true
-    stemCategory?: true
-    readingTime?: true
     tags?: true
     metadata?: true
     isPublished?: true
     publishedAt?: true
     createdAt?: true
     updatedAt?: true
+    readingTime?: true
+    stemCategory?: true
     _all?: true
   }
 
@@ -8828,14 +8841,14 @@ export namespace Prisma {
     coverImage: string | null
     categoryId: string
     authorId: string
-    stemCategory: $Enums.StemCategory
-    readingTime: number | null
     tags: string[]
     metadata: JsonValue | null
     isPublished: boolean
     publishedAt: Date | null
     createdAt: Date
     updatedAt: Date
+    readingTime: number | null
+    stemCategory: $Enums.StemCategory
     _count: BlogCountAggregateOutputType | null
     _avg: BlogAvgAggregateOutputType | null
     _sum: BlogSumAggregateOutputType | null
@@ -8866,16 +8879,16 @@ export namespace Prisma {
     coverImage?: boolean
     categoryId?: boolean
     authorId?: boolean
-    stemCategory?: boolean
-    readingTime?: boolean
     tags?: boolean
     metadata?: boolean
     isPublished?: boolean
     publishedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    category?: boolean | CategoryDefaultArgs<ExtArgs>
+    readingTime?: boolean
+    stemCategory?: boolean
     author?: boolean | UserDefaultArgs<ExtArgs>
+    category?: boolean | CategoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["blog"]>
 
   export type BlogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -8887,16 +8900,16 @@ export namespace Prisma {
     coverImage?: boolean
     categoryId?: boolean
     authorId?: boolean
-    stemCategory?: boolean
-    readingTime?: boolean
     tags?: boolean
     metadata?: boolean
     isPublished?: boolean
     publishedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    category?: boolean | CategoryDefaultArgs<ExtArgs>
+    readingTime?: boolean
+    stemCategory?: boolean
     author?: boolean | UserDefaultArgs<ExtArgs>
+    category?: boolean | CategoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["blog"]>
 
   export type BlogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -8908,16 +8921,16 @@ export namespace Prisma {
     coverImage?: boolean
     categoryId?: boolean
     authorId?: boolean
-    stemCategory?: boolean
-    readingTime?: boolean
     tags?: boolean
     metadata?: boolean
     isPublished?: boolean
     publishedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    category?: boolean | CategoryDefaultArgs<ExtArgs>
+    readingTime?: boolean
+    stemCategory?: boolean
     author?: boolean | UserDefaultArgs<ExtArgs>
+    category?: boolean | CategoryDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["blog"]>
 
   export type BlogSelectScalar = {
@@ -8929,35 +8942,35 @@ export namespace Prisma {
     coverImage?: boolean
     categoryId?: boolean
     authorId?: boolean
-    stemCategory?: boolean
-    readingTime?: boolean
     tags?: boolean
     metadata?: boolean
     isPublished?: boolean
     publishedAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    readingTime?: boolean
+    stemCategory?: boolean
   }
 
-  export type BlogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "slug" | "excerpt" | "content" | "coverImage" | "categoryId" | "authorId" | "stemCategory" | "readingTime" | "tags" | "metadata" | "isPublished" | "publishedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["blog"]>
+  export type BlogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "slug" | "excerpt" | "content" | "coverImage" | "categoryId" | "authorId" | "tags" | "metadata" | "isPublished" | "publishedAt" | "createdAt" | "updatedAt" | "readingTime" | "stemCategory", ExtArgs["result"]["blog"]>
   export type BlogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    category?: boolean | CategoryDefaultArgs<ExtArgs>
     author?: boolean | UserDefaultArgs<ExtArgs>
+    category?: boolean | CategoryDefaultArgs<ExtArgs>
   }
   export type BlogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    category?: boolean | CategoryDefaultArgs<ExtArgs>
     author?: boolean | UserDefaultArgs<ExtArgs>
+    category?: boolean | CategoryDefaultArgs<ExtArgs>
   }
   export type BlogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    category?: boolean | CategoryDefaultArgs<ExtArgs>
     author?: boolean | UserDefaultArgs<ExtArgs>
+    category?: boolean | CategoryDefaultArgs<ExtArgs>
   }
 
   export type $BlogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Blog"
     objects: {
-      category: Prisma.$CategoryPayload<ExtArgs>
       author: Prisma.$UserPayload<ExtArgs>
+      category: Prisma.$CategoryPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -8968,14 +8981,14 @@ export namespace Prisma {
       coverImage: string | null
       categoryId: string
       authorId: string
-      stemCategory: $Enums.StemCategory
-      readingTime: number | null
       tags: string[]
       metadata: Prisma.JsonValue | null
       isPublished: boolean
       publishedAt: Date | null
       createdAt: Date
       updatedAt: Date
+      readingTime: number | null
+      stemCategory: $Enums.StemCategory
     }, ExtArgs["result"]["blog"]>
     composites: {}
   }
@@ -9370,8 +9383,8 @@ export namespace Prisma {
    */
   export interface Prisma__BlogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    category<T extends CategoryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CategoryDefaultArgs<ExtArgs>>): Prisma__CategoryClient<$Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     author<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    category<T extends CategoryDefaultArgs<ExtArgs> = {}>(args?: Subset<T, CategoryDefaultArgs<ExtArgs>>): Prisma__CategoryClient<$Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -9409,14 +9422,14 @@ export namespace Prisma {
     readonly coverImage: FieldRef<"Blog", 'String'>
     readonly categoryId: FieldRef<"Blog", 'String'>
     readonly authorId: FieldRef<"Blog", 'String'>
-    readonly stemCategory: FieldRef<"Blog", 'StemCategory'>
-    readonly readingTime: FieldRef<"Blog", 'Int'>
     readonly tags: FieldRef<"Blog", 'String[]'>
     readonly metadata: FieldRef<"Blog", 'Json'>
     readonly isPublished: FieldRef<"Blog", 'Boolean'>
     readonly publishedAt: FieldRef<"Blog", 'DateTime'>
     readonly createdAt: FieldRef<"Blog", 'DateTime'>
     readonly updatedAt: FieldRef<"Blog", 'DateTime'>
+    readonly readingTime: FieldRef<"Blog", 'Int'>
+    readonly stemCategory: FieldRef<"Blog", 'StemCategory'>
   }
     
 
@@ -9933,15 +9946,16 @@ export namespace Prisma {
     categoryId: 'categoryId',
     tags: 'tags',
     attributes: 'attributes',
-    metadata: 'metadata',
     isActive: 'isActive',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt',
+    barcode: 'barcode',
+    dimensions: 'dimensions',
+    metadata: 'metadata',
+    sku: 'sku',
     stockQuantity: 'stockQuantity',
     weight: 'weight',
-    dimensions: 'dimensions',
-    sku: 'sku',
-    barcode: 'barcode',
-    createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    featured: 'featured'
   };
 
   export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
@@ -9956,14 +9970,14 @@ export namespace Prisma {
     coverImage: 'coverImage',
     categoryId: 'categoryId',
     authorId: 'authorId',
-    stemCategory: 'stemCategory',
-    readingTime: 'readingTime',
     tags: 'tags',
     metadata: 'metadata',
     isPublished: 'isPublished',
     publishedAt: 'publishedAt',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    readingTime: 'readingTime',
+    stemCategory: 'stemCategory'
   };
 
   export type BlogScalarFieldEnum = (typeof BlogScalarFieldEnum)[keyof typeof BlogScalarFieldEnum]
@@ -10138,9 +10152,9 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     addresses?: AddressListRelationFilter
-    paymentCards?: PaymentCardListRelationFilter
     blogs?: BlogListRelationFilter
     passwordResetTokens?: PasswordResetTokenListRelationFilter
+    paymentCards?: PaymentCardListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -10155,9 +10169,9 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     addresses?: AddressOrderByRelationAggregateInput
-    paymentCards?: PaymentCardOrderByRelationAggregateInput
     blogs?: BlogOrderByRelationAggregateInput
     passwordResetTokens?: PasswordResetTokenOrderByRelationAggregateInput
+    paymentCards?: PaymentCardOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -10175,9 +10189,9 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     addresses?: AddressListRelationFilter
-    paymentCards?: PaymentCardListRelationFilter
     blogs?: BlogListRelationFilter
     passwordResetTokens?: PasswordResetTokenListRelationFilter
+    paymentCards?: PaymentCardListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -10463,10 +10477,10 @@ export namespace Prisma {
     parentId?: StringNullableFilter<"Category"> | string | null
     image?: StringNullableFilter<"Category"> | string | null
     isActive?: BoolFilter<"Category"> | boolean
+    blogs?: BlogListRelationFilter
     parent?: XOR<CategoryNullableScalarRelationFilter, CategoryWhereInput> | null
     children?: CategoryListRelationFilter
     products?: ProductListRelationFilter
-    blogs?: BlogListRelationFilter
   }
 
   export type CategoryOrderByWithRelationInput = {
@@ -10477,10 +10491,10 @@ export namespace Prisma {
     parentId?: SortOrderInput | SortOrder
     image?: SortOrderInput | SortOrder
     isActive?: SortOrder
+    blogs?: BlogOrderByRelationAggregateInput
     parent?: CategoryOrderByWithRelationInput
     children?: CategoryOrderByRelationAggregateInput
     products?: ProductOrderByRelationAggregateInput
-    blogs?: BlogOrderByRelationAggregateInput
   }
 
   export type CategoryWhereUniqueInput = Prisma.AtLeast<{
@@ -10494,10 +10508,10 @@ export namespace Prisma {
     parentId?: StringNullableFilter<"Category"> | string | null
     image?: StringNullableFilter<"Category"> | string | null
     isActive?: BoolFilter<"Category"> | boolean
+    blogs?: BlogListRelationFilter
     parent?: XOR<CategoryNullableScalarRelationFilter, CategoryWhereInput> | null
     children?: CategoryListRelationFilter
     products?: ProductListRelationFilter
-    blogs?: BlogListRelationFilter
   }, "id" | "slug">
 
   export type CategoryOrderByWithAggregationInput = {
@@ -10540,15 +10554,16 @@ export namespace Prisma {
     categoryId?: StringFilter<"Product"> | string
     tags?: StringNullableListFilter<"Product">
     attributes?: JsonNullableFilter<"Product">
-    metadata?: JsonNullableFilter<"Product">
     isActive?: BoolFilter<"Product"> | boolean
-    stockQuantity?: IntFilter<"Product"> | number
-    weight?: FloatNullableFilter<"Product"> | number | null
-    dimensions?: JsonNullableFilter<"Product">
-    sku?: StringNullableFilter<"Product"> | string | null
-    barcode?: StringNullableFilter<"Product"> | string | null
     createdAt?: DateTimeFilter<"Product"> | Date | string
     updatedAt?: DateTimeFilter<"Product"> | Date | string
+    barcode?: StringNullableFilter<"Product"> | string | null
+    dimensions?: JsonNullableFilter<"Product">
+    metadata?: JsonNullableFilter<"Product">
+    sku?: StringNullableFilter<"Product"> | string | null
+    stockQuantity?: IntFilter<"Product"> | number
+    weight?: FloatNullableFilter<"Product"> | number | null
+    featured?: BoolFilter<"Product"> | boolean
     category?: XOR<CategoryScalarRelationFilter, CategoryWhereInput>
   }
 
@@ -10563,15 +10578,16 @@ export namespace Prisma {
     categoryId?: SortOrder
     tags?: SortOrder
     attributes?: SortOrderInput | SortOrder
-    metadata?: SortOrderInput | SortOrder
     isActive?: SortOrder
-    stockQuantity?: SortOrder
-    weight?: SortOrderInput | SortOrder
-    dimensions?: SortOrderInput | SortOrder
-    sku?: SortOrderInput | SortOrder
-    barcode?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    barcode?: SortOrderInput | SortOrder
+    dimensions?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
+    sku?: SortOrderInput | SortOrder
+    stockQuantity?: SortOrder
+    weight?: SortOrderInput | SortOrder
+    featured?: SortOrder
     category?: CategoryOrderByWithRelationInput
   }
 
@@ -10589,15 +10605,16 @@ export namespace Prisma {
     categoryId?: StringFilter<"Product"> | string
     tags?: StringNullableListFilter<"Product">
     attributes?: JsonNullableFilter<"Product">
-    metadata?: JsonNullableFilter<"Product">
     isActive?: BoolFilter<"Product"> | boolean
-    stockQuantity?: IntFilter<"Product"> | number
-    weight?: FloatNullableFilter<"Product"> | number | null
-    dimensions?: JsonNullableFilter<"Product">
-    sku?: StringNullableFilter<"Product"> | string | null
-    barcode?: StringNullableFilter<"Product"> | string | null
     createdAt?: DateTimeFilter<"Product"> | Date | string
     updatedAt?: DateTimeFilter<"Product"> | Date | string
+    barcode?: StringNullableFilter<"Product"> | string | null
+    dimensions?: JsonNullableFilter<"Product">
+    metadata?: JsonNullableFilter<"Product">
+    sku?: StringNullableFilter<"Product"> | string | null
+    stockQuantity?: IntFilter<"Product"> | number
+    weight?: FloatNullableFilter<"Product"> | number | null
+    featured?: BoolFilter<"Product"> | boolean
     category?: XOR<CategoryScalarRelationFilter, CategoryWhereInput>
   }, "id" | "slug">
 
@@ -10612,15 +10629,16 @@ export namespace Prisma {
     categoryId?: SortOrder
     tags?: SortOrder
     attributes?: SortOrderInput | SortOrder
-    metadata?: SortOrderInput | SortOrder
     isActive?: SortOrder
-    stockQuantity?: SortOrder
-    weight?: SortOrderInput | SortOrder
-    dimensions?: SortOrderInput | SortOrder
-    sku?: SortOrderInput | SortOrder
-    barcode?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    barcode?: SortOrderInput | SortOrder
+    dimensions?: SortOrderInput | SortOrder
+    metadata?: SortOrderInput | SortOrder
+    sku?: SortOrderInput | SortOrder
+    stockQuantity?: SortOrder
+    weight?: SortOrderInput | SortOrder
+    featured?: SortOrder
     _count?: ProductCountOrderByAggregateInput
     _avg?: ProductAvgOrderByAggregateInput
     _max?: ProductMaxOrderByAggregateInput
@@ -10642,15 +10660,16 @@ export namespace Prisma {
     categoryId?: StringWithAggregatesFilter<"Product"> | string
     tags?: StringNullableListFilter<"Product">
     attributes?: JsonNullableWithAggregatesFilter<"Product">
-    metadata?: JsonNullableWithAggregatesFilter<"Product">
     isActive?: BoolWithAggregatesFilter<"Product"> | boolean
-    stockQuantity?: IntWithAggregatesFilter<"Product"> | number
-    weight?: FloatNullableWithAggregatesFilter<"Product"> | number | null
-    dimensions?: JsonNullableWithAggregatesFilter<"Product">
-    sku?: StringNullableWithAggregatesFilter<"Product"> | string | null
-    barcode?: StringNullableWithAggregatesFilter<"Product"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Product"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Product"> | Date | string
+    barcode?: StringNullableWithAggregatesFilter<"Product"> | string | null
+    dimensions?: JsonNullableWithAggregatesFilter<"Product">
+    metadata?: JsonNullableWithAggregatesFilter<"Product">
+    sku?: StringNullableWithAggregatesFilter<"Product"> | string | null
+    stockQuantity?: IntWithAggregatesFilter<"Product"> | number
+    weight?: FloatNullableWithAggregatesFilter<"Product"> | number | null
+    featured?: BoolWithAggregatesFilter<"Product"> | boolean
   }
 
   export type BlogWhereInput = {
@@ -10665,16 +10684,16 @@ export namespace Prisma {
     coverImage?: StringNullableFilter<"Blog"> | string | null
     categoryId?: StringFilter<"Blog"> | string
     authorId?: StringFilter<"Blog"> | string
-    stemCategory?: EnumStemCategoryFilter<"Blog"> | $Enums.StemCategory
-    readingTime?: IntNullableFilter<"Blog"> | number | null
     tags?: StringNullableListFilter<"Blog">
     metadata?: JsonNullableFilter<"Blog">
     isPublished?: BoolFilter<"Blog"> | boolean
     publishedAt?: DateTimeNullableFilter<"Blog"> | Date | string | null
     createdAt?: DateTimeFilter<"Blog"> | Date | string
     updatedAt?: DateTimeFilter<"Blog"> | Date | string
-    category?: XOR<CategoryScalarRelationFilter, CategoryWhereInput>
+    readingTime?: IntNullableFilter<"Blog"> | number | null
+    stemCategory?: EnumStemCategoryFilter<"Blog"> | $Enums.StemCategory
     author?: XOR<UserScalarRelationFilter, UserWhereInput>
+    category?: XOR<CategoryScalarRelationFilter, CategoryWhereInput>
   }
 
   export type BlogOrderByWithRelationInput = {
@@ -10686,16 +10705,16 @@ export namespace Prisma {
     coverImage?: SortOrderInput | SortOrder
     categoryId?: SortOrder
     authorId?: SortOrder
-    stemCategory?: SortOrder
-    readingTime?: SortOrderInput | SortOrder
     tags?: SortOrder
     metadata?: SortOrderInput | SortOrder
     isPublished?: SortOrder
     publishedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    category?: CategoryOrderByWithRelationInput
+    readingTime?: SortOrderInput | SortOrder
+    stemCategory?: SortOrder
     author?: UserOrderByWithRelationInput
+    category?: CategoryOrderByWithRelationInput
   }
 
   export type BlogWhereUniqueInput = Prisma.AtLeast<{
@@ -10710,16 +10729,16 @@ export namespace Prisma {
     coverImage?: StringNullableFilter<"Blog"> | string | null
     categoryId?: StringFilter<"Blog"> | string
     authorId?: StringFilter<"Blog"> | string
-    stemCategory?: EnumStemCategoryFilter<"Blog"> | $Enums.StemCategory
-    readingTime?: IntNullableFilter<"Blog"> | number | null
     tags?: StringNullableListFilter<"Blog">
     metadata?: JsonNullableFilter<"Blog">
     isPublished?: BoolFilter<"Blog"> | boolean
     publishedAt?: DateTimeNullableFilter<"Blog"> | Date | string | null
     createdAt?: DateTimeFilter<"Blog"> | Date | string
     updatedAt?: DateTimeFilter<"Blog"> | Date | string
-    category?: XOR<CategoryScalarRelationFilter, CategoryWhereInput>
+    readingTime?: IntNullableFilter<"Blog"> | number | null
+    stemCategory?: EnumStemCategoryFilter<"Blog"> | $Enums.StemCategory
     author?: XOR<UserScalarRelationFilter, UserWhereInput>
+    category?: XOR<CategoryScalarRelationFilter, CategoryWhereInput>
   }, "id" | "slug">
 
   export type BlogOrderByWithAggregationInput = {
@@ -10731,14 +10750,14 @@ export namespace Prisma {
     coverImage?: SortOrderInput | SortOrder
     categoryId?: SortOrder
     authorId?: SortOrder
-    stemCategory?: SortOrder
-    readingTime?: SortOrderInput | SortOrder
     tags?: SortOrder
     metadata?: SortOrderInput | SortOrder
     isPublished?: SortOrder
     publishedAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    readingTime?: SortOrderInput | SortOrder
+    stemCategory?: SortOrder
     _count?: BlogCountOrderByAggregateInput
     _avg?: BlogAvgOrderByAggregateInput
     _max?: BlogMaxOrderByAggregateInput
@@ -10758,14 +10777,14 @@ export namespace Prisma {
     coverImage?: StringNullableWithAggregatesFilter<"Blog"> | string | null
     categoryId?: StringWithAggregatesFilter<"Blog"> | string
     authorId?: StringWithAggregatesFilter<"Blog"> | string
-    stemCategory?: EnumStemCategoryWithAggregatesFilter<"Blog"> | $Enums.StemCategory
-    readingTime?: IntNullableWithAggregatesFilter<"Blog"> | number | null
     tags?: StringNullableListFilter<"Blog">
     metadata?: JsonNullableWithAggregatesFilter<"Blog">
     isPublished?: BoolWithAggregatesFilter<"Blog"> | boolean
     publishedAt?: DateTimeNullableWithAggregatesFilter<"Blog"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Blog"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Blog"> | Date | string
+    readingTime?: IntNullableWithAggregatesFilter<"Blog"> | number | null
+    stemCategory?: EnumStemCategoryWithAggregatesFilter<"Blog"> | $Enums.StemCategory
   }
 
   export type UserCreateInput = {
@@ -10780,9 +10799,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     addresses?: AddressCreateNestedManyWithoutUserInput
-    paymentCards?: PaymentCardCreateNestedManyWithoutUserInput
     blogs?: BlogCreateNestedManyWithoutAuthorInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    paymentCards?: PaymentCardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -10797,9 +10816,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     addresses?: AddressUncheckedCreateNestedManyWithoutUserInput
-    paymentCards?: PaymentCardUncheckedCreateNestedManyWithoutUserInput
     blogs?: BlogUncheckedCreateNestedManyWithoutAuthorInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    paymentCards?: PaymentCardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -10814,9 +10833,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     addresses?: AddressUpdateManyWithoutUserNestedInput
-    paymentCards?: PaymentCardUpdateManyWithoutUserNestedInput
     blogs?: BlogUpdateManyWithoutAuthorNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    paymentCards?: PaymentCardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -10831,9 +10850,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     addresses?: AddressUncheckedUpdateManyWithoutUserNestedInput
-    paymentCards?: PaymentCardUncheckedUpdateManyWithoutUserNestedInput
     blogs?: BlogUncheckedUpdateManyWithoutAuthorNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    paymentCards?: PaymentCardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -11152,10 +11171,10 @@ export namespace Prisma {
     description?: string | null
     image?: string | null
     isActive?: boolean
+    blogs?: BlogCreateNestedManyWithoutCategoryInput
     parent?: CategoryCreateNestedOneWithoutChildrenInput
     children?: CategoryCreateNestedManyWithoutParentInput
     products?: ProductCreateNestedManyWithoutCategoryInput
-    blogs?: BlogCreateNestedManyWithoutCategoryInput
   }
 
   export type CategoryUncheckedCreateInput = {
@@ -11166,9 +11185,9 @@ export namespace Prisma {
     parentId?: string | null
     image?: string | null
     isActive?: boolean
+    blogs?: BlogUncheckedCreateNestedManyWithoutCategoryInput
     children?: CategoryUncheckedCreateNestedManyWithoutParentInput
     products?: ProductUncheckedCreateNestedManyWithoutCategoryInput
-    blogs?: BlogUncheckedCreateNestedManyWithoutCategoryInput
   }
 
   export type CategoryUpdateInput = {
@@ -11178,10 +11197,10 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    blogs?: BlogUpdateManyWithoutCategoryNestedInput
     parent?: CategoryUpdateOneWithoutChildrenNestedInput
     children?: CategoryUpdateManyWithoutParentNestedInput
     products?: ProductUpdateManyWithoutCategoryNestedInput
-    blogs?: BlogUpdateManyWithoutCategoryNestedInput
   }
 
   export type CategoryUncheckedUpdateInput = {
@@ -11192,9 +11211,9 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    blogs?: BlogUncheckedUpdateManyWithoutCategoryNestedInput
     children?: CategoryUncheckedUpdateManyWithoutParentNestedInput
     products?: ProductUncheckedUpdateManyWithoutCategoryNestedInput
-    blogs?: BlogUncheckedUpdateManyWithoutCategoryNestedInput
   }
 
   export type CategoryCreateManyInput = {
@@ -11236,15 +11255,16 @@ export namespace Prisma {
     images?: ProductCreateimagesInput | string[]
     tags?: ProductCreatetagsInput | string[]
     attributes?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     isActive?: boolean
-    stockQuantity?: number
-    weight?: number | null
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    sku?: string | null
-    barcode?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    barcode?: string | null
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    sku?: string | null
+    stockQuantity?: number
+    weight?: number | null
+    featured?: boolean
     category: CategoryCreateNestedOneWithoutProductsInput
   }
 
@@ -11259,15 +11279,16 @@ export namespace Prisma {
     categoryId: string
     tags?: ProductCreatetagsInput | string[]
     attributes?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     isActive?: boolean
-    stockQuantity?: number
-    weight?: number | null
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    sku?: string | null
-    barcode?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    barcode?: string | null
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    sku?: string | null
+    stockQuantity?: number
+    weight?: number | null
+    featured?: boolean
   }
 
   export type ProductUpdateInput = {
@@ -11280,15 +11301,16 @@ export namespace Prisma {
     images?: ProductUpdateimagesInput | string[]
     tags?: ProductUpdatetagsInput | string[]
     attributes?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    stockQuantity?: IntFieldUpdateOperationsInput | number
-    weight?: NullableFloatFieldUpdateOperationsInput | number | null
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    sku?: NullableStringFieldUpdateOperationsInput | string | null
-    barcode?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    barcode?: NullableStringFieldUpdateOperationsInput | string | null
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    sku?: NullableStringFieldUpdateOperationsInput | string | null
+    stockQuantity?: IntFieldUpdateOperationsInput | number
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    featured?: BoolFieldUpdateOperationsInput | boolean
     category?: CategoryUpdateOneRequiredWithoutProductsNestedInput
   }
 
@@ -11303,15 +11325,16 @@ export namespace Prisma {
     categoryId?: StringFieldUpdateOperationsInput | string
     tags?: ProductUpdatetagsInput | string[]
     attributes?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    stockQuantity?: IntFieldUpdateOperationsInput | number
-    weight?: NullableFloatFieldUpdateOperationsInput | number | null
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    sku?: NullableStringFieldUpdateOperationsInput | string | null
-    barcode?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    barcode?: NullableStringFieldUpdateOperationsInput | string | null
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    sku?: NullableStringFieldUpdateOperationsInput | string | null
+    stockQuantity?: IntFieldUpdateOperationsInput | number
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    featured?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ProductCreateManyInput = {
@@ -11325,15 +11348,16 @@ export namespace Prisma {
     categoryId: string
     tags?: ProductCreatetagsInput | string[]
     attributes?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     isActive?: boolean
-    stockQuantity?: number
-    weight?: number | null
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    sku?: string | null
-    barcode?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    barcode?: string | null
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    sku?: string | null
+    stockQuantity?: number
+    weight?: number | null
+    featured?: boolean
   }
 
   export type ProductUpdateManyMutationInput = {
@@ -11346,15 +11370,16 @@ export namespace Prisma {
     images?: ProductUpdateimagesInput | string[]
     tags?: ProductUpdatetagsInput | string[]
     attributes?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    stockQuantity?: IntFieldUpdateOperationsInput | number
-    weight?: NullableFloatFieldUpdateOperationsInput | number | null
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    sku?: NullableStringFieldUpdateOperationsInput | string | null
-    barcode?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    barcode?: NullableStringFieldUpdateOperationsInput | string | null
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    sku?: NullableStringFieldUpdateOperationsInput | string | null
+    stockQuantity?: IntFieldUpdateOperationsInput | number
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    featured?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ProductUncheckedUpdateManyInput = {
@@ -11368,15 +11393,16 @@ export namespace Prisma {
     categoryId?: StringFieldUpdateOperationsInput | string
     tags?: ProductUpdatetagsInput | string[]
     attributes?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    stockQuantity?: IntFieldUpdateOperationsInput | number
-    weight?: NullableFloatFieldUpdateOperationsInput | number | null
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    sku?: NullableStringFieldUpdateOperationsInput | string | null
-    barcode?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    barcode?: NullableStringFieldUpdateOperationsInput | string | null
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    sku?: NullableStringFieldUpdateOperationsInput | string | null
+    stockQuantity?: IntFieldUpdateOperationsInput | number
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    featured?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type BlogCreateInput = {
@@ -11386,16 +11412,16 @@ export namespace Prisma {
     excerpt: string
     content: string
     coverImage?: string | null
-    stemCategory?: $Enums.StemCategory
-    readingTime?: number | null
     tags?: BlogCreatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: boolean
     publishedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    category: CategoryCreateNestedOneWithoutBlogsInput
+    readingTime?: number | null
+    stemCategory?: $Enums.StemCategory
     author: UserCreateNestedOneWithoutBlogsInput
+    category: CategoryCreateNestedOneWithoutBlogsInput
   }
 
   export type BlogUncheckedCreateInput = {
@@ -11407,14 +11433,14 @@ export namespace Prisma {
     coverImage?: string | null
     categoryId: string
     authorId: string
-    stemCategory?: $Enums.StemCategory
-    readingTime?: number | null
     tags?: BlogCreatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: boolean
     publishedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    readingTime?: number | null
+    stemCategory?: $Enums.StemCategory
   }
 
   export type BlogUpdateInput = {
@@ -11424,16 +11450,16 @@ export namespace Prisma {
     excerpt?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
-    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
     tags?: BlogUpdatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    category?: CategoryUpdateOneRequiredWithoutBlogsNestedInput
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
     author?: UserUpdateOneRequiredWithoutBlogsNestedInput
+    category?: CategoryUpdateOneRequiredWithoutBlogsNestedInput
   }
 
   export type BlogUncheckedUpdateInput = {
@@ -11445,14 +11471,14 @@ export namespace Prisma {
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     authorId?: StringFieldUpdateOperationsInput | string
-    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
-    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
     tags?: BlogUpdatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
   }
 
   export type BlogCreateManyInput = {
@@ -11464,14 +11490,14 @@ export namespace Prisma {
     coverImage?: string | null
     categoryId: string
     authorId: string
-    stemCategory?: $Enums.StemCategory
-    readingTime?: number | null
     tags?: BlogCreatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: boolean
     publishedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    readingTime?: number | null
+    stemCategory?: $Enums.StemCategory
   }
 
   export type BlogUpdateManyMutationInput = {
@@ -11481,14 +11507,14 @@ export namespace Prisma {
     excerpt?: StringFieldUpdateOperationsInput | string
     content?: StringFieldUpdateOperationsInput | string
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
-    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
     tags?: BlogUpdatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
   }
 
   export type BlogUncheckedUpdateManyInput = {
@@ -11500,14 +11526,14 @@ export namespace Prisma {
     coverImage?: NullableStringFieldUpdateOperationsInput | string | null
     categoryId?: StringFieldUpdateOperationsInput | string
     authorId?: StringFieldUpdateOperationsInput | string
-    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
-    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
     tags?: BlogUpdatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
     isPublished?: BoolFieldUpdateOperationsInput | boolean
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -11580,12 +11606,6 @@ export namespace Prisma {
     none?: AddressWhereInput
   }
 
-  export type PaymentCardListRelationFilter = {
-    every?: PaymentCardWhereInput
-    some?: PaymentCardWhereInput
-    none?: PaymentCardWhereInput
-  }
-
   export type BlogListRelationFilter = {
     every?: BlogWhereInput
     some?: BlogWhereInput
@@ -11598,6 +11618,12 @@ export namespace Prisma {
     none?: PasswordResetTokenWhereInput
   }
 
+  export type PaymentCardListRelationFilter = {
+    every?: PaymentCardWhereInput
+    some?: PaymentCardWhereInput
+    none?: PaymentCardWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -11607,15 +11633,15 @@ export namespace Prisma {
     _count?: SortOrder
   }
 
-  export type PaymentCardOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
   export type BlogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type PasswordResetTokenOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PaymentCardOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -11997,15 +12023,16 @@ export namespace Prisma {
     categoryId?: SortOrder
     tags?: SortOrder
     attributes?: SortOrder
-    metadata?: SortOrder
     isActive?: SortOrder
-    stockQuantity?: SortOrder
-    weight?: SortOrder
-    dimensions?: SortOrder
-    sku?: SortOrder
-    barcode?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    barcode?: SortOrder
+    dimensions?: SortOrder
+    metadata?: SortOrder
+    sku?: SortOrder
+    stockQuantity?: SortOrder
+    weight?: SortOrder
+    featured?: SortOrder
   }
 
   export type ProductAvgOrderByAggregateInput = {
@@ -12024,12 +12051,13 @@ export namespace Prisma {
     compareAtPrice?: SortOrder
     categoryId?: SortOrder
     isActive?: SortOrder
-    stockQuantity?: SortOrder
-    weight?: SortOrder
-    sku?: SortOrder
-    barcode?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    barcode?: SortOrder
+    sku?: SortOrder
+    stockQuantity?: SortOrder
+    weight?: SortOrder
+    featured?: SortOrder
   }
 
   export type ProductMinOrderByAggregateInput = {
@@ -12041,12 +12069,13 @@ export namespace Prisma {
     compareAtPrice?: SortOrder
     categoryId?: SortOrder
     isActive?: SortOrder
-    stockQuantity?: SortOrder
-    weight?: SortOrder
-    sku?: SortOrder
-    barcode?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    barcode?: SortOrder
+    sku?: SortOrder
+    stockQuantity?: SortOrder
+    weight?: SortOrder
+    featured?: SortOrder
   }
 
   export type ProductSumOrderByAggregateInput = {
@@ -12130,13 +12159,6 @@ export namespace Prisma {
     _max?: NestedIntFilter<$PrismaModel>
   }
 
-  export type EnumStemCategoryFilter<$PrismaModel = never> = {
-    equals?: $Enums.StemCategory | EnumStemCategoryFieldRefInput<$PrismaModel>
-    in?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
-    not?: NestedEnumStemCategoryFilter<$PrismaModel> | $Enums.StemCategory
-  }
-
   export type IntNullableFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -12148,6 +12170,13 @@ export namespace Prisma {
     not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
+  export type EnumStemCategoryFilter<$PrismaModel = never> = {
+    equals?: $Enums.StemCategory | EnumStemCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumStemCategoryFilter<$PrismaModel> | $Enums.StemCategory
+  }
+
   export type BlogCountOrderByAggregateInput = {
     id?: SortOrder
     title?: SortOrder
@@ -12157,14 +12186,14 @@ export namespace Prisma {
     coverImage?: SortOrder
     categoryId?: SortOrder
     authorId?: SortOrder
-    stemCategory?: SortOrder
-    readingTime?: SortOrder
     tags?: SortOrder
     metadata?: SortOrder
     isPublished?: SortOrder
     publishedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    readingTime?: SortOrder
+    stemCategory?: SortOrder
   }
 
   export type BlogAvgOrderByAggregateInput = {
@@ -12180,12 +12209,12 @@ export namespace Prisma {
     coverImage?: SortOrder
     categoryId?: SortOrder
     authorId?: SortOrder
-    stemCategory?: SortOrder
-    readingTime?: SortOrder
     isPublished?: SortOrder
     publishedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    readingTime?: SortOrder
+    stemCategory?: SortOrder
   }
 
   export type BlogMinOrderByAggregateInput = {
@@ -12197,26 +12226,16 @@ export namespace Prisma {
     coverImage?: SortOrder
     categoryId?: SortOrder
     authorId?: SortOrder
-    stemCategory?: SortOrder
-    readingTime?: SortOrder
     isPublished?: SortOrder
     publishedAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    readingTime?: SortOrder
+    stemCategory?: SortOrder
   }
 
   export type BlogSumOrderByAggregateInput = {
     readingTime?: SortOrder
-  }
-
-  export type EnumStemCategoryWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StemCategory | EnumStemCategoryFieldRefInput<$PrismaModel>
-    in?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
-    not?: NestedEnumStemCategoryWithAggregatesFilter<$PrismaModel> | $Enums.StemCategory
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStemCategoryFilter<$PrismaModel>
-    _max?: NestedEnumStemCategoryFilter<$PrismaModel>
   }
 
   export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -12235,18 +12254,21 @@ export namespace Prisma {
     _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
+  export type EnumStemCategoryWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StemCategory | EnumStemCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumStemCategoryWithAggregatesFilter<$PrismaModel> | $Enums.StemCategory
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStemCategoryFilter<$PrismaModel>
+    _max?: NestedEnumStemCategoryFilter<$PrismaModel>
+  }
+
   export type AddressCreateNestedManyWithoutUserInput = {
     create?: XOR<AddressCreateWithoutUserInput, AddressUncheckedCreateWithoutUserInput> | AddressCreateWithoutUserInput[] | AddressUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AddressCreateOrConnectWithoutUserInput | AddressCreateOrConnectWithoutUserInput[]
     createMany?: AddressCreateManyUserInputEnvelope
     connect?: AddressWhereUniqueInput | AddressWhereUniqueInput[]
-  }
-
-  export type PaymentCardCreateNestedManyWithoutUserInput = {
-    create?: XOR<PaymentCardCreateWithoutUserInput, PaymentCardUncheckedCreateWithoutUserInput> | PaymentCardCreateWithoutUserInput[] | PaymentCardUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: PaymentCardCreateOrConnectWithoutUserInput | PaymentCardCreateOrConnectWithoutUserInput[]
-    createMany?: PaymentCardCreateManyUserInputEnvelope
-    connect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
   }
 
   export type BlogCreateNestedManyWithoutAuthorInput = {
@@ -12263,18 +12285,18 @@ export namespace Prisma {
     connect?: PasswordResetTokenWhereUniqueInput | PasswordResetTokenWhereUniqueInput[]
   }
 
+  export type PaymentCardCreateNestedManyWithoutUserInput = {
+    create?: XOR<PaymentCardCreateWithoutUserInput, PaymentCardUncheckedCreateWithoutUserInput> | PaymentCardCreateWithoutUserInput[] | PaymentCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PaymentCardCreateOrConnectWithoutUserInput | PaymentCardCreateOrConnectWithoutUserInput[]
+    createMany?: PaymentCardCreateManyUserInputEnvelope
+    connect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+  }
+
   export type AddressUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<AddressCreateWithoutUserInput, AddressUncheckedCreateWithoutUserInput> | AddressCreateWithoutUserInput[] | AddressUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AddressCreateOrConnectWithoutUserInput | AddressCreateOrConnectWithoutUserInput[]
     createMany?: AddressCreateManyUserInputEnvelope
     connect?: AddressWhereUniqueInput | AddressWhereUniqueInput[]
-  }
-
-  export type PaymentCardUncheckedCreateNestedManyWithoutUserInput = {
-    create?: XOR<PaymentCardCreateWithoutUserInput, PaymentCardUncheckedCreateWithoutUserInput> | PaymentCardCreateWithoutUserInput[] | PaymentCardUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: PaymentCardCreateOrConnectWithoutUserInput | PaymentCardCreateOrConnectWithoutUserInput[]
-    createMany?: PaymentCardCreateManyUserInputEnvelope
-    connect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
   }
 
   export type BlogUncheckedCreateNestedManyWithoutAuthorInput = {
@@ -12289,6 +12311,13 @@ export namespace Prisma {
     connectOrCreate?: PasswordResetTokenCreateOrConnectWithoutUserInput | PasswordResetTokenCreateOrConnectWithoutUserInput[]
     createMany?: PasswordResetTokenCreateManyUserInputEnvelope
     connect?: PasswordResetTokenWhereUniqueInput | PasswordResetTokenWhereUniqueInput[]
+  }
+
+  export type PaymentCardUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<PaymentCardCreateWithoutUserInput, PaymentCardUncheckedCreateWithoutUserInput> | PaymentCardCreateWithoutUserInput[] | PaymentCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PaymentCardCreateOrConnectWithoutUserInput | PaymentCardCreateOrConnectWithoutUserInput[]
+    createMany?: PaymentCardCreateManyUserInputEnvelope
+    connect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -12329,20 +12358,6 @@ export namespace Prisma {
     deleteMany?: AddressScalarWhereInput | AddressScalarWhereInput[]
   }
 
-  export type PaymentCardUpdateManyWithoutUserNestedInput = {
-    create?: XOR<PaymentCardCreateWithoutUserInput, PaymentCardUncheckedCreateWithoutUserInput> | PaymentCardCreateWithoutUserInput[] | PaymentCardUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: PaymentCardCreateOrConnectWithoutUserInput | PaymentCardCreateOrConnectWithoutUserInput[]
-    upsert?: PaymentCardUpsertWithWhereUniqueWithoutUserInput | PaymentCardUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: PaymentCardCreateManyUserInputEnvelope
-    set?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
-    disconnect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
-    delete?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
-    connect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
-    update?: PaymentCardUpdateWithWhereUniqueWithoutUserInput | PaymentCardUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: PaymentCardUpdateManyWithWhereWithoutUserInput | PaymentCardUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: PaymentCardScalarWhereInput | PaymentCardScalarWhereInput[]
-  }
-
   export type BlogUpdateManyWithoutAuthorNestedInput = {
     create?: XOR<BlogCreateWithoutAuthorInput, BlogUncheckedCreateWithoutAuthorInput> | BlogCreateWithoutAuthorInput[] | BlogUncheckedCreateWithoutAuthorInput[]
     connectOrCreate?: BlogCreateOrConnectWithoutAuthorInput | BlogCreateOrConnectWithoutAuthorInput[]
@@ -12371,6 +12386,20 @@ export namespace Prisma {
     deleteMany?: PasswordResetTokenScalarWhereInput | PasswordResetTokenScalarWhereInput[]
   }
 
+  export type PaymentCardUpdateManyWithoutUserNestedInput = {
+    create?: XOR<PaymentCardCreateWithoutUserInput, PaymentCardUncheckedCreateWithoutUserInput> | PaymentCardCreateWithoutUserInput[] | PaymentCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PaymentCardCreateOrConnectWithoutUserInput | PaymentCardCreateOrConnectWithoutUserInput[]
+    upsert?: PaymentCardUpsertWithWhereUniqueWithoutUserInput | PaymentCardUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: PaymentCardCreateManyUserInputEnvelope
+    set?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    disconnect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    delete?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    connect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    update?: PaymentCardUpdateWithWhereUniqueWithoutUserInput | PaymentCardUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: PaymentCardUpdateManyWithWhereWithoutUserInput | PaymentCardUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: PaymentCardScalarWhereInput | PaymentCardScalarWhereInput[]
+  }
+
   export type AddressUncheckedUpdateManyWithoutUserNestedInput = {
     create?: XOR<AddressCreateWithoutUserInput, AddressUncheckedCreateWithoutUserInput> | AddressCreateWithoutUserInput[] | AddressUncheckedCreateWithoutUserInput[]
     connectOrCreate?: AddressCreateOrConnectWithoutUserInput | AddressCreateOrConnectWithoutUserInput[]
@@ -12383,20 +12412,6 @@ export namespace Prisma {
     update?: AddressUpdateWithWhereUniqueWithoutUserInput | AddressUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: AddressUpdateManyWithWhereWithoutUserInput | AddressUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: AddressScalarWhereInput | AddressScalarWhereInput[]
-  }
-
-  export type PaymentCardUncheckedUpdateManyWithoutUserNestedInput = {
-    create?: XOR<PaymentCardCreateWithoutUserInput, PaymentCardUncheckedCreateWithoutUserInput> | PaymentCardCreateWithoutUserInput[] | PaymentCardUncheckedCreateWithoutUserInput[]
-    connectOrCreate?: PaymentCardCreateOrConnectWithoutUserInput | PaymentCardCreateOrConnectWithoutUserInput[]
-    upsert?: PaymentCardUpsertWithWhereUniqueWithoutUserInput | PaymentCardUpsertWithWhereUniqueWithoutUserInput[]
-    createMany?: PaymentCardCreateManyUserInputEnvelope
-    set?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
-    disconnect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
-    delete?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
-    connect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
-    update?: PaymentCardUpdateWithWhereUniqueWithoutUserInput | PaymentCardUpdateWithWhereUniqueWithoutUserInput[]
-    updateMany?: PaymentCardUpdateManyWithWhereWithoutUserInput | PaymentCardUpdateManyWithWhereWithoutUserInput[]
-    deleteMany?: PaymentCardScalarWhereInput | PaymentCardScalarWhereInput[]
   }
 
   export type BlogUncheckedUpdateManyWithoutAuthorNestedInput = {
@@ -12425,6 +12440,20 @@ export namespace Prisma {
     update?: PasswordResetTokenUpdateWithWhereUniqueWithoutUserInput | PasswordResetTokenUpdateWithWhereUniqueWithoutUserInput[]
     updateMany?: PasswordResetTokenUpdateManyWithWhereWithoutUserInput | PasswordResetTokenUpdateManyWithWhereWithoutUserInput[]
     deleteMany?: PasswordResetTokenScalarWhereInput | PasswordResetTokenScalarWhereInput[]
+  }
+
+  export type PaymentCardUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<PaymentCardCreateWithoutUserInput, PaymentCardUncheckedCreateWithoutUserInput> | PaymentCardCreateWithoutUserInput[] | PaymentCardUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: PaymentCardCreateOrConnectWithoutUserInput | PaymentCardCreateOrConnectWithoutUserInput[]
+    upsert?: PaymentCardUpsertWithWhereUniqueWithoutUserInput | PaymentCardUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: PaymentCardCreateManyUserInputEnvelope
+    set?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    disconnect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    delete?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    connect?: PaymentCardWhereUniqueInput | PaymentCardWhereUniqueInput[]
+    update?: PaymentCardUpdateWithWhereUniqueWithoutUserInput | PaymentCardUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: PaymentCardUpdateManyWithWhereWithoutUserInput | PaymentCardUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: PaymentCardScalarWhereInput | PaymentCardScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutPasswordResetTokensInput = {
@@ -12469,6 +12498,13 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPaymentCardsInput, UserUpdateWithoutPaymentCardsInput>, UserUncheckedUpdateWithoutPaymentCardsInput>
   }
 
+  export type BlogCreateNestedManyWithoutCategoryInput = {
+    create?: XOR<BlogCreateWithoutCategoryInput, BlogUncheckedCreateWithoutCategoryInput> | BlogCreateWithoutCategoryInput[] | BlogUncheckedCreateWithoutCategoryInput[]
+    connectOrCreate?: BlogCreateOrConnectWithoutCategoryInput | BlogCreateOrConnectWithoutCategoryInput[]
+    createMany?: BlogCreateManyCategoryInputEnvelope
+    connect?: BlogWhereUniqueInput | BlogWhereUniqueInput[]
+  }
+
   export type CategoryCreateNestedOneWithoutChildrenInput = {
     create?: XOR<CategoryCreateWithoutChildrenInput, CategoryUncheckedCreateWithoutChildrenInput>
     connectOrCreate?: CategoryCreateOrConnectWithoutChildrenInput
@@ -12489,7 +12525,7 @@ export namespace Prisma {
     connect?: ProductWhereUniqueInput | ProductWhereUniqueInput[]
   }
 
-  export type BlogCreateNestedManyWithoutCategoryInput = {
+  export type BlogUncheckedCreateNestedManyWithoutCategoryInput = {
     create?: XOR<BlogCreateWithoutCategoryInput, BlogUncheckedCreateWithoutCategoryInput> | BlogCreateWithoutCategoryInput[] | BlogUncheckedCreateWithoutCategoryInput[]
     connectOrCreate?: BlogCreateOrConnectWithoutCategoryInput | BlogCreateOrConnectWithoutCategoryInput[]
     createMany?: BlogCreateManyCategoryInputEnvelope
@@ -12510,11 +12546,18 @@ export namespace Prisma {
     connect?: ProductWhereUniqueInput | ProductWhereUniqueInput[]
   }
 
-  export type BlogUncheckedCreateNestedManyWithoutCategoryInput = {
+  export type BlogUpdateManyWithoutCategoryNestedInput = {
     create?: XOR<BlogCreateWithoutCategoryInput, BlogUncheckedCreateWithoutCategoryInput> | BlogCreateWithoutCategoryInput[] | BlogUncheckedCreateWithoutCategoryInput[]
     connectOrCreate?: BlogCreateOrConnectWithoutCategoryInput | BlogCreateOrConnectWithoutCategoryInput[]
+    upsert?: BlogUpsertWithWhereUniqueWithoutCategoryInput | BlogUpsertWithWhereUniqueWithoutCategoryInput[]
     createMany?: BlogCreateManyCategoryInputEnvelope
+    set?: BlogWhereUniqueInput | BlogWhereUniqueInput[]
+    disconnect?: BlogWhereUniqueInput | BlogWhereUniqueInput[]
+    delete?: BlogWhereUniqueInput | BlogWhereUniqueInput[]
     connect?: BlogWhereUniqueInput | BlogWhereUniqueInput[]
+    update?: BlogUpdateWithWhereUniqueWithoutCategoryInput | BlogUpdateWithWhereUniqueWithoutCategoryInput[]
+    updateMany?: BlogUpdateManyWithWhereWithoutCategoryInput | BlogUpdateManyWithWhereWithoutCategoryInput[]
+    deleteMany?: BlogScalarWhereInput | BlogScalarWhereInput[]
   }
 
   export type CategoryUpdateOneWithoutChildrenNestedInput = {
@@ -12555,7 +12598,7 @@ export namespace Prisma {
     deleteMany?: ProductScalarWhereInput | ProductScalarWhereInput[]
   }
 
-  export type BlogUpdateManyWithoutCategoryNestedInput = {
+  export type BlogUncheckedUpdateManyWithoutCategoryNestedInput = {
     create?: XOR<BlogCreateWithoutCategoryInput, BlogUncheckedCreateWithoutCategoryInput> | BlogCreateWithoutCategoryInput[] | BlogUncheckedCreateWithoutCategoryInput[]
     connectOrCreate?: BlogCreateOrConnectWithoutCategoryInput | BlogCreateOrConnectWithoutCategoryInput[]
     upsert?: BlogUpsertWithWhereUniqueWithoutCategoryInput | BlogUpsertWithWhereUniqueWithoutCategoryInput[]
@@ -12595,20 +12638,6 @@ export namespace Prisma {
     update?: ProductUpdateWithWhereUniqueWithoutCategoryInput | ProductUpdateWithWhereUniqueWithoutCategoryInput[]
     updateMany?: ProductUpdateManyWithWhereWithoutCategoryInput | ProductUpdateManyWithWhereWithoutCategoryInput[]
     deleteMany?: ProductScalarWhereInput | ProductScalarWhereInput[]
-  }
-
-  export type BlogUncheckedUpdateManyWithoutCategoryNestedInput = {
-    create?: XOR<BlogCreateWithoutCategoryInput, BlogUncheckedCreateWithoutCategoryInput> | BlogCreateWithoutCategoryInput[] | BlogUncheckedCreateWithoutCategoryInput[]
-    connectOrCreate?: BlogCreateOrConnectWithoutCategoryInput | BlogCreateOrConnectWithoutCategoryInput[]
-    upsert?: BlogUpsertWithWhereUniqueWithoutCategoryInput | BlogUpsertWithWhereUniqueWithoutCategoryInput[]
-    createMany?: BlogCreateManyCategoryInputEnvelope
-    set?: BlogWhereUniqueInput | BlogWhereUniqueInput[]
-    disconnect?: BlogWhereUniqueInput | BlogWhereUniqueInput[]
-    delete?: BlogWhereUniqueInput | BlogWhereUniqueInput[]
-    connect?: BlogWhereUniqueInput | BlogWhereUniqueInput[]
-    update?: BlogUpdateWithWhereUniqueWithoutCategoryInput | BlogUpdateWithWhereUniqueWithoutCategoryInput[]
-    updateMany?: BlogUpdateManyWithWhereWithoutCategoryInput | BlogUpdateManyWithWhereWithoutCategoryInput[]
-    deleteMany?: BlogScalarWhereInput | BlogScalarWhereInput[]
   }
 
   export type ProductCreateimagesInput = {
@@ -12671,20 +12700,21 @@ export namespace Prisma {
     set: string[]
   }
 
-  export type CategoryCreateNestedOneWithoutBlogsInput = {
-    create?: XOR<CategoryCreateWithoutBlogsInput, CategoryUncheckedCreateWithoutBlogsInput>
-    connectOrCreate?: CategoryCreateOrConnectWithoutBlogsInput
-    connect?: CategoryWhereUniqueInput
-  }
-
   export type UserCreateNestedOneWithoutBlogsInput = {
     create?: XOR<UserCreateWithoutBlogsInput, UserUncheckedCreateWithoutBlogsInput>
     connectOrCreate?: UserCreateOrConnectWithoutBlogsInput
     connect?: UserWhereUniqueInput
   }
 
-  export type EnumStemCategoryFieldUpdateOperationsInput = {
-    set?: $Enums.StemCategory
+  export type CategoryCreateNestedOneWithoutBlogsInput = {
+    create?: XOR<CategoryCreateWithoutBlogsInput, CategoryUncheckedCreateWithoutBlogsInput>
+    connectOrCreate?: CategoryCreateOrConnectWithoutBlogsInput
+    connect?: CategoryWhereUniqueInput
+  }
+
+  export type BlogUpdatetagsInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type NullableIntFieldUpdateOperationsInput = {
@@ -12695,17 +12725,8 @@ export namespace Prisma {
     divide?: number
   }
 
-  export type BlogUpdatetagsInput = {
-    set?: string[]
-    push?: string | string[]
-  }
-
-  export type CategoryUpdateOneRequiredWithoutBlogsNestedInput = {
-    create?: XOR<CategoryCreateWithoutBlogsInput, CategoryUncheckedCreateWithoutBlogsInput>
-    connectOrCreate?: CategoryCreateOrConnectWithoutBlogsInput
-    upsert?: CategoryUpsertWithoutBlogsInput
-    connect?: CategoryWhereUniqueInput
-    update?: XOR<XOR<CategoryUpdateToOneWithWhereWithoutBlogsInput, CategoryUpdateWithoutBlogsInput>, CategoryUncheckedUpdateWithoutBlogsInput>
+  export type EnumStemCategoryFieldUpdateOperationsInput = {
+    set?: $Enums.StemCategory
   }
 
   export type UserUpdateOneRequiredWithoutBlogsNestedInput = {
@@ -12714,6 +12735,14 @@ export namespace Prisma {
     upsert?: UserUpsertWithoutBlogsInput
     connect?: UserWhereUniqueInput
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutBlogsInput, UserUpdateWithoutBlogsInput>, UserUncheckedUpdateWithoutBlogsInput>
+  }
+
+  export type CategoryUpdateOneRequiredWithoutBlogsNestedInput = {
+    create?: XOR<CategoryCreateWithoutBlogsInput, CategoryUncheckedCreateWithoutBlogsInput>
+    connectOrCreate?: CategoryCreateOrConnectWithoutBlogsInput
+    upsert?: CategoryUpsertWithoutBlogsInput
+    connect?: CategoryWhereUniqueInput
+    update?: XOR<XOR<CategoryUpdateToOneWithWhereWithoutBlogsInput, CategoryUpdateWithoutBlogsInput>, CategoryUncheckedUpdateWithoutBlogsInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -12980,16 +13009,6 @@ export namespace Prisma {
     not?: NestedEnumStemCategoryFilter<$PrismaModel> | $Enums.StemCategory
   }
 
-  export type NestedEnumStemCategoryWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: $Enums.StemCategory | EnumStemCategoryFieldRefInput<$PrismaModel>
-    in?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
-    notIn?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
-    not?: NestedEnumStemCategoryWithAggregatesFilter<$PrismaModel> | $Enums.StemCategory
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedEnumStemCategoryFilter<$PrismaModel>
-    _max?: NestedEnumStemCategoryFilter<$PrismaModel>
-  }
-
   export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: number | IntFieldRefInput<$PrismaModel> | null
     in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
@@ -13004,6 +13023,16 @@ export namespace Prisma {
     _sum?: NestedIntNullableFilter<$PrismaModel>
     _min?: NestedIntNullableFilter<$PrismaModel>
     _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedEnumStemCategoryWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.StemCategory | EnumStemCategoryFieldRefInput<$PrismaModel>
+    in?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
+    notIn?: $Enums.StemCategory[] | ListEnumStemCategoryFieldRefInput<$PrismaModel>
+    not?: NestedEnumStemCategoryWithAggregatesFilter<$PrismaModel> | $Enums.StemCategory
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumStemCategoryFilter<$PrismaModel>
+    _max?: NestedEnumStemCategoryFilter<$PrismaModel>
   }
 
   export type AddressCreateWithoutUserInput = {
@@ -13041,6 +13070,76 @@ export namespace Prisma {
 
   export type AddressCreateManyUserInputEnvelope = {
     data: AddressCreateManyUserInput | AddressCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BlogCreateWithoutAuthorInput = {
+    id?: string
+    title: string
+    slug: string
+    excerpt: string
+    content: string
+    coverImage?: string | null
+    tags?: BlogCreatetagsInput | string[]
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    isPublished?: boolean
+    publishedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    readingTime?: number | null
+    stemCategory?: $Enums.StemCategory
+    category: CategoryCreateNestedOneWithoutBlogsInput
+  }
+
+  export type BlogUncheckedCreateWithoutAuthorInput = {
+    id?: string
+    title: string
+    slug: string
+    excerpt: string
+    content: string
+    coverImage?: string | null
+    categoryId: string
+    tags?: BlogCreatetagsInput | string[]
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    isPublished?: boolean
+    publishedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    readingTime?: number | null
+    stemCategory?: $Enums.StemCategory
+  }
+
+  export type BlogCreateOrConnectWithoutAuthorInput = {
+    where: BlogWhereUniqueInput
+    create: XOR<BlogCreateWithoutAuthorInput, BlogUncheckedCreateWithoutAuthorInput>
+  }
+
+  export type BlogCreateManyAuthorInputEnvelope = {
+    data: BlogCreateManyAuthorInput | BlogCreateManyAuthorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type PasswordResetTokenCreateWithoutUserInput = {
+    id?: string
+    token: string
+    expires: Date | string
+    createdAt?: Date | string
+  }
+
+  export type PasswordResetTokenUncheckedCreateWithoutUserInput = {
+    id?: string
+    token: string
+    expires: Date | string
+    createdAt?: Date | string
+  }
+
+  export type PasswordResetTokenCreateOrConnectWithoutUserInput = {
+    where: PasswordResetTokenWhereUniqueInput
+    create: XOR<PasswordResetTokenCreateWithoutUserInput, PasswordResetTokenUncheckedCreateWithoutUserInput>
+  }
+
+  export type PasswordResetTokenCreateManyUserInputEnvelope = {
+    data: PasswordResetTokenCreateManyUserInput | PasswordResetTokenCreateManyUserInput[]
     skipDuplicates?: boolean
   }
 
@@ -13084,76 +13183,6 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type BlogCreateWithoutAuthorInput = {
-    id?: string
-    title: string
-    slug: string
-    excerpt: string
-    content: string
-    coverImage?: string | null
-    stemCategory?: $Enums.StemCategory
-    readingTime?: number | null
-    tags?: BlogCreatetagsInput | string[]
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    isPublished?: boolean
-    publishedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    category: CategoryCreateNestedOneWithoutBlogsInput
-  }
-
-  export type BlogUncheckedCreateWithoutAuthorInput = {
-    id?: string
-    title: string
-    slug: string
-    excerpt: string
-    content: string
-    coverImage?: string | null
-    categoryId: string
-    stemCategory?: $Enums.StemCategory
-    readingTime?: number | null
-    tags?: BlogCreatetagsInput | string[]
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    isPublished?: boolean
-    publishedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type BlogCreateOrConnectWithoutAuthorInput = {
-    where: BlogWhereUniqueInput
-    create: XOR<BlogCreateWithoutAuthorInput, BlogUncheckedCreateWithoutAuthorInput>
-  }
-
-  export type BlogCreateManyAuthorInputEnvelope = {
-    data: BlogCreateManyAuthorInput | BlogCreateManyAuthorInput[]
-    skipDuplicates?: boolean
-  }
-
-  export type PasswordResetTokenCreateWithoutUserInput = {
-    id?: string
-    token: string
-    expires: Date | string
-    createdAt?: Date | string
-  }
-
-  export type PasswordResetTokenUncheckedCreateWithoutUserInput = {
-    id?: string
-    token: string
-    expires: Date | string
-    createdAt?: Date | string
-  }
-
-  export type PasswordResetTokenCreateOrConnectWithoutUserInput = {
-    where: PasswordResetTokenWhereUniqueInput
-    create: XOR<PasswordResetTokenCreateWithoutUserInput, PasswordResetTokenUncheckedCreateWithoutUserInput>
-  }
-
-  export type PasswordResetTokenCreateManyUserInputEnvelope = {
-    data: PasswordResetTokenCreateManyUserInput | PasswordResetTokenCreateManyUserInput[]
-    skipDuplicates?: boolean
-  }
-
   export type AddressUpsertWithWhereUniqueWithoutUserInput = {
     where: AddressWhereUniqueInput
     update: XOR<AddressUpdateWithoutUserInput, AddressUncheckedUpdateWithoutUserInput>
@@ -13186,6 +13215,71 @@ export namespace Prisma {
     country?: StringFilter<"Address"> | string
     phone?: StringFilter<"Address"> | string
     isDefault?: BoolFilter<"Address"> | boolean
+  }
+
+  export type BlogUpsertWithWhereUniqueWithoutAuthorInput = {
+    where: BlogWhereUniqueInput
+    update: XOR<BlogUpdateWithoutAuthorInput, BlogUncheckedUpdateWithoutAuthorInput>
+    create: XOR<BlogCreateWithoutAuthorInput, BlogUncheckedCreateWithoutAuthorInput>
+  }
+
+  export type BlogUpdateWithWhereUniqueWithoutAuthorInput = {
+    where: BlogWhereUniqueInput
+    data: XOR<BlogUpdateWithoutAuthorInput, BlogUncheckedUpdateWithoutAuthorInput>
+  }
+
+  export type BlogUpdateManyWithWhereWithoutAuthorInput = {
+    where: BlogScalarWhereInput
+    data: XOR<BlogUpdateManyMutationInput, BlogUncheckedUpdateManyWithoutAuthorInput>
+  }
+
+  export type BlogScalarWhereInput = {
+    AND?: BlogScalarWhereInput | BlogScalarWhereInput[]
+    OR?: BlogScalarWhereInput[]
+    NOT?: BlogScalarWhereInput | BlogScalarWhereInput[]
+    id?: StringFilter<"Blog"> | string
+    title?: StringFilter<"Blog"> | string
+    slug?: StringFilter<"Blog"> | string
+    excerpt?: StringFilter<"Blog"> | string
+    content?: StringFilter<"Blog"> | string
+    coverImage?: StringNullableFilter<"Blog"> | string | null
+    categoryId?: StringFilter<"Blog"> | string
+    authorId?: StringFilter<"Blog"> | string
+    tags?: StringNullableListFilter<"Blog">
+    metadata?: JsonNullableFilter<"Blog">
+    isPublished?: BoolFilter<"Blog"> | boolean
+    publishedAt?: DateTimeNullableFilter<"Blog"> | Date | string | null
+    createdAt?: DateTimeFilter<"Blog"> | Date | string
+    updatedAt?: DateTimeFilter<"Blog"> | Date | string
+    readingTime?: IntNullableFilter<"Blog"> | number | null
+    stemCategory?: EnumStemCategoryFilter<"Blog"> | $Enums.StemCategory
+  }
+
+  export type PasswordResetTokenUpsertWithWhereUniqueWithoutUserInput = {
+    where: PasswordResetTokenWhereUniqueInput
+    update: XOR<PasswordResetTokenUpdateWithoutUserInput, PasswordResetTokenUncheckedUpdateWithoutUserInput>
+    create: XOR<PasswordResetTokenCreateWithoutUserInput, PasswordResetTokenUncheckedCreateWithoutUserInput>
+  }
+
+  export type PasswordResetTokenUpdateWithWhereUniqueWithoutUserInput = {
+    where: PasswordResetTokenWhereUniqueInput
+    data: XOR<PasswordResetTokenUpdateWithoutUserInput, PasswordResetTokenUncheckedUpdateWithoutUserInput>
+  }
+
+  export type PasswordResetTokenUpdateManyWithWhereWithoutUserInput = {
+    where: PasswordResetTokenScalarWhereInput
+    data: XOR<PasswordResetTokenUpdateManyMutationInput, PasswordResetTokenUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type PasswordResetTokenScalarWhereInput = {
+    AND?: PasswordResetTokenScalarWhereInput | PasswordResetTokenScalarWhereInput[]
+    OR?: PasswordResetTokenScalarWhereInput[]
+    NOT?: PasswordResetTokenScalarWhereInput | PasswordResetTokenScalarWhereInput[]
+    id?: StringFilter<"PasswordResetToken"> | string
+    token?: StringFilter<"PasswordResetToken"> | string
+    email?: StringFilter<"PasswordResetToken"> | string
+    expires?: DateTimeFilter<"PasswordResetToken"> | Date | string
+    createdAt?: DateTimeFilter<"PasswordResetToken"> | Date | string
   }
 
   export type PaymentCardUpsertWithWhereUniqueWithoutUserInput = {
@@ -13223,71 +13317,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"PaymentCard"> | Date | string
   }
 
-  export type BlogUpsertWithWhereUniqueWithoutAuthorInput = {
-    where: BlogWhereUniqueInput
-    update: XOR<BlogUpdateWithoutAuthorInput, BlogUncheckedUpdateWithoutAuthorInput>
-    create: XOR<BlogCreateWithoutAuthorInput, BlogUncheckedCreateWithoutAuthorInput>
-  }
-
-  export type BlogUpdateWithWhereUniqueWithoutAuthorInput = {
-    where: BlogWhereUniqueInput
-    data: XOR<BlogUpdateWithoutAuthorInput, BlogUncheckedUpdateWithoutAuthorInput>
-  }
-
-  export type BlogUpdateManyWithWhereWithoutAuthorInput = {
-    where: BlogScalarWhereInput
-    data: XOR<BlogUpdateManyMutationInput, BlogUncheckedUpdateManyWithoutAuthorInput>
-  }
-
-  export type BlogScalarWhereInput = {
-    AND?: BlogScalarWhereInput | BlogScalarWhereInput[]
-    OR?: BlogScalarWhereInput[]
-    NOT?: BlogScalarWhereInput | BlogScalarWhereInput[]
-    id?: StringFilter<"Blog"> | string
-    title?: StringFilter<"Blog"> | string
-    slug?: StringFilter<"Blog"> | string
-    excerpt?: StringFilter<"Blog"> | string
-    content?: StringFilter<"Blog"> | string
-    coverImage?: StringNullableFilter<"Blog"> | string | null
-    categoryId?: StringFilter<"Blog"> | string
-    authorId?: StringFilter<"Blog"> | string
-    stemCategory?: EnumStemCategoryFilter<"Blog"> | $Enums.StemCategory
-    readingTime?: IntNullableFilter<"Blog"> | number | null
-    tags?: StringNullableListFilter<"Blog">
-    metadata?: JsonNullableFilter<"Blog">
-    isPublished?: BoolFilter<"Blog"> | boolean
-    publishedAt?: DateTimeNullableFilter<"Blog"> | Date | string | null
-    createdAt?: DateTimeFilter<"Blog"> | Date | string
-    updatedAt?: DateTimeFilter<"Blog"> | Date | string
-  }
-
-  export type PasswordResetTokenUpsertWithWhereUniqueWithoutUserInput = {
-    where: PasswordResetTokenWhereUniqueInput
-    update: XOR<PasswordResetTokenUpdateWithoutUserInput, PasswordResetTokenUncheckedUpdateWithoutUserInput>
-    create: XOR<PasswordResetTokenCreateWithoutUserInput, PasswordResetTokenUncheckedCreateWithoutUserInput>
-  }
-
-  export type PasswordResetTokenUpdateWithWhereUniqueWithoutUserInput = {
-    where: PasswordResetTokenWhereUniqueInput
-    data: XOR<PasswordResetTokenUpdateWithoutUserInput, PasswordResetTokenUncheckedUpdateWithoutUserInput>
-  }
-
-  export type PasswordResetTokenUpdateManyWithWhereWithoutUserInput = {
-    where: PasswordResetTokenScalarWhereInput
-    data: XOR<PasswordResetTokenUpdateManyMutationInput, PasswordResetTokenUncheckedUpdateManyWithoutUserInput>
-  }
-
-  export type PasswordResetTokenScalarWhereInput = {
-    AND?: PasswordResetTokenScalarWhereInput | PasswordResetTokenScalarWhereInput[]
-    OR?: PasswordResetTokenScalarWhereInput[]
-    NOT?: PasswordResetTokenScalarWhereInput | PasswordResetTokenScalarWhereInput[]
-    id?: StringFilter<"PasswordResetToken"> | string
-    token?: StringFilter<"PasswordResetToken"> | string
-    email?: StringFilter<"PasswordResetToken"> | string
-    expires?: DateTimeFilter<"PasswordResetToken"> | Date | string
-    createdAt?: DateTimeFilter<"PasswordResetToken"> | Date | string
-  }
-
   export type UserCreateWithoutPasswordResetTokensInput = {
     id?: string
     name?: string | null
@@ -13300,8 +13329,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     addresses?: AddressCreateNestedManyWithoutUserInput
-    paymentCards?: PaymentCardCreateNestedManyWithoutUserInput
     blogs?: BlogCreateNestedManyWithoutAuthorInput
+    paymentCards?: PaymentCardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutPasswordResetTokensInput = {
@@ -13316,8 +13345,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     addresses?: AddressUncheckedCreateNestedManyWithoutUserInput
-    paymentCards?: PaymentCardUncheckedCreateNestedManyWithoutUserInput
     blogs?: BlogUncheckedCreateNestedManyWithoutAuthorInput
+    paymentCards?: PaymentCardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutPasswordResetTokensInput = {
@@ -13348,8 +13377,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     addresses?: AddressUpdateManyWithoutUserNestedInput
-    paymentCards?: PaymentCardUpdateManyWithoutUserNestedInput
     blogs?: BlogUpdateManyWithoutAuthorNestedInput
+    paymentCards?: PaymentCardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPasswordResetTokensInput = {
@@ -13364,8 +13393,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     addresses?: AddressUncheckedUpdateManyWithoutUserNestedInput
-    paymentCards?: PaymentCardUncheckedUpdateManyWithoutUserNestedInput
     blogs?: BlogUncheckedUpdateManyWithoutAuthorNestedInput
+    paymentCards?: PaymentCardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAddressesInput = {
@@ -13379,9 +13408,9 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    paymentCards?: PaymentCardCreateNestedManyWithoutUserInput
     blogs?: BlogCreateNestedManyWithoutAuthorInput
     passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    paymentCards?: PaymentCardCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAddressesInput = {
@@ -13395,9 +13424,9 @@ export namespace Prisma {
     isActive?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    paymentCards?: PaymentCardUncheckedCreateNestedManyWithoutUserInput
     blogs?: BlogUncheckedCreateNestedManyWithoutAuthorInput
     passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    paymentCards?: PaymentCardUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAddressesInput = {
@@ -13427,9 +13456,9 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    paymentCards?: PaymentCardUpdateManyWithoutUserNestedInput
     blogs?: BlogUpdateManyWithoutAuthorNestedInput
     passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    paymentCards?: PaymentCardUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAddressesInput = {
@@ -13443,9 +13472,9 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    paymentCards?: PaymentCardUncheckedUpdateManyWithoutUserNestedInput
     blogs?: BlogUncheckedUpdateManyWithoutAuthorNestedInput
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    paymentCards?: PaymentCardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutPaymentCardsInput = {
@@ -13528,6 +13557,52 @@ export namespace Prisma {
     passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
   }
 
+  export type BlogCreateWithoutCategoryInput = {
+    id?: string
+    title: string
+    slug: string
+    excerpt: string
+    content: string
+    coverImage?: string | null
+    tags?: BlogCreatetagsInput | string[]
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    isPublished?: boolean
+    publishedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    readingTime?: number | null
+    stemCategory?: $Enums.StemCategory
+    author: UserCreateNestedOneWithoutBlogsInput
+  }
+
+  export type BlogUncheckedCreateWithoutCategoryInput = {
+    id?: string
+    title: string
+    slug: string
+    excerpt: string
+    content: string
+    coverImage?: string | null
+    authorId: string
+    tags?: BlogCreatetagsInput | string[]
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    isPublished?: boolean
+    publishedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    readingTime?: number | null
+    stemCategory?: $Enums.StemCategory
+  }
+
+  export type BlogCreateOrConnectWithoutCategoryInput = {
+    where: BlogWhereUniqueInput
+    create: XOR<BlogCreateWithoutCategoryInput, BlogUncheckedCreateWithoutCategoryInput>
+  }
+
+  export type BlogCreateManyCategoryInputEnvelope = {
+    data: BlogCreateManyCategoryInput | BlogCreateManyCategoryInput[]
+    skipDuplicates?: boolean
+  }
+
   export type CategoryCreateWithoutChildrenInput = {
     id?: string
     name: string
@@ -13535,9 +13610,9 @@ export namespace Prisma {
     description?: string | null
     image?: string | null
     isActive?: boolean
+    blogs?: BlogCreateNestedManyWithoutCategoryInput
     parent?: CategoryCreateNestedOneWithoutChildrenInput
     products?: ProductCreateNestedManyWithoutCategoryInput
-    blogs?: BlogCreateNestedManyWithoutCategoryInput
   }
 
   export type CategoryUncheckedCreateWithoutChildrenInput = {
@@ -13548,8 +13623,8 @@ export namespace Prisma {
     parentId?: string | null
     image?: string | null
     isActive?: boolean
-    products?: ProductUncheckedCreateNestedManyWithoutCategoryInput
     blogs?: BlogUncheckedCreateNestedManyWithoutCategoryInput
+    products?: ProductUncheckedCreateNestedManyWithoutCategoryInput
   }
 
   export type CategoryCreateOrConnectWithoutChildrenInput = {
@@ -13564,9 +13639,9 @@ export namespace Prisma {
     description?: string | null
     image?: string | null
     isActive?: boolean
+    blogs?: BlogCreateNestedManyWithoutCategoryInput
     children?: CategoryCreateNestedManyWithoutParentInput
     products?: ProductCreateNestedManyWithoutCategoryInput
-    blogs?: BlogCreateNestedManyWithoutCategoryInput
   }
 
   export type CategoryUncheckedCreateWithoutParentInput = {
@@ -13576,9 +13651,9 @@ export namespace Prisma {
     description?: string | null
     image?: string | null
     isActive?: boolean
+    blogs?: BlogUncheckedCreateNestedManyWithoutCategoryInput
     children?: CategoryUncheckedCreateNestedManyWithoutParentInput
     products?: ProductUncheckedCreateNestedManyWithoutCategoryInput
-    blogs?: BlogUncheckedCreateNestedManyWithoutCategoryInput
   }
 
   export type CategoryCreateOrConnectWithoutParentInput = {
@@ -13601,15 +13676,16 @@ export namespace Prisma {
     images?: ProductCreateimagesInput | string[]
     tags?: ProductCreatetagsInput | string[]
     attributes?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     isActive?: boolean
-    stockQuantity?: number
-    weight?: number | null
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    sku?: string | null
-    barcode?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    barcode?: string | null
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    sku?: string | null
+    stockQuantity?: number
+    weight?: number | null
+    featured?: boolean
   }
 
   export type ProductUncheckedCreateWithoutCategoryInput = {
@@ -13622,15 +13698,16 @@ export namespace Prisma {
     images?: ProductCreateimagesInput | string[]
     tags?: ProductCreatetagsInput | string[]
     attributes?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     isActive?: boolean
-    stockQuantity?: number
-    weight?: number | null
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    sku?: string | null
-    barcode?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    barcode?: string | null
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    sku?: string | null
+    stockQuantity?: number
+    weight?: number | null
+    featured?: boolean
   }
 
   export type ProductCreateOrConnectWithoutCategoryInput = {
@@ -13643,50 +13720,20 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type BlogCreateWithoutCategoryInput = {
-    id?: string
-    title: string
-    slug: string
-    excerpt: string
-    content: string
-    coverImage?: string | null
-    stemCategory?: $Enums.StemCategory
-    readingTime?: number | null
-    tags?: BlogCreatetagsInput | string[]
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    isPublished?: boolean
-    publishedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    author: UserCreateNestedOneWithoutBlogsInput
-  }
-
-  export type BlogUncheckedCreateWithoutCategoryInput = {
-    id?: string
-    title: string
-    slug: string
-    excerpt: string
-    content: string
-    coverImage?: string | null
-    authorId: string
-    stemCategory?: $Enums.StemCategory
-    readingTime?: number | null
-    tags?: BlogCreatetagsInput | string[]
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    isPublished?: boolean
-    publishedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type BlogCreateOrConnectWithoutCategoryInput = {
+  export type BlogUpsertWithWhereUniqueWithoutCategoryInput = {
     where: BlogWhereUniqueInput
+    update: XOR<BlogUpdateWithoutCategoryInput, BlogUncheckedUpdateWithoutCategoryInput>
     create: XOR<BlogCreateWithoutCategoryInput, BlogUncheckedCreateWithoutCategoryInput>
   }
 
-  export type BlogCreateManyCategoryInputEnvelope = {
-    data: BlogCreateManyCategoryInput | BlogCreateManyCategoryInput[]
-    skipDuplicates?: boolean
+  export type BlogUpdateWithWhereUniqueWithoutCategoryInput = {
+    where: BlogWhereUniqueInput
+    data: XOR<BlogUpdateWithoutCategoryInput, BlogUncheckedUpdateWithoutCategoryInput>
+  }
+
+  export type BlogUpdateManyWithWhereWithoutCategoryInput = {
+    where: BlogScalarWhereInput
+    data: XOR<BlogUpdateManyMutationInput, BlogUncheckedUpdateManyWithoutCategoryInput>
   }
 
   export type CategoryUpsertWithoutChildrenInput = {
@@ -13707,9 +13754,9 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    blogs?: BlogUpdateManyWithoutCategoryNestedInput
     parent?: CategoryUpdateOneWithoutChildrenNestedInput
     products?: ProductUpdateManyWithoutCategoryNestedInput
-    blogs?: BlogUpdateManyWithoutCategoryNestedInput
   }
 
   export type CategoryUncheckedUpdateWithoutChildrenInput = {
@@ -13720,8 +13767,8 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    products?: ProductUncheckedUpdateManyWithoutCategoryNestedInput
     blogs?: BlogUncheckedUpdateManyWithoutCategoryNestedInput
+    products?: ProductUncheckedUpdateManyWithoutCategoryNestedInput
   }
 
   export type CategoryUpsertWithWhereUniqueWithoutParentInput = {
@@ -13783,31 +13830,16 @@ export namespace Prisma {
     categoryId?: StringFilter<"Product"> | string
     tags?: StringNullableListFilter<"Product">
     attributes?: JsonNullableFilter<"Product">
-    metadata?: JsonNullableFilter<"Product">
     isActive?: BoolFilter<"Product"> | boolean
-    stockQuantity?: IntFilter<"Product"> | number
-    weight?: FloatNullableFilter<"Product"> | number | null
-    dimensions?: JsonNullableFilter<"Product">
-    sku?: StringNullableFilter<"Product"> | string | null
-    barcode?: StringNullableFilter<"Product"> | string | null
     createdAt?: DateTimeFilter<"Product"> | Date | string
     updatedAt?: DateTimeFilter<"Product"> | Date | string
-  }
-
-  export type BlogUpsertWithWhereUniqueWithoutCategoryInput = {
-    where: BlogWhereUniqueInput
-    update: XOR<BlogUpdateWithoutCategoryInput, BlogUncheckedUpdateWithoutCategoryInput>
-    create: XOR<BlogCreateWithoutCategoryInput, BlogUncheckedCreateWithoutCategoryInput>
-  }
-
-  export type BlogUpdateWithWhereUniqueWithoutCategoryInput = {
-    where: BlogWhereUniqueInput
-    data: XOR<BlogUpdateWithoutCategoryInput, BlogUncheckedUpdateWithoutCategoryInput>
-  }
-
-  export type BlogUpdateManyWithWhereWithoutCategoryInput = {
-    where: BlogScalarWhereInput
-    data: XOR<BlogUpdateManyMutationInput, BlogUncheckedUpdateManyWithoutCategoryInput>
+    barcode?: StringNullableFilter<"Product"> | string | null
+    dimensions?: JsonNullableFilter<"Product">
+    metadata?: JsonNullableFilter<"Product">
+    sku?: StringNullableFilter<"Product"> | string | null
+    stockQuantity?: IntFilter<"Product"> | number
+    weight?: FloatNullableFilter<"Product"> | number | null
+    featured?: BoolFilter<"Product"> | boolean
   }
 
   export type CategoryCreateWithoutProductsInput = {
@@ -13817,9 +13849,9 @@ export namespace Prisma {
     description?: string | null
     image?: string | null
     isActive?: boolean
+    blogs?: BlogCreateNestedManyWithoutCategoryInput
     parent?: CategoryCreateNestedOneWithoutChildrenInput
     children?: CategoryCreateNestedManyWithoutParentInput
-    blogs?: BlogCreateNestedManyWithoutCategoryInput
   }
 
   export type CategoryUncheckedCreateWithoutProductsInput = {
@@ -13830,8 +13862,8 @@ export namespace Prisma {
     parentId?: string | null
     image?: string | null
     isActive?: boolean
-    children?: CategoryUncheckedCreateNestedManyWithoutParentInput
     blogs?: BlogUncheckedCreateNestedManyWithoutCategoryInput
+    children?: CategoryUncheckedCreateNestedManyWithoutParentInput
   }
 
   export type CategoryCreateOrConnectWithoutProductsInput = {
@@ -13857,9 +13889,9 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    blogs?: BlogUpdateManyWithoutCategoryNestedInput
     parent?: CategoryUpdateOneWithoutChildrenNestedInput
     children?: CategoryUpdateManyWithoutParentNestedInput
-    blogs?: BlogUpdateManyWithoutCategoryNestedInput
   }
 
   export type CategoryUncheckedUpdateWithoutProductsInput = {
@@ -13870,8 +13902,45 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    children?: CategoryUncheckedUpdateManyWithoutParentNestedInput
     blogs?: BlogUncheckedUpdateManyWithoutCategoryNestedInput
+    children?: CategoryUncheckedUpdateManyWithoutParentNestedInput
+  }
+
+  export type UserCreateWithoutBlogsInput = {
+    id?: string
+    name?: string | null
+    email: string
+    password: string
+    role?: $Enums.Role
+    emailVerified?: Date | string | null
+    verificationToken?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    addresses?: AddressCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
+    paymentCards?: PaymentCardCreateNestedManyWithoutUserInput
+  }
+
+  export type UserUncheckedCreateWithoutBlogsInput = {
+    id?: string
+    name?: string | null
+    email: string
+    password: string
+    role?: $Enums.Role
+    emailVerified?: Date | string | null
+    verificationToken?: string | null
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    addresses?: AddressUncheckedCreateNestedManyWithoutUserInput
+    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
+    paymentCards?: PaymentCardUncheckedCreateNestedManyWithoutUserInput
+  }
+
+  export type UserCreateOrConnectWithoutBlogsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutBlogsInput, UserUncheckedCreateWithoutBlogsInput>
   }
 
   export type CategoryCreateWithoutBlogsInput = {
@@ -13903,41 +13972,47 @@ export namespace Prisma {
     create: XOR<CategoryCreateWithoutBlogsInput, CategoryUncheckedCreateWithoutBlogsInput>
   }
 
-  export type UserCreateWithoutBlogsInput = {
-    id?: string
-    name?: string | null
-    email: string
-    password: string
-    role?: $Enums.Role
-    emailVerified?: Date | string | null
-    verificationToken?: string | null
-    isActive?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    addresses?: AddressCreateNestedManyWithoutUserInput
-    paymentCards?: PaymentCardCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenCreateNestedManyWithoutUserInput
-  }
-
-  export type UserUncheckedCreateWithoutBlogsInput = {
-    id?: string
-    name?: string | null
-    email: string
-    password: string
-    role?: $Enums.Role
-    emailVerified?: Date | string | null
-    verificationToken?: string | null
-    isActive?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    addresses?: AddressUncheckedCreateNestedManyWithoutUserInput
-    paymentCards?: PaymentCardUncheckedCreateNestedManyWithoutUserInput
-    passwordResetTokens?: PasswordResetTokenUncheckedCreateNestedManyWithoutUserInput
-  }
-
-  export type UserCreateOrConnectWithoutBlogsInput = {
-    where: UserWhereUniqueInput
+  export type UserUpsertWithoutBlogsInput = {
+    update: XOR<UserUpdateWithoutBlogsInput, UserUncheckedUpdateWithoutBlogsInput>
     create: XOR<UserCreateWithoutBlogsInput, UserUncheckedCreateWithoutBlogsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutBlogsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutBlogsInput, UserUncheckedUpdateWithoutBlogsInput>
+  }
+
+  export type UserUpdateWithoutBlogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    addresses?: AddressUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
+    paymentCards?: PaymentCardUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutBlogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    addresses?: AddressUncheckedUpdateManyWithoutUserNestedInput
+    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
+    paymentCards?: PaymentCardUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CategoryUpsertWithoutBlogsInput = {
@@ -13975,49 +14050,6 @@ export namespace Prisma {
     products?: ProductUncheckedUpdateManyWithoutCategoryNestedInput
   }
 
-  export type UserUpsertWithoutBlogsInput = {
-    update: XOR<UserUpdateWithoutBlogsInput, UserUncheckedUpdateWithoutBlogsInput>
-    create: XOR<UserCreateWithoutBlogsInput, UserUncheckedCreateWithoutBlogsInput>
-    where?: UserWhereInput
-  }
-
-  export type UserUpdateToOneWithWhereWithoutBlogsInput = {
-    where?: UserWhereInput
-    data: XOR<UserUpdateWithoutBlogsInput, UserUncheckedUpdateWithoutBlogsInput>
-  }
-
-  export type UserUpdateWithoutBlogsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    addresses?: AddressUpdateManyWithoutUserNestedInput
-    paymentCards?: PaymentCardUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUpdateManyWithoutUserNestedInput
-  }
-
-  export type UserUncheckedUpdateWithoutBlogsInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: StringFieldUpdateOperationsInput | string
-    password?: StringFieldUpdateOperationsInput | string
-    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
-    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
-    isActive?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    addresses?: AddressUncheckedUpdateManyWithoutUserNestedInput
-    paymentCards?: PaymentCardUncheckedUpdateManyWithoutUserNestedInput
-    passwordResetTokens?: PasswordResetTokenUncheckedUpdateManyWithoutUserNestedInput
-  }
-
   export type AddressCreateManyUserInput = {
     id?: string
     name: string
@@ -14030,6 +14062,31 @@ export namespace Prisma {
     country: string
     phone: string
     isDefault?: boolean
+  }
+
+  export type BlogCreateManyAuthorInput = {
+    id?: string
+    title: string
+    slug: string
+    excerpt: string
+    content: string
+    coverImage?: string | null
+    categoryId: string
+    tags?: BlogCreatetagsInput | string[]
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    isPublished?: boolean
+    publishedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    readingTime?: number | null
+    stemCategory?: $Enums.StemCategory
+  }
+
+  export type PasswordResetTokenCreateManyUserInput = {
+    id?: string
+    token: string
+    expires: Date | string
+    createdAt?: Date | string
   }
 
   export type PaymentCardCreateManyUserInput = {
@@ -14045,31 +14102,6 @@ export namespace Prisma {
     isDefault?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-  }
-
-  export type BlogCreateManyAuthorInput = {
-    id?: string
-    title: string
-    slug: string
-    excerpt: string
-    content: string
-    coverImage?: string | null
-    categoryId: string
-    stemCategory?: $Enums.StemCategory
-    readingTime?: number | null
-    tags?: BlogCreatetagsInput | string[]
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    isPublished?: boolean
-    publishedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type PasswordResetTokenCreateManyUserInput = {
-    id?: string
-    token: string
-    expires: Date | string
-    createdAt?: Date | string
   }
 
   export type AddressUpdateWithoutUserInput = {
@@ -14112,6 +14144,81 @@ export namespace Prisma {
     country?: StringFieldUpdateOperationsInput | string
     phone?: StringFieldUpdateOperationsInput | string
     isDefault?: BoolFieldUpdateOperationsInput | boolean
+  }
+
+  export type BlogUpdateWithoutAuthorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    excerpt?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: BlogUpdatetagsInput | string[]
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
+    category?: CategoryUpdateOneRequiredWithoutBlogsNestedInput
+  }
+
+  export type BlogUncheckedUpdateWithoutAuthorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    excerpt?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: StringFieldUpdateOperationsInput | string
+    tags?: BlogUpdatetagsInput | string[]
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
+  }
+
+  export type BlogUncheckedUpdateManyWithoutAuthorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    excerpt?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
+    categoryId?: StringFieldUpdateOperationsInput | string
+    tags?: BlogUpdatetagsInput | string[]
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
+  }
+
+  export type PasswordResetTokenUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    expires?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PasswordResetTokenUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    expires?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PasswordResetTokenUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    token?: StringFieldUpdateOperationsInput | string
+    expires?: DateTimeFieldUpdateOperationsInput | Date | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type PaymentCardUpdateWithoutUserInput = {
@@ -14159,79 +14266,22 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type BlogUpdateWithoutAuthorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    excerpt?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
-    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
-    tags?: BlogUpdatetagsInput | string[]
+  export type BlogCreateManyCategoryInput = {
+    id?: string
+    title: string
+    slug: string
+    excerpt: string
+    content: string
+    coverImage?: string | null
+    authorId: string
+    tags?: BlogCreatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    category?: CategoryUpdateOneRequiredWithoutBlogsNestedInput
-  }
-
-  export type BlogUncheckedUpdateWithoutAuthorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    excerpt?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    categoryId?: StringFieldUpdateOperationsInput | string
-    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
-    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
-    tags?: BlogUpdatetagsInput | string[]
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type BlogUncheckedUpdateManyWithoutAuthorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    excerpt?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    categoryId?: StringFieldUpdateOperationsInput | string
-    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
-    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
-    tags?: BlogUpdatetagsInput | string[]
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type PasswordResetTokenUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    token?: StringFieldUpdateOperationsInput | string
-    expires?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type PasswordResetTokenUncheckedUpdateWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    token?: StringFieldUpdateOperationsInput | string
-    expires?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type PasswordResetTokenUncheckedUpdateManyWithoutUserInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    token?: StringFieldUpdateOperationsInput | string
-    expires?: DateTimeFieldUpdateOperationsInput | Date | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isPublished?: boolean
+    publishedAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    readingTime?: number | null
+    stemCategory?: $Enums.StemCategory
   }
 
   export type CategoryCreateManyParentInput = {
@@ -14253,33 +14303,70 @@ export namespace Prisma {
     images?: ProductCreateimagesInput | string[]
     tags?: ProductCreatetagsInput | string[]
     attributes?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    barcode?: string | null
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    sku?: string | null
     stockQuantity?: number
     weight?: number | null
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    sku?: string | null
-    barcode?: string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
+    featured?: boolean
   }
 
-  export type BlogCreateManyCategoryInput = {
-    id?: string
-    title: string
-    slug: string
-    excerpt: string
-    content: string
-    coverImage?: string | null
-    authorId: string
-    stemCategory?: $Enums.StemCategory
-    readingTime?: number | null
-    tags?: BlogCreatetagsInput | string[]
+  export type BlogUpdateWithoutCategoryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    excerpt?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
+    tags?: BlogUpdatetagsInput | string[]
     metadata?: NullableJsonNullValueInput | InputJsonValue
-    isPublished?: boolean
-    publishedAt?: Date | string | null
-    createdAt?: Date | string
-    updatedAt?: Date | string
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
+    author?: UserUpdateOneRequiredWithoutBlogsNestedInput
+  }
+
+  export type BlogUncheckedUpdateWithoutCategoryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    excerpt?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
+    authorId?: StringFieldUpdateOperationsInput | string
+    tags?: BlogUpdatetagsInput | string[]
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
+  }
+
+  export type BlogUncheckedUpdateManyWithoutCategoryInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    excerpt?: StringFieldUpdateOperationsInput | string
+    content?: StringFieldUpdateOperationsInput | string
+    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
+    authorId?: StringFieldUpdateOperationsInput | string
+    tags?: BlogUpdatetagsInput | string[]
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    isPublished?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
+    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
   }
 
   export type CategoryUpdateWithoutParentInput = {
@@ -14289,9 +14376,9 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    blogs?: BlogUpdateManyWithoutCategoryNestedInput
     children?: CategoryUpdateManyWithoutParentNestedInput
     products?: ProductUpdateManyWithoutCategoryNestedInput
-    blogs?: BlogUpdateManyWithoutCategoryNestedInput
   }
 
   export type CategoryUncheckedUpdateWithoutParentInput = {
@@ -14301,9 +14388,9 @@ export namespace Prisma {
     description?: NullableStringFieldUpdateOperationsInput | string | null
     image?: NullableStringFieldUpdateOperationsInput | string | null
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    blogs?: BlogUncheckedUpdateManyWithoutCategoryNestedInput
     children?: CategoryUncheckedUpdateManyWithoutParentNestedInput
     products?: ProductUncheckedUpdateManyWithoutCategoryNestedInput
-    blogs?: BlogUncheckedUpdateManyWithoutCategoryNestedInput
   }
 
   export type CategoryUncheckedUpdateManyWithoutParentInput = {
@@ -14325,15 +14412,16 @@ export namespace Prisma {
     images?: ProductUpdateimagesInput | string[]
     tags?: ProductUpdatetagsInput | string[]
     attributes?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    stockQuantity?: IntFieldUpdateOperationsInput | number
-    weight?: NullableFloatFieldUpdateOperationsInput | number | null
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    sku?: NullableStringFieldUpdateOperationsInput | string | null
-    barcode?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    barcode?: NullableStringFieldUpdateOperationsInput | string | null
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    sku?: NullableStringFieldUpdateOperationsInput | string | null
+    stockQuantity?: IntFieldUpdateOperationsInput | number
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    featured?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ProductUncheckedUpdateWithoutCategoryInput = {
@@ -14346,15 +14434,16 @@ export namespace Prisma {
     images?: ProductUpdateimagesInput | string[]
     tags?: ProductUpdatetagsInput | string[]
     attributes?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     isActive?: BoolFieldUpdateOperationsInput | boolean
-    stockQuantity?: IntFieldUpdateOperationsInput | number
-    weight?: NullableFloatFieldUpdateOperationsInput | number | null
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    sku?: NullableStringFieldUpdateOperationsInput | string | null
-    barcode?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    barcode?: NullableStringFieldUpdateOperationsInput | string | null
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    sku?: NullableStringFieldUpdateOperationsInput | string | null
+    stockQuantity?: IntFieldUpdateOperationsInput | number
+    weight?: NullableFloatFieldUpdateOperationsInput | number | null
+    featured?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ProductUncheckedUpdateManyWithoutCategoryInput = {
@@ -14367,69 +14456,16 @@ export namespace Prisma {
     images?: ProductUpdateimagesInput | string[]
     tags?: ProductUpdatetagsInput | string[]
     attributes?: NullableJsonNullValueInput | InputJsonValue
-    metadata?: NullableJsonNullValueInput | InputJsonValue
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    barcode?: NullableStringFieldUpdateOperationsInput | string | null
+    dimensions?: NullableJsonNullValueInput | InputJsonValue
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    sku?: NullableStringFieldUpdateOperationsInput | string | null
     stockQuantity?: IntFieldUpdateOperationsInput | number
     weight?: NullableFloatFieldUpdateOperationsInput | number | null
-    dimensions?: NullableJsonNullValueInput | InputJsonValue
-    sku?: NullableStringFieldUpdateOperationsInput | string | null
-    barcode?: NullableStringFieldUpdateOperationsInput | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type BlogUpdateWithoutCategoryInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    excerpt?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
-    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
-    tags?: BlogUpdatetagsInput | string[]
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    author?: UserUpdateOneRequiredWithoutBlogsNestedInput
-  }
-
-  export type BlogUncheckedUpdateWithoutCategoryInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    excerpt?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    authorId?: StringFieldUpdateOperationsInput | string
-    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
-    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
-    tags?: BlogUpdatetagsInput | string[]
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type BlogUncheckedUpdateManyWithoutCategoryInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    slug?: StringFieldUpdateOperationsInput | string
-    excerpt?: StringFieldUpdateOperationsInput | string
-    content?: StringFieldUpdateOperationsInput | string
-    coverImage?: NullableStringFieldUpdateOperationsInput | string | null
-    authorId?: StringFieldUpdateOperationsInput | string
-    stemCategory?: EnumStemCategoryFieldUpdateOperationsInput | $Enums.StemCategory
-    readingTime?: NullableIntFieldUpdateOperationsInput | number | null
-    tags?: BlogUpdatetagsInput | string[]
-    metadata?: NullableJsonNullValueInput | InputJsonValue
-    isPublished?: BoolFieldUpdateOperationsInput | boolean
-    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    featured?: BoolFieldUpdateOperationsInput | boolean
   }
 
 

@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   try {
+    // Get all categories
     const categories = await db.category.findMany({
       where: {
         isActive: true,
@@ -10,9 +11,27 @@ export async function GET(request: NextRequest) {
       orderBy: {
         name: "asc",
       },
+      include: {
+        _count: {
+          select: {
+            products: {
+              where: {
+                isActive: true,
+              },
+            },
+          },
+        },
+      },
     });
 
-    return NextResponse.json(categories, { status: 200 });
+    // Transform the response to include product counts
+    const categoriesWithCounts = categories.map((category) => ({
+      ...category,
+      productCount: category._count.products,
+      _count: undefined,
+    }));
+
+    return NextResponse.json(categoriesWithCounts, { status: 200 });
   } catch (error) {
     console.error("Error fetching categories:", error);
     return NextResponse.json(

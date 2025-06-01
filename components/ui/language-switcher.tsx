@@ -18,21 +18,16 @@ export function LanguageSwitcher() {
   const { language, setLanguage } = useTranslation();
 
   const switchLanguage = (langCode: string) => {
+    if (language === langCode) return;
+
     // Update the language in the i18n context
     setLanguage(langCode);
 
-    // Check if we're on a protected route like checkout
-    const isProtectedRoute = pathname.startsWith("/checkout");
-
-    // For protected routes, use a smoother approach without a full refresh
-    if (isProtectedRoute) {
-      // Just update the local state without triggering a navigation
-      // The i18n context will update the UI
-      return;
-    }
-
-    // For other routes, refresh the page to apply language changes globally
-    router.refresh();
+    // Force a client-side re-render of the page
+    // This approach doesn't trigger a full page refresh but updates the UI
+    setTimeout(() => {
+      router.refresh();
+    }, 0);
   };
 
   // Find current language details

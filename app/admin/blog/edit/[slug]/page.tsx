@@ -26,49 +26,24 @@ import { ArrowLeft, Save, Upload, X } from "lucide-react";
 import Link from "next/link";
 
 interface BlogEditPageProps {
-  params: {
-    id: string;
-  };
+  params: Promise<{
+    slug: string;
+  }>;
 }
 
-// Mock data for demonstration
-const mockBlogs = [
-  {
-    id: "1",
-    title: "Top 10 STEM Toys for Early Childhood Development",
-    slug: "top-10-stem-toys-early-childhood",
-    excerpt:
-      "Discover the best STEM toys that help preschoolers develop essential early skills while having fun.",
-    content:
-      "This is a detailed blog post content about STEM toys for early childhood development...",
-    coverImage: "/images/category_banner_science_01.png",
-    categoryId: "early-learning",
-    stemCategory: "SCIENCE",
-    tags: "toys, preschool, development, science",
-    isPublished: true,
-    publishedAt: new Date("2023-05-15"),
-    author: "Emily Johnson",
-  },
-  {
-    id: "2",
-    title: "How Coding Toys Prepare Children for the Future",
-    slug: "coding-toys-prepare-children-future",
-    excerpt:
-      "Learn how coding toys and games can help develop computational thinking and prepare kids for tomorrow's jobs.",
-    content: "This is a detailed blog post content about coding toys...",
-    coverImage: "/images/category_banner_technology_01.png",
-    categoryId: "stem-activities",
-    stemCategory: "TECHNOLOGY",
-    tags: "coding, technology, future skills",
-    isPublished: true,
-    publishedAt: new Date("2023-04-28"),
-    author: "Michael Chen",
-  },
-];
+// Define the Category type
+type Category = {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  image?: string;
+  isActive: boolean;
+};
 
 export default function EditBlogPage({ params }: BlogEditPageProps) {
   const router = useRouter();
-  const { id } = params;
+  const { slug } = React.use(params);
 
   const [blogData, setBlogData] = useState({
     title: "",
@@ -82,43 +57,67 @@ export default function EditBlogPage({ params }: BlogEditPageProps) {
     isPublished: false,
   });
 
+  const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch categories
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/categories");
+        if (!response.ok) {
+          throw new Error("Failed to fetch categories");
+        }
+        const data = await response.json();
+        setCategories(data);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   // Fetch blog data
   useEffect(() => {
     const fetchBlogData = async () => {
       try {
-        // In a real app, this would be an API call
-        // For demo, we're using mock data
-        const blog = mockBlogs.find((blog) => blog.id === id);
+        setIsLoading(true);
+        setError(null);
 
-        if (blog) {
-          setBlogData({
-            title: blog.title,
-            slug: blog.slug,
-            excerpt: blog.excerpt,
-            content: blog.content,
-            coverImage: blog.coverImage,
-            categoryId: blog.categoryId,
-            stemCategory: blog.stemCategory,
-            tags: blog.tags,
-            isPublished: blog.isPublished,
-          });
-        } else {
-          // Blog not found
-          console.error("Blog not found");
-          router.push("/admin/blog");
+        const response = await fetch(`/api/blog/${slug}`);
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch blog data");
         }
+
+        const blog = await response.json();
+
+        setBlogData({
+          title: blog.title,
+          slug: blog.slug,
+          excerpt: blog.excerpt,
+          content: blog.content,
+          coverImage: blog.coverImage || "",
+          categoryId: blog.categoryId || "",
+          stemCategory: blog.stemCategory || "GENERAL",
+          tags: Array.isArray(blog.tags)
+            ? blog.tags.join(", ")
+            : blog.tags || "",
+          isPublished: blog.isPublished || false,
+        });
       } catch (error) {
         console.error("Error fetching blog data:", error);
+        setError("Failed to load blog data. Please try again later.");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchBlogData();
-  }, [id, router]);
+  }, [slug]);
 
   // Handle form input changes
   const handleChange = (
@@ -155,16 +154,29 @@ export default function EditBlogPage({ params }: BlogEditPageProps) {
     setIsSubmitting(true);
 
     try {
-      // This would be an API call in a real application
-      console.log("Updating blog data:", blogData);
+      const response = await fetch(`/api/blog/${blogData.slug}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(blogData),
+      });
 
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to update blog post");
+      }
+
+      const updatedBlog = await response.json();
+      console.log("Blog post updated:", updatedBlog);
 
       // Success - redirect to blog management page
       router.push("/admin/blog");
     } catch (error) {
       console.error("Error updating blog post:", error);
+      alert(
+        `Failed to update blog post: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -176,6 +188,21 @@ export default function EditBlogPage({ params }: BlogEditPageProps) {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
           <p className="mt-4 text-lg">Loading blog data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container py-8 flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-red-500 text-lg">{error}</p>
+          <Button
+            className="mt-4"
+            onClick={() => router.push("/admin/blog")}>
+            Return to Blog Management
+          </Button>
         </div>
       </div>
     );
@@ -320,16 +347,21 @@ export default function EditBlogPage({ params }: BlogEditPageProps) {
                       <SelectValue placeholder="Select content category" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="early-learning">
-                        Early Learning
-                      </SelectItem>
-                      <SelectItem value="educational-toys">
-                        Educational Toys
-                      </SelectItem>
-                      <SelectItem value="stem-activities">
-                        STEM Activities
-                      </SelectItem>
-                      <SelectItem value="parenting">Parenting Tips</SelectItem>
+                      {categories.length > 0 ? (
+                        categories.map((category) => (
+                          <SelectItem
+                            key={category.id}
+                            value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem
+                          value="no-categories"
+                          disabled>
+                          No categories available
+                        </SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -358,40 +390,29 @@ export default function EditBlogPage({ params }: BlogEditPageProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {blogData.coverImage ? (
-                  <div className="space-y-4">
-                    <div className="border rounded-lg overflow-hidden">
-                      <img
-                        src={blogData.coverImage}
-                        alt="Blog cover"
-                        className="w-full h-auto"
-                      />
-                    </div>
-                    <div className="flex justify-end">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm">
-                        Change Image
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                    <div className="flex flex-col items-center space-y-2">
-                      <Upload className="h-8 w-8 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">
-                        Drag and drop your image here or click to browse
-                      </p>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm">
-                        Upload Image
-                      </Button>
-                    </div>
+                {blogData.coverImage && (
+                  <div className="mb-4">
+                    <img
+                      src={blogData.coverImage}
+                      alt="Cover"
+                      className="w-full h-auto rounded-md"
+                    />
                   </div>
                 )}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <div className="flex flex-col items-center space-y-2">
+                    <Upload className="h-8 w-8 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      Drag and drop your image here or click to browse
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm">
+                      Upload Image
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
@@ -408,7 +429,7 @@ export default function EditBlogPage({ params }: BlogEditPageProps) {
                   type="submit"
                   disabled={isSubmitting}>
                   <Save className="h-4 w-4 mr-2" />
-                  {isSubmitting ? "Saving..." : "Save Changes"}
+                  {isSubmitting ? "Saving..." : "Update Blog Post"}
                 </Button>
               </CardFooter>
             </Card>

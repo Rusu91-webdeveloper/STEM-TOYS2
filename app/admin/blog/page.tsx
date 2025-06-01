@@ -50,33 +50,36 @@ export default function BlogManagementPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSeeding, setIsSeeding] = useState(false);
+
+  // Function to fetch blogs
+  const fetchBlogs = async () => {
+    try {
+      setIsLoading(true);
+      // Include both published and unpublished blogs for admins
+      const response = await fetch("/api/blog?published=all", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch blogs");
+      }
+
+      const data = await response.json();
+      console.log("Fetched blogs data:", data);
+      setBlogs(data);
+    } catch (err) {
+      console.error("Error fetching blogs:", err);
+      setError("Failed to load blog posts. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        setIsLoading(true);
-        // Include both published and unpublished blogs for admins
-        const response = await fetch("/api/blog?published=all", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch blogs");
-        }
-
-        const data = await response.json();
-        setBlogs(data);
-      } catch (err) {
-        console.error("Error fetching blogs:", err);
-        setError("Failed to load blog posts. Please try again later.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     fetchBlogs();
   }, []);
 
@@ -120,11 +123,43 @@ export default function BlogManagementPage() {
           throw new Error("Failed to delete blog post");
         }
 
-        // Remove deleted blog from state
-        setBlogs(blogs.filter((blog) => blog.id !== blogId));
+        // Refresh the blog list instead of manually updating state
+        fetchBlogs();
       } catch (err) {
         console.error("Error deleting blog:", err);
         alert("Failed to delete blog post. Please try again.");
+      }
+    }
+  };
+
+  // Add a function to seed blog data
+  const handleSeedBlogs = async () => {
+    if (confirm("Do you want to create sample blog posts for testing?")) {
+      try {
+        setIsSeeding(true);
+
+        // Create sample blogs - update to the correct endpoint
+        const response = await fetch("/api/seed-blogs", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to seed blog posts");
+        }
+
+        const result = await response.json();
+        console.log("Seed result:", result);
+
+        // Fetch blogs again instead of reloading the page
+        await fetchBlogs();
+        setIsSeeding(false);
+      } catch (err) {
+        console.error("Error seeding blogs:", err);
+        alert("Failed to seed blog posts. Please try again.");
+        setIsSeeding(false);
       }
     }
   };
@@ -133,12 +168,22 @@ export default function BlogManagementPage() {
     <div className="container py-8">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Blog Management</h1>
-        <Button asChild>
-          <Link href="/admin/blog/new">
-            <PlusCircle className="h-4 w-4 mr-2" />
-            New Blog Post
-          </Link>
-        </Button>
+        <div className="flex gap-4">
+          {blogs.length === 0 && (
+            <Button
+              variant="outline"
+              onClick={handleSeedBlogs}
+              disabled={isSeeding}>
+              {isSeeding ? "Creating..." : "Create Sample Blogs"}
+            </Button>
+          )}
+          <Button asChild>
+            <Link href="/admin/blog/new">
+              <PlusCircle className="h-4 w-4 mr-2" />
+              New Blog Post
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="mb-6">
@@ -248,6 +293,12 @@ export default function BlogManagementPage() {
                     colSpan={6}
                     className="h-24 text-center">
                     No blog posts found.
+                    {!isLoading && (
+                      <span className="block mt-2 text-sm text-muted-foreground">
+                        Click the "Create Sample Blogs" button above to generate
+                        some sample content.
+                      </span>
+                    )}
                   </TableCell>
                 </TableRow>
               )}

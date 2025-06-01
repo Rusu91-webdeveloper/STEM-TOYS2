@@ -13,6 +13,8 @@ export async function GET(request: NextRequest) {
     const published = searchParams.get("published");
 
     const filters: any = {};
+    const session = await auth();
+    const isAdmin = session?.user?.role === "ADMIN";
 
     if (category) {
       filters.categoryId = category;
@@ -23,7 +25,15 @@ export async function GET(request: NextRequest) {
     }
 
     if (published) {
-      filters.isPublished = published === "true";
+      if (published === "all") {
+        // Only admins can see all blogs
+        if (!isAdmin) {
+          return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        // Don't filter by published status - return all blogs
+      } else {
+        filters.isPublished = published === "true";
+      }
     } else {
       // By default, only return published blogs for public consumption
       filters.isPublished = true;

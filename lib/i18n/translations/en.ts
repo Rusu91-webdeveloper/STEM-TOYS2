@@ -126,6 +126,19 @@ export const en = {
   viewDetails: "View Details",
   viewAllProducts: "View All Products",
   whyChooseTechTots: "Why Choose TechTots?",
+
+  // Categories page
+  categoryProducts: "{0} Products",
+  explorerCategoryToys: "Explore {0} Toys",
+  scienceCategoryDesc:
+    "Discover the wonders of the natural world through hands-on experiments and exploration. Our science toys promote curiosity, observational skills, and a deeper understanding of how things work.",
+  technologyCategoryDesc:
+    "Explore coding, robotics and digital innovation with our technology toys. These products help children develop computational thinking and prepare for a digital future.",
+  engineeringCategoryDesc:
+    "Build, design, and problem-solve with our engineering toys and kits. These products encourage critical thinking, spatial reasoning, and the engineering design process.",
+  mathCategoryDesc:
+    "Make math fun and engaging with our mathematical toys and games. These products develop fundamental math skills through play and help children develop logical thinking.",
+
   // Footer specific translations
   shop: "Shop",
   company: "Company",
@@ -221,6 +234,7 @@ export const en = {
   // Filter and Sort UI
   filterOptions: "Filter Options",
   filterBy: "Filter By:",
+  filterBySTEM: "Filter by STEM Category",
   allCategories: "All Categories",
   tryAdjustingFilters: "Try adjusting your filters or search criteria",
   clearAllFilters: "Clear All Filters",

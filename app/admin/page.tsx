@@ -122,6 +122,68 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Link href="/admin/featured-products">
+          <Card className="p-6 hover:bg-slate-50 transition-colors cursor-pointer h-full">
+            <h3 className="text-lg font-medium mb-2">
+              Manage Featured Products
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Select products to showcase on the homepage
+            </p>
+            <div className="flex justify-end">
+              <span className="text-primary text-sm font-medium flex items-center">
+                Manage
+                <ArrowUpRight className="h-4 w-4 ml-1" />
+              </span>
+            </div>
+          </Card>
+        </Link>
+        <Link href="/admin/products">
+          <Card className="p-6 hover:bg-slate-50 transition-colors cursor-pointer h-full">
+            <h3 className="text-lg font-medium mb-2">Manage Products</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Add, edit, or remove products
+            </p>
+            <div className="flex justify-end">
+              <span className="text-primary text-sm font-medium flex items-center">
+                Manage
+                <ArrowUpRight className="h-4 w-4 ml-1" />
+              </span>
+            </div>
+          </Card>
+        </Link>
+        <Link href="/admin/orders">
+          <Card className="p-6 hover:bg-slate-50 transition-colors cursor-pointer h-full">
+            <h3 className="text-lg font-medium mb-2">View Orders</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Manage customer orders and shipments
+            </p>
+            <div className="flex justify-end">
+              <span className="text-primary text-sm font-medium flex items-center">
+                View
+                <ArrowUpRight className="h-4 w-4 ml-1" />
+              </span>
+            </div>
+          </Card>
+        </Link>
+        <Link href="/admin/users">
+          <Card className="p-6 hover:bg-slate-50 transition-colors cursor-pointer h-full">
+            <h3 className="text-lg font-medium mb-2">Manage Users</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              View and manage customer accounts
+            </p>
+            <div className="flex justify-end">
+              <span className="text-primary text-sm font-medium flex items-center">
+                Manage
+                <ArrowUpRight className="h-4 w-4 ml-1" />
+              </span>
+            </div>
+          </Card>
+        </Link>
+      </div>
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (

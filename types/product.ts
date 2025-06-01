@@ -28,6 +28,7 @@ export interface Product {
   };
   variants?: ProductVariant[];
   isActive?: boolean;
+  featured?: boolean;
   createdAt?: string;
   updatedAt?: string;
   ageRange?: string;

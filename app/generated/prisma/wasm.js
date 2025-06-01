@@ -193,15 +193,16 @@ exports.Prisma.ProductScalarFieldEnum = {
   categoryId: 'categoryId',
   tags: 'tags',
   attributes: 'attributes',
-  metadata: 'metadata',
   isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  barcode: 'barcode',
+  dimensions: 'dimensions',
+  metadata: 'metadata',
+  sku: 'sku',
   stockQuantity: 'stockQuantity',
   weight: 'weight',
-  dimensions: 'dimensions',
-  sku: 'sku',
-  barcode: 'barcode',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  featured: 'featured'
 };
 
 exports.Prisma.BlogScalarFieldEnum = {
@@ -213,14 +214,14 @@ exports.Prisma.BlogScalarFieldEnum = {
   coverImage: 'coverImage',
   categoryId: 'categoryId',
   authorId: 'authorId',
-  stemCategory: 'stemCategory',
-  readingTime: 'readingTime',
   tags: 'tags',
   metadata: 'metadata',
   isPublished: 'isPublished',
   publishedAt: 'publishedAt',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  readingTime: 'readingTime',
+  stemCategory: 'stemCategory'
 };
 
 exports.Prisma.SortOrder = {

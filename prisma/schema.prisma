@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../app/generated/prisma"
@@ -14,22 +8,131 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Models
 model User {
-  id                String              @id @default(cuid())
-  name              String?
-  email             String              @unique
-  password          String
-  role              Role                @default(CUSTOMER)
-  emailVerified     DateTime?
-  verificationToken String?
-  isActive          Boolean             @default(false)
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  addresses         Address[]
-  paymentCards      PaymentCard[]
-  blogs             Blog[]              // Relation to blogs authored by this user
-  passwordResetTokens PasswordResetToken[] // Relation to password reset tokens
+  id                  String               @id @default(cuid())
+  name                String?
+  email               String               @unique
+  password            String
+  role                Role                 @default(CUSTOMER)
+  emailVerified       DateTime?
+  verificationToken   String?
+  isActive            Boolean              @default(false)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  addresses           Address[]
+  blogs               Blog[]
+  passwordResetTokens PasswordResetToken[]
+  paymentCards        PaymentCard[]
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  email     String
+  expires   DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [email], references: [email], onDelete: Cascade)
+
+  @@index([email])
+  @@index([token])
+}
+
+model Address {
+  id           String  @id @default(cuid())
+  userId       String
+  name         String
+  fullName     String
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String
+  postalCode   String
+  country      String
+  phone        String
+  isDefault    Boolean @default(false)
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PaymentCard {
+  id                String   @id @default(cuid())
+  userId            String
+  cardholderName    String
+  lastFourDigits    String
+  encryptedCardData String
+  encryptedCvv      String?
+  expiryMonth       String
+  expiryYear        String
+  cardType          String
+  billingAddressId  String?
+  isDefault         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Category {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  parentId    String?
+  image       String?
+  isActive    Boolean    @default(true)
+  blogs       Blog[]
+  parent      Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryToCategory")
+  products    Product[]
+}
+
+model Product {
+  id             String   @id @default(cuid())
+  name           String
+  slug           String   @unique
+  description    String
+  price          Float
+  compareAtPrice Float?
+  images         String[]
+  categoryId     String
+  tags           String[]
+  attributes     Json?
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  barcode        String?
+  dimensions     Json?
+  metadata       Json?
+  sku            String?
+  stockQuantity  Int      @default(0)
+  weight         Float?
+  featured       Boolean  @default(false)
+  category       Category @relation(fields: [categoryId], references: [id])
+}
+
+model Blog {
+  id           String       @id @default(cuid())
+  title        String
+  slug         String       @unique
+  excerpt      String
+  content      String
+  coverImage   String?
+  categoryId   String
+  authorId     String
+  tags         String[]
+  metadata     Json?
+  isPublished  Boolean      @default(false)
+  publishedAt  DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  readingTime  Int?
+  stemCategory StemCategory @default(GENERAL)
+  author       User         @relation(fields: [authorId], references: [id])
+  category     Category     @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@index([authorId])
+  @@index([stemCategory])
 }
 
 enum Role {
@@ -43,115 +146,4 @@ enum StemCategory {
   ENGINEERING
   MATHEMATICS
   GENERAL
-}
-
-model PasswordResetToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  email     String
-  user      User     @relation(fields: [email], references: [email], onDelete: Cascade)
-  expires   DateTime
-  createdAt DateTime @default(now())
-
-  @@index([email])
-  @@index([token])
-}
-
-model Address {
-  id           String  @id @default(cuid())
-  userId       String
-  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name         String
-  fullName     String
-  addressLine1 String
-  addressLine2 String?
-  city         String
-  state        String
-  postalCode   String
-  country      String
-  phone        String
-  isDefault    Boolean @default(false)
-}
-
-model PaymentCard {
-  id                String   @id @default(cuid())
-  userId            String
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  cardholderName    String
-  // Only store last 4 digits of card number for display/reference
-  lastFourDigits    String
-  // Store encrypted card data (these fields should be encrypted at the application level)
-  encryptedCardData String   // Stores encrypted full card number
-  encryptedCvv      String?  // Stores encrypted CVV (optional as we may not need to store it)
-  expiryMonth       String
-  expiryYear        String
-  cardType          String   // visa, mastercard, amex, discover
-  billingAddressId  String?  // Optional reference to an address
-  isDefault         Boolean  @default(false)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  @@index([userId])
-}
-
-model Category {
-  id           String     @id @default(cuid())
-  name         String
-  slug         String     @unique
-  description  String?
-  parentId     String?
-  parent       Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
-  children     Category[] @relation("CategoryToCategory")
-  image        String?
-  isActive     Boolean    @default(true)
-  products     Product[]
-  blogs        Blog[]     // Relation to blogs in this category
-}
-
-model Product {
-  id               String    @id @default(cuid())
-  name             String
-  slug             String    @unique
-  description      String
-  price            Float
-  compareAtPrice   Float?
-  images           String[]
-  categoryId       String
-  category         Category  @relation(fields: [categoryId], references: [id])
-  tags             String[]
-  attributes       Json?
-  metadata         Json?     // SEO metadata and other structured data
-  isActive         Boolean   @default(true)
-  stockQuantity    Int       @default(0)
-  weight           Float?    // Weight in kg
-  dimensions       Json?     // JSON object with width, height, depth
-  sku              String?   // Stock Keeping Unit
-  barcode          String?   // UPC, EAN, ISBN, etc.
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-}
-
-model Blog {
-  id           String       @id @default(cuid())
-  title        String
-  slug         String       @unique
-  excerpt      String
-  content      String
-  coverImage   String?
-  categoryId   String
-  category     Category     @relation(fields: [categoryId], references: [id])
-  authorId     String
-  author       User         @relation(fields: [authorId], references: [id])
-  stemCategory StemCategory @default(GENERAL)
-  readingTime  Int?         // Estimated reading time in minutes
-  tags         String[]
-  metadata     Json?        // SEO metadata and other structured data
-  isPublished  Boolean      @default(false)
-  publishedAt  DateTime?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-
-  @@index([categoryId])
-  @@index([authorId])
-  @@index([stemCategory])
 }
