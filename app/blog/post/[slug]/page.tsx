@@ -9,6 +9,7 @@ import { ArrowLeft, Calendar, User, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "@/lib/i18n";
 
 interface BlogPost {
   id: string;
@@ -32,6 +33,7 @@ interface BlogPost {
 
 export default function BlogPostPage() {
   const params = useParams<{ slug: string }>();
+  const { language, t } = useTranslation();
   const [blogPost, setBlogPost] = useState<BlogPost | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +44,10 @@ export default function BlogPostPage() {
 
       try {
         setIsLoading(true);
-        const response = await fetch(`/api/blog/${params.slug}`);
+        const url = new URL(`/api/blog/${params.slug}`, window.location.origin);
+        url.searchParams.append("language", language);
+
+        const response = await fetch(url.toString());
 
         if (!response.ok) {
           if (response.status === 404) {
@@ -62,7 +67,7 @@ export default function BlogPostPage() {
     };
 
     fetchBlogPost();
-  }, [params.slug]);
+  }, [params.slug, language]);
 
   // Get default image based on STEM category
   const getDefaultImage = (category?: string) => {
@@ -99,7 +104,7 @@ export default function BlogPostPage() {
   if (isLoading) {
     return (
       <div className="container py-12 flex justify-center items-center min-h-[60vh]">
-        <p className="text-lg">Loading article...</p>
+        <p className="text-lg">{t("loading")} ...</p>
       </div>
     );
   }
@@ -108,12 +113,12 @@ export default function BlogPostPage() {
     return (
       <div className="container py-12 flex flex-col justify-center items-center min-h-[60vh]">
         <p className="text-lg text-red-500 mb-4">
-          {error || "Blog post not found"}
+          {error || t("blogPostNotFound")}
         </p>
         <Link href="/blog">
           <Button>
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Blog
+            {t("backToBlog")}
           </Button>
         </Link>
       </div>
@@ -141,56 +146,62 @@ export default function BlogPostPage() {
               variant="outline"
               className="bg-white/80 backdrop-blur-sm hover:bg-white">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Blog
+              {t("backToBlog")}
             </Button>
           </Link>
         </div>
 
+        {/* Language indicator - displayed on desktop */}
+        <div className="absolute top-4 right-4 hidden md:flex items-center gap-2 bg-white/80 px-3 py-1 rounded-full backdrop-blur-sm">
+          {language === "ro" ? "🇷🇴" : "🇬🇧"}
+          <span className="text-sm font-medium text-gray-900">
+            {language === "ro" ? "Română" : "English"}
+          </span>
+        </div>
+
         {/* Title overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 bg-gradient-to-t from-black/90 via-black/70 to-transparent">
-          <div className="container mx-auto max-w-4xl">
-            <div className="flex flex-wrap gap-2 mb-3">
-              <Badge
-                variant="outline"
-                className={`${getStemCategoryColor(blogPost.stemCategory)} border-none`}>
-                {blogPost.stemCategory}
-              </Badge>
-              <Badge
-                variant="outline"
-                className="bg-white/20 text-white border-none">
-                {blogPost.category?.name || "Uncategorized"}
-              </Badge>
+        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10 bg-gradient-to-t from-black/80 to-transparent">
+          <div className="container mx-auto">
+            <div className="flex items-center space-x-2 text-white/80 mb-3">
+              <Link
+                href={`/blog/category/${blogPost.category.slug}`}
+                className="hover:text-white transition-colors">
+                {blogPost.category.name}
+              </Link>
+              <span>•</span>
+              <span className="flex items-center">
+                <Calendar className="w-4 h-4 mr-1" />
+                {format(new Date(blogPost.publishedAt), "MMMM d, yyyy")}
+              </span>
+              {blogPost.author?.name && (
+                <>
+                  <span>•</span>
+                  <span className="flex items-center">
+                    <User className="w-4 h-4 mr-1" />
+                    {blogPost.author.name}
+                  </span>
+                </>
+              )}
+
+              {/* Mobile language indicator */}
+              <span className="md:hidden">•</span>
+              <span className="flex items-center md:hidden">
+                {language === "ro" ? "🇷🇴" : "🇬🇧"}
+              </span>
             </div>
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-sm">
               {blogPost.title}
             </h1>
-            <div className="flex flex-wrap items-center gap-4 text-white/80 text-sm">
-              <div className="flex items-center">
-                <User className="h-4 w-4 mr-1" />
-                {blogPost.author?.name || "TechTots Team"}
-              </div>
-              {blogPost.publishedAt && (
-                <div className="flex items-center">
-                  <Calendar className="h-4 w-4 mr-1" />
-                  {format(new Date(blogPost.publishedAt), "MMMM d, yyyy")}
-                </div>
-              )}
-              {blogPost.readingTime && (
-                <div>{blogPost.readingTime} min read</div>
-              )}
-            </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile back button */}
-      <div className="md:hidden p-4 bg-white border-b">
+      {/* Back button - mobile */}
+      <div className="container mx-auto md:hidden py-4">
         <Link href="/blog">
-          <Button
-            variant="outline"
-            size="sm">
+          <Button size="sm">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Blog
+            {t("backToBlog")}
           </Button>
         </Link>
       </div>
@@ -211,7 +222,7 @@ export default function BlogPostPage() {
             <div className="mt-10 pt-6 border-t">
               <h3 className="text-lg font-medium mb-3 flex items-center">
                 <Tag className="h-4 w-4 mr-2" />
-                Tags
+                {t("tags")}
               </h3>
               <div className="flex flex-wrap gap-2">
                 {blogPost.tags.map((tag) => (
@@ -232,7 +243,7 @@ export default function BlogPostPage() {
           <Link href="/blog">
             <Button>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Blog
+              {t("backToBlog")}
             </Button>
           </Link>
         </div>

@@ -4,9 +4,48 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n";
+import { useState } from "react";
 
 export default function AboutPage() {
   const { t } = useTranslation();
+  const [bookVersions, setBookVersions] = useState({
+    book1: "english",
+    book2: "english",
+  });
+
+  // Toggle language for specific book
+  const toggleBookLanguage = (book: "book1" | "book2") => {
+    setBookVersions((prev) => ({
+      ...prev,
+      [book]: prev[book] === "english" ? "romanian" : "english",
+    }));
+  };
+
+  // Get book image source based on selected language
+  const getBookImageSrc = (book: "book1" | "book2") => {
+    if (book === "book1") {
+      return bookVersions.book1 === "english"
+        ? "/born_for_the_future.png"
+        : "/born_for_the_future_ro.png";
+    } else {
+      return bookVersions.book2 === "english"
+        ? "/STEM_play_for_neurodiverse_minds.jpg"
+        : "/STEM_play_for_neurodiverse_minds_ro.jpg";
+    }
+  };
+
+  // Get book title based on selected language
+  const getBookTitle = (book: "book1" | "book2") => {
+    if (book === "book1") {
+      return bookVersions.book1 === "english"
+        ? "Born for the Future"
+        : "Născut pentru viitor";
+    } else {
+      return bookVersions.book2 === "english"
+        ? "STEM Play for Neurodiverse Minds"
+        : "Jocuri STEM pentru minți neurodivergente";
+    }
+  };
 
   return (
     <div className="flex flex-col">
@@ -52,51 +91,145 @@ export default function AboutPage() {
               </div>
               <div className="space-y-4 text-lg text-gray-700">
                 <p className="leading-relaxed">
-                  TechTots was founded in 2025 after our founder read the
-                  groundbreaking book "Born for the Future" by Casey Wrenly. The
-                  book's profound insights into child development and future
-                  skills inspired our mission to revolutionize educational play.
-                </p>
-                <p className="leading-relaxed">
-                  We deeply understand how critical STEM toys are in shaping our
-                  children's future from a young age. These toys don't just
-                  entertain—they develop essential neural pathways, foster
-                  curiosity, and build the foundation for computational
-                  thinking, spatial reasoning, and scientific inquiry.
-                </p>
-                <p className="leading-relaxed">
-                  Our carefully selected products are designed to grow with your
-                  child, providing increasingly complex challenges that adapt to
-                  their developing capabilities. We believe that by making STEM
-                  learning joyful and accessible, we're helping to nurture the
-                  innovators, problem-solvers, and creative thinkers of
-                  tomorrow.
+                  {t("language") !== "en" ? (
+                    <>
+                      Înființat în 2025, TechTots a fost fondat pe o viziune
+                      inspirată de două cărți pivot: "Jocuri STEM pentru minți
+                      neurodivergente" de Casey Wrenly și "Născut pentru viitor"
+                      de un educator și părinte dedicat. Aceste lucrări au
+                      evidențiat impactul profund al jocului STEM asupra
+                      dezvoltării copilului și importanța abilităților pregătite
+                      pentru viitor, modelând misiunea noastră principală. La
+                      TechTots, credem că jucăriile STEM sunt catalizatori
+                      esențiali pentru creșterea cognitivă la toți copiii,
+                      aprind curiozitatea naturală și construiesc fundamente în
+                      gândirea computațională și raționamentul științific.
+                      Susținem o abordare în care învățarea se aliniază cu
+                      interesele naturale și neurologia copilului. Suntem
+                      deosebit de dedicați copiilor neurodiversi, inclusiv cei
+                      cu ADHD și autism. Inspirați de "Jocuri STEM pentru minți
+                      neurodivergente", oferim instrumente concepute pentru
+                      experiențe bogate senzorial care îmbunătățesc concentrarea
+                      și abilitățile cognitive, transformând punctele lor forte
+                      unice în căi pentru învățare și încredere. Modelat în
+                      continuare de "Născut pentru viitor", care pune accentul
+                      pe pregătirea copiilor cu abilități umane critice pentru o
+                      lume dominată de AI, înțelegem că integrarea STEM
+                      construiește abilități tehnice și de rezolvare creativă a
+                      problemelor cruciale. Misiunea noastră la TechTots este să
+                      fim partenerul tău de încredere, oferind jucării
+                      educaționale îmbogățitoare și îndrumare părintească. Ne
+                      propunem să arătăm cum aceste instrumente atent selectate
+                      încurajează dezvoltarea, hrănesc curiozitatea și echipează
+                      toți copiii cu abilități esențiale pentru ziua de mâine -
+                      toate prin puterea jocului bucuros.
+                    </>
+                  ) : (
+                    <>
+                      Established in 2025, TechTots was founded on a vision
+                      sparked by two pivotal books: "STEM Play for Neurodiverse
+                      Minds" by Casey Wrenly and "Born for the Future" by a
+                      dedicated educator and parent. These works highlighted the
+                      profound impact of STEM play on child development and the
+                      importance of future-ready skills, shaping our core
+                      mission. At TechTots, we believe STEM toys are essential
+                      catalysts for cognitive growth in all children, igniting
+                      natural curiosity and building foundations in
+                      computational thinking and scientific reasoning. We
+                      champion an approach where learning aligns with a child's
+                      natural interests and neurology. We are especially
+                      committed to neurodiverse children, including those with
+                      ADHD and autism. Drawing inspiration from "STEM Play for
+                      Neurodiverse Minds," we offer tools designed for
+                      sensory-rich experiences that enhance focus and cognitive
+                      skills, transforming their unique strengths into pathways
+                      for learning and confidence. Further shaped by "Born for
+                      the Future," which emphasizes preparing children with
+                      critical human skills for an AI-driven world, we
+                      understand that STEM integration builds crucial technical
+                      and creative problem-solving abilities. Our mission at
+                      TechTots is to be your trusted partner, providing
+                      enriching educational toys and parental guidance. We aim
+                      to show how these carefully selected tools foster
+                      development, nurture curiosity, and equip all children
+                      with essential skills for tomorrow—all through the power
+                      of joyful play.
+                    </>
+                  )}
                 </p>
               </div>
             </div>
-            <div className="relative h-[450px] rounded-lg overflow-hidden shadow-xl group flex items-center justify-center">
-              <div className="absolute inset-0">
-                <Image
-                  src="/born_for_the_future.png"
-                  alt="Born for the Future book cover"
-                  fill
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  style={{ objectFit: "contain", objectPosition: "center" }}
-                  className="transition-transform group-hover:scale-105 duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="relative h-[450px] rounded-lg overflow-hidden shadow-xl group flex items-center justify-center">
+                <div className="absolute inset-0">
+                  <Image
+                    src={getBookImageSrc("book1")}
+                    alt={getBookTitle("book1")}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    style={{ objectFit: "contain", objectPosition: "center" }}
+                    className="transition-transform group-hover:scale-105 duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
+                </div>
+                <div className="absolute bottom-4 right-4 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
+                  <Image
+                    src="/TechTots_LOGO.png"
+                    alt="TechTots Logo"
+                    width={40}
+                    height={20}
+                    className="mr-2"
+                  />
+                  <span className="text-sm font-medium text-indigo-900">
+                    {t("inspiredOurMission")}
+                  </span>
+                </div>
+                <div className="absolute top-4 right-4 z-10">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="bg-white/80 hover:bg-white border-indigo-300 text-indigo-700 text-xs"
+                    onClick={() => toggleBookLanguage("book1")}>
+                    {bookVersions.book1 === "english" ? "🇷🇴 RO" : "🇬🇧 EN"}
+                  </Button>
+                </div>
+                <div className="absolute top-4 left-4 z-10">
+                  <div className="bg-white/80 px-3 py-1 rounded-md font-medium text-indigo-900 text-sm">
+                    {getBookTitle("book1")}
+                  </div>
+                </div>
               </div>
-              <div className="absolute bottom-4 right-4 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
-                <Image
-                  src="/TechTots_LOGO.png"
-                  alt="TechTots Logo"
-                  width={40}
-                  height={20}
-                  className="mr-2"
-                />
-                <span className="text-sm font-medium text-indigo-900">
-                  Inspired our mission
-                </span>
+              <div className="relative h-[450px] rounded-lg overflow-hidden shadow-xl group flex items-center justify-center">
+                <div className="absolute inset-0">
+                  <Image
+                    src={getBookImageSrc("book2")}
+                    alt={getBookTitle("book2")}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                    style={{ objectFit: "cover", objectPosition: "center" }}
+                    className="transition-transform group-hover:scale-105 duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                </div>
+                <div className="absolute bottom-4 right-4 flex items-center bg-white/80 p-2 rounded-lg shadow-md">
+                  <span className="text-sm font-medium text-indigo-900">
+                    {t("empoweringNeurodiverse")}
+                  </span>
+                </div>
+                <div className="absolute top-4 right-4 z-10">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="bg-white/80 hover:bg-white border-indigo-300 text-indigo-700 text-xs"
+                    onClick={() => toggleBookLanguage("book2")}>
+                    {bookVersions.book2 === "english" ? "🇷🇴 RO" : "🇬🇧 EN"}
+                  </Button>
+                </div>
+                <div className="absolute top-4 left-4 z-10">
+                  <div className="bg-white/80 px-3 py-1 rounded-md font-medium text-indigo-900 text-sm">
+                    {getBookTitle("book2")}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

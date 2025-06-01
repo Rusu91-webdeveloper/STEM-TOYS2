@@ -135,6 +135,32 @@ model Blog {
   @@index([stemCategory])
 }
 
+model Book {
+  id           String      @id @default(cuid())
+  name         String
+  slug         String      @unique
+  author       String
+  description  String
+  price        Float       @default(50)
+  coverImage   String?
+  isActive     Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  metadata     Json?       // For SEO and additional book information
+  languages    Language[]
+}
+
+model Language {
+  id          String    @id @default(cuid())
+  name        String
+  code        String    @unique
+  bookId      String
+  isAvailable Boolean   @default(true)
+  book        Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([bookId])
+}
+
 enum Role {
   CUSTOMER
   ADMIN

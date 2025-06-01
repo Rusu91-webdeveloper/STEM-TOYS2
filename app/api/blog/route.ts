@@ -4,43 +4,36 @@ import { PrismaClient } from "@/app/generated/prisma";
 
 const prisma = new PrismaClient();
 
-// GET all blog posts
+// GET all blogs with optional filters
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const category = searchParams.get("category");
+    // Parse URL parameters
+    const searchParams = request.nextUrl.searchParams;
     const stemCategory = searchParams.get("stemCategory");
-    const published = searchParams.get("published");
+    const categoryId =
+      searchParams.get("categoryId") || searchParams.get("category"); // Support both param names
+    const language = searchParams.get("language") || "en"; // Default to English if not specified
 
-    const filters: any = {};
-    const session = await auth();
-    const isAdmin = session?.user?.role === "ADMIN";
+    console.log(
+      `Fetching blogs with filters: language=${language}, stemCategory=${stemCategory}, categoryId=${categoryId}`
+    );
 
-    if (category) {
-      filters.categoryId = category;
+    // Build filter object
+    const filter: any = {
+      isPublished: true,
+    };
+
+    if (stemCategory && stemCategory !== "all") {
+      filter.stemCategory = stemCategory;
     }
 
-    if (stemCategory) {
-      filters.stemCategory = stemCategory;
+    if (categoryId && categoryId !== "all") {
+      filter.categoryId = categoryId;
     }
 
-    if (published) {
-      if (published === "all") {
-        // Only admins can see all blogs
-        if (!isAdmin) {
-          return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-        // Don't filter by published status - return all blogs
-      } else {
-        filters.isPublished = published === "true";
-      }
-    } else {
-      // By default, only return published blogs for public consumption
-      filters.isPublished = true;
-    }
-
+    // Fetch blog posts
     const blogs = await prisma.blog.findMany({
-      where: filters,
+      where: filter,
       include: {
         author: {
           select: {
@@ -62,11 +55,24 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json(blogs);
+    // Filter blogs by language using the metadata field
+    // If metadata.language exists, use it for filtering
+    // Otherwise assume it's available in the user's language
+    const filteredBlogs = blogs.filter((blog) => {
+      if (!blog.metadata) return true;
+
+      const metadata = blog.metadata as any;
+      // If no language specified in metadata, show the blog
+      if (!metadata.language) return true;
+
+      return metadata.language === language;
+    });
+
+    return NextResponse.json(filteredBlogs);
   } catch (error) {
-    console.error("Error fetching blogs:", error);
+    console.error("Error fetching blog posts:", error);
     return NextResponse.json(
-      { error: "Failed to fetch blogs" },
+      { error: "Failed to fetch blog posts" },
       { status: 500 }
     );
   }

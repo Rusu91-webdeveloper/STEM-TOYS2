@@ -120,8 +120,28 @@ export default function Home() {
               <Button
                 asChild
                 size="lg"
-                className="text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 bg-gradient-to-r from-blue-600 to-yellow-500 hover:from-blue-700 hover:to-yellow-400 text-white border-0">
-                <Link href="/products">{t("shopAllProducts")}</Link>
+                className="text-base md:text-lg px-6 sm:px-8 py-5 sm:py-6 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0 relative overflow-hidden group">
+                <Link
+                  href="/products"
+                  className="flex items-center">
+                  {t("shopAllProducts")}
+                  <span className="ml-2 transform transition-transform group-hover:translate-x-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                      className="w-5 h-5">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                      />
+                    </svg>
+                  </span>
+                  <span className="absolute -z-10 inset-0 bg-gradient-to-r from-indigo-600/30 to-purple-600/30 blur-xl opacity-50 group-hover:opacity-75 transition-opacity"></span>
+                </Link>
               </Button>
               <Button
                 asChild
@@ -195,12 +215,17 @@ export default function Home() {
       {/* Featured Products - Improved responsiveness and currency display */}
       <section className="py-10 sm:py-12 md:py-16">
         <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center">
-            {t("featuredProducts")}
-          </h2>
-          <p className="text-center text-muted-foreground mb-8 sm:mb-10 max-w-3xl mx-auto px-2">
-            {t("featuredProductsDesc")}
-          </p>
+          <div className="mb-8 text-center">
+            <span className="inline-block px-3 py-1 text-sm font-medium text-purple-700 bg-purple-100 rounded-full mb-2">
+              {t("recommendedForYou" as any, "Recommended For You")}
+            </span>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center">
+              {t("featuredProducts")}
+            </h2>
+            <p className="text-center text-muted-foreground mb-0 max-w-3xl mx-auto px-2">
+              {t("featuredProductsDesc")}
+            </p>
+          </div>
 
           {isLoading ? (
             // Loading skeleton
@@ -297,12 +322,186 @@ export default function Home() {
             <Button
               asChild
               size="lg"
-              className="text-base px-6 py-5 sm:px-8 sm:py-6 rounded-lg shadow-md hover:shadow-lg transition-all hover:scale-105">
-              <Link href="/products">{t("viewAllProducts")}</Link>
+              className="text-base px-6 py-5 sm:px-8 sm:py-6 rounded-lg shadow-md hover:shadow-lg transition-all hover:scale-105 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white border-0">
+              <Link
+                href="/products"
+                className="flex items-center">
+                {t("viewAllProducts")}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={2}
+                  stroke="currentColor"
+                  className="w-5 h-5 ml-2">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                  />
+                </svg>
+              </Link>
             </Button>
           </div>
         </div>
       </section>
+
+      {/* Educational Books Section */}
+      <section className="py-10 sm:py-12 md:py-16 bg-muted">
+        <div className="container mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 text-center">
+            {t("educationalBooks" as any, "Educational Books")}
+          </h2>
+          <p className="text-center text-muted-foreground mb-8 sm:mb-10 max-w-3xl mx-auto px-2">
+            {t(
+              "educationalBooksDesc" as any,
+              "Discover our collection of educational books designed to inspire young minds"
+            )}
+          </p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+            {/* Book 1: STEM Play for Neurodiverse Minds */}
+            <div className="bg-background rounded-xl overflow-hidden shadow-lg border border-gray-200 flex flex-col md:flex-row">
+              <div className="md:w-2/5 relative p-4">
+                <div className="aspect-[3/4] relative shadow-lg rounded-md overflow-hidden book-cover-effect">
+                  <Image
+                    src="/STEM_play_for_neurodiverse_minds.jpg"
+                    alt={t(
+                      "stemPlayBook" as any,
+                      "STEM Play for Neurodiverse Minds"
+                    )}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    style={{ objectFit: "cover" }}
+                    className="transition-transform hover:scale-105 duration-300"
+                  />
+                  <div className="absolute inset-0 border-4 border-opacity-10 border-black rounded-md"></div>
+                </div>
+              </div>
+              <div className="p-6 md:w-3/5 flex flex-col">
+                <h3 className="text-xl sm:text-2xl font-bold mb-2">
+                  {t("stemPlayBook" as any, "STEM Play for Neurodiverse Minds")}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  {t(
+                    "stemPlayBookDesc" as any,
+                    "A comprehensive guide to engaging neurodiverse children with STEM activities that promote learning through play."
+                  )}
+                </p>
+                <div className="mt-auto space-y-4">
+                  <div className="flex items-center">
+                    <div className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 mr-2">
+                      {t(
+                        "availableInTwoLanguages" as any,
+                        "Available in 2 languages"
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Button
+                      asChild
+                      className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-800">
+                      <Link href="/products/stem-play-neurodiverse-minds-english">
+                        <span className="mr-2">🇬🇧</span>{" "}
+                        {t("buyInEnglish" as any, "Buy in English")}
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      className="flex items-center justify-center bg-gradient-to-r from-yellow-600 to-red-600">
+                      <Link href="/products/stem-play-neurodiverse-minds-romanian">
+                        <span className="mr-2">🇷🇴</span>{" "}
+                        {t("buyInRomanian" as any, "Buy in Romanian")}
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Book 2: Born for the Future */}
+            <div className="bg-background rounded-xl overflow-hidden shadow-lg border border-gray-200 flex flex-col md:flex-row">
+              <div className="md:w-2/5 relative p-4">
+                <div className="aspect-[3/4] relative shadow-lg rounded-md overflow-hidden book-cover-effect">
+                  <Image
+                    src="/born_for_the_future.png"
+                    alt={t("bornFutureBook" as any, "Born for the Future")}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    style={{ objectFit: "cover" }}
+                    className="transition-transform hover:scale-105 duration-300"
+                  />
+                  <div className="absolute inset-0 border-4 border-opacity-10 border-black rounded-md"></div>
+                </div>
+              </div>
+              <div className="p-6 md:w-3/5 flex flex-col">
+                <h3 className="text-xl sm:text-2xl font-bold mb-2">
+                  {t("bornFutureBook" as any, "Born for the Future")}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  {t(
+                    "bornFutureBookDesc" as any,
+                    "An inspiring book that prepares children for the technological world of tomorrow through engaging stories and activities."
+                  )}
+                </p>
+                <div className="mt-auto space-y-4">
+                  <div className="flex items-center">
+                    <div className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800 mr-2">
+                      {t(
+                        "availableInTwoLanguages" as any,
+                        "Available in 2 languages"
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Button
+                      asChild
+                      className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-800">
+                      <Link href="/products/born-for-the-future-english">
+                        <span className="mr-2">🇬🇧</span>{" "}
+                        {t("buyInEnglish" as any, "Buy in English")}
+                      </Link>
+                    </Button>
+                    <Button
+                      asChild
+                      className="flex items-center justify-center bg-gradient-to-r from-yellow-600 to-red-600">
+                      <Link href="/products/born-for-the-future-romanian">
+                        <span className="mr-2">🇷🇴</span>{" "}
+                        {t("buyInRomanian" as any, "Buy in Romanian")}
+                      </Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 text-center">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="text-base px-6 py-5 sm:px-8 sm:py-6 rounded-lg shadow-md hover:shadow-lg transition-all hover:scale-105">
+              <Link href="/products?category=educational-books">
+                {t("viewAllBooks" as any, "View All Educational Books")}
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      <style
+        jsx
+        global>{`
+        .book-cover-effect {
+          box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+          transition: all 0.3s ease;
+        }
+        .book-cover-effect:hover {
+          box-shadow: 7px 7px 20px rgba(0, 0, 0, 0.3);
+          transform: translateY(-5px);
+        }
+      `}</style>
 
       {/* Value Proposition - Improved for better centering and responsiveness */}
       <section className="py-10 sm:py-12 md:py-16 bg-primary text-primary-foreground">

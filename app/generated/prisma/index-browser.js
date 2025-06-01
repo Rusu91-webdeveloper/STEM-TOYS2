@@ -224,6 +224,28 @@ exports.Prisma.BlogScalarFieldEnum = {
   stemCategory: 'stemCategory'
 };
 
+exports.Prisma.BookScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  author: 'author',
+  description: 'description',
+  price: 'price',
+  coverImage: 'coverImage',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  metadata: 'metadata'
+};
+
+exports.Prisma.LanguageScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  code: 'code',
+  bookId: 'bookId',
+  isAvailable: 'isAvailable'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -269,7 +291,9 @@ exports.Prisma.ModelName = {
   PaymentCard: 'PaymentCard',
   Category: 'Category',
   Product: 'Product',
-  Blog: 'Blog'
+  Blog: 'Blog',
+  Book: 'Book',
+  Language: 'Language'
 };
 
 /**

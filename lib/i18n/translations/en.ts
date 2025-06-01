@@ -176,13 +176,16 @@ export const en = {
   readMore: "Read More",
   stayUpdated: "Stay Updated",
   newsletterDescription:
-    "Subscribe to our newsletter for the latest articles, educational resources, and STEM toy recommendations.",
-  emailPlaceholder: "Your email address",
+    "Subscribe to our newsletter for the latest STEM education tips and updates.",
+  emailPlaceholder: "Enter your email",
   subscribe: "Subscribe",
   // Blog Post Page
   backToBlog: "Back to Blog",
   relatedArticles: "Related Articles",
   viewAllArticles: "View All Articles",
+  blogPostNotFound: "Blog post not found",
+  loading: "Loading article",
+  tags: "Tags",
 
   // About Page
   aboutTitle: "About TechTots | Our Story",
@@ -275,4 +278,31 @@ export const en = {
     "This educational toy helps children learn the basics of coding through play. An excellent way to introduce technological concepts.",
   defaultProductDescription:
     "This educational STEM toy is designed to inspire and educate children through interactive play and exploration.",
+
+  // STEM Benefits
+  whyStemEssential: "Why STEM Toys Are Essential",
+  cognitiveDevelopment: "Cognitive Development",
+  cognitiveDevelopmentDesc:
+    "Enhances problem-solving and critical thinking skills",
+  creativityInnovation: "Creativity & Innovation",
+  creativityInnovationDesc: "Encourages creative thinking and new ideas",
+  futureReady: "Future Ready",
+  futureReadyDesc: "Prepares children for careers in science and technology",
+  funLearning: "Fun Learning",
+  funLearningDesc: "Makes education engaging and enjoyable",
+
+  // Additional about page translations
+  inspiredOurMission: "Inspired our mission",
+  empoweringNeurodiverse: "Empowering neurodiverse children",
+  ourMission: "Our Mission",
+  ourApproach: "Our Approach",
+  meetTheTeam: "Meet The Team",
+  founderTitle: "Founder & CEO",
+  productManagerTitle: "Product Manager",
+  educationalConsultantTitle: "Educational Consultant",
+  seniorDesignerTitle: "Senior Designer",
+  contactUs: "Contact Us",
+  ourOfficeTitles: "Our Offices",
+  joinNewsletter: "Join Our Newsletter",
+  subscribeCTA: "Subscribe",
 };

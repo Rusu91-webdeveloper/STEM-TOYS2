@@ -60,7 +60,7 @@ const stemCategories = [
 ];
 
 export default function BlogPage() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeCategoryId, setActiveCategoryId] = useState("all");
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
@@ -87,44 +87,43 @@ export default function BlogPage() {
     fetchCategories();
   }, []);
 
+  // Fetch blog posts
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        setIsLoading(true);
-        // Build URL with appropriate filters
-        let url = "/api/blog";
-        const params = new URLSearchParams();
+    const fetchBlogPosts = async () => {
+      setIsLoading(true);
+      setError(null);
 
-        if (activeCategory !== "all") {
-          params.append("stemCategory", activeCategory);
-        }
+      try {
+        // Add language parameter to the API request
+        const url = new URL("/api/blog", window.location.origin);
+        url.searchParams.append("language", language);
 
         if (activeCategoryId !== "all") {
-          params.append("category", activeCategoryId);
+          url.searchParams.append("categoryId", activeCategoryId);
         }
 
-        if (params.toString()) {
-          url += `?${params.toString()}`;
+        if (activeCategory !== "all") {
+          url.searchParams.append("stemCategory", activeCategory);
         }
 
-        const response = await fetch(url);
+        const response = await fetch(url.toString());
 
         if (!response.ok) {
-          throw new Error("Failed to fetch blogs");
+          throw new Error("Failed to fetch blog posts");
         }
 
         const data = await response.json();
         setBlogPosts(data);
       } catch (err) {
-        console.error("Error fetching blogs:", err);
-        setError("Failed to load blog posts. Please try again later.");
+        console.error("Error fetching blog posts:", err);
+        setError(`${err instanceof Error ? err.message : "An error occurred"}`);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchBlogs();
-  }, [activeCategory, activeCategoryId]);
+    fetchBlogPosts();
+  }, [activeCategoryId, activeCategory, language]); // Add language as dependency
 
   // Get default image based on STEM category
   const getDefaultImage = (category: string) => {
@@ -170,6 +169,14 @@ export default function BlogPage() {
           <p className="text-lg md:text-xl mb-6 max-w-2xl leading-relaxed drop-shadow-sm">
             {t("blogDescription")}
           </p>
+
+          {/* Language indicator */}
+          <div className="inline-flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full text-sm font-medium mb-4">
+            {language === "ro" ? "🇷🇴" : "🇬🇧"}
+            <span>
+              {language === "ro" ? "Articole în Română" : "Articles in English"}
+            </span>
+          </div>
 
           <div className="mb-4">
             <h3 className="text-lg font-semibold mb-2">STEM Categories</h3>

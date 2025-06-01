@@ -10,27 +10,87 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   const { slug } = params;
+  const language = request.nextUrl.searchParams.get("language") || "en"; // Default to English
+
+  console.log(`Fetching blog post with slug ${slug} and language ${language}`);
 
   try {
-    const blog = await prisma.blog.findUnique({
-      where: { slug },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
+    // First, try to find a blog post with the language in the slug (e.g., "my-post-ro")
+    let blog = null;
+
+    // Check if slug contains a language suffix
+    const slugHasLanguage = slug.endsWith("-ro") || slug.endsWith("-en");
+
+    if (slugHasLanguage) {
+      // If the slug already has a language suffix, use it directly
+      blog = await prisma.blog.findUnique({
+        where: { slug },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          category: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
           },
         },
-        category: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
+      });
+    } else {
+      // If no language in slug, try with language suffix first, then fall back to original slug
+      const languageSuffix = language === "ro" ? "-ro" : "-en";
+      const localizedSlug = `${slug}${languageSuffix}`;
+
+      // Try to find the localized version first
+      blog = await prisma.blog.findUnique({
+        where: { slug: localizedSlug },
+        include: {
+          author: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
+          },
+          category: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
           },
         },
-      },
-    });
+      });
+
+      // If not found, fall back to the original slug
+      if (!blog) {
+        blog = await prisma.blog.findUnique({
+          where: { slug },
+          include: {
+            author: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+            category: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+          },
+        });
+      }
+    }
 
     if (!blog) {
       return NextResponse.json(

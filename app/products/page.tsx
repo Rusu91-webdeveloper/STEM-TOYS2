@@ -65,29 +65,35 @@ const categoryInfo: Record<string, CategoryIconInfo> = {
     textColor: "text-purple-500",
     letter: "M",
   },
+  "educational-books": {
+    icon: Brain,
+    bgColor: "bg-red-500",
+    textColor: "text-red-500",
+    letter: "B",
+  },
 };
 
 // Benefits of STEM toys with icons
 const stemBenefits = [
   {
     icon: Brain,
-    title: "Cognitive Development",
-    description: "Enhances problem-solving and critical thinking skills",
+    titleKey: "cognitiveDevelopment",
+    descKey: "cognitiveDevelopmentDesc",
   },
   {
     icon: Sparkles,
-    title: "Creativity & Innovation",
-    description: "Encourages creative thinking and new ideas",
+    titleKey: "creativityInnovation",
+    descKey: "creativityInnovationDesc",
   },
   {
     icon: Rocket,
-    title: "Future Ready",
-    description: "Prepares children for careers in science and technology",
+    titleKey: "futureReady",
+    descKey: "futureReadyDesc",
   },
   {
     icon: Star,
-    title: "Fun Learning",
-    description: "Makes education engaging and enjoyable",
+    titleKey: "funLearning",
+    descKey: "funLearningDesc",
   },
 ];
 
@@ -201,6 +207,15 @@ export default function ProductsPage() {
   // Mock filters
   const mockFilters: FilterGroup[] = [
     {
+      id: "productType",
+      name: "Product Type",
+      options: [
+        { id: "toy", label: "STEM Toy", count: 10 },
+        { id: "book", label: "Educational Book", count: 4 },
+        { id: "kit", label: "DIY Kit", count: 6 },
+      ],
+    },
+    {
       id: "ageRange",
       name: "Age Range",
       options: [
@@ -231,15 +246,16 @@ export default function ProductsPage() {
     // Apply all filters
     let filtered = [...products];
 
-    // Filter by category - using category.name
+    // Filter by category - using category.name or slug
     if (selectedCategories.length > 0) {
       filtered = filtered.filter((product) => {
-        // Get category name from the category object
+        // Get category info from the product
         const categoryName = product.category?.name.toLowerCase() || "";
+        const categorySlug = product.category?.slug.toLowerCase() || "";
 
         return selectedCategories.some((cat) => {
           const lowerCat = cat.toLowerCase();
-          return categoryName === lowerCat;
+          return categoryName === lowerCat || categorySlug === lowerCat;
         });
       });
     }
@@ -270,6 +286,15 @@ export default function ProductsPage() {
             // Check product attributes for difficulty level
             return values.some(
               (value) => product.attributes?.difficulty === value
+            );
+          });
+        } else if (filterId === "productType") {
+          filtered = filtered.filter((product) => {
+            // Check product attributes for type
+            return values.some((value) =>
+              product.attributes?.type
+                ?.toLowerCase()
+                .includes(value.toLowerCase())
             );
           });
         }
@@ -379,6 +404,8 @@ export default function ProductsPage() {
         return t("engineeringToysTitle");
       case "mathematics":
         return t("mathematicsToysTitle");
+      case "educational-books":
+        return t("educationalBooks" as any, "Educational Books");
       default:
         return t("discoverStemToys");
     }
@@ -397,6 +424,11 @@ export default function ProductsPage() {
         return t("engineeringToysDescription");
       case "mathematics":
         return t("mathematicsToysDescription");
+      case "educational-books":
+        return t(
+          "educationalBooksDesc" as any,
+          "Discover our collection of educational books designed to inspire young minds"
+        );
       default:
         return t("stemToysDescription");
     }
@@ -415,6 +447,8 @@ export default function ProductsPage() {
         return t("engineeringLearning");
       case "mathematics":
         return t("mathematicsLearning");
+      case "educational-books":
+        return t("booksLearning" as any, "Books That Inspire Young Minds");
       default:
         return "";
     }
@@ -433,6 +467,11 @@ export default function ProductsPage() {
         return t("engineeringLearningDesc");
       case "mathematics":
         return t("mathematicsLearningDesc");
+      case "educational-books":
+        return t(
+          "booksLearningDesc" as any,
+          "Our educational books are carefully crafted to foster a love of learning and inspire curiosity in children."
+        );
       default:
         return "";
     }
@@ -561,12 +600,10 @@ export default function ProductsPage() {
                       <BenefitIcon className="h-5 w-5" />
                     </div>
                     <h3 className="font-bold text-sm mb-1">
-                      {t(benefit.title.toLowerCase().replace(" & ", "") as any)}
+                      {t(benefit.titleKey)}
                     </h3>
                     <p className="text-gray-600 text-xs">
-                      {t(
-                        `${benefit.title.toLowerCase().replace(" & ", "")}Desc` as any
-                      )}
+                      {t(benefit.descKey)}
                     </p>
                   </div>
                 );
@@ -745,24 +782,16 @@ export default function ProductsPage() {
                         ? "from-orange-50 to-orange-100 border-orange-200"
                         : "from-purple-50 to-purple-100 border-purple-200"
                 } border shadow-sm`}>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                   <div
-                    className={`p-3 rounded-full ${categoryInfo[activeCategory.id as keyof typeof categoryInfo].bgColor}`}>
-                    {React.createElement(
-                      categoryInfo[
-                        activeCategory.id as keyof typeof categoryInfo
-                      ].icon,
-                      {
-                        className: "h-5 w-5 text-white",
-                      }
-                    )}
+                    className={`p-3 rounded-full ${categoryInfo[activeCategory.id as keyof typeof categoryInfo].bgColor} flex-shrink-0`}>
+                    <IconComponent className="h-5 w-5 text-white" />
                   </div>
-                  <div>
-                    <h3
-                      className={`font-bold text-base ${categoryInfo[activeCategory.id as keyof typeof categoryInfo].textColor}`}>
+                  <div className="flex-1">
+                    <h3 className="text-base font-semibold mb-1">
                       {getLearningTitle()}
                     </h3>
-                    <p className="text-gray-700 text-sm">
+                    <p className="text-sm text-gray-600 line-clamp-2">
                       {getLearningDescription()}
                     </p>
                   </div>

@@ -1,20 +1,21 @@
 // Romanian translations
 export const ro = {
+  // General UI translations
   home: "Acasă",
   products: "Produse",
   categories: "Categorii",
   blog: "Blog",
-  about: "Despre",
+  about: "Despre noi",
   account: "Cont",
   admin: "Admin",
-  login: "Conectare",
+  login: "Autentificare",
   register: "Înregistrare",
   logout: "Deconectare",
   cart: "Coș",
   checkout: "Finalizare comandă",
   search: "Căutare",
   welcome: "Bine ați venit la TechTots",
-  slogan: "Jucării STEM pentru mințile curioase",
+  slogan: "Jucării STEM pentru minți curioase",
   price: "Preț",
   addToCart: "Adaugă în coș",
   outOfStock: "Stoc epuizat",
@@ -25,8 +26,8 @@ export const ro = {
   yourCart: "Coșul tău",
   emptyCart: "Coșul tău este gol",
   subtotal: "Subtotal",
-  tax: "TVA",
-  shipping: "Transport",
+  tax: "Taxe",
+  shipping: "Livrare",
   total: "Total",
   clearCart: "Golește coșul",
 
@@ -60,7 +61,7 @@ export const ro = {
   paymentMethod: "Metoda de plată",
   deliveryOnlyRomania: "Livrarea este disponibilă doar în România",
 
-  // States/Counties in Romania
+  // Romanian counties
   counties: {
     AB: "Alba",
     AR: "Arad",
@@ -106,12 +107,7 @@ export const ro = {
     VN: "Vrancea",
   },
 
-  // Products page
-  stemToysTitle: "Jucării Educaționale STEM",
-  stemToysDescription:
-    "Explorează colecția noastră de jucării educaționale concepute pentru a inspira curiozitatea și a încuraja învățarea în știință, tehnologie, inginerie și matematică.",
-
-  // ProductGrid component
+  // Product Grid and Filtering
   sortBy: "Sortează după",
   featured: "Recomandate",
   priceLowToHigh: "Preț: De la mic la mare",
@@ -123,6 +119,12 @@ export const ro = {
   listView: "Vizualizare listă",
   noProductsFound:
     "Nu s-au găsit produse. Încercați filtre diferite sau termeni de căutare diferiți.",
+  filterOptions: "Opțiuni de Filtrare",
+  filterBy: "Filtrează După:",
+  allCategories: "Toate Categoriile",
+  tryAdjustingFilters:
+    "Încearcă să ajustezi filtrele sau criteriile de căutare",
+  clearAllFilters: "Șterge Toate Filtrele",
 
   // Homepage specific translations
   inspireMinds: "Inspiră Minți Curioase",
@@ -139,6 +141,23 @@ export const ro = {
   viewDetails: "Vezi Detalii",
   viewAllProducts: "Vezi Toate Produsele",
   whyChooseTechTots: "De ce să alegi TechTots?",
+
+  // Educational Books translations
+  educationalBooks: "Cărți Educaționale",
+  educationalBooksDesc:
+    "Descoperă colecția noastră de cărți educaționale concepute pentru a inspira mințile tinere",
+  stemPlayBook: "Joacă STEM pentru Minți Neurodiverse",
+  stemPlayBookDesc:
+    "Un ghid cuprinzător pentru implicarea copiilor neurodiverși în activități STEM care promovează învățarea prin joc.",
+  bornFutureBook: "Născut pentru Viitor",
+  bornFutureBookDesc:
+    "O carte inspirațională care pregătește copiii pentru lumea tehnologică de mâine prin povești și activități captivante.",
+  availableInTwoLanguages: "Disponibil în 2 limbi",
+  buyInEnglish: "Cumpără în Engleză",
+  buyInRomanian: "Cumpără în Română",
+  viewAllBooks: "Vezi Toate Cărțile Educaționale",
+  recommendedForYou: "Recomandate pentru tine",
+
   // Footer specific translations
   shop: "Magazin",
   company: "Companie",
@@ -160,11 +179,11 @@ export const ro = {
     "Explorează colecția noastră de jucării educaționale STEM concepute pentru a inspira curiozitatea și învățarea la copiii de toate vârstele.",
   showingProducts: "Se afișează {0} din {1} produse",
   filterByCategory: "Filtrează după categorie",
-
-  // Product page - Category-specific content
-  discoverStemToys: "Descoperă Jucării Educaționale STEM Uimitoare",
+  stemToysTitle: "Jucării Educaționale STEM",
   stemToysDescription:
-    "Stimulează curiozitatea, creativitatea și gândirea critică cu jucăriile noastre educaționale atent selecționate",
+    "Explorează colecția noastră de jucării educaționale concepute pentru a inspira curiozitatea și a încuraja învățarea în știință, tehnologie, inginerie și matematică.",
+
+  // Product Categories
   scienceToysTitle: "Jucării și Kituri de Învățare Științifice",
   scienceToysDescription:
     "Inspiră tinerii oameni de știință cu experimente practice și kituri de descoperire",
@@ -177,8 +196,24 @@ export const ro = {
   mathematicsToysTitle: "Jucării și Kituri de Învățare Matematică",
   mathematicsToysDescription:
     "Fă matematica magică cu puzzle-uri, jocuri și instrumente interactive de învățare",
+  discoverStemToys: "Descoperă Jucării Educaționale STEM Uimitoare",
 
-  // STEM benefits
+  // Category Pages
+  categoryProducts: "{0} Produse",
+  explorerCategoryToys: "Explorează jucăriile {0}",
+  scienceCategoryDesc:
+    "Descoperă minunile lumii naturale prin experimente practice și explorare. Jucăriile noastre științifice promovează curiozitatea, abilitățile de observare și o înțelegere mai profundă a modului în care funcționează lucrurile.",
+  technologyCategoryDesc:
+    "Explorează programarea, robotica și inovația digitală cu jucăriile noastre tehnologice. Aceste produse ajută copiii să dezvolte gândirea computațională și să se pregătească pentru un viitor digital.",
+  engineeringCategoryDesc:
+    "Construiește, proiectează și rezolvă probleme cu jucăriile și kiturile noastre de inginerie. Aceste produse încurajează gândirea critică, raționamentul spațial și procesul de proiectare inginerească.",
+  mathCategoryDesc:
+    "Fă matematica distractivă și atractivă cu jucăriile și jocurile noastre matematice. Aceste produse dezvoltă abilități matematice fundamentale prin joc și ajută copiii să dezvolte gândirea logică.",
+  categoriesTitle: "Categorii STEM | TechTots",
+  categoriesDescription:
+    "Explorează categoriile noastre STEM atent selecționate. Fiecare categorie este concepută pentru a dezvolta abilități specifice în timp ce face învățarea distractivă.",
+
+  // STEM Benefits
   whyStemEssential: "De ce Jucăriile STEM Sunt Esențiale",
   cognitiveDevelopment: "Dezvoltare Cognitivă",
   cognitiveDevelopmentDesc:
@@ -190,15 +225,8 @@ export const ro = {
   funLearning: "Învățare Distractivă",
   funLearningDesc: "Face educația captivantă și plăcută",
 
-  // Filtering
-  filterOptions: "Opțiuni de Filtrare",
-  filterBy: "Filtrează După:",
-  allCategories: "Toate Categoriile",
-  tryAdjustingFilters:
-    "Încearcă să ajustezi filtrele sau criteriile de căutare",
-  clearAllFilters: "Șterge Toate Filtrele",
-
-  // Category learning descriptions
+  // Learning Benefits
+  learningBenefits: "Beneficii Educaționale",
   scienceLearning: "Învățare Științifică",
   scienceLearningDesc:
     "Descoperă minunile explorării științifice cu jucării care fac învățarea distractivă și captivantă.",
@@ -212,54 +240,48 @@ export const ro = {
   mathematicsLearningDesc:
     "Jocurile matematice fac numerele distractive în timp ce construiesc abilități esențiale pentru succesul academic.",
 
-  // Categories Page
-  categoriesTitle: "Categorii STEM | TechTots",
-  categoriesDescription:
-    "Explorează categoriile noastre STEM atent selecționate. Fiecare categorie este concepută pentru a dezvolta abilități specifice în timp ce face învățarea distractivă.",
-  categoryProducts: "{0} Produse",
-  explorerCategoryToys: "Explorează jucăriile {0}",
-  scienceCategoryDesc:
-    "Descoperă minunile lumii naturale prin experimente practice și explorare. Jucăriile noastre științifice promovează curiozitatea, abilitățile de observare și o înțelegere mai profundă a modului în care funcționează lucrurile.",
-  technologyCategoryDesc:
-    "Explorează programarea, robotica și inovația digitală cu jucăriile noastre tehnologice. Aceste produse ajută copiii să dezvolte gândirea computațională și să se pregătească pentru un viitor digital.",
-  engineeringCategoryDesc:
-    "Construiește, proiectează și rezolvă probleme cu jucăriile și kiturile noastre de inginerie. Aceste produse încurajează gândirea critică, raționamentul spațial și procesul de proiectare inginerească.",
-  mathCategoryDesc:
-    "Fă matematica distractivă și atractivă cu jucăriile și jocurile noastre matematice. Aceste produse dezvoltă abilități matematice fundamentale prin joc și ajută copiii să dezvolte gândirea logică.",
-
   // Blog Page
-  blogTitle: "Blog de învățare STEM | TechTots",
+  blogTitle: "Blog educațional STEM | TechTots",
   blogDescription:
     "Informații, sfaturi și cele mai recente cercetări despre jucăriile educaționale și învățarea STEM pentru copiii de toate vârstele.",
   latestArticles: "Cele mai recente articole",
   articles: "Articole",
-  noArticlesInCategory: "Nu s-au găsit articole în această categorie încă.",
+  noArticlesInCategory: "Nu există încă articole în această categorie.",
   readMore: "Citește mai mult",
   stayUpdated: "Rămâi la curent",
   newsletterDescription:
-    "Abonează-te la newsletter-ul nostru pentru cele mai recente articole, resurse educaționale și recomandări de jucării STEM.",
-  emailPlaceholder: "Adresa ta de email",
+    "Abonează-te la newsletter-ul nostru pentru cele mai recente sfaturi și actualizări despre educația STEM.",
+  emailPlaceholder: "Introduceți email-ul",
   subscribe: "Abonează-te",
+  backToBlog: "Înapoi la Blog",
+  blogPostNotFound: "Articolul nu a fost găsit",
+  loading: "Se încarcă articolul",
+  tags: "Etichete",
+  viewAllArticles: "Vezi toate articolele",
+  relatedArticles: "Articole conexe",
 
   // About Page
-  aboutTitle: "Despre TechTots | Povestea noastră",
+  aboutTitle: "Despre TechTots | Povestea Noastră",
   aboutDescription:
-    "Află despre misiunea TechTots de a împuternici următoarea generație de inovatori prin joc și explorare cu jucării STEM.",
-  ourStory: "Povestea noastră",
-  ourValues: "Valorile noastre",
-  ourTeam: "Echipa noastră",
-  joinStemJourney: "Alătură-te călătoriei noastre STEM",
+    "Află despre misiunea TechTots de a împuternici următoarea generație de inovatori prin joacă și explorare cu jucării STEM.",
+  ourStory: "Povestea Noastră",
+  ourValues: "Valorile Noastre",
+  ourTeam: "Echipa Noastră",
+  joinStemJourney: "Alătură-te Călătoriei Noastre STEM",
+  joinStemJourneyDesc:
+    "Descoperă selecția noastră atent aleasă de jucării educaționale și începe să inspiri curiozitatea astăzi!",
+  shopCollection: "Explorează Colecția Noastră",
 
-  // About page paragraphs - updated for the new story
+  // About page paragraphs
   ourStoryParagraph1:
-    'TechTots a fost fondată în 2025 după ce fondatorul nostru a citit cartea inovatoare "Born for the Future" de Casey Wrenly. Perspectivele profunde ale cărții despre dezvoltarea copilului și abilitățile viitoare au inspirat misiunea noastră de a revoluționa jocul educațional.',
+    'TechTots a fost fondat în 2025 după ce fondatorul nostru a citit cartea revoluționară "Născut pentru Viitor" de Casey Wrenly. Perspectivele profunde ale cărții asupra dezvoltării copilului și abilităților viitoare au inspirat misiunea noastră de a revoluționa joaca educațională.',
   ourStoryParagraph2:
-    "Înțelegem profund cât de importante sunt jucăriile STEM în formarea viitorului copiilor noștri de la o vârstă fragedă. Aceste jucării nu doar distrează — ele dezvoltă căi neuronale esențiale, stimulează curiozitatea și construiesc baza pentru gândirea computațională, raționamentul spațial și cercetarea științifică.",
+    "Înțelegem profund cât de importante sunt jucăriile STEM în modelarea viitorului copiilor noștri de la o vârstă fragedă. Aceste jucării nu doar distrează—ele dezvoltă căi neuronale esențiale, stimulează curiozitatea și construiesc fundația pentru gândirea computațională, raționamentul spațial și investigația științifică.",
   ourStoryParagraph3:
-    "Produsele noastre atent selectate sunt concepute să crească odată cu copilul tău, oferind provocări din ce în ce mai complexe care se adaptează la capacitățile lor în dezvoltare. Credem că făcând învățarea STEM plăcută și accesibilă, ajutăm la formarea inovatorilor, rezolvatorilor de probleme și gânditorilor creativi de mâine.",
+    "Produsele noastre atent selectate sunt concepute pentru a se dezvolta odată cu copilul tău, oferind provocări din ce în ce mai complexe care se adaptează capacităților lor în dezvoltare. Credem că făcând învățarea STEM bucuroasă și accesibilă, ajutăm la cultivarea inovatorilor, rezolvatorilor de probleme și gânditorilor creativi de mâine.",
 
   // Values section
-  qualitySafety: "Calitate & Siguranță",
+  qualitySafety: "Calitate și Siguranță",
   qualitySafetyDesc:
     "Testăm riguros toate produsele noastre pentru a ne asigura că îndeplinesc cele mai înalte standarde de calitate, durabilitate și siguranță pentru copii.",
   educationalImpact: "Impact Educațional",
@@ -267,12 +289,7 @@ export const ro = {
     "Fiecare produs din colecția noastră este conceput cu rezultate specifice de învățare în minte, sprijinind dezvoltarea abilităților adecvate vârstei.",
   sustainability: "Sustenabilitate",
   sustainabilityDesc:
-    "Ne angajăm să reducem amprenta noastră asupra mediului prin materiale sustenabile, ambalaje responsabile și practici de afaceri conștiente.",
-
-  // CTA section
-  joinStemJourneyDesc:
-    "Descoperă selecția noastră atent aleasă de jucării educaționale și începe să inspiri curiozitatea astăzi!",
-  shopCollection: "Explorează Colecția Noastră",
+    "Suntem dedicați reducerii amprentei noastre de mediu prin materiale sustenabile, ambalaje responsabile și practici de afaceri conștiente.",
 
   // Product page specific translations
   backToProducts: "Înapoi la Produse",
@@ -310,4 +327,25 @@ export const ro = {
     "Această jucărie educațională ajută copiii să învețe bazele programării prin joc. O modalitate excelentă de a introduce concepte tehnologice.",
   defaultProductDescription:
     "Această jucărie educațională STEM este proiectată pentru a inspira și educa copiii prin joc interactiv și explorare.",
+
+  // 404 Page
+  pageNotFound: "Pagina nu a fost găsită",
+  pageNotFoundDesc:
+    "Ne pare rău, dar pagina pe care o căutați nu există sau a fost mutată.",
+  returnHome: "Înapoi la pagina principală",
+
+  // Additional about page translations
+  inspiredOurMission: "Ne-a inspirat misiunea",
+  empoweringNeurodiverse: "Împuternicirea copiilor neurodiversi",
+  ourMission: "Misiunea Noastră",
+  ourApproach: "Abordarea Noastră",
+  meetTheTeam: "Cunoaște Echipa",
+  founderTitle: "Fondator și Director Executiv",
+  productManagerTitle: "Manager de Produs",
+  educationalConsultantTitle: "Consultant Educațional",
+  seniorDesignerTitle: "Designer Senior",
+  contactUs: "Contactează-ne",
+  ourOfficeTitles: "Sediile Noastre",
+  joinNewsletter: "Alătură-te Buletinului Nostru Informativ",
+  subscribeCTA: "Abonează-te",
 };
