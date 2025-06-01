@@ -12,97 +12,21 @@ import {
   TrendingUp,
   Calendar,
 } from "lucide-react";
+import { getDashboardData } from "@/lib/admin/api";
+import type { DashboardStat, RecentOrder, TopProduct } from "@/lib/admin/api";
 
-// Mock data for dashboard
-const stats = [
-  {
-    title: "Total Revenue",
-    value: "$12,486.89",
-    change: "+14.5%",
-    trend: "up",
-    icon: <DollarSign className="h-8 w-8" />,
-    description: "Last 30 days",
-  },
-  {
-    title: "Total Orders",
-    value: "368",
-    change: "+8.2%",
-    trend: "up",
-    icon: <ShoppingBag className="h-8 w-8" />,
-    description: "Last 30 days",
-  },
-  {
-    title: "New Customers",
-    value: "45",
-    change: "-2.4%",
-    trend: "down",
-    icon: <Users className="h-8 w-8" />,
-    description: "Last 30 days",
-  },
-  {
-    title: "Total Products",
-    value: "127",
-    change: "+3.1%",
-    trend: "up",
-    icon: <Package className="h-8 w-8" />,
-    description: "Active products",
-  },
-];
+// Dashboard icons for stats
+const ICONS: Record<string, React.ReactNode> = {
+  "Total Revenue": <DollarSign className="h-8 w-8" />,
+  "Total Orders": <ShoppingBag className="h-8 w-8" />,
+  "New Customers": <Users className="h-8 w-8" />,
+  "Total Products": <Package className="h-8 w-8" />,
+};
 
-// Mock recent orders data
-const recentOrders = [
-  {
-    id: "ORD-7652",
-    customer: "Emma Thompson",
-    date: "May 14, 2025",
-    amount: "$124.99",
-    status: "Completed",
-  },
-  {
-    id: "ORD-7651",
-    customer: "John Miller",
-    date: "May 14, 2025",
-    amount: "$89.95",
-    status: "Processing",
-  },
-  {
-    id: "ORD-7650",
-    customer: "Olivia Wilson",
-    date: "May 13, 2025",
-    amount: "$249.99",
-    status: "Completed",
-  },
-  {
-    id: "ORD-7649",
-    customer: "William Davis",
-    date: "May 13, 2025",
-    amount: "$175.85",
-    status: "Shipped",
-  },
-  {
-    id: "ORD-7648",
-    customer: "Sophia Martinez",
-    date: "May 12, 2025",
-    amount: "$64.49",
-    status: "Processing",
-  },
-];
+export default async function AdminDashboard() {
+  // Fetch real data from the API
+  const { stats, recentOrders, topProducts } = await getDashboardData();
 
-// Mock top products data
-const topProducts = [
-  { name: "Robotic Building Kit", price: "$59.99", sales: 45, inventory: 32 },
-  { name: "Chemistry Lab Set", price: "$49.99", sales: 38, inventory: 24 },
-  {
-    name: "Magnetic Building Tiles",
-    price: "$39.99",
-    sales: 36,
-    inventory: 18,
-  },
-  { name: "Math Puzzle Game", price: "$29.99", sales: 32, inventory: 27 },
-  { name: "Coding Robot for Kids", price: "$79.99", sales: 28, inventory: 15 },
-];
-
-export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
@@ -168,9 +92,9 @@ export default function AdminDashboard() {
             </div>
           </Card>
         </Link>
-        <Link href="/admin/users">
+        <Link href="/admin/customers">
           <Card className="p-6 hover:bg-slate-50 transition-colors cursor-pointer h-full">
-            <h3 className="text-lg font-medium mb-2">Manage Users</h3>
+            <h3 className="text-lg font-medium mb-2">Manage Customers</h3>
             <p className="text-sm text-muted-foreground mb-4">
               View and manage customer accounts
             </p>
@@ -186,7 +110,7 @@ export default function AdminDashboard() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
+        {stats.map((stat: DashboardStat) => (
           <Card
             key={stat.title}
             className="p-6">
@@ -214,7 +138,7 @@ export default function AdminDashboard() {
                 </p>
               </div>
               <div className="rounded-full bg-primary/10 p-3 text-primary">
-                {stat.icon}
+                {ICONS[stat.title] || <Package className="h-8 w-8" />}
               </div>
             </div>
           </Card>
@@ -244,34 +168,43 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {recentOrders.map((order) => (
+                {recentOrders.map((order: RecentOrder) => (
                   <tr
                     key={order.id}
                     className="border-b last:border-0 text-sm">
-                    <td className="py-3 pr-2">
+                    <td className="py-3 pr-4">
                       <Link
                         href={`/admin/orders/${order.id}`}
-                        className="text-primary hover:underline">
+                        className="font-medium text-primary hover:underline">
                         {order.id}
                       </Link>
                     </td>
-                    <td className="py-3 pr-2">{order.customer}</td>
-                    <td className="py-3 pr-2">{order.date}</td>
-                    <td className="py-3 pr-2">{order.amount}</td>
-                    <td className="py-3 pr-2">
+                    <td className="py-3 pr-4">{order.customer}</td>
+                    <td className="py-3 pr-4">{order.date}</td>
+                    <td className="py-3 pr-4">{order.amount}</td>
+                    <td className="py-3">
                       <span
-                        className={`px-2 py-1 rounded-full text-xs ${
+                        className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
                           order.status === "Completed"
-                            ? "bg-green-100 text-green-800"
+                            ? "bg-green-100 text-green-700"
                             : order.status === "Processing"
-                              ? "bg-blue-100 text-blue-800"
-                              : "bg-yellow-100 text-yellow-800"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-amber-100 text-amber-700"
                         }`}>
                         {order.status}
                       </span>
                     </td>
                   </tr>
                 ))}
+                {recentOrders.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={5}
+                      className="py-4 text-center text-muted-foreground">
+                      No orders found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -298,33 +231,46 @@ export default function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {topProducts.map((product) => (
+                {topProducts.map((product: TopProduct) => (
                   <tr
-                    key={product.name}
+                    key={product.id}
                     className="border-b last:border-0 text-sm">
-                    <td className="py-3 pr-2">
+                    <td className="py-3 pr-4">
                       <Link
-                        href={`/admin/products/${product.name.toLowerCase().replace(/\s+/g, "-")}`}
-                        className="text-primary hover:underline">
+                        href={`/admin/products/${product.id}`}
+                        className="font-medium hover:text-primary hover:underline">
                         {product.name}
                       </Link>
                     </td>
-                    <td className="py-3 pr-2">{product.price}</td>
-                    <td className="py-3 pr-2">{product.sales} units</td>
-                    <td className="py-3 pr-2">
+                    <td className="py-3 pr-4">${product.price.toFixed(2)}</td>
+                    <td className="py-3 pr-4">{product.sales}</td>
+                    <td className="py-3">
                       <span
-                        className={`${
-                          product.inventory > 20
-                            ? "text-green-600"
-                            : product.inventory > 10
-                              ? "text-yellow-600"
-                              : "text-red-600"
+                        className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                          product.inventory > 10
+                            ? "bg-green-100 text-green-700"
+                            : product.inventory > 0
+                              ? "bg-amber-100 text-amber-700"
+                              : "bg-red-100 text-red-700"
                         }`}>
-                        {product.inventory} in stock
+                        {product.inventory === 0
+                          ? "Out of Stock"
+                          : product.inventory < 5
+                            ? "Low Stock"
+                            : product.inventory}
                       </span>
                     </td>
                   </tr>
                 ))}
+                {topProducts.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="py-4 text-center text-muted-foreground">
+                      No product data available
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

@@ -164,33 +164,59 @@ export async function DELETE(
     const itemParams = await Promise.resolve(params);
     const itemId = itemParams.itemId;
 
+    console.log(`Attempting to remove item with ID: ${itemId}`);
+
     // Get the cart ID and cart
     const cartId = await getCartId();
     const cart = CART_STORAGE.get(cartId) || [];
 
+    console.log(`Current cart for ${cartId}:`, cart);
+
+    // Check if cart is empty
+    if (cart.length === 0) {
+      console.log(`Cart is empty for user ${cartId}`);
+      return NextResponse.json({
+        success: true,
+        message: "Cart is already empty",
+        data: { itemId },
+      });
+    }
+
     // Find the item in the cart with more flexible matching
+    // This improves the item finding logic to handle different ID formats
     const itemToRemove = cart.find(
       (item) =>
         item.id === itemId ||
+        item.id === `cart_${itemId}` ||
         (item.productId && item.productId === itemId) ||
-        (item.id && item.id.includes(itemId))
+        (item.id && item.id.includes(itemId)) ||
+        (itemId && itemId.includes(item.id))
     );
 
+    // If item not found, we'll look for partial matches or similar items
     if (!itemToRemove) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Item not found in cart",
-        },
-        { status: 404 }
+      console.log(
+        `Item ${itemId} not found in cart. Available items:`,
+        cart.map((item) => item.id)
       );
+
+      // For improved robustness, return success even if item not found
+      // This prevents errors when trying to remove an item that might have already been removed
+      return NextResponse.json({
+        success: true,
+        message: "Item not in cart or already removed",
+        data: { itemId },
+      });
     }
+
+    console.log(`Found item to remove:`, itemToRemove);
 
     // Remove the item from the cart
     const updatedCart = cart.filter((item) => item.id !== itemToRemove.id);
 
     // Save the updated cart
     CART_STORAGE.set(cartId, updatedCart);
+    console.log(`Updated cart after removal:`, updatedCart);
 
     return NextResponse.json({
       success: true,

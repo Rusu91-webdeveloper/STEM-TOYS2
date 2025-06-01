@@ -71,6 +71,12 @@ const categoryInfo: Record<string, CategoryIconInfo> = {
     textColor: "text-red-500",
     letter: "B",
   },
+  books: {
+    icon: Brain,
+    bgColor: "bg-red-500",
+    textColor: "text-red-500",
+    letter: "B",
+  },
 };
 
 // Benefits of STEM toys with icons
@@ -134,7 +140,7 @@ export default function ProductsPage() {
   // Create category filter
   const [categoryFilter, setCategoryFilter] = useState<FilterGroup>({
     id: "category",
-    name: "STEM Category",
+    name: t("stemCategory", "STEM Category"),
     options: [],
   });
 
@@ -175,10 +181,13 @@ export default function ProductsPage() {
 
         setCategoryFilter({
           id: "category",
-          name: "STEM Category",
+          name: t("stemCategory", "STEM Category"),
           options: categories.map((category) => ({
             id: category.toLowerCase(),
-            label: category.charAt(0).toUpperCase() + category.slice(1),
+            label: t(
+              `${category.toLowerCase()}Category`,
+              category.charAt(0).toUpperCase() + category.slice(1)
+            ),
             count: data.filter(
               (p: ProductData) =>
                 p.category?.name.toLowerCase() === category.toLowerCase()
@@ -202,35 +211,43 @@ export default function ProductsPage() {
     };
 
     fetchProducts();
-  }, []);
+  }, [t]);
 
   // Mock filters
   const mockFilters: FilterGroup[] = [
     {
       id: "productType",
-      name: "Product Type",
+      name: t("productType", "Product Type"),
       options: [
-        { id: "toy", label: "STEM Toy", count: 10 },
-        { id: "book", label: "Educational Book", count: 4 },
-        { id: "kit", label: "DIY Kit", count: 6 },
+        { id: "toy", label: t("stemToy", "STEM Toy"), count: 10 },
+        {
+          id: "book",
+          label: t("educationalBook", "Educational Book"),
+          count: 4,
+        },
+        { id: "kit", label: t("diyKit", "DIY Kit"), count: 6 },
       ],
     },
     {
       id: "ageRange",
-      name: "Age Range",
+      name: t("ageRange", "Age Range"),
       options: [
-        { id: "6-10", label: "6-10 years", count: 5 },
-        { id: "8-12", label: "8-12 years", count: 4 },
-        { id: "10-14", label: "10-14 years", count: 3 },
+        { id: "6-10", label: t("years6To10", "6-10 years"), count: 5 },
+        { id: "8-12", label: t("years8To12", "8-12 years"), count: 4 },
+        { id: "10-14", label: t("years10To14", "10-14 years"), count: 3 },
       ],
     },
     {
       id: "difficulty",
-      name: "Difficulty Level",
+      name: t("difficultyLevel", "Difficulty Level"),
       options: [
-        { id: "beginner", label: "Beginner", count: 4 },
-        { id: "intermediate", label: "Intermediate", count: 5 },
-        { id: "advanced", label: "Advanced", count: 3 },
+        { id: "beginner", label: t("beginner", "Beginner"), count: 4 },
+        {
+          id: "intermediate",
+          label: t("intermediate", "Intermediate"),
+          count: 5,
+        },
+        { id: "advanced", label: t("advanced", "Advanced"), count: 3 },
       ],
     },
   ];
@@ -376,12 +393,20 @@ export default function ProductsPage() {
   // Get the active category for the header
   const activeCategory =
     selectedCategories.length === 1
-      ? categoryFilter.options.find((c) => c.id === selectedCategories[0])
+      ? categoryFilter.options.find((c) => {
+          // Normalize comparison to handle different slug/id formats
+          return (
+            c.id.toLowerCase() === selectedCategories[0].toLowerCase() ||
+            (c.id === "books" &&
+              selectedCategories[0] === "educational-books") ||
+            (c.id === "educational-books" && selectedCategories[0] === "books")
+          );
+        })
       : null;
 
   // Get appropriate category info
   const activeCategoryInfo = activeCategory
-    ? categoryInfo[activeCategory.id]
+    ? categoryInfo[activeCategory.id] || categoryInfo.science
     : categoryInfo.science;
 
   // Get category image based on active category
@@ -393,7 +418,7 @@ export default function ProductsPage() {
 
   // Helper function to get translation key based on active category
   const getCategoryTitle = () => {
-    if (!activeCategory) return t("discoverStemToys");
+    if (!activeCategory) return t("Discover Stem Toys");
 
     switch (activeCategory.id) {
       case "science":
@@ -612,112 +637,6 @@ export default function ProductsPage() {
       )}
 
       <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 relative z-10">
-        {/* Filter and sorting bar - Add STEM category filters */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-2 sm:p-3 mb-4 sm:mb-6 flex flex-wrap items-center justify-between gap-2 sm:gap-4">
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            <div className="p-1 sm:p-1.5 rounded-full bg-primary/10">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-primary">
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-              </svg>
-            </div>
-            <span className="text-xs sm:text-sm font-medium">
-              {t("filterBy")}
-            </span>
-          </div>
-          <div className="flex items-center gap-1">
-            <Button
-              variant={viewMode === "grid" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setViewMode("grid")}
-              className="w-7 sm:w-8 h-6 sm:h-7 p-0">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round">
-                <rect
-                  width="7"
-                  height="7"
-                  x="3"
-                  y="3"
-                  rx="1"
-                />
-                <rect
-                  width="7"
-                  height="7"
-                  x="14"
-                  y="3"
-                  rx="1"
-                />
-                <rect
-                  width="7"
-                  height="7"
-                  x="14"
-                  y="14"
-                  rx="1"
-                />
-                <rect
-                  width="7"
-                  height="7"
-                  x="3"
-                  y="14"
-                  rx="1"
-                />
-              </svg>
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setViewMode("list")}
-              className="w-7 sm:w-8 h-6 sm:h-7 p-0">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round">
-                <line
-                  x1="3"
-                  x2="21"
-                  y1="6"
-                  y2="6"
-                />
-                <line
-                  x1="3"
-                  x2="21"
-                  y1="12"
-                  y2="12"
-                />
-                <line
-                  x1="3"
-                  x2="21"
-                  y1="18"
-                  y2="18"
-                />
-              </svg>
-            </Button>
-          </div>
-        </div>
-
         {/* Main product area with showing products count */}
         <div className="mb-3 sm:mb-4 px-1 sm:px-2">
           <p className="text-xs sm:text-sm text-muted-foreground">
@@ -784,7 +703,11 @@ export default function ProductsPage() {
                 } border shadow-sm`}>
                 <div className="flex flex-col xs:flex-row items-start xs:items-center gap-2 sm:gap-3">
                   <div
-                    className={`p-2 sm:p-3 rounded-full ${categoryInfo[activeCategory.id as keyof typeof categoryInfo].bgColor} flex-shrink-0`}>
+                    className={`p-2 sm:p-3 rounded-full ${
+                      activeCategory && categoryInfo[activeCategory.id]
+                        ? categoryInfo[activeCategory.id].bgColor
+                        : categoryInfo.science.bgColor
+                    } flex-shrink-0`}>
                     <IconComponent className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
                   <div className="flex-1">

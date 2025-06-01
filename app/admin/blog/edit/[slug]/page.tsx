@@ -154,7 +154,7 @@ export default function EditBlogPage({ params }: BlogEditPageProps) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`/api/blog/${blogData.slug}`, {
+      const response = await fetch(`/api/blog/${slug}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

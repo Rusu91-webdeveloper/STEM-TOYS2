@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +11,7 @@ import {
   MoreHorizontal,
   Mail,
   Download,
+  RotateCw,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -18,84 +21,99 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
 
-// Mock customers data
-const customers = [
-  {
-    id: "C001",
-    name: "Emma Thompson",
-    email: "emma.t@example.com",
-    joined: "May 10, 2023",
-    orders: 12,
-    spent: 1249.95,
-    status: "Active",
-  },
-  {
-    id: "C002",
-    name: "John Miller",
-    email: "john.m@example.com",
-    joined: "June 22, 2023",
-    orders: 8,
-    spent: 789.5,
-    status: "Active",
-  },
-  {
-    id: "C003",
-    name: "Olivia Wilson",
-    email: "olivia.w@example.com",
-    joined: "April 5, 2024",
-    orders: 3,
-    spent: 349.97,
-    status: "Active",
-  },
-  {
-    id: "C004",
-    name: "William Davis",
-    email: "william.d@example.com",
-    joined: "March 14, 2023",
-    orders: 15,
-    spent: 1587.25,
-    status: "Active",
-  },
-  {
-    id: "C005",
-    name: "Sophia Martinez",
-    email: "sophia.m@example.com",
-    joined: "August 9, 2023",
-    orders: 7,
-    spent: 642.85,
-    status: "Active",
-  },
-  {
-    id: "C006",
-    name: "James Johnson",
-    email: "james.j@example.com",
-    joined: "December 1, 2023",
-    orders: 4,
-    spent: 398.96,
-    status: "Inactive",
-  },
-  {
-    id: "C007",
-    name: "Charlotte Brown",
-    email: "charlotte.b@example.com",
-    joined: "February 18, 2024",
-    orders: 2,
-    spent: 179.98,
-    status: "Active",
-  },
-  {
-    id: "C008",
-    name: "Benjamin Garcia",
-    email: "benjamin.g@example.com",
-    joined: "September 30, 2023",
-    orders: 9,
-    spent: 859.91,
-    status: "Active",
-  },
-];
+// Type definitions
+type Customer = {
+  id: string;
+  name: string;
+  email: string;
+  joined: string;
+  orders: number;
+  spent: number;
+  status: string;
+};
+
+type Pagination = {
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
+};
 
 export default function CustomersPage() {
+  const { toast } = useToast();
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [pagination, setPagination] = useState<Pagination>({
+    total: 0,
+    page: 1,
+    limit: 10,
+    pages: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [status, setStatus] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
+
+  // Function to fetch customers from the API
+  const fetchCustomers = async () => {
+    setLoading(true);
+    try {
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (status !== "all") params.append("status", status);
+      if (sortBy) params.append("sortBy", sortBy);
+      if (searchTerm) params.append("search", searchTerm);
+      params.append("page", pagination.page.toString());
+      params.append("limit", pagination.limit.toString());
+
+      const response = await fetch(`/api/admin/customers?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch customers");
+      }
+
+      const data = await response.json();
+      setCustomers(data.customers || []);
+      setPagination(data.pagination || pagination);
+    } catch (error) {
+      console.error("Error fetching customers:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load customers. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch customers on initial load and when filters change
+  useEffect(() => {
+    fetchCustomers();
+  }, [status, sortBy, pagination.page]);
+
+  // Handle search form submission
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Reset to first page when searching
+    setPagination({ ...pagination, page: 1 });
+    fetchCustomers();
+  };
+
+  // Handle pagination
+  const handlePrevPage = () => {
+    if (pagination.page > 1) {
+      setPagination({ ...pagination, page: pagination.page - 1 });
+    }
+  };
+
+  const handleNextPage = () => {
+    if (pagination.page < pagination.pages) {
+      setPagination({ ...pagination, page: pagination.page + 1 });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -119,20 +137,28 @@ export default function CustomersPage() {
       <Card>
         <CardContent className="p-6">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex w-full max-w-sm items-center space-x-2">
+            <form
+              onSubmit={handleSearch}
+              className="flex w-full max-w-sm items-center space-x-2">
               <Input
                 type="search"
                 placeholder="Search customers..."
                 className="w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
               <Button
+                type="submit"
                 variant="outline"
                 size="icon">
                 <Search className="h-4 w-4" />
               </Button>
-            </div>
+            </form>
             <div className="flex flex-col sm:flex-row gap-2">
-              <Select defaultValue="all">
+              <Select
+                defaultValue="all"
+                value={status}
+                onValueChange={(value) => setStatus(value)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
@@ -142,7 +168,10 @@ export default function CustomersPage() {
                   <SelectItem value="inactive">Inactive</SelectItem>
                 </SelectContent>
               </Select>
-              <Select defaultValue="newest">
+              <Select
+                defaultValue="newest"
+                value={sortBy}
+                onValueChange={(value) => setSortBy(value)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Sort By" />
                 </SelectTrigger>
@@ -156,105 +185,120 @@ export default function CustomersPage() {
               </Select>
               <Button
                 variant="outline"
-                size="icon">
+                size="icon"
+                onClick={() => fetchCustomers()}>
                 <Filter className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
           <div className="mt-6 overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b text-xs font-medium text-muted-foreground">
-                  <th className="px-4 py-3 text-left">
-                    <div className="flex items-center gap-1">
-                      <span>Customer</span>
-                      <ArrowUpDown className="h-3 w-3" />
-                    </div>
-                  </th>
-                  <th className="px-4 py-3 text-left">
-                    <div className="flex items-center gap-1">
-                      <span>Joined</span>
-                      <ArrowUpDown className="h-3 w-3" />
-                    </div>
-                  </th>
-                  <th className="px-4 py-3 text-left">
-                    <div className="flex items-center gap-1">
-                      <span>Orders</span>
-                      <ArrowUpDown className="h-3 w-3" />
-                    </div>
-                  </th>
-                  <th className="px-4 py-3 text-left">
-                    <div className="flex items-center gap-1">
-                      <span>Total Spent</span>
-                      <ArrowUpDown className="h-3 w-3" />
-                    </div>
-                  </th>
-                  <th className="px-4 py-3 text-left">Status</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {customers.map((customer) => (
-                  <tr
-                    key={customer.id}
-                    className="border-b text-sm hover:bg-muted/50">
-                    <td className="px-4 py-4">
-                      <div>
-                        <Link
-                          href={`/admin/customers/${customer.id.toLowerCase()}`}
-                          className="font-medium text-primary hover:underline">
-                          {customer.name}
-                        </Link>
-                        <div className="text-xs text-muted-foreground">
-                          {customer.email}
-                        </div>
+            {loading ? (
+              <div className="flex justify-center items-center py-8">
+                <RotateCw className="h-6 w-6 animate-spin" />
+                <span className="ml-2">Loading customers...</span>
+              </div>
+            ) : customers.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No customers found. Try adjusting your filters.
+              </div>
+            ) : (
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b text-xs font-medium text-muted-foreground">
+                    <th className="px-4 py-3 text-left">
+                      <div className="flex items-center gap-1">
+                        <span>Customer</span>
+                        <ArrowUpDown className="h-3 w-3" />
                       </div>
-                    </td>
-                    <td className="px-4 py-4">{customer.joined}</td>
-                    <td className="px-4 py-4">{customer.orders}</td>
-                    <td className="px-4 py-4 font-medium">
-                      ${customer.spent.toFixed(2)}
-                    </td>
-                    <td className="px-4 py-4">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                          customer.status === "Active"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}>
-                        {customer.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4 text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Actions</span>
-                      </Button>
-                    </td>
+                    </th>
+                    <th className="px-4 py-3 text-left">
+                      <div className="flex items-center gap-1">
+                        <span>Joined</span>
+                        <ArrowUpDown className="h-3 w-3" />
+                      </div>
+                    </th>
+                    <th className="px-4 py-3 text-left">
+                      <div className="flex items-center gap-1">
+                        <span>Orders</span>
+                        <ArrowUpDown className="h-3 w-3" />
+                      </div>
+                    </th>
+                    <th className="px-4 py-3 text-left">
+                      <div className="flex items-center gap-1">
+                        <span>Total Spent</span>
+                        <ArrowUpDown className="h-3 w-3" />
+                      </div>
+                    </th>
+                    <th className="px-4 py-3 text-left">Status</th>
+                    <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {customers.map((customer) => (
+                    <tr
+                      key={customer.id}
+                      className="border-b text-sm hover:bg-muted/50">
+                      <td className="px-4 py-4">
+                        <div>
+                          <Link
+                            href={`/admin/customers/${customer.id.toLowerCase()}`}
+                            className="font-medium text-primary hover:underline">
+                            {customer.name}
+                          </Link>
+                          <div className="text-xs text-muted-foreground">
+                            {customer.email}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4">{customer.joined}</td>
+                      <td className="px-4 py-4">{customer.orders}</td>
+                      <td className="px-4 py-4 font-medium">
+                        ${customer.spent.toFixed(2)}
+                      </td>
+                      <td className="px-4 py-4">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            customer.status === "Active"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}>
+                          {customer.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Actions</span>
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
 
           <div className="mt-4 flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              Showing {customers.length} of {customers.length} customers
+              Showing {customers.length} of {pagination.total} customers
             </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                disabled>
+                onClick={handlePrevPage}
+                disabled={pagination.page <= 1 || loading}>
                 Previous
               </Button>
               <Button
                 variant="outline"
                 size="sm"
+                onClick={handleNextPage}
+                disabled={pagination.page >= pagination.pages || loading}
                 className="gap-1">
                 Next
               </Button>

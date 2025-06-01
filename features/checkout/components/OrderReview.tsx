@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/features/cart";
 import { Edit, AlertCircle } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
+import { CheckoutSummary } from "./CheckoutSummary";
 
 interface OrderReviewProps {
   checkoutData: CheckoutData;
@@ -24,7 +25,7 @@ export function OrderReview({
   isProcessingOrder = false,
   orderError = null,
 }: OrderReviewProps) {
-  const { cartItems, getCartTotal } = useCart();
+  const { getCartTotal } = useCart();
   const { formatPrice } = useCurrency();
 
   // Calculate totals
@@ -179,52 +180,8 @@ export function OrderReview({
         </div>
       </div>
 
-      {/* Order Summary */}
-      <div className="bg-white rounded-lg border p-6">
-        <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-
-        <div className="space-y-4 max-h-80 overflow-y-auto">
-          {cartItems.map((item) => (
-            <div
-              key={item.id}
-              className="flex gap-4">
-              {item.image ? (
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="h-16 w-16 object-cover rounded"
-                />
-              ) : (
-                <div className="h-16 w-16 bg-gray-200 rounded"></div>
-              )}
-              <div>
-                <p className="font-medium">{item.name}</p>
-                <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                <p className="text-sm">{formatPrice(item.price)}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="space-y-2 pt-4 mt-4 border-t">
-          <div className="flex justify-between">
-            <span className="text-gray-600">Subtotal</span>
-            <span>{formatPrice(subtotal)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Tax (10%)</span>
-            <span>{formatPrice(tax)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-gray-600">Shipping</span>
-            <span>{formatPrice(shippingCost)}</span>
-          </div>
-          <div className="flex justify-between font-semibold text-lg pt-2 border-t">
-            <span>Total</span>
-            <span>{formatPrice(total)}</span>
-          </div>
-        </div>
-      </div>
+      {/* Order Summary - Using the CheckoutSummary component */}
+      <CheckoutSummary shippingCost={shippingCost} />
 
       {/* Error Message */}
       {orderError && (
@@ -248,35 +205,11 @@ export function OrderReview({
           Back to Payment
         </Button>
         <Button
+          type="button"
+          className="bg-indigo-600 hover:bg-indigo-700"
           onClick={onPlaceOrder}
-          disabled={isProcessingOrder}
-          className="relative">
-          {isProcessingOrder ? (
-            <>
-              <span className="opacity-0">Place Order</span>
-              <span className="absolute inset-0 flex items-center justify-center">
-                <svg
-                  className="animate-spin h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-              </span>
-            </>
-          ) : (
-            "Place Order"
-          )}
+          disabled={isProcessingOrder}>
+          {isProcessingOrder ? "Processing..." : "Place Order"}
         </Button>
       </div>
     </div>

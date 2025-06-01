@@ -239,27 +239,39 @@ export default function ProductForm({
       setIsLoading(true);
 
       // API endpoint and method based on whether we're editing or creating
-      const endpoint = isEditing
-        ? "/api/admin/products"
-        : "/api/admin/products";
-
+      const endpoint = "/api/admin/products";
       const method = isEditing ? "PUT" : "POST";
 
       // If editing, make sure to include the product ID
       const submitData = isEditing ? { ...data, id: initialData.id } : data;
+
+      console.log("Submitting product data:", {
+        method,
+        endpoint,
+        isEditing,
+        productId: isEditing ? initialData.id : "new product",
+        data: submitData,
+      });
 
       const response = await fetch(endpoint, {
         method,
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify(submitData),
       });
 
+      console.log("Response status:", response.status);
+
+      const responseData = await response.json();
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Something went wrong");
+        console.error("Error response data:", responseData);
+        throw new Error(responseData.error || "Something went wrong");
       }
+
+      console.log("Success response data:", responseData);
 
       toast({
         title: isEditing ? "Product updated" : "Product created",
@@ -270,6 +282,7 @@ export default function ProductForm({
       router.push("/admin/products");
       router.refresh();
     } catch (error: any) {
+      console.error("Form submission error:", error);
       toast({
         title: "Error",
         description: error.message,

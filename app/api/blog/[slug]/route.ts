@@ -7,9 +7,9 @@ const prisma = new PrismaClient();
 // GET a single blog post by slug
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
-  const { slug } = params;
+  const { slug } = await params;
   const language = request.nextUrl.searchParams.get("language") || "en"; // Default to English
 
   console.log(`Fetching blog post with slug ${slug} and language ${language}`);
@@ -124,9 +124,9 @@ export async function GET(
 // PUT/PATCH to update a blog post
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
-  const { slug } = params;
+  const { slug } = await params;
 
   try {
     const session = await auth();
@@ -208,9 +208,9 @@ export async function PUT(
 // DELETE a blog post
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
-  const { slug } = params;
+  const { slug } = await params;
 
   try {
     const session = await auth();

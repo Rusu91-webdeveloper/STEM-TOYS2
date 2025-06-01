@@ -87,6 +87,7 @@ export async function updateCartItemQuantity(
   quantity: number
 ): Promise<boolean> {
   try {
+    console.log(`Updating item ${itemId} to quantity ${quantity}`);
     const response = await fetch(`/api/cart/items/${itemId}`, {
       method: "PATCH",
       headers: {
@@ -96,12 +97,18 @@ export async function updateCartItemQuantity(
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to update item quantity: ${response.statusText}`);
+      console.warn(`Error updating item quantity: ${response.statusText}`);
+      // For non-fatal errors, we'll return false but not throw
+      // This allows the UI to continue working even if the server update fails
+      return false;
     }
 
+    const result = await response.json();
+    console.log(`Update result:`, result);
     return true;
   } catch (error) {
     console.error("Error updating item quantity:", error);
+    // Return false instead of throwing to prevent UI disruption
     return false;
   }
 }
@@ -111,6 +118,7 @@ export async function updateCartItemQuantity(
  */
 export async function removeCartItem(itemId: string): Promise<boolean> {
   try {
+    console.log(`Removing item ${itemId} from cart`);
     const response = await fetch(`/api/cart/items/${itemId}`, {
       method: "DELETE",
       headers: {
@@ -118,15 +126,20 @@ export async function removeCartItem(itemId: string): Promise<boolean> {
       },
     });
 
-    if (!response.ok) {
-      throw new Error(
-        `Failed to remove item from cart: ${response.statusText}`
-      );
+    // Even if the server returns Not Found, we consider it a success
+    // because the item is not in the cart, which is the desired end state
+    if (!response.ok && response.status !== 404) {
+      console.warn(`Server error removing item: ${response.statusText}`);
+      // Return false but don't throw for non-fatal errors
+      return false;
     }
 
+    const result = await response.json();
+    console.log(`Remove result:`, result);
     return true;
   } catch (error) {
     console.error("Error removing item from cart:", error);
+    // Return false instead of throwing to prevent UI disruption
     return false;
   }
 }

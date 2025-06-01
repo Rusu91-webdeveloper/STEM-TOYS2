@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,90 +25,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/components/ui/use-toast";
 
-// Mock orders data
-const orders = [
-  {
-    id: "ORD-7652",
-    customer: "Emma Thompson",
-    email: "emma.t@example.com",
-    date: "May 14, 2025",
-    total: 124.99,
-    status: "Completed",
-    payment: "Credit Card",
-    items: 3,
-  },
-  {
-    id: "ORD-7651",
-    customer: "John Miller",
-    email: "john.m@example.com",
-    date: "May 14, 2025",
-    total: 89.95,
-    status: "Processing",
-    payment: "PayPal",
-    items: 2,
-  },
-  {
-    id: "ORD-7650",
-    customer: "Olivia Wilson",
-    email: "olivia.w@example.com",
-    date: "May 13, 2025",
-    total: 249.99,
-    status: "Completed",
-    payment: "Credit Card",
-    items: 4,
-  },
-  {
-    id: "ORD-7649",
-    customer: "William Davis",
-    email: "william.d@example.com",
-    date: "May 13, 2025",
-    total: 175.85,
-    status: "Shipped",
-    payment: "Credit Card",
-    items: 3,
-  },
-  {
-    id: "ORD-7648",
-    customer: "Sophia Martinez",
-    email: "sophia.m@example.com",
-    date: "May 12, 2025",
-    total: 64.49,
-    status: "Processing",
-    payment: "PayPal",
-    items: 1,
-  },
-  {
-    id: "ORD-7647",
-    customer: "James Johnson",
-    email: "james.j@example.com",
-    date: "May 12, 2025",
-    total: 145.99,
-    status: "Cancelled",
-    payment: "Credit Card",
-    items: 2,
-  },
-  {
-    id: "ORD-7646",
-    customer: "Charlotte Brown",
-    email: "charlotte.b@example.com",
-    date: "May 11, 2025",
-    total: 199.95,
-    status: "Shipped",
-    payment: "Credit Card",
-    items: 3,
-  },
-  {
-    id: "ORD-7645",
-    customer: "Benjamin Garcia",
-    email: "benjamin.g@example.com",
-    date: "May 11, 2025",
-    total: 79.99,
-    status: "Completed",
-    payment: "PayPal",
-    items: 1,
-  },
-];
+// Type definitions
+type Order = {
+  id: string;
+  customer: string;
+  email: string;
+  date: string;
+  total: number;
+  status: string;
+  payment: string;
+  items: number;
+};
+
+type Pagination = {
+  total: number;
+  page: number;
+  limit: number;
+  pages: number;
+};
 
 // Helper function to get status icon
 const getStatusIcon = (status: string) => {
@@ -141,6 +79,78 @@ const getStatusColor = (status: string) => {
 };
 
 export default function OrdersPage() {
+  const { toast } = useToast();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [pagination, setPagination] = useState<Pagination>({
+    total: 0,
+    page: 1,
+    limit: 10,
+    pages: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [status, setStatus] = useState("all");
+  const [period, setPeriod] = useState("30");
+
+  // Function to fetch orders from the API
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (status !== "all") params.append("status", status);
+      if (period !== "all") params.append("period", period);
+      if (searchTerm) params.append("search", searchTerm);
+      params.append("page", pagination.page.toString());
+      params.append("limit", pagination.limit.toString());
+
+      const response = await fetch(`/api/admin/orders?${params.toString()}`);
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch orders");
+      }
+
+      const data = await response.json();
+      setOrders(data.orders || []);
+      setPagination(data.pagination || pagination);
+    } catch (error) {
+      console.error("Error fetching orders:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load orders. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch orders on initial load and when filters change
+  useEffect(() => {
+    fetchOrders();
+  }, [status, period, pagination.page]);
+
+  // Handle search form submission
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Reset to first page when searching
+    setPagination({ ...pagination, page: 1 });
+    fetchOrders();
+  };
+
+  // Handle pagination
+  const handlePrevPage = () => {
+    if (pagination.page > 1) {
+      setPagination({ ...pagination, page: pagination.page - 1 });
+    }
+  };
+
+  const handleNextPage = () => {
+    if (pagination.page < pagination.pages) {
+      setPagination({ ...pagination, page: pagination.page + 1 });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -156,20 +166,28 @@ export default function OrdersPage() {
       <Card>
         <CardContent className="p-6">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex w-full max-w-sm items-center space-x-2">
+            <form
+              onSubmit={handleSearch}
+              className="flex w-full max-w-sm items-center space-x-2">
               <Input
                 type="search"
                 placeholder="Search orders or customers..."
                 className="w-full"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
               />
               <Button
+                type="submit"
                 variant="outline"
                 size="icon">
                 <Search className="h-4 w-4" />
               </Button>
-            </div>
+            </form>
             <div className="flex flex-col sm:flex-row gap-2">
-              <Select defaultValue="all">
+              <Select
+                defaultValue="all"
+                value={status}
+                onValueChange={(value) => setStatus(value)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
@@ -181,7 +199,10 @@ export default function OrdersPage() {
                   <SelectItem value="cancelled">Cancelled</SelectItem>
                 </SelectContent>
               </Select>
-              <Select defaultValue="30">
+              <Select
+                defaultValue="30"
+                value={period}
+                onValueChange={(value) => setPeriod(value)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Time Period" />
                 </SelectTrigger>
@@ -194,103 +215,118 @@ export default function OrdersPage() {
               </Select>
               <Button
                 variant="outline"
-                size="icon">
+                size="icon"
+                onClick={() => fetchOrders()}>
                 <Filter className="h-4 w-4" />
               </Button>
             </div>
           </div>
 
           <div className="mt-6 overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b text-xs font-medium text-muted-foreground">
-                  <th className="px-4 py-3 text-left">
-                    <div className="flex items-center gap-1">
-                      <span>Order</span>
-                      <ArrowUpDown className="h-3 w-3" />
-                    </div>
-                  </th>
-                  <th className="px-4 py-3 text-left">
-                    <div className="flex items-center gap-1">
-                      <span>Date</span>
-                      <ArrowUpDown className="h-3 w-3" />
-                    </div>
-                  </th>
-                  <th className="px-4 py-3 text-left">Customer</th>
-                  <th className="px-4 py-3 text-left">
-                    <div className="flex items-center gap-1">
-                      <span>Total</span>
-                      <ArrowUpDown className="h-3 w-3" />
-                    </div>
-                  </th>
-                  <th className="px-4 py-3 text-left">Status</th>
-                  <th className="px-4 py-3 text-left">Payment</th>
-                  <th className="px-4 py-3 text-left">Items</th>
-                  <th className="px-4 py-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orders.map((order) => (
-                  <tr
-                    key={order.id}
-                    className="border-b text-sm hover:bg-muted/50">
-                    <td className="px-4 py-4">
-                      <Link
-                        href={`/admin/orders/${order.id.toLowerCase()}`}
-                        className="font-medium text-primary hover:underline">
-                        {order.id}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-4">{order.date}</td>
-                    <td className="px-4 py-4">
-                      <div>
-                        <div>{order.customer}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {order.email}
-                        </div>
+            {loading ? (
+              <div className="flex justify-center items-center py-8">
+                <RotateCw className="h-6 w-6 animate-spin" />
+                <span className="ml-2">Loading orders...</span>
+              </div>
+            ) : orders.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No orders found. Try adjusting your filters.
+              </div>
+            ) : (
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b text-xs font-medium text-muted-foreground">
+                    <th className="px-4 py-3 text-left">
+                      <div className="flex items-center gap-1">
+                        <span>Order</span>
+                        <ArrowUpDown className="h-3 w-3" />
                       </div>
-                    </td>
-                    <td className="px-4 py-4 font-medium">
-                      ${order.total.toFixed(2)}
-                    </td>
-                    <td className="px-4 py-4">
-                      <span
-                        className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(order.status)}`}>
-                        {getStatusIcon(order.status)}
-                        {order.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-4">{order.payment}</td>
-                    <td className="px-4 py-4">{order.items} items</td>
-                    <td className="px-4 py-4 text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                        <span className="sr-only">Actions</span>
-                      </Button>
-                    </td>
+                    </th>
+                    <th className="px-4 py-3 text-left">
+                      <div className="flex items-center gap-1">
+                        <span>Date</span>
+                        <ArrowUpDown className="h-3 w-3" />
+                      </div>
+                    </th>
+                    <th className="px-4 py-3 text-left">Customer</th>
+                    <th className="px-4 py-3 text-left">
+                      <div className="flex items-center gap-1">
+                        <span>Total</span>
+                        <ArrowUpDown className="h-3 w-3" />
+                      </div>
+                    </th>
+                    <th className="px-4 py-3 text-left">Status</th>
+                    <th className="px-4 py-3 text-left">Payment</th>
+                    <th className="px-4 py-3 text-left">Items</th>
+                    <th className="px-4 py-3 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {orders.map((order) => (
+                    <tr
+                      key={order.id}
+                      className="border-b text-sm hover:bg-muted/50">
+                      <td className="px-4 py-4">
+                        <Link
+                          href={`/admin/orders/${order.id.toLowerCase()}`}
+                          className="font-medium text-primary hover:underline">
+                          {order.id}
+                        </Link>
+                      </td>
+                      <td className="px-4 py-4">{order.date}</td>
+                      <td className="px-4 py-4">
+                        <div>
+                          <div>{order.customer}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {order.email}
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 font-medium">
+                        ${order.total.toFixed(2)}
+                      </td>
+                      <td className="px-4 py-4">
+                        <span
+                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(order.status)}`}>
+                          {getStatusIcon(order.status)}
+                          {order.status}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4">{order.payment}</td>
+                      <td className="px-4 py-4">{order.items} items</td>
+                      <td className="px-4 py-4 text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                          <span className="sr-only">Actions</span>
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
 
           <div className="mt-4 flex items-center justify-between">
             <div className="text-sm text-muted-foreground">
-              Showing {orders.length} of {orders.length} orders
+              Showing {orders.length} of {pagination.total} orders
             </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                disabled>
+                onClick={handlePrevPage}
+                disabled={pagination.page <= 1 || loading}>
                 Previous
               </Button>
               <Button
                 variant="outline"
                 size="sm"
+                onClick={handleNextPage}
+                disabled={pagination.page >= pagination.pages || loading}
                 className="gap-1">
                 Next
               </Button>

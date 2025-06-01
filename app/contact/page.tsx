@@ -189,11 +189,11 @@ export default function ContactPage() {
               <p>
                 TechTots Headquarters
                 <br />
-                123 Innovation Lane
+                Mehedinti 54-56
                 <br />
-                Silicon Valley, CA 94024
+                Cluj-Napoca
                 <br />
-                United States
+                Cluj
               </p>
             </div>
 
@@ -202,9 +202,19 @@ export default function ContactPage() {
                 {t("customerSupport" as any, "Customer Support")}
               </h3>
               <p>
-                Email: support@techtots.com
+                Email:{" "}
+                <a
+                  href="mailto:webira.rem.srl@gmail.com"
+                  className="text-indigo-600 hover:text-indigo-800">
+                  webira.rem.srl@gmail.com
+                </a>
                 <br />
-                Phone: +1 (555) 123-4567
+                Phone:{" "}
+                <a
+                  href="tel:+40771248029"
+                  className="text-indigo-600 hover:text-indigo-800">
+                  +40771 248 029
+                </a>
                 <br />
                 Hours: Monday-Friday, 9am-5pm PST
               </p>

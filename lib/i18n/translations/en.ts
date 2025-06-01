@@ -162,6 +162,9 @@ export const en = {
   removedFromWishlist: "Removed from wishlist",
   productRemovedFromWishlist: "Product has been removed from your wishlist.",
   wishlistUpdateError: "Failed to update wishlist. Please try again.",
+  authRequiredTitle: "Authentication Required",
+  authRequiredWishlist: "You need to be logged in to use the wishlist feature",
+  loginToContinue: "Login to continue",
 
   // Order history
   all: "All",
@@ -321,11 +324,11 @@ export const en = {
 
   // About page paragraphs
   ourStoryParagraph1:
-    'TechTots was founded in 2025 after our founder read the groundbreaking book "Born for the Future" by Casey Wrenly. The book\'s profound insights into child development and future skills inspired our mission to revolutionize educational play.',
+    'Established in 2025, TechTots was founded on a vision sparked by two pivotal books: "STEM Play for Neurodiverse Minds" by Casey Wrenly and "Born for the Future" by a dedicated educator and parent. These works highlighted the profound impact of STEM play on child development and the importance of future-ready skills, shaping our core mission.',
   ourStoryParagraph2:
-    "We deeply understand how critical STEM toys are in shaping our children's future from a young age. These toys don't just entertain—they develop essential neural pathways, foster curiosity, and build the foundation for computational thinking, spatial reasoning, and scientific inquiry.",
+    'At TechTots, we believe STEM toys are essential catalysts for cognitive growth in all children, igniting natural curiosity and building foundations in computational thinking and scientific reasoning. We champion an approach where learning aligns with a child\'s natural interests and neurology. We are especially committed to neurodiverse children, including those with ADHD and autism. Drawing inspiration from "STEM Play for Neurodiverse Minds," we offer tools designed for sensory-rich experiences that enhance focus and cognitive skills, transforming their unique strengths into pathways for learning and confidence.',
   ourStoryParagraph3:
-    "Our carefully selected products are designed to grow with your child, providing increasingly complex challenges that adapt to their developing capabilities. We believe that by making STEM learning joyful and accessible, we're helping to nurture the innovators, problem-solvers, and creative thinkers of tomorrow.",
+    'Further shaped by "Born for the Future," which emphasizes preparing children with critical human skills for an AI-driven world, we understand that STEM integration builds crucial technical and creative problem-solving abilities. Our mission at TechTots is to be your trusted partner, providing enriching educational toys and parental guidance. We aim to show how these carefully selected tools foster development, nurture curiosity, and equip all children with essential skills for tomorrow—all through the power of joyful play.',
 
   // Values section
   qualitySafety: "Quality & Safety",
@@ -364,6 +367,22 @@ export const en = {
   allCategories: "All Categories",
   tryAdjustingFilters: "Try adjusting your filters or search criteria",
   clearAllFilters: "Clear All Filters",
+  stemCategory: "STEM Category",
+  productType: "Product Type",
+  stemToy: "STEM Toy",
+  educationalBook: "Educational Book",
+  diyKit: "DIY Kit",
+  difficultyLevel: "Difficulty Level",
+  beginner: "Beginner",
+  intermediate: "Intermediate",
+  advanced: "Advanced",
+  years6To10: "6-10 years",
+  years8To12: "8-12 years",
+  years10To14: "10-14 years",
+  scienceCategory: "Science",
+  technologyCategory: "Technology",
+  engineeringCategory: "Engineering",
+  mathematicsCategory: "Mathematics",
 
   // Product page specific translations
   backToProducts: "Back to Products",

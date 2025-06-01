@@ -225,7 +225,7 @@ export default function BlogPostPage() {
             </p>
             <Separator className="my-4 sm:my-6 md:my-8" />
             <div className="whitespace-pre-line text-sm sm:text-base">
-              {blogPost.content}
+              <div dangerouslySetInnerHTML={{ __html: blogPost.content }} />
             </div>
           </div>
 

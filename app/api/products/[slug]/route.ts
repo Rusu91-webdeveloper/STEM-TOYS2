@@ -1,14 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import type { Product } from "@/types/product";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { slug: string } }
 ) {
   try {
-    const slug = params.slug;
+    // Ensure params is resolved if it's a promise
+    const resolvedParams = params instanceof Promise ? await params : params;
+    const slug = resolvedParams.slug;
 
-    const product = await db.product.findUnique({
+    if (!slug) {
+      return NextResponse.json({ error: "Slug is required" }, { status: 400 });
+    }
+
+    const dbProduct = await db.product.findUnique({
       where: {
         slug,
       },
@@ -17,11 +24,47 @@ export async function GET(
       },
     });
 
-    if (!product) {
+    if (!dbProduct) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    return NextResponse.json(product);
+    // Process the product to ensure ageRange and category are properly formatted
+    const attributes = (dbProduct.attributes as Record<string, any>) || {};
+
+    // Create a properly typed product object for the frontend
+    const transformedProduct: Product = {
+      id: dbProduct.id,
+      name: dbProduct.name,
+      slug: dbProduct.slug,
+      description: dbProduct.description,
+      price: dbProduct.price,
+      compareAtPrice: dbProduct.compareAtPrice ?? undefined,
+      images: dbProduct.images as string[],
+      tags: dbProduct.tags as string[],
+      attributes: dbProduct.attributes as Record<string, string> | undefined,
+      isActive: dbProduct.isActive,
+      featured: dbProduct.featured,
+      // Set ageRange from attributes.age
+      ageRange: attributes?.age as string,
+      // Ensure category is available
+      category: dbProduct.category?.name,
+      // Set stemCategory from category
+      stemCategory: dbProduct.category?.name.toLowerCase(),
+      // Pass through any other properties
+      ...((dbProduct as any).categoryId
+        ? { categoryId: (dbProduct as any).categoryId }
+        : {}),
+    };
+
+    console.log("Transformed product:", {
+      id: transformedProduct.id,
+      name: transformedProduct.name,
+      ageRange: transformedProduct.ageRange,
+      category: transformedProduct.category,
+      stemCategory: transformedProduct.stemCategory,
+    });
+
+    return NextResponse.json(transformedProduct);
   } catch (error) {
     console.error("Error fetching product:", error);
     return NextResponse.json(
@@ -36,7 +79,14 @@ export async function PATCH(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const slug = params.slug;
+    // Ensure params is resolved if it's a promise
+    const resolvedParams = params instanceof Promise ? await params : params;
+    const slug = resolvedParams.slug;
+
+    if (!slug) {
+      return NextResponse.json({ error: "Slug is required" }, { status: 400 });
+    }
+
     const data = await request.json();
 
     // Only allow updating specific fields

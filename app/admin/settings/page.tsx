@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect, FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,8 +23,291 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "@/components/ui/use-toast";
+
+interface StoreSettings {
+  id?: string;
+  storeName: string;
+  storeUrl: string;
+  storeDescription: string;
+  contactEmail: string;
+  contactPhone: string;
+  currency: string;
+  timezone: string;
+  dateFormat: string;
+  weightUnit: string;
+  metaTitle: string;
+  metaDescription: string;
+  metaKeywords: string;
+  shippingSettings: {
+    standard: {
+      price: string;
+      active: boolean;
+    };
+    express: {
+      price: string;
+      active: boolean;
+    };
+    freeThreshold: {
+      price: string;
+      active: boolean;
+    };
+  } | null;
+  paymentSettings?: any;
+}
+
+const defaultSettings: StoreSettings = {
+  storeName: "TechTots",
+  storeUrl: "https://techtots.com",
+  storeDescription:
+    "TechTots is a premier online destination for STEM toys that inspire learning through play.",
+  contactEmail: "info@techtots.com",
+  contactPhone: "+1 (555) 123-4567",
+  currency: "usd",
+  timezone: "america-new_york",
+  dateFormat: "mm-dd-yyyy",
+  weightUnit: "lb",
+  metaTitle: "TechTots | STEM Toys for Curious Minds",
+  metaDescription:
+    "Discover the best STEM toys for curious minds at TechTots. Educational toys that make learning fun for children of all ages.",
+  metaKeywords:
+    "STEM toys, educational toys, science toys, technology toys, engineering toys, math toys",
+  shippingSettings: {
+    standard: {
+      price: "5.99",
+      active: true,
+    },
+    express: {
+      price: "12.99",
+      active: true,
+    },
+    freeThreshold: {
+      price: "75.00",
+      active: true,
+    },
+  },
+};
 
 export default function SettingsPage() {
+  const [isSaving, setIsSaving] = useState({
+    general: false,
+    regional: false,
+    seo: false,
+    shipping: false,
+    payments: false,
+  });
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [settings, setSettings] = useState<StoreSettings>(defaultSettings);
+
+  // Fetch current settings on component mount
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const response = await fetch("/api/admin/settings");
+
+        if (!response.ok) {
+          throw new Error(`Error fetching settings: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        // Ensure shippingSettings exists
+        if (!data.shippingSettings) {
+          data.shippingSettings = {
+            standard: { price: "5.99", active: true },
+            express: { price: "12.99", active: true },
+            freeThreshold: { price: "75.00", active: true },
+          };
+        }
+
+        setSettings(data);
+      } catch (err) {
+        console.error("Failed to fetch settings:", err);
+        setError("Failed to load settings. Please refresh the page.");
+        toast({
+          title: "Error",
+          description: "Failed to load settings. Please refresh the page.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchSettings();
+  }, []);
+
+  // Generic save handler with section parameter
+  const handleSave = async (section: keyof typeof isSaving) => {
+    setIsSaving((prev) => ({ ...prev, [section]: true }));
+
+    try {
+      let sectionData: Record<string, any> = {};
+
+      // Determine which data to send based on the section
+      switch (section) {
+        case "general":
+          sectionData = {
+            storeName: settings.storeName,
+            storeUrl: settings.storeUrl,
+            storeDescription: settings.storeDescription,
+            contactEmail: settings.contactEmail,
+            contactPhone: settings.contactPhone,
+          };
+          break;
+        case "regional":
+          sectionData = {
+            currency: settings.currency,
+            timezone: settings.timezone,
+            dateFormat: settings.dateFormat,
+            weightUnit: settings.weightUnit,
+          };
+          break;
+        case "seo":
+          sectionData = {
+            metaTitle: settings.metaTitle,
+            metaDescription: settings.metaDescription,
+            metaKeywords: settings.metaKeywords,
+          };
+          break;
+        case "shipping":
+          sectionData = {
+            shippingSettings: settings.shippingSettings,
+          };
+          break;
+        // Add other sections as needed
+      }
+
+      // Send the data to the API
+      const response = await fetch("/api/admin/settings", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          section,
+          ...sectionData,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error saving settings: ${response.statusText}`);
+      }
+
+      const updatedSettings = await response.json();
+      setSettings((prevSettings) => ({
+        ...prevSettings,
+        ...updatedSettings,
+      }));
+
+      toast({
+        title: "Settings Saved",
+        description: `Your ${section} settings have been saved successfully.`,
+      });
+    } catch (error) {
+      console.error(`Error saving ${section} settings:`, error);
+      toast({
+        title: "Error",
+        description: `Failed to save ${section} settings. Please try again.`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving((prev) => ({ ...prev, [section]: false }));
+    }
+  };
+
+  // Handle input change
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value } = e.target;
+    setSettings((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  // Handle select change
+  const handleSelectChange = (id: string, value: string) => {
+    setSettings((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  // Handle shipping input change
+  const handleShippingPriceChange = (
+    id: "standard" | "express" | "freeThreshold",
+    value: string
+  ) => {
+    setSettings((prev) => {
+      // Initialize shippingSettings if it doesn't exist
+      const currentSettings = prev.shippingSettings || {
+        standard: { price: "5.99", active: true },
+        express: { price: "12.99", active: true },
+        freeThreshold: { price: "75.00", active: true },
+      };
+
+      return {
+        ...prev,
+        shippingSettings: {
+          ...currentSettings,
+          [id]: {
+            ...(currentSettings[id] || { active: true }),
+            price: value,
+          },
+        },
+      };
+    });
+  };
+
+  // Handle shipping switch change
+  const handleShippingActiveChange = (
+    id: "standard" | "express" | "freeThreshold",
+    checked: boolean
+  ) => {
+    setSettings((prev) => {
+      // Initialize shippingSettings if it doesn't exist
+      const currentSettings = prev.shippingSettings || {
+        standard: { price: "5.99", active: true },
+        express: { price: "12.99", active: true },
+        freeThreshold: { price: "75.00", active: true },
+      };
+
+      return {
+        ...prev,
+        shippingSettings: {
+          ...currentSettings,
+          [id]: {
+            ...(currentSettings[id] || {
+              price:
+                id === "standard"
+                  ? "5.99"
+                  : id === "express"
+                    ? "12.99"
+                    : "75.00",
+            }),
+            active: checked,
+          },
+        },
+      };
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        Loading settings...
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
+  }
+
   return (
     <div className="space-y-6">
       <div>
@@ -58,46 +343,55 @@ export default function SettingsPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="store-name">Store Name</Label>
+                  <Label htmlFor="storeName">Store Name</Label>
                   <Input
-                    id="store-name"
-                    defaultValue="TechTots"
+                    id="storeName"
+                    value={settings.storeName}
+                    onChange={handleInputChange}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="store-url">Store URL</Label>
+                  <Label htmlFor="storeUrl">Store URL</Label>
                   <Input
-                    id="store-url"
-                    defaultValue="https://techtots.com"
+                    id="storeUrl"
+                    value={settings.storeUrl}
+                    onChange={handleInputChange}
                   />
                 </div>
                 <div className="space-y-2 sm:col-span-2">
-                  <Label htmlFor="store-description">Store Description</Label>
+                  <Label htmlFor="storeDescription">Store Description</Label>
                   <Textarea
-                    id="store-description"
-                    defaultValue="TechTots is a premier online destination for STEM toys that inspire learning through play."
+                    id="storeDescription"
+                    value={settings.storeDescription}
+                    onChange={handleInputChange}
                     rows={3}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="contact-email">Contact Email</Label>
+                  <Label htmlFor="contactEmail">Contact Email</Label>
                   <Input
-                    id="contact-email"
-                    defaultValue="info@techtots.com"
+                    id="contactEmail"
+                    value={settings.contactEmail}
+                    onChange={handleInputChange}
                     type="email"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="contact-phone">Contact Phone</Label>
+                  <Label htmlFor="contactPhone">Contact Phone</Label>
                   <Input
-                    id="contact-phone"
-                    defaultValue="+1 (555) 123-4567"
+                    id="contactPhone"
+                    value={settings.contactPhone}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
             </CardContent>
             <CardFooter className="flex justify-end">
-              <Button>Save Changes</Button>
+              <Button
+                onClick={() => handleSave("general")}
+                disabled={isSaving.general}>
+                {isSaving.general ? "Saving..." : "Save Changes"}
+              </Button>
             </CardFooter>
           </Card>
 
@@ -112,7 +406,11 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="currency">Currency</Label>
-                  <Select defaultValue="usd">
+                  <Select
+                    value={settings.currency}
+                    onValueChange={(value) =>
+                      handleSelectChange("currency", value)
+                    }>
                     <SelectTrigger id="currency">
                       <SelectValue placeholder="Select currency" />
                     </SelectTrigger>
@@ -120,6 +418,7 @@ export default function SettingsPage() {
                       <SelectItem value="usd">USD ($)</SelectItem>
                       <SelectItem value="eur">EUR (€)</SelectItem>
                       <SelectItem value="gbp">GBP (£)</SelectItem>
+                      <SelectItem value="ron">RON (lei)</SelectItem>
                       <SelectItem value="cad">CAD ($)</SelectItem>
                       <SelectItem value="aud">AUD ($)</SelectItem>
                     </SelectContent>
@@ -127,7 +426,11 @@ export default function SettingsPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="timezone">Timezone</Label>
-                  <Select defaultValue="america-new_york">
+                  <Select
+                    value={settings.timezone}
+                    onValueChange={(value) =>
+                      handleSelectChange("timezone", value)
+                    }>
                     <SelectTrigger id="timezone">
                       <SelectValue placeholder="Select timezone" />
                     </SelectTrigger>
@@ -151,9 +454,13 @@ export default function SettingsPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="date-format">Date Format</Label>
-                  <Select defaultValue="mm-dd-yyyy">
-                    <SelectTrigger id="date-format">
+                  <Label htmlFor="dateFormat">Date Format</Label>
+                  <Select
+                    value={settings.dateFormat}
+                    onValueChange={(value) =>
+                      handleSelectChange("dateFormat", value)
+                    }>
+                    <SelectTrigger id="dateFormat">
                       <SelectValue placeholder="Select date format" />
                     </SelectTrigger>
                     <SelectContent>
@@ -164,9 +471,13 @@ export default function SettingsPage() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="weight-unit">Weight Unit</Label>
-                  <Select defaultValue="lb">
-                    <SelectTrigger id="weight-unit">
+                  <Label htmlFor="weightUnit">Weight Unit</Label>
+                  <Select
+                    value={settings.weightUnit}
+                    onValueChange={(value) =>
+                      handleSelectChange("weightUnit", value)
+                    }>
+                    <SelectTrigger id="weightUnit">
                       <SelectValue placeholder="Select weight unit" />
                     </SelectTrigger>
                     <SelectContent>
@@ -179,7 +490,11 @@ export default function SettingsPage() {
               </div>
             </CardContent>
             <CardFooter className="flex justify-end">
-              <Button>Save Changes</Button>
+              <Button
+                onClick={() => handleSave("regional")}
+                disabled={isSaving.regional}>
+                {isSaving.regional ? "Saving..." : "Save Changes"}
+              </Button>
             </CardFooter>
           </Card>
 
@@ -193,10 +508,11 @@ export default function SettingsPage() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="meta-title">Meta Title</Label>
+                  <Label htmlFor="metaTitle">Meta Title</Label>
                   <Input
-                    id="meta-title"
-                    defaultValue="TechTots | STEM Toys for Curious Minds"
+                    id="metaTitle"
+                    value={settings.metaTitle}
+                    onChange={handleInputChange}
                   />
                   <p className="text-xs text-muted-foreground">
                     Appears in browser tabs and search engine results (50-60
@@ -204,10 +520,11 @@ export default function SettingsPage() {
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="meta-description">Meta Description</Label>
+                  <Label htmlFor="metaDescription">Meta Description</Label>
                   <Textarea
-                    id="meta-description"
-                    defaultValue="Discover the best STEM toys for curious minds at TechTots. Educational toys that make learning fun for children of all ages."
+                    id="metaDescription"
+                    value={settings.metaDescription}
+                    onChange={handleInputChange}
                     rows={3}
                   />
                   <p className="text-xs text-muted-foreground">
@@ -216,16 +533,21 @@ export default function SettingsPage() {
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="meta-keywords">Meta Keywords</Label>
+                  <Label htmlFor="metaKeywords">Meta Keywords</Label>
                   <Input
-                    id="meta-keywords"
-                    defaultValue="STEM toys, educational toys, science toys, technology toys, engineering toys, math toys"
+                    id="metaKeywords"
+                    value={settings.metaKeywords}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
             </CardContent>
             <CardFooter className="flex justify-end">
-              <Button>Save Changes</Button>
+              <Button
+                onClick={() => handleSave("seo")}
+                disabled={isSaving.seo}>
+                {isSaving.seo ? "Saving..." : "Save Changes"}
+              </Button>
             </CardFooter>
           </Card>
         </TabsContent>
@@ -254,14 +576,24 @@ export default function SettingsPage() {
                     <div className="w-[100px]">
                       <Input
                         id="standard-shipping"
-                        defaultValue="5.99"
+                        value={
+                          settings.shippingSettings?.standard?.price || "5.99"
+                        }
+                        onChange={(e) =>
+                          handleShippingPriceChange("standard", e.target.value)
+                        }
                         type="number"
                         min="0"
                         step="0.01"
                       />
                     </div>
                     <Switch
-                      defaultChecked
+                      checked={
+                        settings.shippingSettings?.standard?.active || false
+                      }
+                      onCheckedChange={(checked) =>
+                        handleShippingActiveChange("standard", checked)
+                      }
                       id="standard-shipping-active"
                     />
                   </div>
@@ -278,14 +610,24 @@ export default function SettingsPage() {
                     <div className="w-[100px]">
                       <Input
                         id="express-shipping"
-                        defaultValue="12.99"
+                        value={
+                          settings.shippingSettings?.express?.price || "12.99"
+                        }
+                        onChange={(e) =>
+                          handleShippingPriceChange("express", e.target.value)
+                        }
                         type="number"
                         min="0"
                         step="0.01"
                       />
                     </div>
                     <Switch
-                      defaultChecked
+                      checked={
+                        settings.shippingSettings?.express?.active || false
+                      }
+                      onCheckedChange={(checked) =>
+                        handleShippingActiveChange("express", checked)
+                      }
                       id="express-shipping-active"
                     />
                   </div>
@@ -304,14 +646,29 @@ export default function SettingsPage() {
                     <div className="w-[100px]">
                       <Input
                         id="free-shipping-threshold"
-                        defaultValue="75.00"
+                        value={
+                          settings.shippingSettings?.freeThreshold?.price ||
+                          "75.00"
+                        }
+                        onChange={(e) =>
+                          handleShippingPriceChange(
+                            "freeThreshold",
+                            e.target.value
+                          )
+                        }
                         type="number"
                         min="0"
                         step="0.01"
                       />
                     </div>
                     <Switch
-                      defaultChecked
+                      checked={
+                        settings.shippingSettings?.freeThreshold?.active ||
+                        false
+                      }
+                      onCheckedChange={(checked) =>
+                        handleShippingActiveChange("freeThreshold", checked)
+                      }
                       id="free-shipping-active"
                     />
                   </div>
@@ -319,7 +676,11 @@ export default function SettingsPage() {
               </div>
             </CardContent>
             <CardFooter className="flex justify-end">
-              <Button>Save Changes</Button>
+              <Button
+                onClick={() => handleSave("shipping")}
+                disabled={isSaving.shipping}>
+                {isSaving.shipping ? "Saving..." : "Save Changes"}
+              </Button>
             </CardFooter>
           </Card>
         </TabsContent>
@@ -385,7 +746,11 @@ export default function SettingsPage() {
               </div>
             </CardContent>
             <CardFooter className="flex justify-end">
-              <Button>Save Changes</Button>
+              <Button
+                onClick={() => handleSave("payments")}
+                disabled={isSaving.payments}>
+                {isSaving.payments ? "Saving..." : "Save Changes"}
+              </Button>
             </CardFooter>
           </Card>
         </TabsContent>

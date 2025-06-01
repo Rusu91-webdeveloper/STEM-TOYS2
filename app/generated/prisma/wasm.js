@@ -253,6 +253,53 @@ exports.Prisma.LanguageScalarFieldEnum = {
   isAvailable: 'isAvailable'
 };
 
+exports.Prisma.OrderScalarFieldEnum = {
+  id: 'id',
+  orderNumber: 'orderNumber',
+  userId: 'userId',
+  total: 'total',
+  subtotal: 'subtotal',
+  tax: 'tax',
+  shippingCost: 'shippingCost',
+  status: 'status',
+  paymentStatus: 'paymentStatus',
+  paymentMethod: 'paymentMethod',
+  notes: 'notes',
+  shippingAddressId: 'shippingAddressId',
+  billingAddressId: 'billingAddressId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrderItemScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  productId: 'productId',
+  name: 'name',
+  price: 'price',
+  quantity: 'quantity'
+};
+
+exports.Prisma.StoreSettingsScalarFieldEnum = {
+  id: 'id',
+  storeName: 'storeName',
+  storeUrl: 'storeUrl',
+  storeDescription: 'storeDescription',
+  contactEmail: 'contactEmail',
+  contactPhone: 'contactPhone',
+  currency: 'currency',
+  timezone: 'timezone',
+  dateFormat: 'dateFormat',
+  weightUnit: 'weightUnit',
+  metaTitle: 'metaTitle',
+  metaDescription: 'metaDescription',
+  metaKeywords: 'metaKeywords',
+  shippingSettings: 'shippingSettings',
+  paymentSettings: 'paymentSettings',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -291,6 +338,21 @@ exports.StemCategory = exports.$Enums.StemCategory = {
   GENERAL: 'GENERAL'
 };
 
+exports.OrderStatus = exports.$Enums.OrderStatus = {
+  PROCESSING: 'PROCESSING',
+  SHIPPED: 'SHIPPED',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED',
+  COMPLETED: 'COMPLETED'
+};
+
+exports.PaymentStatus = exports.$Enums.PaymentStatus = {
+  PENDING: 'PENDING',
+  PAID: 'PAID',
+  FAILED: 'FAILED',
+  REFUNDED: 'REFUNDED'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   PasswordResetToken: 'PasswordResetToken',
@@ -301,7 +363,10 @@ exports.Prisma.ModelName = {
   Wishlist: 'Wishlist',
   Blog: 'Blog',
   Book: 'Book',
-  Language: 'Language'
+  Language: 'Language',
+  Order: 'Order',
+  OrderItem: 'OrderItem',
+  StoreSettings: 'StoreSettings'
 };
 
 /**

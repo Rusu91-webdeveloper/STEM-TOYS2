@@ -230,17 +230,26 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   };
 
   const removeFromCart = async (itemId: string) => {
+    // First update the UI immediately
     setCartItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
 
-    // Try to sync with server in the background
+    // Then try to sync with server in the background
     try {
-      await removeCartItem(itemId);
+      const success = await removeCartItem(itemId);
+      if (!success) {
+        console.warn(
+          `Failed to remove item ${itemId} from server, but removed from UI`
+        );
+      }
     } catch (error) {
-      console.error("Failed to sync item removal with server:", error);
+      console.error("Error removing item from cart:", error);
+      // Don't revert the UI, just log the error
+      // The item will be removed from the UI regardless of server success
     }
   };
 
   const updateQuantity = async (itemId: string, quantity: number) => {
+    // First update the UI immediately
     setCartItems(
       (prevItems) =>
         prevItems
@@ -253,18 +262,31 @@ export const CartProvider = ({ children }: CartProviderProps) => {
           .filter((item) => item.quantity > 0) // Remove item if quantity is 0
     );
 
-    // Try to sync with server in the background
+    // Then try to sync with server in the background
     if (quantity > 0) {
       try {
-        await updateCartItemQuantity(itemId, quantity);
+        const success = await updateCartItemQuantity(itemId, quantity);
+        if (!success) {
+          console.warn(
+            `Failed to update quantity for item ${itemId}, but UI is updated`
+          );
+        }
       } catch (error) {
-        console.error("Failed to sync quantity update with server:", error);
+        console.error("Error updating item quantity:", error);
+        // Don't revert the UI, just log the error - this prevents a poor user experience
+        // The next time the cart is loaded, it will sync with the server
       }
     } else {
       try {
-        await removeCartItem(itemId);
+        const success = await removeCartItem(itemId);
+        if (!success) {
+          console.warn(
+            `Failed to remove item ${itemId} from server, but removed from UI`
+          );
+        }
       } catch (error) {
-        console.error("Failed to remove item from server cart:", error);
+        console.error("Error removing item from cart:", error);
+        // Don't revert the UI, just log the error
       }
     }
   };

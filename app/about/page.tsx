@@ -91,70 +91,21 @@ export default function AboutPage() {
               </div>
               <div className="space-y-3 sm:space-y-4 text-sm sm:text-base md:text-lg text-gray-700">
                 <p className="leading-relaxed">
-                  {t("language") !== "en" ? (
-                    <>
-                      Înființat în 2025, TechTots a fost fondat pe o viziune
-                      inspirată de două cărți pivot: "Jocuri STEM pentru minți
-                      neurodivergente" de Casey Wrenly și "Născut pentru viitor"
-                      de un educator și părinte dedicat. Aceste lucrări au
-                      evidențiat impactul profund al jocului STEM asupra
-                      dezvoltării copilului și importanța abilităților pregătite
-                      pentru viitor, modelând misiunea noastră principală. La
-                      TechTots, credem că jucăriile STEM sunt catalizatori
-                      esențiali pentru creșterea cognitivă la toți copiii,
-                      aprind curiozitatea naturală și construiesc fundamente în
-                      gândirea computațională și raționamentul științific.
-                      Susținem o abordare în care învățarea se aliniază cu
-                      interesele naturale și neurologia copilului. Suntem
-                      deosebit de dedicați copiilor neurodiversi, inclusiv cei
-                      cu ADHD și autism. Inspirați de "Jocuri STEM pentru minți
-                      neurodivergente", oferim instrumente concepute pentru
-                      experiențe bogate senzorial care îmbunătățesc concentrarea
-                      și abilitățile cognitive, transformând punctele lor forte
-                      unice în căi pentru învățare și încredere. Modelat în
-                      continuare de "Născut pentru viitor", care pune accentul
-                      pe pregătirea copiilor cu abilități umane critice pentru o
-                      lume dominată de AI, înțelegem că integrarea STEM
-                      construiește abilități tehnice și de rezolvare creativă a
-                      problemelor cruciale. Misiunea noastră la TechTots este să
-                      fim partenerul tău de încredere, oferind jucării
-                      educaționale îmbogățitoare și îndrumare părintească. Ne
-                      propunem să arătăm cum aceste instrumente atent selectate
-                      încurajează dezvoltarea, hrănesc curiozitatea și echipează
-                      toți copiii cu abilități esențiale pentru ziua de mâine -
-                      toate prin puterea jocului bucuros.
-                    </>
-                  ) : (
-                    <>
-                      Established in 2025, TechTots was founded on a vision
-                      sparked by two pivotal books: "STEM Play for Neurodiverse
-                      Minds" by Casey Wrenly and "Born for the Future" by a
-                      dedicated educator and parent. These works highlighted the
-                      profound impact of STEM play on child development and the
-                      importance of future-ready skills, shaping our core
-                      mission. At TechTots, we believe STEM toys are essential
-                      catalysts for cognitive growth in all children, igniting
-                      natural curiosity and building foundations in
-                      computational thinking and scientific reasoning. We
-                      champion an approach where learning aligns with a child's
-                      natural interests and neurology. We are especially
-                      committed to neurodiverse children, including those with
-                      ADHD and autism. Drawing inspiration from "STEM Play for
-                      Neurodiverse Minds," we offer tools designed for
-                      sensory-rich experiences that enhance focus and cognitive
-                      skills, transforming their unique strengths into pathways
-                      for learning and confidence. Further shaped by "Born for
-                      the Future," which emphasizes preparing children with
-                      critical human skills for an AI-driven world, we
-                      understand that STEM integration builds crucial technical
-                      and creative problem-solving abilities. Our mission at
-                      TechTots is to be your trusted partner, providing
-                      enriching educational toys and parental guidance. We aim
-                      to show how these carefully selected tools foster
-                      development, nurture curiosity, and equip all children
-                      with essential skills for tomorrow—all through the power
-                      of joyful play.
-                    </>
+                  {t(
+                    "ourStoryParagraph1",
+                    'Established in 2025, TechTots was founded on a vision sparked by two pivotal books: "STEM Play for Neurodiverse Minds" by Casey Wrenly and "Born for the Future" by a dedicated educator and parent. These works highlighted the profound impact of STEM play on child development and the importance of future-ready skills, shaping our core mission.'
+                  )}
+                </p>
+                <p className="leading-relaxed">
+                  {t(
+                    "ourStoryParagraph2",
+                    'At TechTots, we believe STEM toys are essential catalysts for cognitive growth in all children, igniting natural curiosity and building foundations in computational thinking and scientific reasoning. We champion an approach where learning aligns with a child\'s natural interests and neurology. We are especially committed to neurodiverse children, including those with ADHD and autism. Drawing inspiration from "STEM Play for Neurodiverse Minds," we offer tools designed for sensory-rich experiences that enhance focus and cognitive skills, transforming their unique strengths into pathways for learning and confidence.'
+                  )}
+                </p>
+                <p className="leading-relaxed">
+                  {t(
+                    "ourStoryParagraph3",
+                    'Further shaped by "Born for the Future," which emphasizes preparing children with critical human skills for an AI-driven world, we understand that STEM integration builds crucial technical and creative problem-solving abilities. Our mission at TechTots is to be your trusted partner, providing enriching educational toys and parental guidance. We aim to show how these carefully selected tools foster development, nurture curiosity, and equip all children with essential skills for tomorrow—all through the power of joyful play.'
                   )}
                 </p>
               </div>

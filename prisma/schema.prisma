@@ -24,6 +24,7 @@ model User {
   passwordResetTokens PasswordResetToken[]
   paymentCards        PaymentCard[]
   wishlistItems       Wishlist[]
+  orders              Order[]
 }
 
 model PasswordResetToken {
@@ -52,6 +53,7 @@ model Address {
   phone        String
   isDefault    Boolean @default(false)
   user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orders       Order[]
 }
 
 model PaymentCard {
@@ -88,9 +90,9 @@ model Category {
 }
 
 model Product {
-  id             String     @id @default(cuid())
+  id             String      @id @default(cuid())
   name           String
-  slug           String     @unique
+  slug           String      @unique
   description    String
   price          Float
   compareAtPrice Float?
@@ -98,18 +100,19 @@ model Product {
   categoryId     String
   tags           String[]
   attributes     Json?
-  isActive       Boolean    @default(true)
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
+  isActive       Boolean     @default(true)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
   barcode        String?
   dimensions     Json?
   metadata       Json?
   sku            String?
-  stockQuantity  Int        @default(0)
+  stockQuantity  Int         @default(0)
   weight         Float?
-  featured       Boolean    @default(false)
-  category       Category   @relation(fields: [categoryId], references: [id])
+  featured       Boolean     @default(false)
+  category       Category    @relation(fields: [categoryId], references: [id])
   wishlistItems  Wishlist[]
+  orderItems     OrderItem[]
 }
 
 model Wishlist {
@@ -176,6 +179,66 @@ model Language {
   @@index([bookId])
 }
 
+model Order {
+  id                String        @id @default(cuid())
+  orderNumber       String        @unique
+  userId            String
+  total             Float
+  subtotal          Float
+  tax               Float
+  shippingCost      Float
+  status            OrderStatus   @default(PROCESSING)
+  paymentStatus     PaymentStatus @default(PENDING)
+  paymentMethod     String
+  notes             String?
+  shippingAddressId String
+  billingAddressId  String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  items             OrderItem[]
+  user              User          @relation(fields: [userId], references: [id])
+  shippingAddress   Address       @relation(fields: [shippingAddressId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([orderNumber])
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  productId String
+  name      String
+  price     Float
+  quantity  Int
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+}
+
+model StoreSettings {
+  id                String   @id @default(cuid())
+  storeName         String   @default("TechTots")
+  storeUrl          String   @default("https://techtots.com")
+  storeDescription  String   @default("TechTots is a premier online destination for STEM toys that inspire learning through play.")
+  contactEmail      String   @default("info@techtots.com")
+  contactPhone      String   @default("+1 (555) 123-4567")
+  currency          String   @default("usd")
+  timezone          String   @default("america-new_york")
+  dateFormat        String   @default("mm-dd-yyyy")
+  weightUnit        String   @default("lb")
+  metaTitle         String   @default("TechTots | STEM Toys for Curious Minds")
+  metaDescription   String   @default("Discover the best STEM toys for curious minds at TechTots. Educational toys that make learning fun for children of all ages.")
+  metaKeywords      String   @default("STEM toys, educational toys, science toys, technology toys, engineering toys, math toys")
+  shippingSettings  Json?
+  paymentSettings   Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
 enum Role {
   CUSTOMER
   ADMIN
@@ -187,4 +250,19 @@ enum StemCategory {
   ENGINEERING
   MATHEMATICS
   GENERAL
+}
+
+enum OrderStatus {
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
 }

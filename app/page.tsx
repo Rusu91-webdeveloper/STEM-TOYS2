@@ -403,7 +403,9 @@ export default function Home() {
                       className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-800 px-1 text-xs sm:text-sm md:text-base h-auto py-2 sm:py-2.5">
                       <Link href="/products/stem-play-neurodiverse-minds-english">
                         <span className="mr-2">🇬🇧</span>{" "}
-                        {t("buyInEnglish" as any, "Buy")}
+                        {language === "ro"
+                          ? ""
+                          : t("buyInEnglish" as any, "Buy")}
                       </Link>
                     </Button>
                     <Button
@@ -411,7 +413,9 @@ export default function Home() {
                       className="flex items-center justify-center bg-gradient-to-r from-yellow-600 to-red-600 px-1 text-xs sm:text-sm md:text-base h-auto py-2 sm:py-2.5">
                       <Link href="/products/stem-play-neurodiverse-minds-romanian">
                         <span className="mr-2">🇷🇴</span>{" "}
-                        {t("buyInRomanian" as any, "Buy")}
+                        {language === "ro"
+                          ? ""
+                          : t("buyInRomanian" as any, "Buy")}
                       </Link>
                     </Button>
                   </div>
@@ -459,7 +463,9 @@ export default function Home() {
                       className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-800 px-1 text-xs sm:text-sm md:text-base h-auto py-2 sm:py-2.5">
                       <Link href="/products/born-for-the-future-english">
                         <span className="mr-2">🇬🇧</span>{" "}
-                        {t("buyInEnglish" as any, "Buy")}
+                        {language === "ro"
+                          ? ""
+                          : t("buyInEnglish" as any, "Buy")}
                       </Link>
                     </Button>
                     <Button
@@ -467,7 +473,9 @@ export default function Home() {
                       className="flex items-center justify-center bg-gradient-to-r from-yellow-600 to-red-600 px-1 text-xs sm:text-sm md:text-base h-auto py-2 sm:py-2.5">
                       <Link href="/products/born-for-the-future-romanian">
                         <span className="mr-2">🇷🇴</span>{" "}
-                        {t("buyInRomanian" as any, "Buy")}
+                        {language === "ro"
+                          ? ""
+                          : t("buyInRomanian" as any, "Buy")}
                       </Link>
                     </Button>
                   </div>

@@ -6,18 +6,11 @@ import { useTranslation } from "@/lib/i18n";
 import { TranslationKey } from "@/lib/i18n/translations";
 
 const footerLinks = {
-  shop: [
-    { name: "All Products", href: "/products" },
-    { name: "Science", href: "/categories/science" },
-    { name: "Technology", href: "/categories/technology" },
-    { name: "Engineering", href: "/categories/engineering" },
-    { name: "Math", href: "/categories/math" },
-  ],
+  shop: [{ name: "All Products", href: "/products" }],
   company: [
     { name: "About", href: "/about" },
     { name: "Blog", href: "/blog" },
     { name: "Contact", href: "/contact" },
-    { name: "Careers", href: "/careers" },
   ],
   support: [
     { name: "Help Center", href: "/help" },
@@ -181,6 +174,50 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
+          </div>
+
+          <div className="col-span-2 xs:col-span-1 sm:col-span-1">
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-foreground">
+              Contact Us
+            </h3>
+            <div className="mt-2 sm:mt-4 space-y-3">
+              <div>
+                <p className="text-xs sm:text-sm font-semibold">Address:</p>
+                <address className="text-xs text-muted-foreground not-italic">
+                  TechTots Headquarters
+                  <br />
+                  Mehedinti 54-56
+                  <br />
+                  Cluj-Napoca
+                  <br />
+                  Cluj
+                </address>
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm font-semibold">
+                  Customer Support:
+                </p>
+                <div className="text-xs text-muted-foreground">
+                  <p>
+                    Email:{" "}
+                    <a
+                      href="mailto:webira.rem.srl@gmail.com"
+                      className="hover:text-primary">
+                      webira.rem.srl@gmail.com
+                    </a>
+                  </p>
+                  <p>
+                    Phone:{" "}
+                    <a
+                      href="tel:+40771248029"
+                      className="hover:text-primary">
+                      +40771 248 029
+                    </a>
+                  </p>
+                  <p>Hours: Monday-Friday, 9am-5pm PST</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

@@ -168,6 +168,10 @@ export const ro = {
     "Produsul a fost eliminat din lista ta de dorințe.",
   wishlistUpdateError:
     "Nu s-a putut actualiza lista de dorințe. Te rugăm să încerci din nou.",
+  authRequiredTitle: "Autentificare necesară",
+  authRequiredWishlist:
+    "Trebuie să fii autentificat pentru a folosi lista de dorințe",
+  loginToContinue: "Autentifică-te pentru a continua",
 
   // Order history
   all: "Toate",
@@ -329,11 +333,11 @@ export const ro = {
 
   // About page paragraphs
   ourStoryParagraph1:
-    'TechTots a fost fondat în 2025 după ce fondatorul nostru a citit cartea revoluționară "Născut pentru Viitor" de Casey Wrenly. Perspectivele profunde ale cărții asupra dezvoltării copilului și abilităților viitoare au inspirat misiunea noastră de a revoluționa joaca educațională.',
+    'Înființat în 2025, TechTots a fost fondat pe o viziune inspirată de două cărți pivot: "Jocuri STEM pentru minți neurodivergente" de Casey Wrenly și "Născut pentru viitor" de un educator și părinte dedicat. Aceste lucrări au evidențiat impactul profund al jocului STEM asupra dezvoltării copilului și importanța abilităților pregătite pentru viitor, modelând misiunea noastră principală.',
   ourStoryParagraph2:
-    "Înțelegem profund cât de importante sunt jucăriile STEM în modelarea viitorului copiilor noștri de la o vârstă fragedă. Aceste jucării nu doar distrează—ele dezvoltă căi neuronale esențiale, stimulează curiozitatea și construiesc fundația pentru gândirea computațională, raționamentul spațial și investigația științifică.",
+    'La TechTots, credem că jucăriile STEM sunt catalizatori esențiali pentru creșterea cognitivă la toți copiii, aprind curiozitatea naturală și construiesc fundamente în gândirea computațională și raționamentul științific. Susținem o abordare în care învățarea se aliniază cu interesele naturale și neurologia copilului. Suntem deosebit de dedicați copiilor neurodiversi, inclusiv cei cu ADHD și autism. Inspirați de "Jocuri STEM pentru minți neurodivergente", oferim instrumente concepute pentru experiențe bogate senzorial care îmbunătățesc concentrarea și abilitățile cognitive, transformând punctele lor forte unice în căi pentru învățare și încredere.',
   ourStoryParagraph3:
-    "Produsele noastre atent selectate sunt concepute pentru a se dezvolta odată cu copilul tău, oferind provocări din ce în ce mai complexe care se adaptează capacităților lor în dezvoltare. Credem că făcând învățarea STEM bucuroasă și accesibilă, ajutăm la cultivarea inovatorilor, rezolvatorilor de probleme și gânditorilor creativi de mâine.",
+    'Modelat în continuare de "Născut pentru viitor", care pune accentul pe pregătirea copiilor cu abilități umane critice pentru o lume dominată de AI, înțelegem că integrarea STEM construiește abilități tehnice și de rezolvare creativă a problemelor cruciale. Misiunea noastră la TechTots este să fim partenerul tău de încredere, oferind jucării educaționale îmbogățitoare și îndrumare părintească. Ne propunem să arătăm cum aceste instrumente atent selectate încurajează dezvoltarea, hrănesc curiozitatea și echipează toți copiii cu abilități esențiale pentru ziua de mâine - toate prin puterea jocului bucuros.',
 
   // Values section
   qualitySafety: "Calitate și Siguranță",
@@ -373,6 +377,22 @@ export const ro = {
   tryAdjustingFilters:
     "Încearcă să ajustezi filtrele sau criteriile de căutare",
   clearAllFilters: "Șterge Toate Filtrele",
+  stemCategory: "Categorie STEM",
+  productType: "Tip Produs",
+  stemToy: "Jucărie STEM",
+  educationalBook: "Carte Educațională",
+  diyKit: "Kit DIY",
+  difficultyLevel: "Nivel de Dificultate",
+  beginner: "Începător",
+  intermediate: "Intermediar",
+  advanced: "Avansat",
+  years6To10: "6-10 ani",
+  years8To12: "8-12 ani",
+  years10To14: "10-14 ani",
+  scienceCategory: "Știință",
+  technologyCategory: "Tehnologie",
+  engineeringCategory: "Inginerie",
+  mathematicsCategory: "Matematică",
 
   // Product page specific translations
   backToProducts: "Înapoi la Produse",
@@ -448,4 +468,20 @@ export const ro = {
   ourOfficeTitles: "Birourile Noastre",
   joinNewsletter: "Abonează-te la Newsletter",
   subscribeCTA: "Abonează-te",
+
+  // STEM Benefits translations
+  discoverStemToys: "Descoperă Jucării STEM Educaționale",
+  whyStemEssential: "De Ce Jucăriile STEM Sunt Esențiale",
+  cognitiveDevelopment: "Dezvoltare Cognitivă",
+  cognitiveDevelopmentDesc:
+    "Stimulează gândirea critică, abilitățile de rezolvare a problemelor și raționamentul logic.",
+  creativityInnovation: "Creativitate și Inovație",
+  creativityInnovationDesc:
+    "Inspiră creativitatea, experimentarea și gândirea inovatoare prin joc deschis.",
+  futureReady: "Pregătiți pentru Viitor",
+  futureReadyDesc:
+    "Dezvoltă abilitățile esențiale pentru succesul viitor în carierele STEM.",
+  funLearning: "Învățare Distractivă",
+  funLearningDesc:
+    "Transformă conceptele complexe în activități captivante și memorabile.",
 };
