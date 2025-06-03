@@ -24,50 +24,119 @@ import {
   Activity,
   Calendar,
 } from "lucide-react";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { SalesChart } from "./components/sales-chart";
 
-// Mock data for analytics
-const salesData = {
-  daily: 1245.89,
-  weekly: 8976.54,
-  monthly: 34521.76,
-  previousPeriodChange: 14.5,
-  trending: "up",
-};
+// Define types for our API responses
+interface SalesData {
+  daily: number;
+  weekly: number;
+  monthly: number;
+  previousPeriodChange: number;
+  trending: "up" | "down";
+}
 
-const conversionRateData = {
-  rate: 3.2,
-  previousPeriodChange: -0.8,
-  trending: "down",
-};
+interface OrderStats {
+  conversionRate: {
+    rate: number;
+    previousPeriodChange: number;
+    trending: "up" | "down";
+  };
+  averageOrderValue: {
+    value: number;
+    previousPeriodChange: number;
+    trending: "up" | "down";
+  };
+  totalCustomers: {
+    value: number;
+    previousPeriodChange: number;
+    trending: "up" | "down";
+  };
+}
 
-const averageOrderValueData = {
-  value: 78.45,
-  previousPeriodChange: 5.2,
-  trending: "up",
-};
+interface TopSellingProduct {
+  name: string;
+  price: number;
+  sold: number;
+  revenue: number;
+}
 
-const totalCustomersData = {
-  value: 1876,
-  previousPeriodChange: 12.3,
-  trending: "up",
-};
+interface CategorySales {
+  categoryId: string;
+  category: string;
+  amount: number;
+  percentage: number;
+}
 
-const topSellingProducts = [
-  { name: "Robotic Building Kit", price: 59.99, sold: 45, revenue: 2699.55 },
-  { name: "Chemistry Lab Set", price: 49.99, sold: 38, revenue: 1899.62 },
-  { name: "Magnetic Building Tiles", price: 39.99, sold: 36, revenue: 1439.64 },
-  { name: "Math Puzzle Game", price: 29.99, sold: 32, revenue: 959.68 },
-  { name: "Coding Robot for Kids", price: 79.99, sold: 28, revenue: 2239.72 },
-];
+interface SalesByDay {
+  date: string;
+  sales: number;
+}
 
-const salesByCategory = [
-  { category: "Technology", amount: 12540.75, percentage: 35 },
-  { category: "Science", amount: 9872.5, percentage: 28 },
-  { category: "Engineering", amount: 7654.25, percentage: 22 },
-  { category: "Math", amount: 5321.75, percentage: 15 },
-];
+interface AnalyticsData {
+  salesData: SalesData;
+  orderStats: OrderStats;
+  topSellingProducts: TopSellingProduct[];
+  salesByCategory: CategorySales[];
+}
 
-export default function AnalyticsPage() {
+interface SalesChartData {
+  salesData: SalesByDay[];
+}
+
+// Function to fetch analytics data from our API
+async function getAnalyticsData(period: number = 30): Promise<AnalyticsData> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/admin/analytics?period=${period}`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch analytics data");
+  }
+
+  return response.json();
+}
+
+// Function to fetch sales chart data
+async function getSalesChartData(period: number = 30): Promise<SalesChartData> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_APP_URL}/api/admin/analytics/sales-chart?period=${period}`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch sales chart data");
+  }
+
+  return response.json();
+}
+
+export default async function AnalyticsPage() {
+  // Check authentication
+  const session = await auth();
+
+  if (!session?.user || session.user.role !== "ADMIN") {
+    redirect("/");
+  }
+
+  // Default period is 30 days
+  const period = 30;
+
+  // Fetch data from our API endpoints
+  const [analyticsData, salesChartData] = await Promise.all([
+    getAnalyticsData(period),
+    getSalesChartData(period),
+  ]);
+
+  const { salesData, orderStats, topSellingProducts, salesByCategory } =
+    analyticsData;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -153,20 +222,20 @@ export default function AnalyticsPage() {
               </div>
               <div className="flex items-baseline gap-2">
                 <h3 className="text-3xl font-bold">
-                  {conversionRateData.rate}%
+                  {orderStats.conversionRate.rate}%
                 </h3>
                 <span
                   className={`text-xs font-medium flex items-center ${
-                    conversionRateData.trending === "up"
+                    orderStats.conversionRate.trending === "up"
                       ? "text-green-500"
                       : "text-red-500"
                   }`}>
-                  {conversionRateData.trending === "up" ? (
+                  {orderStats.conversionRate.trending === "up" ? (
                     <ArrowUpRight className="h-3 w-3 mr-1" />
                   ) : (
                     <ArrowDownRight className="h-3 w-3 mr-1" />
                   )}
-                  {Math.abs(conversionRateData.previousPeriodChange)}%
+                  {Math.abs(orderStats.conversionRate.previousPeriodChange)}%
                 </span>
               </div>
               <div>
@@ -192,20 +261,20 @@ export default function AnalyticsPage() {
               </div>
               <div className="flex items-baseline gap-2">
                 <h3 className="text-3xl font-bold">
-                  ${averageOrderValueData.value.toFixed(2)}
+                  ${orderStats.averageOrderValue.value.toFixed(2)}
                 </h3>
                 <span
                   className={`text-xs font-medium flex items-center ${
-                    averageOrderValueData.trending === "up"
+                    orderStats.averageOrderValue.trending === "up"
                       ? "text-green-500"
                       : "text-red-500"
                   }`}>
-                  {averageOrderValueData.trending === "up" ? (
+                  {orderStats.averageOrderValue.trending === "up" ? (
                     <ArrowUpRight className="h-3 w-3 mr-1" />
                   ) : (
                     <ArrowDownRight className="h-3 w-3 mr-1" />
                   )}
-                  {averageOrderValueData.previousPeriodChange}%
+                  {orderStats.averageOrderValue.previousPeriodChange}%
                 </span>
               </div>
               <div>
@@ -229,20 +298,20 @@ export default function AnalyticsPage() {
               </div>
               <div className="flex items-baseline gap-2">
                 <h3 className="text-3xl font-bold">
-                  {totalCustomersData.value.toLocaleString()}
+                  {orderStats.totalCustomers.value.toLocaleString()}
                 </h3>
                 <span
                   className={`text-xs font-medium flex items-center ${
-                    totalCustomersData.trending === "up"
+                    orderStats.totalCustomers.trending === "up"
                       ? "text-green-500"
                       : "text-red-500"
                   }`}>
-                  {totalCustomersData.trending === "up" ? (
+                  {orderStats.totalCustomers.trending === "up" ? (
                     <ArrowUpRight className="h-3 w-3 mr-1" />
                   ) : (
                     <ArrowDownRight className="h-3 w-3 mr-1" />
                   )}
-                  {totalCustomersData.previousPeriodChange}%
+                  {orderStats.totalCustomers.previousPeriodChange}%
                 </span>
               </div>
               <div>
@@ -254,7 +323,7 @@ export default function AnalyticsPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Sales Chart Placeholder */}
+        {/* Sales Chart */}
         <Card>
           <CardHeader>
             <CardTitle>Sales Over Time</CardTitle>
@@ -263,15 +332,8 @@ export default function AnalyticsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {/* In a real app, this would be a chart component */}
-            <div className="h-80 w-full rounded-md bg-gradient-to-r from-muted/50 to-muted p-8 flex items-center justify-center">
-              <p className="text-muted-foreground text-center">
-                Sales chart would render here with real data.
-                <br />
-                Add a charting library like Chart.js, Recharts, or Tremor.
-                <br />
-                The actual implementation would display daily sales trends.
-              </p>
+            <div className="h-80 w-full">
+              <SalesChart data={salesChartData.salesData} />
             </div>
           </CardContent>
         </Card>
@@ -285,11 +347,11 @@ export default function AnalyticsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Category bars - in a real app this would be a pie/bar chart */}
+            {/* Category bars - real data from API */}
             <div className="space-y-4">
-              {salesByCategory.map((category) => (
+              {salesByCategory.map((category: CategorySales) => (
                 <div
-                  key={category.category}
+                  key={category.categoryId}
                   className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -342,29 +404,33 @@ export default function AnalyticsPage() {
                 </tr>
               </thead>
               <tbody>
-                {topSellingProducts.map((product, index) => (
-                  <tr
-                    key={product.name}
-                    className="border-b last:border-0">
-                    <td className="py-3 text-sm font-medium">{product.name}</td>
-                    <td className="py-3 text-sm">
-                      ${product.price.toFixed(2)}
-                    </td>
-                    <td className="py-3 text-sm">{product.sold}</td>
-                    <td className="py-3 text-sm">
-                      ${product.revenue.toFixed(2)}
-                    </td>
-                    <td className="py-3">
-                      <div className="flex w-32 items-center gap-2">
-                        <div className="h-2 w-full rounded-full bg-muted">
-                          <div
-                            className="h-2 rounded-full bg-primary"
-                            style={{ width: `${100 - index * 15}%` }}></div>
+                {topSellingProducts.map(
+                  (product: TopSellingProduct, index: number) => (
+                    <tr
+                      key={product.name}
+                      className="border-b last:border-0">
+                      <td className="py-3 text-sm font-medium">
+                        {product.name}
+                      </td>
+                      <td className="py-3 text-sm">
+                        ${product.price.toFixed(2)}
+                      </td>
+                      <td className="py-3 text-sm">{product.sold}</td>
+                      <td className="py-3 text-sm">
+                        ${product.revenue.toFixed(2)}
+                      </td>
+                      <td className="py-3">
+                        <div className="flex w-32 items-center gap-2">
+                          <div className="h-2 w-full rounded-full bg-muted">
+                            <div
+                              className="h-2 rounded-full bg-primary"
+                              style={{ width: `${100 - index * 15}%` }}></div>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  )
+                )}
               </tbody>
             </table>
           </div>
