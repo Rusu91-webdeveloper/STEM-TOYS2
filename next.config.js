@@ -26,12 +26,6 @@ const nextConfig = {
     // Don't block production builds even with TypeScript errors
     ignoreBuildErrors: true,
   },
-  // Suppress React Hydration error messages (CSR-bailout related)
-  suppressHydrationWarning: true,
-  // Disable build errors for Suspense boundaries
-  experimental: {
-    missingSuspenseWithCSRBailout: false,
-  },
 };
 
 module.exports = nextConfig;

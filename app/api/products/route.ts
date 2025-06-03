@@ -10,25 +10,18 @@ export async function GET(request: NextRequest) {
 
     console.log("API Request Params:", { category, stemCategory, featured });
 
-    // Build query filters
-    const filters: any = {
+    // Build where clause directly instead of filtering in memory
+    const where = {
       isActive: true, // Only return active products
+      ...(category ? { categoryId: category } : {}),
+      ...(stemCategory ? { stemCategory: stemCategory } : {}),
+      ...(featured === "true" ? { featured: true } : {}),
     };
 
-    if (category) {
-      filters.categoryId = category;
-    }
-
-    if (stemCategory) {
-      filters.stemCategory = stemCategory;
-    }
-
-    // Get all products first
+    // Let the database filter instead of filtering in memory
     try {
-      const allProducts = await db.product.findMany({
-        where: {
-          isActive: true,
-        },
+      const products = await db.product.findMany({
+        where,
         include: {
           category: true,
         },
@@ -37,31 +30,18 @@ export async function GET(request: NextRequest) {
         },
       });
 
-      console.log(`Found ${allProducts.length} active products in database`);
+      console.log(`Found ${products.length} matching products in database`);
 
-      // Log all products to inspect their properties
-      console.log(
-        "All products:",
-        allProducts.map((p) => ({
-          id: p.id,
-          name: p.name,
-          featured: p.featured,
-          hasOwnProperty: Object.prototype.hasOwnProperty.call(p, "featured"),
-        }))
+      // Create response with products
+      const response = NextResponse.json(products);
+
+      // Add cache control header for CDN and browser caching
+      response.headers.set(
+        "Cache-Control",
+        "public, s-maxage=60, stale-while-revalidate=300"
       );
 
-      // If featured is requested, filter in memory
-      if (featured === "true") {
-        const featuredProducts = allProducts.filter((product) => {
-          const isFeatured = product.featured === true;
-          console.log(`Product ${product.name} featured status:`, isFeatured);
-          return isFeatured;
-        });
-        console.log(`Filtered to ${featuredProducts.length} featured products`);
-        return NextResponse.json(featuredProducts);
-      }
-
-      return NextResponse.json(allProducts);
+      return response;
     } catch (error) {
       console.error("Database query error:", error);
       return NextResponse.json(

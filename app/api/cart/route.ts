@@ -5,6 +5,12 @@ import { auth } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { withRateLimit } from "@/lib/rate-limit";
 import { sanitizeInput } from "@/lib/security";
+import {
+  getCartFromCache,
+  setCartInCache,
+  invalidateCartCache,
+} from "@/lib/redis";
+
 // Mock database for cart storage - replace with Prisma in production
 const CART_STORAGE = new Map<string, CartItem[]>();
 
@@ -36,6 +42,24 @@ async function getGuestId(): Promise<string> {
   return guestId;
 }
 
+// Helper function to validate cart data
+function isValidCartData(data: any): data is CartItem[] {
+  if (!Array.isArray(data)) {
+    return false;
+  }
+
+  // Simple validation to check if it's an array of objects with required cart item properties
+  return data.every(
+    (item) =>
+      item &&
+      typeof item === "object" &&
+      typeof item.productId === "string" &&
+      typeof item.name === "string" &&
+      typeof item.price === "number" &&
+      typeof item.quantity === "number"
+  );
+}
+
 // GET /api/cart - Retrieve the user's cart
 export const GET = withRateLimit(
   async (request) => {
@@ -52,8 +76,55 @@ export const GET = withRateLimit(
         cartId = await getGuestId();
       }
 
+      // Try to get cart from Redis cache first
+      try {
+        const cachedCart = await getCartFromCache(cartId);
+
+        if (cachedCart) {
+          console.log(`Cart for ${cartId} found in cache`);
+          try {
+            // Try to parse the cached cart
+            const parsedCart =
+              typeof cachedCart === "string"
+                ? JSON.parse(cachedCart)
+                : cachedCart;
+
+            // Validate the parsed cart data
+            if (isValidCartData(parsedCart)) {
+              return NextResponse.json({
+                success: true,
+                message: "Cart fetched from cache",
+                data: parsedCart,
+                user: session?.user?.email || null,
+                fromCache: true,
+              });
+            } else {
+              console.error(
+                "Invalid cart data in cache, falling back to storage"
+              );
+              // If data is invalid, invalidate the cache
+              await invalidateCartCache(cartId);
+            }
+          } catch (parseError) {
+            console.error("Failed to parse cached cart:", parseError);
+            // If parsing fails, invalidate the bad cache entry
+            await invalidateCartCache(cartId);
+          }
+        }
+      } catch (cacheError) {
+        // Log cache error but continue with database fetch
+        console.error("Cache error:", cacheError);
+      }
+
       // Get cart from storage (or return empty array if not found)
       const cart = CART_STORAGE.get(cartId) || [];
+
+      // Cache the cart with 10-minute expiration
+      try {
+        await setCartInCache(cartId, cart);
+      } catch (cacheError) {
+        console.error("Failed to cache cart:", cacheError);
+      }
 
       return NextResponse.json({
         success: true,
@@ -129,6 +200,15 @@ export const POST = withRateLimit(
 
       // Update cart in storage
       CART_STORAGE.set(cartId, cartWithIds);
+
+      // Invalidate cart cache on update
+      try {
+        await invalidateCartCache(cartId);
+        // Cache the new cart
+        await setCartInCache(cartId, cartWithIds);
+      } catch (cacheError) {
+        console.error("Cache operation failed:", cacheError);
+      }
 
       return NextResponse.json({
         success: true,

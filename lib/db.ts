@@ -1,5 +1,17 @@
 import { PrismaClient } from "@/app/generated/prisma";
+import { Pool } from "@neondatabase/serverless";
 
+// Configure connection pool if we're using Neon
+const connectionString = process.env.DATABASE_URL || "";
+const isNeonDatabase = connectionString.includes("neon.tech");
+
+// Setup connection pool for Neon
+let pool: Pool | undefined;
+if (isNeonDatabase) {
+  pool = new Pool({ connectionString });
+}
+
+// Create global Prisma client instance
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
@@ -11,6 +23,16 @@ export const db =
       process.env.NODE_ENV === "development"
         ? ["query", "error", "warn"]
         : ["error"],
+    // Connect pool if available
+    ...(pool
+      ? {
+          datasources: {
+            db: {
+              url: connectionString,
+            },
+          },
+        }
+      : {}),
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;

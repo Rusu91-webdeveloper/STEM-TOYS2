@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -16,6 +16,7 @@ interface ProductCardProps {
   className?: string;
   imageHeight?: number;
   layout?: "grid" | "list";
+  priority?: boolean; // Add priority prop for above-the-fold images
 }
 
 export function ProductCard({
@@ -23,10 +24,30 @@ export function ProductCard({
   className,
   imageHeight = 280,
   layout = "grid",
+  priority = false, // Default to false, set to true for above-the-fold images
 }: ProductCardProps) {
   const { formatPrice } = useCurrency();
   const isOnSale =
     product.compareAtPrice && product.compareAtPrice > product.price;
+  // For proper SSR hydration when getting window dimensions
+  const [screenWidth, setScreenWidth] = useState(0);
+
+  useEffect(() => {
+    // Set dimensions after mount to prevent hydration mismatch
+    setScreenWidth(window.innerWidth);
+
+    const handleResize = () => {
+      setScreenWidth(window.innerWidth);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Calculate appropriate image height based on screen size
+  const calculatedHeight = screenWidth
+    ? Math.min(imageHeight, screenWidth < 640 ? 200 : imageHeight)
+    : imageHeight;
 
   // Render star rating
   const renderRating = () => {
@@ -65,6 +86,12 @@ export function ProductCard({
     variants: product.variants,
   };
 
+  // Use placeholder image if product image is missing
+  const imageUrl =
+    product.images && product.images.length > 0
+      ? product.images[0]
+      : "/placeholder-product.png";
+
   if (layout === "list") {
     return (
       <div
@@ -76,11 +103,16 @@ export function ProductCard({
           <Link href={`/products/${product.slug}`}>
             <div className="relative h-full w-full">
               <Image
-                src={product.images[0] || "/placeholder-product.png"}
+                src={imageUrl}
                 alt={product.name}
                 fill
                 className="object-cover"
-                sizes="(max-width: 768px) 100vw, 33vw"
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 240px"
+                priority={priority}
+                loading={priority ? "eager" : "lazy"}
+                quality={80}
+                placeholder="blur"
+                blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
               />
             </div>
             {isOnSale && (
@@ -152,18 +184,20 @@ export function ProductCard({
       <div
         className="relative overflow-hidden"
         style={{
-          height: Math.min(
-            imageHeight,
-            window.innerWidth < 640 ? 200 : imageHeight
-          ),
+          height: calculatedHeight, // Use the calculated height based on screen size
         }}>
         <Link href={`/products/${product.slug}`}>
           <Image
-            src={product.images[0] || "/placeholder-product.png"}
+            src={imageUrl}
             alt={product.name}
             fill
             className="object-cover transition-transform group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            priority={priority}
+            loading={priority ? "eager" : "lazy"}
+            quality={80}
+            placeholder="blur"
+            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
           />
           {isOnSale && (
             <Badge className="absolute top-2 left-2 bg-red-500 text-xs px-1.5 py-0.5 sm:px-2 sm:py-0.5">
@@ -211,7 +245,7 @@ export function ProductCard({
           <ProductAddToCartButton
             product={productData}
             showQuantity={false}
-            className="scale-90 sm:scale-100 min-w-[80px] sm:min-w-[90px]"
+            className="scale-90 sm:scale-100"
           />
         </div>
       </div>

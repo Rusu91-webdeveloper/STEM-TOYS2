@@ -10,11 +10,65 @@ const defaultLocale = "en"; // Changed from "ro" to "en" as default until we hav
 const REDIRECT_COOKIE = "next-redirect-count";
 
 /**
+ * Helper function to add cache control headers for static assets
+ */
+function addCacheHeaders(
+  response: NextResponse,
+  pathname: string
+): NextResponse {
+  // Define cache durations based on file types
+  const SHORT_CACHE = "public, s-maxage=60, stale-while-revalidate=300"; // 1 minute cache, 5 minute revalidate
+  const MEDIUM_CACHE = "public, s-maxage=3600, stale-while-revalidate=86400"; // 1 hour cache, 1 day revalidate
+  const LONG_CACHE = "public, s-maxage=86400, stale-while-revalidate=604800"; // 1 day cache, 7 day revalidate
+  const VERY_LONG_CACHE = "public, s-maxage=31536000, immutable"; // 1 year cache, immutable
+
+  // Static assets patterns
+  const isStaticImage = /\.(jpg|jpeg|png|gif|webp|avif|svg)$/i.test(pathname);
+  const isStaticFont = /\.(woff|woff2|eot|ttf|otf)$/i.test(pathname);
+  const isStaticDocument = /\.(pdf|doc|docx|xls|xlsx|ppt|pptx)$/i.test(
+    pathname
+  );
+  const isStaticMedia = /\.(mp4|webm|ogg|mp3|wav|flac|aac)$/i.test(pathname);
+
+  // Check if the file is in static dirs
+  const isInPublicDir =
+    pathname.startsWith("/public/") || pathname.startsWith("/_next/static/");
+  const isNextImage = pathname.startsWith("/_next/image");
+  const isNextFont = pathname.startsWith("/_next/static/media");
+
+  // Apply appropriate caching based on file type and location
+  if (isNextImage) {
+    response.headers.set("Cache-Control", MEDIUM_CACHE);
+  } else if (isNextFont || isStaticFont) {
+    response.headers.set("Cache-Control", VERY_LONG_CACHE);
+  } else if (isStaticImage) {
+    response.headers.set("Cache-Control", LONG_CACHE);
+  } else if (isStaticDocument || isStaticMedia) {
+    response.headers.set("Cache-Control", MEDIUM_CACHE);
+  } else if (isInPublicDir) {
+    response.headers.set("Cache-Control", MEDIUM_CACHE);
+  }
+
+  return response;
+}
+
+/**
  * Next.js Middleware for applying security headers, authentication checks,
  * and other global request/response modifications.
  */
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Check for static asset cache rules first for better performance
+  if (
+    /\._next\/|\/public\//i.test(pathname) ||
+    /\.(jpg|jpeg|png|gif|webp|avif|svg|woff|woff2|ttf|pdf|css|js)$/i.test(
+      pathname
+    )
+  ) {
+    const response = NextResponse.next();
+    return addCacheHeaders(response, pathname);
+  }
 
   // Check for authentication by looking for auth cookies
   // We need to check all possible cookie names used by Next Auth
@@ -199,13 +253,18 @@ export async function middleware(request: NextRequest) {
 
   // Add security headers
   Object.entries(securityHeaders).forEach(([key, value]) => {
-    response.headers.set(key, value);
+    if (value) {
+      // Dynamically set CSP for better security
+      if (key === "Content-Security-Policy") {
+        response.headers.set(key, getContentSecurityPolicy());
+      } else {
+        response.headers.set(key, value);
+      }
+    }
   });
 
-  // Add Content-Security-Policy header
-  if (!response.headers.has("Content-Security-Policy")) {
-    response.headers.set("Content-Security-Policy", getContentSecurityPolicy());
-  }
+  // Add cache headers for static content
+  addCacheHeaders(response, pathname);
 
   return response;
 }

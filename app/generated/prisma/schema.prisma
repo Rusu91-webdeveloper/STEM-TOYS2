@@ -113,6 +113,13 @@ model Product {
   category       Category    @relation(fields: [categoryId], references: [id])
   wishlistItems  Wishlist[]
   orderItems     OrderItem[]
+
+  @@index([categoryId])
+  @@index([isActive])
+  @@index([featured])
+  @@index([slug])
+  @@index([name])
+  @@index([price])
 }
 
 model Wishlist {

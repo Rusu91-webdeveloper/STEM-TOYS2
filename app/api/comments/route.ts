@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { query, execute } from "@/lib/neon";
+import { query, execute } from "@/lib/db-utils";
 import { z } from "zod";
 
 // Validate the comment data

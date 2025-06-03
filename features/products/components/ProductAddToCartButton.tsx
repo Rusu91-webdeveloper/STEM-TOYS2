@@ -7,6 +7,7 @@ import type { CartItem } from "@/features/cart/context/CartContext";
 import { useProductVariant } from "../context/ProductVariantContext";
 import { ProductVariantSelector } from "./ProductVariantSelector";
 import type { Variant } from "@/components/products/VariantSelector";
+import { useTranslation } from "@/lib/i18n";
 
 interface ProductAddToCartButtonProps {
   product: {
@@ -29,6 +30,7 @@ export function ProductAddToCartButton({
   const [isAdded, setIsAdded] = useState(false);
   const { addItem } = useShoppingCart();
   const { selectedVariants, getSelectedVariant } = useProductVariant();
+  const { t } = useTranslation();
 
   const hasVariants = product.variants && product.variants.length > 0;
   const selectedVariantId = hasVariants
@@ -101,20 +103,20 @@ export function ProductAddToCartButton({
             isAdded
               ? "bg-green-600 text-white hover:bg-green-700"
               : isDisabled
-              ? "bg-muted text-muted-foreground cursor-not-allowed"
-              : "bg-primary text-primary-foreground hover:bg-primary/90"
+                ? "bg-muted text-muted-foreground cursor-not-allowed"
+                : "bg-primary text-primary-foreground hover:bg-primary/90"
           } ${showQuantity ? "" : "w-full"}`}>
           {isAdded ? (
             <>
               <Check className="h-5 w-5" />
-              Added to Cart
+              {t("addedToCart", "Added to Cart")}
             </>
           ) : (
             <>
               <ShoppingCart className="h-5 w-5" />
               {hasVariants && !selectedVariantId
-                ? "Select Options"
-                : "Add to Cart"}
+                ? t("selectOptions", "Select Options")
+                : t("addToCart", "Add to Cart")}
             </>
           )}
         </button>

@@ -28,6 +28,7 @@ interface ProductGridProps {
     lg?: number;
     xl?: number;
   };
+  priorityItemsCount?: number; // Number of items to mark as priority
 }
 
 export function ProductGrid({
@@ -43,6 +44,7 @@ export function ProductGrid({
     lg: 3,
     xl: 4,
   },
+  priorityItemsCount = 4, // Default to first 4 items being priority
 }: ProductGridProps) {
   const [layout, setLayout] = useState<"grid" | "list">(defaultLayout);
   const [sortOption, setSortOption] = useState<string>(defaultSort);
@@ -66,7 +68,12 @@ export function ProductGrid({
         return sortedProducts.sort((a, b) => (b.rating || 0) - (a.rating || 0));
       case "featured":
       default:
-        return sortedProducts;
+        // Sort featured items first if they have a 'featured' flag
+        return sortedProducts.sort((a, b) => {
+          if (a.featured && !b.featured) return -1;
+          if (!a.featured && b.featured) return 1;
+          return 0;
+        });
     }
   };
 
@@ -79,6 +86,22 @@ export function ProductGrid({
     columns.md && `md:grid-cols-${columns.md}`,
     columns.lg && `lg:grid-cols-${columns.lg}`,
     columns.xl && `xl:grid-cols-${columns.xl}`
+  );
+
+  // Calculate the visible columns in the current layout
+  let visibleColumns = 1;
+  if (typeof window !== "undefined") {
+    const width = window.innerWidth;
+    if (width >= 1280 && columns.xl) visibleColumns = columns.xl;
+    else if (width >= 1024 && columns.lg) visibleColumns = columns.lg;
+    else if (width >= 768 && columns.md) visibleColumns = columns.md;
+    else if (width >= 640 && columns.sm) visibleColumns = columns.sm;
+  }
+
+  // Determine the number of above-the-fold items based on visible columns
+  const aboveFoldItems = Math.min(
+    priorityItemsCount,
+    visibleColumns * 2 // Prioritize first two rows
   );
 
   return (
@@ -156,21 +179,23 @@ export function ProductGrid({
         </div>
       ) : layout === "grid" ? (
         <div className={cn("grid gap-3 sm:gap-6", gridColsClass)}>
-          {sortedProducts.map((product) => (
+          {sortedProducts.map((product, index) => (
             <ProductCard
               key={product.id}
               product={product}
               layout="grid"
+              priority={index < aboveFoldItems} // Mark first items as priority to improve LCP
             />
           ))}
         </div>
       ) : (
         <div className="flex flex-col space-y-3 sm:space-y-6">
-          {sortedProducts.map((product) => (
+          {sortedProducts.map((product, index) => (
             <ProductCard
               key={product.id}
               product={product}
               layout="list"
+              priority={index < aboveFoldItems} // Mark first items as priority to improve LCP
             />
           ))}
         </div>

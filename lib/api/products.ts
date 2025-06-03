@@ -36,6 +36,8 @@ export async function getProduct(slug: string): Promise<Product | null> {
 
     const response = await fetch(url, {
       next: {
+        // Use tags for more precise invalidation
+        tags: [`product-${slug}`, "products"],
         revalidate: 3600, // Revalidate every hour
       },
     });
@@ -103,6 +105,8 @@ export async function getProducts(
 
     const response = await fetch(url, {
       next: {
+        // Use tags for more precise invalidation
+        tags: ["products", category ? `category-${category}` : ""],
         revalidate: 3600, // Revalidate every hour
       },
     });
