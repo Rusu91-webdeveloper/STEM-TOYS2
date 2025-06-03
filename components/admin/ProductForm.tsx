@@ -44,6 +44,7 @@ import { toast } from "@/components/ui/use-toast";
 import { Loader2, Plus, X, Upload, Image } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { slugify } from "@/lib/utils";
+import { ImageUploader } from "@/components/ui/ImageUploader";
 
 // Define form schema
 const formSchema = z.object({
@@ -217,12 +218,10 @@ export default function ProductForm({
     );
   };
 
-  // Mock function for image upload - would be replaced with a real upload service
-  const handleImageUpload = () => {
-    // In a real app, this would upload to a service like Uploadthing
-    const mockImageUrl = `https://placehold.co/800x600/4F46E5/FFFFFF.png?text=Product+Image+${Date.now()}`;
-    const currentImages = form.getValues("images") || [];
-    form.setValue("images", [...currentImages, mockImageUrl]);
+  // Replace the mock image upload functions with the real image uploader
+  const handleImagesUploaded = (imageUrls: string[]) => {
+    console.log("Images uploaded:", imageUrls);
+    form.setValue("images", imageUrls);
   };
 
   const removeImage = (imageUrl: string) => {
@@ -233,17 +232,26 @@ export default function ProductForm({
     );
   };
 
+  console.log("ProductForm component: form is ready for submission", {
+    isValid: form.formState.isValid,
+    isDirty: form.formState.isDirty,
+    errors: form.formState.errors,
+  });
+
   // Form submission
   const onSubmit = async (data: FormValues) => {
     try {
       setIsLoading(true);
+      console.log("Form submission started", { data });
 
       // API endpoint and method based on whether we're editing or creating
-      const endpoint = "/api/admin/products";
+      let endpoint = isEditing
+        ? `/api/admin/products/${initialData.id}`
+        : "/api/admin/products";
+
       const method = isEditing ? "PUT" : "POST";
 
-      // If editing, make sure to include the product ID
-      const submitData = isEditing ? { ...data, id: initialData.id } : data;
+      const submitData = data;
 
       console.log("Submitting product data:", {
         method,
@@ -253,6 +261,7 @@ export default function ProductForm({
         data: submitData,
       });
 
+      console.log("Before fetch call");
       const response = await fetch(endpoint, {
         method,
         headers: {
@@ -261,31 +270,69 @@ export default function ProductForm({
         credentials: "include",
         body: JSON.stringify(submitData),
       });
+      console.log("After fetch call");
 
       console.log("Response status:", response.status);
+      console.log(
+        "Response headers:",
+        Object.fromEntries([...response.headers.entries()])
+      );
 
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        console.error("Error response data:", responseData);
-        throw new Error(responseData.error || "Something went wrong");
+      // Add detailed response logging
+      let responseText;
+      try {
+        // Clone the response to avoid "body already read" errors
+        const responseClone = response.clone();
+        responseText = await responseClone.text();
+        console.log("Raw response text:", responseText);
+      } catch (textError) {
+        console.error("Failed to get response text:", textError);
       }
 
-      console.log("Success response data:", responseData);
+      if (!response.ok) {
+        // Try to parse the error response
+        let errorMessage = "Failed to save product";
+        try {
+          const errorData = responseText
+            ? JSON.parse(responseText)
+            : await response.json();
+          errorMessage = errorData.error || errorMessage;
+          console.error("Error response data:", errorData);
+        } catch (e) {
+          console.error("Failed to parse error response", e);
+        }
+        throw new Error(errorMessage);
+      }
+
+      let responseData;
+      try {
+        responseData = responseText
+          ? JSON.parse(responseText)
+          : await response.json();
+        console.log("Success response data:", responseData);
+      } catch (jsonError) {
+        console.error("Failed to parse JSON response:", jsonError);
+        responseData = {
+          message: "Product saved but response could not be parsed",
+        };
+      }
 
       toast({
         title: isEditing ? "Product updated" : "Product created",
         description: `${data.name} has been ${isEditing ? "updated" : "created"} successfully.`,
       });
 
-      // Redirect back to products list
-      router.push("/admin/products");
-      router.refresh();
+      // Redirect back to products list after a short delay
+      console.log("Preparing to redirect to product list");
+      setTimeout(() => {
+        console.log("Redirecting to product list");
+        window.location.href = "/admin/products";
+      }, 500);
     } catch (error: any) {
       console.error("Form submission error:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Something went wrong",
         variant: "destructive",
       });
     } finally {
@@ -295,7 +342,11 @@ export default function ProductForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form
+        onSubmit={(event) => {
+          console.log("Form submission event triggered", event);
+          form.handleSubmit(onSubmit)(event);
+        }}>
         <div className="space-y-6">
           <Tabs
             defaultValue="general"
@@ -534,50 +585,17 @@ export default function ProductForm({
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <Button
-                      type="button"
-                      onClick={handleImageUpload}
-                      className="w-full h-32 border-dashed border-2"
-                      variant="outline">
-                      <div className="flex flex-col items-center justify-center">
-                        <Upload className="h-8 w-8 mb-2" />
-                        <span>Upload Image</span>
-                      </div>
-                    </Button>
-
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-                      {form.watch("images").map((image, index) => (
-                        <div
-                          key={image}
-                          className="relative aspect-square rounded-md overflow-hidden border">
-                          <img
-                            src={image}
-                            alt={`Product image ${index + 1}`}
-                            className="object-cover w-full h-full"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(image)}
-                            className="absolute top-1 right-1 rounded-full bg-destructive p-1 text-white">
-                            <X className="h-4 w-4" />
-                            <span className="sr-only">Remove</span>
-                          </button>
-                          {index === 0 && (
-                            <div className="absolute bottom-0 left-0 right-0 bg-primary text-primary-foreground text-xs py-1 text-center">
-                              Main Image
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-
-                    {form.formState.errors.images && (
-                      <p className="text-destructive text-sm">
-                        {form.formState.errors.images.message}
-                      </p>
-                    )}
-                  </div>
+                  <ImageUploader
+                    maxImages={5}
+                    onImagesUploaded={handleImagesUploaded}
+                    initialImages={form.getValues("images") || []}
+                    endpoint="productImage"
+                  />
+                  {form.formState.errors.images && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {form.formState.errors.images.message as string}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>

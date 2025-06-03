@@ -24,6 +24,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowLeft, Save, Upload, X } from "lucide-react";
 import Link from "next/link";
+import { ImageUploader } from "@/components/ui/ImageUploader";
 
 interface BlogEditPageProps {
   params: Promise<{
@@ -146,6 +147,15 @@ export default function EditBlogPage({ params }: BlogEditPageProps) {
       ...prev,
       [name]: value,
     }));
+  };
+
+  // Add handler for cover image upload
+  const handleCoverImageChange = (imageUrls: string[]) => {
+    if (imageUrls.length > 0) {
+      setBlogData({ ...blogData, coverImage: imageUrls[0] });
+    } else {
+      setBlogData({ ...blogData, coverImage: "" });
+    }
   };
 
   // Handle form submission
@@ -390,29 +400,14 @@ export default function EditBlogPage({ params }: BlogEditPageProps) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {blogData.coverImage && (
-                  <div className="mb-4">
-                    <img
-                      src={blogData.coverImage}
-                      alt="Cover"
-                      className="w-full h-auto rounded-md"
-                    />
-                  </div>
-                )}
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <div className="flex flex-col items-center space-y-2">
-                    <Upload className="h-8 w-8 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground">
-                      Drag and drop your image here or click to browse
-                    </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm">
-                      Upload Image
-                    </Button>
-                  </div>
-                </div>
+                <ImageUploader
+                  maxImages={1}
+                  onImagesUploaded={handleCoverImageChange}
+                  initialImages={
+                    blogData.coverImage ? [blogData.coverImage] : []
+                  }
+                  endpoint="blogCoverImage"
+                />
               </CardContent>
             </Card>
 

@@ -28,6 +28,7 @@ async function getProduct(id: string) {
         slug: "mock-product",
         description: "This is a mock product for development.",
         price: 49.99,
+        compareAtPrice: 59.99,
         images: [
           "https://placehold.co/800x600/4F46E5/FFFFFF.png?text=Mock+Product",
         ],
@@ -35,18 +36,13 @@ async function getProduct(id: string) {
         tags: ["mock", "development"],
         isActive: true,
         // SEO fields
-        attributes: {
-          metaTitle: "Mock Product | STEM Toys",
-          metaDescription: "A mock product for development purposes.",
-          metaKeywords: ["mock", "development", "stem"],
-          ageRange: "6-8",
-          stemCategory: "science",
-          difficultyLevel: "beginner",
-          learningObjectives: [
-            "Learn about mock data",
-            "Understand development",
-          ],
-        },
+        metaTitle: "Mock Product | STEM Toys",
+        metaDescription: "A mock product for development purposes.",
+        metaKeywords: ["mock", "development", "stem"],
+        ageRange: "6-8",
+        stemCategory: "science",
+        difficultyLevel: "beginner",
+        learningObjectives: ["Learn about mock data", "Understand development"],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -64,8 +60,13 @@ async function getProduct(id: string) {
     // Parse the attributes for the form
     const attributes = (product.attributes as Record<string, any>) || {};
 
+    // Ensure images is always an array
+    const images = Array.isArray(product.images) ? product.images : [];
+
     return {
       ...product,
+      // Make sure images is correctly formatted
+      images,
       // Extract SEO and other custom fields from attributes
       metaTitle: attributes.metaTitle || product.name,
       metaDescription:

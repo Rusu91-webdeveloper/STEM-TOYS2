@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Grid2X2, List } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/types/product";
@@ -49,6 +49,50 @@ export function ProductGrid({
   const [layout, setLayout] = useState<"grid" | "list">(defaultLayout);
   const [sortOption, setSortOption] = useState<string>(defaultSort);
   const { t } = useTranslation();
+  const [visibleColumns, setVisibleColumns] = useState(1);
+  const [aboveFoldItems, setAboveFoldItems] = useState(priorityItemsCount);
+
+  // Calculate visible columns on the client side only
+  useEffect(() => {
+    // Calculate the visible columns in the current layout
+    let cols = 1;
+    const width = window.innerWidth;
+    if (width >= 1280 && columns.xl) cols = columns.xl;
+    else if (width >= 1024 && columns.lg) cols = columns.lg;
+    else if (width >= 768 && columns.md) cols = columns.md;
+    else if (width >= 640 && columns.sm) cols = columns.sm;
+
+    setVisibleColumns(cols);
+
+    // Determine the number of above-the-fold items based on visible columns
+    setAboveFoldItems(
+      Math.min(
+        priorityItemsCount,
+        cols * 2 // Prioritize first two rows
+      )
+    );
+
+    // Add event listener for resize
+    const handleResize = () => {
+      let cols = 1;
+      const width = window.innerWidth;
+      if (width >= 1280 && columns.xl) cols = columns.xl;
+      else if (width >= 1024 && columns.lg) cols = columns.lg;
+      else if (width >= 768 && columns.md) cols = columns.md;
+      else if (width >= 640 && columns.sm) cols = columns.sm;
+
+      setVisibleColumns(cols);
+      setAboveFoldItems(
+        Math.min(
+          priorityItemsCount,
+          cols * 2 // Prioritize first two rows
+        )
+      );
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [columns, priorityItemsCount]);
 
   const sortProducts = (products: Product[], option: string) => {
     const sortedProducts = [...products];
@@ -86,22 +130,6 @@ export function ProductGrid({
     columns.md && `md:grid-cols-${columns.md}`,
     columns.lg && `lg:grid-cols-${columns.lg}`,
     columns.xl && `xl:grid-cols-${columns.xl}`
-  );
-
-  // Calculate the visible columns in the current layout
-  let visibleColumns = 1;
-  if (typeof window !== "undefined") {
-    const width = window.innerWidth;
-    if (width >= 1280 && columns.xl) visibleColumns = columns.xl;
-    else if (width >= 1024 && columns.lg) visibleColumns = columns.lg;
-    else if (width >= 768 && columns.md) visibleColumns = columns.md;
-    else if (width >= 640 && columns.sm) visibleColumns = columns.sm;
-  }
-
-  // Determine the number of above-the-fold items based on visible columns
-  const aboveFoldItems = Math.min(
-    priorityItemsCount,
-    visibleColumns * 2 // Prioritize first two rows
   );
 
   return (

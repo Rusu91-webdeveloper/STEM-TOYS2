@@ -109,7 +109,7 @@ export function ProductCard({
                 className="object-cover"
                 sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 240px"
                 priority={priority}
-                loading={priority ? "eager" : "lazy"}
+                loading="eager"
                 quality={80}
                 placeholder="blur"
                 blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
@@ -194,7 +194,7 @@ export function ProductCard({
             className="object-cover transition-transform group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             priority={priority}
-            loading={priority ? "eager" : "lazy"}
+            loading="eager"
             quality={80}
             placeholder="blur"
             blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="

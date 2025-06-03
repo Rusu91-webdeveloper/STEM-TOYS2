@@ -1,30 +1,136 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
+import { UTApi } from "uploadthing/server";
 
 const f = createUploadthing();
 
-// FileRouter for your app, can contain multiple FileRoutes
+// Create a new instance of UTApi for server-side operations
+export const utapi = new UTApi();
+
+/**
+ * Extract file key from an UploadThing URL
+ * @param url UploadThing file URL (e.g., https://io9tpkvqtx.ufs.sh/f/J0I54LDkL1gooI9pmBaPLR0EJx6aNhiT2SA71B9CrZpbFW3t)
+ * @returns The file key or null if not found
+ */
+export function extractFileKeyFromUrl(url: string): string | null {
+  if (!url) return null;
+
+  console.log(`Extracting file key from URL: ${url}`);
+
+  try {
+    // Match the specific UploadThing URL pattern (looking for the part after /f/)
+    const matches = url.match(/\/f\/([^\/\?]+)/);
+    if (matches && matches[1]) {
+      console.log(`Extracted file key: ${matches[1]}`);
+      return matches[1];
+    }
+
+    // Fallback to the original implementation
+    const fallbackMatches = url.match(/\/([^\/]+)$/);
+    if (fallbackMatches && fallbackMatches[1]) {
+      console.log(`Extracted file key using fallback: ${fallbackMatches[1]}`);
+      return fallbackMatches[1];
+    }
+
+    console.log(`Unable to extract file key from URL: ${url}`);
+    return null;
+  } catch (error) {
+    console.error(`Error extracting file key from URL: ${url}`, error);
+    return null;
+  }
+}
+
+/**
+ * Delete multiple files from UploadThing by their URLs
+ * @param urls Array of UploadThing file URLs to delete
+ * @returns Promise resolving to the deletion result
+ */
+export async function deleteUploadThingFiles(
+  urls: string[]
+): Promise<{ success: boolean; message: string }> {
+  console.log(`Attempting to delete ${urls.length} files:`, urls);
+
+  try {
+    if (!urls || urls.length === 0) {
+      console.log("No files to delete");
+      return { success: true, message: "No files to delete" };
+    }
+
+    // Extract file keys from URLs
+    const fileKeys = urls
+      .map((url) => extractFileKeyFromUrl(url))
+      .filter((key) => key !== null) as string[];
+
+    console.log(`Found ${fileKeys.length} valid file keys:`, fileKeys);
+
+    if (fileKeys.length === 0) {
+      console.warn("No valid file keys found in URLs");
+      return { success: false, message: "No valid file keys found in URLs" };
+    }
+
+    // Delete files using UTApi
+    console.log(`Deleting files with keys:`, fileKeys);
+    const result = await utapi.deleteFiles(fileKeys);
+    console.log("UploadThing deletion result:", result);
+
+    return {
+      success: true,
+      message: `Successfully deleted ${fileKeys.length} files`,
+    };
+  } catch (error) {
+    console.error("Error deleting files from UploadThing:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Unknown error deleting files",
+    };
+  }
+}
+
+// Simple file router for UploadThing
 export const ourFileRouter = {
-  // Define as many FileRoutes as you like, each with a unique route key
+  // Product image endpoint with minimal configuration
   productImage: f({ image: { maxFileSize: "4MB", maxFileCount: 10 } })
-    // Set permissions and file types for this FileRoute
-    .middleware(async () => {
-      // This code runs on your server before upload
-      // If you throw, the user will not be able to upload
-
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: "user-id-placeholder" }; // Add user ID in a real implementation
+    .middleware(() => {
+      console.log("UploadThing middleware running for productImage");
+      return { userId: "anonymous" };
     })
-    .onUploadComplete(async ({ metadata, file }) => {
-      // This code RUNS ON YOUR SERVER after upload
-      console.log("Upload complete for userId:", metadata.userId);
-
-      console.log("File uploaded:", file);
-
-      // Return the file URL or any other data you want to send back
-      return { fileUrl: file.url };
+    .onUploadComplete((res) => {
+      console.log("Upload complete:", res);
+      return { fileUrl: res.file.ufsUrl }; // Use ufsUrl instead of url
     }),
 
-  // You can add more file routes here for different use cases
+  // Blog cover image endpoint with minimal configuration
+  blogCoverImage: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
+    .middleware(() => {
+      console.log("UploadThing middleware running for blogCoverImage");
+      return { userId: "anonymous" };
+    })
+    .onUploadComplete((res) => {
+      console.log("Blog image upload complete:", res);
+      return { fileUrl: res.file.ufsUrl }; // Use ufsUrl instead of url
+    }),
+
+  // Category image endpoint
+  categoryImage: f({ image: { maxFileSize: "2MB", maxFileCount: 1 } })
+    .middleware(() => {
+      console.log("UploadThing middleware running for categoryImage");
+      return { userId: "anonymous" };
+    })
+    .onUploadComplete((res) => {
+      console.log("Category image upload complete:", res);
+      return { fileUrl: res.file.ufsUrl }; // Use ufsUrl instead of url
+    }),
+
+  // General document uploads
+  document: f({ pdf: { maxFileSize: "16MB", maxFileCount: 5 } })
+    .middleware(() => {
+      console.log("UploadThing middleware running for document");
+      return { userId: "anonymous" };
+    })
+    .onUploadComplete((res) => {
+      console.log("Document upload complete:", res);
+      return { fileUrl: res.file.ufsUrl }; // Use ufsUrl instead of url
+    }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;
