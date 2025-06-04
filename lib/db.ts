@@ -36,3 +36,10 @@ export const db =
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
+
+/**
+ * Database client exports
+ */
+
+// Re-export the prisma client from our prisma.ts file
+export { prisma } from "./prisma";

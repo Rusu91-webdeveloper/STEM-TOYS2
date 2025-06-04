@@ -179,7 +179,8 @@ exports.Prisma.CategoryScalarFieldEnum = {
   description: 'description',
   parentId: 'parentId',
   image: 'image',
-  isActive: 'isActive'
+  isActive: 'isActive',
+  metadata: 'metadata'
 };
 
 exports.Prisma.ProductScalarFieldEnum = {
@@ -296,6 +297,19 @@ exports.Prisma.StoreSettingsScalarFieldEnum = {
   metaKeywords: 'metaKeywords',
   shippingSettings: 'shippingSettings',
   paymentSettings: 'paymentSettings',
+  metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ReturnScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  orderId: 'orderId',
+  orderItemId: 'orderItemId',
+  reason: 'reason',
+  details: 'details',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -353,6 +367,23 @@ exports.PaymentStatus = exports.$Enums.PaymentStatus = {
   REFUNDED: 'REFUNDED'
 };
 
+exports.ReturnReason = exports.$Enums.ReturnReason = {
+  DOES_NOT_MEET_EXPECTATIONS: 'DOES_NOT_MEET_EXPECTATIONS',
+  DAMAGED_OR_DEFECTIVE: 'DAMAGED_OR_DEFECTIVE',
+  WRONG_ITEM_SHIPPED: 'WRONG_ITEM_SHIPPED',
+  CHANGED_MIND: 'CHANGED_MIND',
+  ORDERED_WRONG_PRODUCT: 'ORDERED_WRONG_PRODUCT',
+  OTHER: 'OTHER'
+};
+
+exports.ReturnStatus = exports.$Enums.ReturnStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  RECEIVED: 'RECEIVED',
+  REFUNDED: 'REFUNDED'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   PasswordResetToken: 'PasswordResetToken',
@@ -366,7 +397,8 @@ exports.Prisma.ModelName = {
   Language: 'Language',
   Order: 'Order',
   OrderItem: 'OrderItem',
-  StoreSettings: 'StoreSettings'
+  StoreSettings: 'StoreSettings',
+  Return: 'Return'
 };
 
 /**

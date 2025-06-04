@@ -25,6 +25,7 @@ model User {
   paymentCards        PaymentCard[]
   wishlistItems       Wishlist[]
   orders              Order[]
+  returns             Return[]
 }
 
 model PasswordResetToken {
@@ -206,6 +207,7 @@ model Order {
   items             OrderItem[]
   user              User          @relation(fields: [userId], references: [id])
   shippingAddress   Address       @relation(fields: [shippingAddressId], references: [id])
+  returns           Return[]
 
   @@index([userId])
   @@index([status])
@@ -222,6 +224,7 @@ model OrderItem {
   quantity  Int
   order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
   product   Product @relation(fields: [productId], references: [id])
+  returns   Return[]
 
   @@index([orderId])
   @@index([productId])
@@ -274,4 +277,42 @@ enum PaymentStatus {
   PAID
   FAILED
   REFUNDED
+}
+
+enum ReturnReason {
+  DOES_NOT_MEET_EXPECTATIONS
+  DAMAGED_OR_DEFECTIVE
+  WRONG_ITEM_SHIPPED
+  CHANGED_MIND
+  ORDERED_WRONG_PRODUCT
+  OTHER
+}
+
+enum ReturnStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  RECEIVED
+  REFUNDED
+}
+
+model Return {
+  id          String       @id @default(cuid())
+  userId      String
+  orderId     String
+  orderItemId String
+  reason      ReturnReason
+  details     String?      // Optional text for "Other" reason
+  status      ReturnStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // Relations
+  user       User       @relation(fields: [userId], references: [id])
+  order      Order      @relation(fields: [orderId], references: [id])
+  orderItem  OrderItem  @relation(fields: [orderItemId], references: [id])
+  
+  @@index([userId])
+  @@index([orderId])
+  @@index([orderItemId])
 }
