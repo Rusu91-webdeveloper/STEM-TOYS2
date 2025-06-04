@@ -39,6 +39,15 @@ export async function GET() {
                 select: {
                   name: true,
                   images: true,
+                  slug: true,
+                },
+              },
+              reviews: {
+                where: {
+                  userId: session.user.id,
+                },
+                select: {
+                  id: true,
                 },
               },
             },
@@ -59,14 +68,17 @@ export async function GET() {
         total: order.total,
         items: order.items.map((item) => ({
           id: item.id,
+          productId: item.productId,
           productName: item.product.name,
+          productSlug: item.product.slug,
           price: item.price,
           quantity: item.quantity,
           image: item.product.images?.[0] || "/images/product-placeholder.jpg",
+          hasReviewed: item.reviews.length > 0,
         })),
         shippingAddress: {
-          name: order.shippingAddress.name,
-          street: order.shippingAddress.street,
+          name: order.shippingAddress.fullName,
+          street: order.shippingAddress.addressLine1,
           city: order.shippingAddress.city,
           state: order.shippingAddress.state,
           zipCode: order.shippingAddress.postalCode,

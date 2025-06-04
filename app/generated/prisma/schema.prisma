@@ -8,6 +8,15 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum OrderItemReturnStatus {
+  NONE
+  REQUESTED
+  APPROVED
+  REJECTED
+  RECEIVED
+  REFUNDED
+}
+
 model User {
   id                  String               @id @default(cuid())
   name                String?
@@ -26,6 +35,7 @@ model User {
   wishlistItems       Wishlist[]
   orders              Order[]
   returns             Return[]
+  reviews             Review[]
 }
 
 model PasswordResetToken {
@@ -115,6 +125,7 @@ model Product {
   category       Category    @relation(fields: [categoryId], references: [id])
   wishlistItems  Wishlist[]
   orderItems     OrderItem[]
+  reviews        Review[]
 
   @@index([categoryId])
   @@index([isActive])
@@ -216,15 +227,17 @@ model Order {
 }
 
 model OrderItem {
-  id        String   @id @default(cuid())
-  orderId   String
-  productId String
-  name      String
-  price     Float
-  quantity  Int
-  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product   Product  @relation(fields: [productId], references: [id])
-  returns   Return[]
+  id           String                @id @default(cuid())
+  orderId      String
+  productId    String
+  name         String
+  price        Float
+  quantity     Int
+  returnStatus OrderItemReturnStatus @default(NONE)
+  order        Order                 @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product      Product               @relation(fields: [productId], references: [id])
+  returns      Return[]
+  reviews      Review[]
 
   @@index([orderId])
   @@index([productId])
@@ -314,5 +327,27 @@ model Return {
 
   @@index([userId])
   @@index([orderId])
+  @@index([orderItemId])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  userId      String
+  productId   String
+  orderItemId String
+  rating      Int      @default(0) // 1-5 stars
+  title       String
+  content     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  user      User      @relation(fields: [userId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+
+  @@unique([userId, orderItemId]) // User can only review an item once per order
+  @@index([userId])
+  @@index([productId])
   @@index([orderItemId])
 }

@@ -76,6 +76,11 @@ export const adminNavItems = [
     icon: ShoppingCart,
   },
   {
+    title: "Returns",
+    href: "/admin/returns",
+    icon: FileText,
+  },
+  {
     title: "Customers",
     href: "/admin/customers",
     icon: Users,

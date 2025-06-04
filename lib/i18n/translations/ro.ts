@@ -484,4 +484,45 @@ export const ro = {
   funLearning: "Învățare Distractivă",
   funLearningDesc:
     "Transformă conceptele complexe în activități captivante și memorabile.",
+
+  // Order details
+  orderDetails: "Detalii comandă",
+  backToOrders: "Înapoi la comenzi",
+  orderPlaced: "Comandă plasată",
+  orderShipped: "Comandă expediată",
+  orderDelivered: "Comandă livrată",
+  estimatedDelivery: "Livrare estimată: {date}",
+  items: "Produse",
+  shippingInformation: "Informații livrare",
+  paymentDetails: "Detalii plată",
+  method: "Metodă",
+  status: "Status",
+  reviewSubmitted: "Recenzie trimisă",
+
+  // Review page
+  backToOrder: "Înapoi la comandă",
+  shareYourExperience: "Împărtășește experiența ta cu acest produs",
+  fromOrder: "Din comanda",
+
+  // Review form
+  rating: "Evaluare",
+  star: "stea",
+  stars: "stele",
+  reviewTitle: "Titlu recenzie",
+  titlePlaceholder: "Rezumă experiența ta",
+  reviewContent: "Recenzie",
+  reviewPlaceholder:
+    "Împărtășește detalii despre experiența ta cu acest produs",
+  pleaseSelectRating: "Te rugăm să selectezi o evaluare",
+  pleaseEnterTitle: "Te rugăm să introduci un titlu",
+  titleTooShort: "Titlul este prea scurt",
+  pleaseEnterReview: "Te rugăm să introduci recenzia ta",
+  reviewTooShort: "Recenzia este prea scurtă",
+  submitting: "Se trimite...",
+  submitReview: "Trimite recenzia",
+  cancel: "Anulează",
+  reviewSubmittedSuccess: "Recenzia a fost trimisă cu succes!",
+  errorSubmittingReview:
+    "Eroare la trimiterea recenziei. Te rugăm să încerci din nou.",
+  returnItem: "Returnează produsul",
 };

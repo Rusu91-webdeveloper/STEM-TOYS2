@@ -20,9 +20,9 @@ export function formatDate(date: Date): string {
  * Format a number as currency
  */
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("ro-RO", {
     style: "currency",
-    currency: "USD",
+    currency: "RON",
     minimumFractionDigits: 2,
   }).format(amount);
 }
@@ -31,9 +31,9 @@ export function formatCurrency(amount: number): string {
  * Format a number as price with currency symbol
  */
 export function formatPrice(price: number): string {
-  return new Intl.NumberFormat("en-US", {
+  return new Intl.NumberFormat("ro-RO", {
     style: "currency",
-    currency: "USD",
+    currency: "RON",
     minimumFractionDigits: 2,
   }).format(price);
 }

@@ -3,22 +3,21 @@
  * Supports both API and SMTP methods
  */
 
-import SibApiV3Sdk from "sib-api-v3-sdk";
+import * as Brevo from "@getbrevo/brevo";
 import nodemailer from "nodemailer";
 import { isDevelopment } from "./security";
 
 // Initialize Brevo API client
-let apiInstance: SibApiV3Sdk.TransactionalEmailsApi | null = null;
+let apiInstance: Brevo.TransactionalEmailsApi | null = null;
 
 // API key approach (preferred for modern applications)
 function getBrevoApiInstance() {
   if (apiInstance) return apiInstance;
-
-  const defaultClient = SibApiV3Sdk.ApiClient.instance;
-  const apiKey = defaultClient.authentications["api-key"];
-  apiKey.apiKey = process.env.BREVO_API_KEY;
-
-  apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+  apiInstance = new Brevo.TransactionalEmailsApi();
+  apiInstance.setApiKey(
+    Brevo.TransactionalEmailsApiApiKeys.apiKey,
+    process.env.BREVO_API_KEY!
+  );
   return apiInstance;
 }
 
@@ -63,6 +62,7 @@ export async function sendEmailWithBrevoApi({
   },
   params = {}, // Template params for personalization
   templateId, // Optional template ID if using Brevo templates
+  attachments = [],
 }: {
   to: Array<{ email: string; name?: string }>;
   subject: string;
@@ -71,6 +71,12 @@ export async function sendEmailWithBrevoApi({
   from?: { email: string; name: string };
   params?: Record<string, any>;
   templateId?: number;
+  attachments?: Array<{
+    filename: string;
+    content: string; // base64
+    encoding?: string;
+    contentType?: string;
+  }>;
 }) {
   try {
     // In development mode with missing credentials, use the dev transporter
@@ -85,29 +91,27 @@ export async function sendEmailWithBrevoApi({
 
     // Send email using the Brevo API
     const apiInstance = getBrevoApiInstance();
-
-    const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
-    sendSmtpEmail.to = to;
-    sendSmtpEmail.subject = subject;
-    sendSmtpEmail.htmlContent = htmlContent;
-    sendSmtpEmail.sender = from;
-
-    if (textContent) {
-      sendSmtpEmail.textContent = textContent;
-    }
-
-    if (params && Object.keys(params).length > 0) {
-      sendSmtpEmail.params = params;
-    }
-
-    if (templateId) {
-      sendSmtpEmail.templateId = templateId;
-    }
-
+    const sendSmtpEmail: Brevo.SendSmtpEmail = {
+      to,
+      subject,
+      htmlContent,
+      sender: from,
+      ...(textContent ? { textContent } : {}),
+      ...(params && Object.keys(params).length > 0 ? { params } : {}),
+      ...(templateId ? { templateId } : {}),
+      ...(attachments && attachments.length > 0
+        ? {
+            attachment: attachments.map((a) => ({
+              content: a.content,
+              name: a.filename,
+            })),
+          }
+        : {}),
+    };
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
-
-    console.log(`✅ Email sent via Brevo API: ${data.messageId}`);
-    return { success: true, messageId: data.messageId };
+    const messageId = data.body?.messageId || null;
+    console.log(`✅ Email sent via Brevo API: ${messageId}`);
+    return { success: true, messageId };
   } catch (error) {
     console.error("❌ Error sending email with Brevo API:", error);
 
@@ -128,12 +132,19 @@ export async function sendEmailWithBrevoSmtp({
   html,
   text,
   from = process.env.EMAIL_FROM || "noreply@yourdomain.com",
+  attachments = [],
 }: {
   to: string | string[];
   subject: string;
   html: string;
   text?: string;
   from?: string;
+  attachments?: Array<{
+    filename: string;
+    content: string;
+    encoding?: string;
+    contentType?: string;
+  }>;
 }) {
   try {
     // In development mode with missing credentials, use the dev transporter
@@ -153,6 +164,7 @@ export async function sendEmailWithBrevoSmtp({
       subject,
       text,
       html,
+      attachments,
     });
 
     console.log(`✅ Email sent via Brevo SMTP: ${info.messageId}`);
@@ -180,6 +192,7 @@ export async function sendMail({
   fromName = process.env.EMAIL_FROM_NAME || "TechTots STEM Store",
   params = {},
   templateId,
+  attachments = [],
 }: {
   to: string | string[];
   subject: string;
@@ -189,6 +202,12 @@ export async function sendMail({
   fromName?: string;
   params?: Record<string, any>;
   templateId?: number;
+  attachments?: Array<{
+    filename: string;
+    content: string;
+    encoding?: string;
+    contentType?: string;
+  }>;
 }) {
   // Prefer API method if API key is available
   if (process.env.BREVO_API_KEY) {
@@ -205,6 +224,7 @@ export async function sendMail({
       from: { email: from, name: fromName },
       params,
       templateId,
+      attachments,
     });
   }
 
@@ -215,5 +235,6 @@ export async function sendMail({
     html,
     text,
     from: `${fromName} <${from}>`,
+    attachments,
   });
 }

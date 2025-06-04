@@ -278,7 +278,8 @@ exports.Prisma.OrderItemScalarFieldEnum = {
   productId: 'productId',
   name: 'name',
   price: 'price',
-  quantity: 'quantity'
+  quantity: 'quantity',
+  returnStatus: 'returnStatus'
 };
 
 exports.Prisma.StoreSettingsScalarFieldEnum = {
@@ -310,6 +311,18 @@ exports.Prisma.ReturnScalarFieldEnum = {
   reason: 'reason',
   details: 'details',
   status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ReviewScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  productId: 'productId',
+  orderItemId: 'orderItemId',
+  rating: 'rating',
+  title: 'title',
+  content: 'content',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -367,6 +380,15 @@ exports.PaymentStatus = exports.$Enums.PaymentStatus = {
   REFUNDED: 'REFUNDED'
 };
 
+exports.OrderItemReturnStatus = exports.$Enums.OrderItemReturnStatus = {
+  NONE: 'NONE',
+  REQUESTED: 'REQUESTED',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  RECEIVED: 'RECEIVED',
+  REFUNDED: 'REFUNDED'
+};
+
 exports.ReturnReason = exports.$Enums.ReturnReason = {
   DOES_NOT_MEET_EXPECTATIONS: 'DOES_NOT_MEET_EXPECTATIONS',
   DAMAGED_OR_DEFECTIVE: 'DAMAGED_OR_DEFECTIVE',
@@ -398,7 +420,8 @@ exports.Prisma.ModelName = {
   Order: 'Order',
   OrderItem: 'OrderItem',
   StoreSettings: 'StoreSettings',
-  Return: 'Return'
+  Return: 'Return',
+  Review: 'Review'
 };
 
 /**

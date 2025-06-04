@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, Truck, ShieldCheck, RotateCcw, Heart } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -15,6 +15,8 @@ import { useTranslation } from "@/lib/i18n";
 import { useCurrency } from "@/lib/currency";
 import { toast } from "@/components/ui/use-toast";
 import type { Product } from "@/types/product";
+import { ProductReviews, type Review } from "./ProductReviews";
+import { useSession } from "next-auth/react";
 
 type ProductDetailClientProps = {
   product: Product;
@@ -25,15 +27,18 @@ export default function ProductDetailClient({
 }: ProductDetailClientProps) {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
+  const { data: session } = useSession();
 
   const [selectedImage, setSelectedImage] = useState<string>(
     product.images && product.images.length > 0 ? product.images[0] : ""
   );
   const [isAddingToWishlist, setIsAddingToWishlist] = useState(false);
   const [isInWishlist, setIsInWishlist] = useState(false);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
 
   // Check if the product is in the user's wishlist
-  React.useEffect(() => {
+  useEffect(() => {
     checkWishlistStatus(product.id);
   }, [product.id]);
 
@@ -181,10 +186,10 @@ export default function ProductDetailClient({
     }
 
     if (typeof product.category === "object" && product.category) {
-      // Check if the category object has a name property
-      return "name" in product.category
-        ? (product.category.name as string)
-        : "";
+      // If category is an object, we need to handle it differently
+      // This likely happens when the category is loaded with additional properties
+      const categoryObj = product.category as any;
+      return categoryObj.name || "";
     }
 
     if (typeof product.category === "string") {
@@ -193,6 +198,36 @@ export default function ProductDetailClient({
 
     return product.attributes?.type || "";
   };
+
+  // Fetch product reviews
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        setLoadingReviews(true);
+        const response = await fetch(`/api/reviews?productId=${product.id}`);
+
+        if (response.ok) {
+          const reviewData = await response.json();
+          setReviews(reviewData);
+        } else {
+          console.error("Failed to fetch reviews:", response.statusText);
+        }
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      } finally {
+        setLoadingReviews(false);
+      }
+    };
+
+    fetchReviews();
+  }, [product.id]);
+
+  // Compute review count and average rating from fetched reviews
+  const reviewCount = reviews.length;
+  const averageRating =
+    reviewCount > 0
+      ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviewCount
+      : 0;
 
   return (
     <ProductVariantProvider>
@@ -257,7 +292,7 @@ export default function ProductDetailClient({
                     <span
                       key={i}
                       className={`inline-block ${
-                        i < (product.rating || 0)
+                        i < Math.round(averageRating)
                           ? "text-yellow-400"
                           : "text-gray-300"
                       }`}>
@@ -266,7 +301,7 @@ export default function ProductDetailClient({
                   ))}
                 </div>
                 <span className="ml-2 text-sm text-muted-foreground">
-                  ({product.reviewCount || 0} {t("reviews")})
+                  ({reviewCount} {t("reviews")})
                 </span>
               </div>
             </div>
@@ -396,6 +431,39 @@ export default function ProductDetailClient({
               <li>{t("safeMaterials")}</li>
             </ul>
           </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-16">
+          <h2 className="text-2xl font-bold mb-4">
+            {t("customerReviews", "Customer Reviews")}
+          </h2>
+          <Separator className="mb-6" />
+          {loadingReviews ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">
+                {t("loadingReviews", "Loading reviews...")}
+              </p>
+            </div>
+          ) : (
+            <ProductReviews
+              productId={product.id}
+              reviews={reviews}
+              userLoggedIn={!!session}
+              onSubmitReview={(reviewData) => {
+                toast({
+                  title: t(
+                    "reviewSubmissionDisabled",
+                    "Review Submission Notice"
+                  ),
+                  description: t(
+                    "purchaseRequiredForReview",
+                    "You need to purchase this product before leaving a review. Reviews can be submitted after delivery from your order details page."
+                  ),
+                });
+              }}
+            />
+          )}
         </div>
       </div>
     </ProductVariantProvider>

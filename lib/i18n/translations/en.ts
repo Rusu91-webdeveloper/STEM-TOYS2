@@ -447,4 +447,43 @@ export const en = {
   ourOfficeTitles: "Our Offices",
   joinNewsletter: "Join Our Newsletter",
   subscribeCTA: "Subscribe",
+
+  // Order details
+  orderDetails: "Order Details",
+  backToOrders: "Back to Orders",
+  orderPlaced: "Order Placed",
+  orderShipped: "Order Shipped",
+  orderDelivered: "Order Delivered",
+  estimatedDelivery: "Estimated Delivery: {date}",
+  items: "Items",
+  shippingInformation: "Shipping Information",
+  paymentDetails: "Payment Details",
+  method: "Method",
+  status: "Status",
+  reviewSubmitted: "Review Submitted",
+  returnItem: "Return Item",
+
+  // Review page
+  backToOrder: "Back to Order",
+  shareYourExperience: "Share your experience with this product",
+  fromOrder: "From Order",
+
+  // Review form
+  rating: "Rating",
+  star: "star",
+  stars: "stars",
+  reviewTitle: "Review Title",
+  titlePlaceholder: "Summarize your experience",
+  reviewContent: "Review",
+  reviewPlaceholder: "Share details about your experience with this product",
+  pleaseSelectRating: "Please select a rating",
+  pleaseEnterTitle: "Please enter a title",
+  titleTooShort: "Title is too short",
+  pleaseEnterReview: "Please enter your review",
+  reviewTooShort: "Review is too short",
+  submitting: "Submitting...",
+  submitReview: "Submit Review",
+  cancel: "Cancel",
+  reviewSubmittedSuccess: "Review submitted successfully!",
+  errorSubmittingReview: "Error submitting review. Please try again.",
 };

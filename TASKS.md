@@ -50,3 +50,7 @@
 | DD-08 | Create backup and recovery procedures | ✅     | AI       | 4          | 3            | Documented in HANDOVER.md                                     |
 | DD-09 | Conduct final QA testing              | 📋     | Team     | 8          | -            |                                                               |
 | DD-10 | Prepare launch checklist              | ✅     | AI       | 4          | 2            | Included in HANDOVER.md as handover checklist                 |
+
+## Discovered During Work
+
+- Implement /api/account/orders/[orderId] API route to fetch a single order for the authenticated user, required for the return page to work. Estimated time: 20min. Date: 2024-06-09.

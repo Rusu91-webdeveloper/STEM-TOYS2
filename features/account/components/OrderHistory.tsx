@@ -22,16 +22,19 @@ import { useTranslation } from "@/lib/i18n";
 type OrderStatus = "processing" | "shipped" | "delivered" | "cancelled";
 
 // Define order item type
-interface OrderItem {
+export interface OrderItem {
   id: string;
+  productId: string;
   productName: string;
+  productSlug: string;
   price: number;
   quantity: number;
   image: string;
+  hasReviewed: boolean;
 }
 
 // Define order type
-interface Order {
+export interface Order {
   id: string;
   orderNumber: string;
   date: string;
@@ -276,20 +279,30 @@ export function OrderHistory() {
                     size="sm"
                     asChild>
                     <Link href={`/account/orders/${order.id}`}>
-                      <Eye className="h-4 w-4 mr-2" />{" "}
-                      {t("viewDetails", "View Details")}
+                      <Eye className="h-4 w-4 mr-2" /> {t("viewDetails")}
                     </Link>
                   </Button>
                   {order.status === "delivered" && (
                     <Button
+                      variant="outline"
                       size="sm"
                       asChild>
-                      <Link href={`/account/orders/${order.id}/review`}>
-                        {t("writeReview", "Write Review")}{" "}
-                        <ArrowRight className="h-4 w-4 ml-2" />
+                      <Link href={`/account/orders/${order.id}/return`}>
+                        <Package className="h-4 w-4 mr-2" /> {t("returnItem")}
                       </Link>
                     </Button>
                   )}
+                  {order.status === "delivered" &&
+                    order.items.some((item) => !item.hasReviewed) && (
+                      <Button
+                        size="sm"
+                        asChild>
+                        <Link href={`/account/orders/${order.id}`}>
+                          {t("writeReview")}{" "}
+                          <ArrowRight className="h-4 w-4 ml-2" />
+                        </Link>
+                      </Button>
+                    )}
                 </CardFooter>
               </Card>
             ))
