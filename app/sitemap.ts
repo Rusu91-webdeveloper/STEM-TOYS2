@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
-// Base URL for the site
-const baseUrl = "https://techtots.com";
+// Base URL for the site - use an environment variable or localhost during build
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
 // Supported languages
 const languages = ["ro", "en"];
@@ -42,11 +42,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     });
   });
 
-  // Try to fetch dynamic products
+  // Try to fetch dynamic products with timeout
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || baseUrl;
-    const productsResponse = await fetch(`${apiUrl}/api/products`);
-    if (productsResponse.ok) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+    const productsResponse = await fetch(`${baseUrl}/api/products`, {
+      signal: controller.signal,
+    }).catch(() => null);
+
+    clearTimeout(timeoutId);
+
+    if (productsResponse && productsResponse.ok) {
       const products = await productsResponse.json();
 
       // Add product routes for each language
@@ -68,13 +75,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch (error) {
     console.error("Error fetching products for sitemap:", error);
+    // Continue with static routes
   }
 
-  // Try to fetch dynamic blog posts
+  // Try to fetch dynamic blog posts with timeout
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || baseUrl;
-    const blogResponse = await fetch(`${apiUrl}/api/blog`);
-    if (blogResponse.ok) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+    const blogResponse = await fetch(`${baseUrl}/api/blog`, {
+      signal: controller.signal,
+    }).catch(() => null);
+
+    clearTimeout(timeoutId);
+
+    if (blogResponse && blogResponse.ok) {
       const blogPosts = await blogResponse.json();
 
       // Add blog post routes for each language
@@ -98,13 +113,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch (error) {
     console.error("Error fetching blog posts for sitemap:", error);
+    // Continue with static routes
   }
 
-  // Try to fetch categories
+  // Try to fetch categories with timeout
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || baseUrl;
-    const categoriesResponse = await fetch(`${apiUrl}/api/categories`);
-    if (categoriesResponse.ok) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+    const categoriesResponse = await fetch(`${baseUrl}/api/categories`, {
+      signal: controller.signal,
+    }).catch(() => null);
+
+    clearTimeout(timeoutId);
+
+    if (categoriesResponse && categoriesResponse.ok) {
       const categories = await categoriesResponse.json();
 
       // Add category routes for each language
@@ -124,6 +147,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   } catch (error) {
     console.error("Error fetching categories for sitemap:", error);
+    // Continue with static routes
   }
 
   // Add STEM category specific pages - these are important for SEO

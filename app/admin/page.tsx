@@ -15,6 +15,9 @@ import {
 import { getDashboardData } from "@/lib/admin/api";
 import type { DashboardStat, RecentOrder, TopProduct } from "@/lib/admin/api";
 
+// Mark this route as dynamic to prevent static generation errors
+export const dynamic = "force-dynamic";
+
 // Dashboard icons for stats
 const ICONS: Record<string, React.ReactNode> = {
   "Total Revenue": <DollarSign className="h-8 w-8" />,
