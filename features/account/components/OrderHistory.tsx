@@ -14,9 +14,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Package, Eye, ArrowRight, ShoppingBag } from "lucide-react";
-import { formatDate, formatCurrency } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTranslation } from "@/lib/i18n";
+import { useCurrency } from "@/lib/currency";
 
 // Define order status type
 type OrderStatus = "processing" | "shipped" | "delivered" | "cancelled";
@@ -73,6 +74,7 @@ export function OrderHistory() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [activeTab, setActiveTab] = useState("all");
   const [error, setError] = useState<string | null>(null);
+  const { formatPrice } = useCurrency();
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -152,7 +154,7 @@ export function OrderHistory() {
           )}
         </p>
         <Button onClick={() => window.location.reload()}>
-          {t("tryAgain", "Try Again")}
+          {t("tryAgain", "Încearcă din nou")}
         </Button>
       </div>
     );
@@ -164,14 +166,17 @@ export function OrderHistory() {
       <div className="text-center py-12 border rounded-lg">
         <ShoppingBag className="h-12 w-12 mx-auto text-gray-400 mb-4" />
         <h3 className="text-lg font-medium mb-2">
-          {t("noOrdersYet", "No orders yet")}
+          {t("noOrdersYet", "Nu există comenzi încă")}
         </h3>
         <p className="text-gray-500 mb-6">
-          {t("whenPlaceOrders", "When you place orders, they will appear here")}
+          {t(
+            "whenPlaceOrders",
+            "Când plasezi comenzi, acestea vor apărea aici"
+          )}
         </p>
         <Button asChild>
           <Link href="/products">
-            {t("continueShopping", "Continue Shopping")}
+            {t("continueShopping", "Continuă cumpărăturile")}
           </Link>
         </Button>
       </div>
@@ -186,16 +191,16 @@ export function OrderHistory() {
         onValueChange={setActiveTab}
         className="w-full">
         <TabsList className="grid grid-cols-5 mb-6">
-          <TabsTrigger value="all">{t("all", "All")}</TabsTrigger>
+          <TabsTrigger value="all">{t("all", "Toate")}</TabsTrigger>
           <TabsTrigger value="processing">
-            {t("processing", "Processing")}
+            {t("processing", "În procesare")}
           </TabsTrigger>
-          <TabsTrigger value="shipped">{t("shipped", "Shipped")}</TabsTrigger>
+          <TabsTrigger value="shipped">{t("shipped", "Expediat")}</TabsTrigger>
           <TabsTrigger value="delivered">
-            {t("delivered", "Delivered")}
+            {t("delivered", "Livrat")}
           </TabsTrigger>
           <TabsTrigger value="cancelled">
-            {t("cancelled", "Cancelled")}
+            {t("cancelled", "Anulat")}
           </TabsTrigger>
         </TabsList>
         <TabsContent
@@ -205,14 +210,10 @@ export function OrderHistory() {
             <div className="text-center py-8 border rounded-lg">
               <Package className="h-10 w-10 mx-auto text-gray-400 mb-4" />
               <h3 className="text-lg font-medium mb-2">
-                {t("noFilteredOrders", "No {0} orders", { 0: activeTab })}
+                {t("noFilteredOrders")}
               </h3>
               <p className="text-gray-500">
-                {t(
-                  "noFilteredOrdersDescription",
-                  "You don't have any {0} orders at the moment",
-                  { 0: activeTab }
-                )}
+                {t("noFilteredOrdersDescription")}
               </p>
             </div>
           ) : (
@@ -256,7 +257,7 @@ export function OrderHistory() {
                             {item.productName}
                           </span>
                           <span className="text-sm text-muted-foreground">
-                            {formatCurrency(item.price)} × {item.quantity}
+                            {formatPrice(item.price)} × {item.quantity}
                           </span>
                         </div>
                       </div>
@@ -264,7 +265,7 @@ export function OrderHistory() {
                   </div>
                   <div className="mt-4 pt-4 border-t flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
                     <div className="font-medium">
-                      {t("total", "Total")}: {formatCurrency(order.total)}
+                      {t("total", "Total")}: {formatPrice(order.total)}
                     </div>
                     <div className="text-sm">
                       {t("shippingTo", "Shipping to")}:{" "}

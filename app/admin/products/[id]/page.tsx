@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { formatPrice } from "@/lib/utils";
+import { useCurrency } from "@/lib/currency";
 import {
   Edit,
   ArrowLeft,
@@ -112,6 +112,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
   // Extract attributes
   const attributes = (product.attributes as Record<string, any>) || {};
 
+  const { formatPrice } = useCurrency();
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -190,11 +192,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
                     <div>
                       <div className="text-sm font-medium mb-1">Price</div>
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold">
+                        <span className="text-2xl font-bold text-indigo-700">
                           {formatPrice(product.price)}
                         </span>
                         {product.compareAtPrice && (
-                          <span className="text-muted-foreground line-through">
+                          <span className="ml-2 text-lg text-muted-foreground line-through">
                             {formatPrice(product.compareAtPrice)}
                           </span>
                         )}

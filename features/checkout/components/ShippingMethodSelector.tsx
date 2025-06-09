@@ -84,7 +84,7 @@ export function ShippingMethodSelector({
                     className="font-medium">
                     {method.name}
                   </Label>
-                  <span className="font-semibold">
+                  <span className="font-medium text-indigo-700">
                     {formatPrice(method.price)}
                   </span>
                 </div>

@@ -19,13 +19,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
     }
 
-    // In development, simulate a successful payment intent without calling Stripe
-    if (process.env.NODE_ENV !== "production") {
-      return NextResponse.json({
-        clientSecret: "pi_dummy_client_secret_for_testing",
-      });
-    }
-
     // Create a PaymentIntent with the order amount and currency
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100), // Convert to cents

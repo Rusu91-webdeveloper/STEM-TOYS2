@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { useRef, useEffect } from "react";
+import { useCurrency } from "@/lib/currency";
 
 const MiniCart = ({ onClose }) => {
   const { t } = useTranslation("common");
@@ -16,6 +17,7 @@ const MiniCart = ({ onClose }) => {
   } = useCart();
   const { data: session } = useSession();
   const cartRef = useRef(null);
+  const { formatPrice } = useCurrency();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -222,18 +224,12 @@ const MiniCart = ({ onClose }) => {
                             {t("common.unitPrice", "Unit Price")}:
                           </span>
                           <span className="text-base font-semibold text-indigo-900">
-                            {Intl.NumberFormat(undefined, {
-                              style: "currency",
-                              currency: "EUR", // This should come from your currency context
-                            }).format(item.price)}
+                            {formatPrice(item.price)}
                           </span>
                         </div>
                         <div className="flex justify-end items-center mt-1 text-right">
                           <span className="text-sm font-bold text-indigo-700">
-                            {Intl.NumberFormat(undefined, {
-                              style: "currency",
-                              currency: "EUR", // This should come from your currency context
-                            }).format(item.price * item.quantity)}
+                            {formatPrice(item.price * item.quantity)}
                           </span>
                         </div>
                       </div>
@@ -246,22 +242,14 @@ const MiniCart = ({ onClose }) => {
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm text-indigo-700 font-medium">
                     <p>{t("common.subtotal", "Subtotal")}</p>
-                    <p>
-                      {Intl.NumberFormat(undefined, {
-                        style: "currency",
-                        currency: "EUR", // This should come from your currency context
-                      }).format(getTotal())}
-                    </p>
+                    <p>{formatPrice(getTotal())}</p>
                   </div>
                   <div className="flex justify-between">
                     <p className="text-lg font-semibold text-indigo-900">
                       {t("common.total", "Total")}
                     </p>
                     <p className="text-lg font-bold text-indigo-700">
-                      {Intl.NumberFormat(undefined, {
-                        style: "currency",
-                        currency: "EUR", // This should come from your currency context
-                      }).format(getTotal())}
+                      {formatPrice(getTotal())}
                     </p>
                   </div>
                   <p className="text-sm text-indigo-600">

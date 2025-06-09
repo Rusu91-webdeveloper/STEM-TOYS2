@@ -55,10 +55,10 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       // Validate password match if new password is provided
       if (data.newPassword && data.newPassword !== data.confirmPassword) {
         toast({
-          title: t("passwordsDontMatch", "Passwords do not match"),
+          title: t("passwordsDontMatch", "Parolele nu se potrivesc"),
           description: t(
             "passwordsMatchError",
-            "Please make sure your passwords match"
+            "Te rugăm să te asiguri că parolele se potrivesc"
           ),
           variant: "destructive",
         });
@@ -86,26 +86,27 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
 
       if (!response.ok) {
         throw new Error(
-          result.error || t("profileUpdateFailed", "Failed to update profile")
+          result.error ||
+            t("profileUpdateFailed", "Nu s-a putut actualiza profilul")
         );
       }
 
       // If password is being updated, show specific message
       if (data.newPassword) {
         toast({
-          title: t("passwordUpdated", "Password updated"),
+          title: t("passwordUpdated", "Parola a fost actualizată"),
           description: t(
             "passwordUpdateSuccess",
-            "Your password has been changed successfully."
+            "Parola ta a fost schimbată cu succes."
           ),
           variant: "default",
         });
       } else {
         toast({
-          title: t("profileUpdated", "Profile updated"),
+          title: t("profileUpdated", "Profil actualizat"),
           description: t(
             "profileUpdateSuccess",
-            "Your profile information has been updated successfully."
+            "Informațiile profilului tău au fost actualizate cu succes."
           ),
         });
       }
@@ -124,22 +125,22 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       // Determine if password change failed
       if (watchNewPassword) {
         toast({
-          title: t("passwordUpdateFailed", "Password update failed"),
+          title: t("passwordUpdateFailed", "Actualizarea parolei a eșuat"),
           description:
             error instanceof Error
               ? error.message
-              : t("tryAgain", "Please try again."),
+              : t("tryAgain", "Te rugăm să încerci din nou."),
           variant: "destructive",
         });
       } else {
         toast({
-          title: t("error", "Error"),
+          title: t("error", "Eroare"),
           description:
             error instanceof Error
               ? error.message
               : t(
                   "profileUpdateError",
-                  "There was an error updating your profile"
+                  "A apărut o eroare la actualizarea profilului tău"
                 ),
           variant: "destructive",
         });
@@ -167,12 +168,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         </div>
         <div>
           <h3 className="text-lg font-medium mb-2">
-            {t("profilePicture", "Profile Picture")}
+            {t("profilePicture", "Poză de profil")}
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
             {t(
               "profilePictureDescription",
-              "This will be displayed on your profile"
+              "Aceasta va fi afișată pe profilul tău"
             )}
           </p>
           <div className="flex gap-4">
@@ -181,13 +182,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               size="sm"
               variant="outline">
               <Upload className="h-4 w-4 mr-2" />
-              {t("change", "Change")}
+              {t("change", "Schimbă")}
             </Button>
             <Button
               type="button"
               size="sm"
               variant="outline">
-              {t("remove", "Remove")}
+              {t("remove", "Elimină")}
             </Button>
           </div>
         </div>
@@ -196,13 +197,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="name">{t("name", "Name")}</Label>
+            <Label htmlFor="name">{t("name", "Nume")}</Label>
             <Input
               id="name"
               {...register("name", {
-                required: t("nameRequired", "Name is required"),
+                required: t("nameRequired", "Numele este obligatoriu"),
               })}
-              placeholder={t("yourName", "Your name")}
+              placeholder={t("yourName", "Numele tău")}
               disabled={isLoading}
             />
             {errors.name && (
@@ -215,13 +216,13 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               id="email"
               type="email"
               {...register("email", {
-                required: t("emailRequired", "Email is required"),
+                required: t("emailRequired", "Emailul este obligatoriu"),
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: t("invalidEmail", "Invalid email address"),
+                  message: t("invalidEmail", "Adresă de email invalidă"),
                 },
               })}
-              placeholder={t("yourEmail", "Your email")}
+              placeholder={t("yourEmail", "Emailul tău")}
               disabled={isLoading}
             />
             {errors.email && (
@@ -232,13 +233,11 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       </div>
 
       <div>
-        <h3 className="text-lg font-medium mb-4">
-          {t("password", "Password")}
-        </h3>
+        <h3 className="text-lg font-medium mb-4">{t("password", "Parolă")}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="newPassword">
-              {t("newPassword", "New Password")}
+              {t("newPassword", "Parolă nouă")}
             </Label>
             <Input
               id="newPassword"
@@ -253,7 +252,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">
-              {t("confirmNewPassword", "Confirm New Password")}
+              {t("confirmNewPassword", "Confirmă parola nouă")}
             </Label>
             <Input
               id="confirmPassword"
@@ -262,7 +261,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                 validate: (value) =>
                   !watchNewPassword ||
                   value === watchNewPassword ||
-                  t("passwordsDontMatch", "Passwords do not match"),
+                  t("passwordsDontMatch", "Parolele nu se potrivesc"),
               })}
               placeholder={t(
                 "confirmNewPasswordPlaceholder",
@@ -284,8 +283,8 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           type="submit"
           disabled={isLoading}>
           {isLoading
-            ? t("saving", "Saving...")
-            : t("saveChanges", "Save Changes")}
+            ? t("saving", "Se salvează...")
+            : t("saveChanges", "Salvează modificările")}
         </Button>
       </div>
     </form>

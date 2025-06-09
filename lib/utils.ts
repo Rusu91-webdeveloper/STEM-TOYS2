@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { useCurrency } from "../contexts/CurrencyContext";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -14,28 +15,6 @@ export function formatDate(date: Date): string {
     month: "long",
     day: "numeric",
   }).format(date);
-}
-
-/**
- * Format a number as currency
- */
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("ro-RO", {
-    style: "currency",
-    currency: "RON",
-    minimumFractionDigits: 2,
-  }).format(amount);
-}
-
-/**
- * Format a number as price with currency symbol
- */
-export function formatPrice(price: number): string {
-  return new Intl.NumberFormat("ro-RO", {
-    style: "currency",
-    currency: "RON",
-    minimumFractionDigits: 2,
-  }).format(price);
 }
 
 /**

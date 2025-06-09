@@ -88,7 +88,7 @@ export function ProductReviewForm({
       }
 
       toast.success(
-        t("reviewSubmittedSuccess", "Review submitted successfully!")
+        t("reviewSubmittedSuccess", "Recenzia a fost trimisă cu succes!")
       );
       router.push(`/account/orders/${orderId}?reviewSubmitted=true`);
     } catch (error) {
@@ -98,7 +98,7 @@ export function ProductReviewForm({
           ? error.message
           : t(
               "errorSubmittingReview",
-              "Error submitting review. Please try again."
+              "Eroare la trimiterea recenziei. Te rugăm să încerci din nou."
             )
       );
     } finally {
@@ -132,13 +132,13 @@ export function ProductReviewForm({
       className="space-y-6">
       <div className="space-y-2">
         <Label htmlFor="rating">
-          {t("rating", "Rating")} <span className="text-red-500">*</span>
+          {t("rating", "Evaluare")} <span className="text-red-500">*</span>
         </Label>
         <div>
           {renderStars()}
           {rating > 0 && (
             <p className="mt-1 text-sm">
-              {rating} {rating === 1 ? t("star", "star") : t("stars", "stars")}
+              {rating} {rating === 1 ? t("star", "stea") : t("stars", "stele")}
             </p>
           )}
           {errors.rating && (
@@ -149,14 +149,14 @@ export function ProductReviewForm({
 
       <div className="space-y-2">
         <Label htmlFor="title">
-          {t("reviewTitle", "Review Title")}{" "}
+          {t("reviewTitle", "Titlu recenzie")}{" "}
           <span className="text-red-500">*</span>
         </Label>
         <Input
           id="title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder={t("titlePlaceholder", "Summarize your experience")}
+          placeholder={t("titlePlaceholder", "Rezumă experiența ta")}
           className={errors.title ? "border-red-500" : ""}
         />
         {errors.title && (
@@ -166,7 +166,8 @@ export function ProductReviewForm({
 
       <div className="space-y-2">
         <Label htmlFor="content">
-          {t("reviewContent", "Review")} <span className="text-red-500">*</span>
+          {t("reviewContent", "Recenzie")}{" "}
+          <span className="text-red-500">*</span>
         </Label>
         <Textarea
           id="content"
@@ -174,7 +175,7 @@ export function ProductReviewForm({
           onChange={(e) => setContent(e.target.value)}
           placeholder={t(
             "reviewPlaceholder",
-            "Share details about your experience with this product"
+            "Împărtășește detalii despre experiența ta cu acest produs"
           )}
           rows={6}
           className={errors.content ? "border-red-500" : ""}
@@ -189,15 +190,15 @@ export function ProductReviewForm({
           type="submit"
           disabled={isSubmitting}>
           {isSubmitting
-            ? t("submitting", "Submitting...")
-            : t("submitReview", "Submit Review")}
+            ? t("submitting", "Se trimite...")
+            : t("submitReview", "Trimite recenzia")}
         </Button>
         <Button
           type="button"
           variant="outline"
           onClick={() => router.push(`/account/orders/${orderId}`)}
           disabled={isSubmitting}>
-          {t("cancel", "Cancel")}
+          {t("cancel", "Anulează")}
         </Button>
       </div>
     </form>

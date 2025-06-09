@@ -49,18 +49,18 @@ export function AccountSettings() {
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
       toast({
-        title: t("settingsUpdated", "Settings updated"),
+        title: t("settingsUpdated", "Setări actualizate"),
         description: t(
           "notificationPreferencesSaved",
-          "Your notification preferences have been saved."
+          "Preferințele tale de notificare au fost salvate."
         ),
       });
     } catch (error) {
       toast({
-        title: t("error", "Error"),
+        title: t("error", "Eroare"),
         description: t(
           "failedToUpdateSettings",
-          "Failed to update settings. Please try again."
+          "Nu s-au putut actualiza setările. Te rugăm să încerci din nou."
         ),
         variant: "destructive",
       });
@@ -89,18 +89,18 @@ export function AccountSettings() {
       }
 
       toast({
-        title: t("preferencesUpdated", "Preferences updated"),
+        title: t("preferencesUpdated", "Preferințe actualizate"),
         description: t(
           "accountPreferencesSaved",
-          "Your account preferences have been saved."
+          "Preferințele contului tău au fost salvate."
         ),
       });
     } catch (error) {
       toast({
-        title: t("error", "Error"),
+        title: t("error", "Eroare"),
         description: t(
           "failedToUpdatePreferences",
-          "Failed to update preferences. Please try again."
+          "Nu s-au putut actualiza preferințele. Te rugăm să încerci din nou."
         ),
         variant: "destructive",
       });
@@ -112,10 +112,10 @@ export function AccountSettings() {
   const handleDeleteAccount = async () => {
     // In a real app, this would show a confirmation dialog
     toast({
-      title: t("accountDeletionRequested", "Account deletion requested"),
+      title: t("accountDeletionRequested", "Ștergere cont solicitată"),
       description: t(
         "contactSupportToComplete",
-        "Please contact support to complete account deletion."
+        "Te rugăm să contactezi asistența pentru a finaliza ștergerea contului."
       ),
       variant: "destructive",
     });
@@ -126,22 +126,22 @@ export function AccountSettings() {
       <Card>
         <CardHeader>
           <CardTitle>
-            {t("emailNotifications", "Email Notifications")}
+            {t("emailNotifications", "Notificări prin Email")}
           </CardTitle>
           <CardDescription>
-            {t("chooseUpdates", "Choose what updates you want to hear about")}
+            {t("chooseUpdates", "Alege ce actualizări dorești să primești")}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex justify-between items-center">
             <div className="space-y-0.5">
               <Label htmlFor="marketing">
-                {t("marketingEmails", "Marketing emails")}
+                {t("marketingEmails", "Email-uri de marketing")}
               </Label>
               <p className="text-sm text-muted-foreground">
                 {t(
                   "receiveMarketingEmails",
-                  "Receive emails about new products, features, and more."
+                  "Primește email-uri despre produse noi, funcții și altele."
                 )}
               </p>
             </div>
@@ -154,12 +154,12 @@ export function AccountSettings() {
           <div className="flex justify-between items-center">
             <div className="space-y-0.5">
               <Label htmlFor="orderUpdates">
-                {t("orderUpdates", "Order updates")}
+                {t("orderUpdates", "Actualizări comandă")}
               </Label>
               <p className="text-sm text-muted-foreground">
                 {t(
                   "receiveOrderEmails",
-                  "Receive emails about your order status, shipping, and delivery."
+                  "Primește email-uri despre starea comenzii, expediere și livrare."
                 )}
               </p>
             </div>
@@ -172,12 +172,12 @@ export function AccountSettings() {
           <div className="flex justify-between items-center">
             <div className="space-y-0.5">
               <Label htmlFor="newProducts">
-                {t("newProducts", "New products")}
+                {t("newProducts", "Produse noi")}
               </Label>
               <p className="text-sm text-muted-foreground">
                 {t(
                   "receiveNewProductNotifications",
-                  "Get notified when new products are available."
+                  "Primește notificări când sunt disponibile produse noi."
                 )}
               </p>
             </div>
@@ -190,12 +190,12 @@ export function AccountSettings() {
           <div className="flex justify-between items-center">
             <div className="space-y-0.5">
               <Label htmlFor="accountActivity">
-                {t("accountActivity", "Account activity")}
+                {t("accountActivity", "Activitate cont")}
               </Label>
               <p className="text-sm text-muted-foreground">
                 {t(
                   "receiveAccountNotifications",
-                  "Get important notifications about your account activity."
+                  "Primește notificări importante despre activitatea contului tău."
                 )}
               </p>
             </div>
@@ -212,10 +212,10 @@ export function AccountSettings() {
               onClick={handleSaveNotifications}
               disabled={isLoading}>
               {isLoading
-                ? t("saving", "Saving...")
+                ? t("saving", "Se salvează...")
                 : t(
                     "saveNotificationPreferences",
-                    "Save notification preferences"
+                    "Salvează preferințele de notificare"
                   )}
             </Button>
           </div>
@@ -224,44 +224,40 @@ export function AccountSettings() {
 
       <Card>
         <CardHeader>
-          <CardTitle>
-            {t("accountPreferences", "Account Preferences")}
-          </CardTitle>
+          <CardTitle>{t("accountPreferences", "Preferințe Cont")}</CardTitle>
           <CardDescription>
             {t(
               "manageAccountSettings",
-              "Manage your account settings and preferences"
+              "Gestionează setările și preferințele contului tău"
             )}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="language">{t("language", "Language")}</Label>
+              <Label htmlFor="language">{t("language", "Limbă")}</Label>
               <Select
                 value={selectedLanguage}
                 onValueChange={handleLanguageChange}>
                 <SelectTrigger>
                   <SelectValue
-                    placeholder={t("selectLanguage", "Select language")}
+                    placeholder={t("selectLanguage", "Selectează limba")}
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ro">
-                    {t("romanian", "Romanian")}
-                  </SelectItem>
-                  <SelectItem value="en">{t("english", "English")}</SelectItem>
+                  <SelectItem value="ro">{t("romanian", "Română")}</SelectItem>
+                  <SelectItem value="en">{t("english", "Engleză")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="currency">{t("currency", "Currency")}</Label>
+              <Label htmlFor="currency">{t("currency", "Monedă")}</Label>
               <Select
                 value={currency}
                 onValueChange={setCurrency}>
                 <SelectTrigger>
                   <SelectValue
-                    placeholder={t("selectCurrency", "Select currency")}
+                    placeholder={t("selectCurrency", "Selectează moneda")}
                   />
                 </SelectTrigger>
                 <SelectContent>
@@ -277,8 +273,8 @@ export function AccountSettings() {
               onClick={handleSavePreferences}
               disabled={isLoading}>
               {isLoading
-                ? t("saving", "Saving...")
-                : t("savePreferences", "Save preferences")}
+                ? t("saving", "Se salvează...")
+                : t("savePreferences", "Salvează preferințele")}
             </Button>
           </div>
         </CardContent>
@@ -287,12 +283,12 @@ export function AccountSettings() {
       <Card>
         <CardHeader>
           <CardTitle className="text-destructive">
-            {t("dangerZone", "Danger Zone")}
+            {t("dangerZone", "Zonă de Pericol")}
           </CardTitle>
           <CardDescription>
             {t(
               "permanentlyDelete",
-              "Permanently delete your account and all of your data"
+              "Șterge definitiv contul tău și toate datele tale"
             )}
           </CardDescription>
         </CardHeader>
@@ -300,7 +296,7 @@ export function AccountSettings() {
           <Button
             variant="destructive"
             onClick={handleDeleteAccount}>
-            {t("deleteAccount", "Delete Account")}
+            {t("deleteAccount", "Șterge Contul")}
           </Button>
         </CardContent>
       </Card>

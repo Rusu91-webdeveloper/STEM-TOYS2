@@ -17,10 +17,10 @@ export default function AuthErrorPage() {
   const errorType = searchParams.get("error") || "unknown";
 
   const errorMessages = {
-    missing_token: "Verification token is missing.",
-    invalid_token: "The verification token is invalid or has expired.",
-    server_error: "A server error occurred during verification.",
-    unknown: "An unknown error occurred.",
+    missing_token: "Tokenul de verificare lipsește.",
+    invalid_token: "Tokenul de verificare este invalid sau a expirat.",
+    server_error: "A apărut o eroare de server în timpul verificării.",
+    unknown: "A apărut o eroare necunoscută.",
   };
 
   const errorMessage =
@@ -35,7 +35,7 @@ export default function AuthErrorPage() {
             <AlertCircle className="h-12 w-12 text-destructive" />
           </div>
           <CardTitle className="text-2xl font-bold text-center">
-            Verification Failed
+            Verificare eșuată
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -43,21 +43,21 @@ export default function AuthErrorPage() {
             {errorMessage}
           </p>
           <p className="text-center text-sm">
-            If you're having trouble verifying your account, please contact our
-            support team or try registering again.
+            Dacă întâmpini probleme la verificarea contului, contactează echipa
+            de suport sau încearcă să te înregistrezi din nou.
           </p>
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
           <Button
             asChild
             className="w-full">
-            <Link href="/auth/login">Go to Login</Link>
+            <Link href="/auth/login">Mergi la autentificare</Link>
           </Button>
           <Button
             asChild
             variant="outline"
             className="w-full">
-            <Link href="/auth/register">Register Again</Link>
+            <Link href="/auth/register">Înregistrează-te din nou</Link>
           </Button>
         </CardFooter>
       </Card>

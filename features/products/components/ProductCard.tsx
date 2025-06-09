@@ -150,17 +150,13 @@ export function ProductCard({
           </div>
           <div className="flex items-end justify-between mt-3 sm:mt-4">
             <div className="flex items-baseline space-x-1 sm:space-x-2">
-              <span
-                className={cn(
-                  "font-medium text-sm sm:text-lg",
-                  isOnSale && "text-red-500"
-                )}>
+              <div className="text-lg font-bold text-indigo-700">
                 {formatPrice(product.price)}
-              </span>
+              </div>
               {isOnSale && product.compareAtPrice && (
-                <span className="text-xs line-through text-muted-foreground">
+                <div className="text-sm text-muted-foreground line-through">
                   {formatPrice(product.compareAtPrice)}
-                </span>
+                </div>
               )}
             </div>
             <ProductAddToCartButton
@@ -229,17 +225,13 @@ export function ProductCard({
         {renderRating()}
         <div className="flex items-end justify-between mt-auto pt-2">
           <div className="flex items-baseline space-x-1 sm:space-x-2">
-            <span
-              className={cn(
-                "font-medium text-sm sm:text-base",
-                isOnSale && "text-red-500"
-              )}>
+            <div className="text-lg font-bold text-indigo-700">
               {formatPrice(product.price)}
-            </span>
+            </div>
             {isOnSale && product.compareAtPrice && (
-              <span className="text-xs line-through text-muted-foreground">
+              <div className="text-sm text-muted-foreground line-through">
                 {formatPrice(product.compareAtPrice)}
-              </span>
+              </div>
             )}
           </div>
           <ProductAddToCartButton

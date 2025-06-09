@@ -18,13 +18,13 @@ export function CheckoutContent() {
 
   return (
     <div className="container py-10 px-4">
-      <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+      <h1 className="text-3xl font-bold mb-8">Finalizare comandă</h1>
 
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-12">
           <Loader2 className="h-12 w-12 animate-spin text-indigo-600 mb-4" />
           <p className="text-indigo-600 text-lg font-medium">
-            Loading checkout...
+            Se încarcă finalizarea comenzii...
           </p>
         </div>
       ) : (

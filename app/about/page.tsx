@@ -9,8 +9,8 @@ import { useState } from "react";
 export default function AboutPage() {
   const { t } = useTranslation();
   const [bookVersions, setBookVersions] = useState({
-    book1: "english",
-    book2: "english",
+    book1: "romanian",
+    book2: "romanian",
   });
 
   // Toggle language for specific book
@@ -38,12 +38,12 @@ export default function AboutPage() {
   const getBookTitle = (book: "book1" | "book2") => {
     if (book === "book1") {
       return bookVersions.book1 === "english"
-        ? "Born for the Future"
-        : "Născut pentru viitor";
+        ? t("book1TitleEn", "Born for the Future")
+        : t("book1TitleRo", "Născut pentru viitor");
     } else {
       return bookVersions.book2 === "english"
-        ? "STEM Play for Neurodiverse Minds"
-        : "Jocuri STEM pentru minți neurodivergente";
+        ? t("book2TitleEn", "STEM Play for Neurodiverse Minds")
+        : t("book2TitleRo", "Jocuri STEM pentru minți neurodivergente");
     }
   };
 
@@ -141,7 +141,9 @@ export default function AboutPage() {
                     variant="outline"
                     className="bg-white/80 hover:bg-white border-indigo-300 text-indigo-700 text-xs h-6 sm:h-7 px-1.5 sm:px-2 py-0"
                     onClick={() => toggleBookLanguage("book1")}>
-                    {bookVersions.book1 === "english" ? "🇷🇴 RO" : "🇬🇧 EN"}
+                    {bookVersions.book1 === "english"
+                      ? t("switchToRo", "🇷🇴 RO")
+                      : t("switchToEn", "🇬🇧 EN")}
                   </Button>
                 </div>
                 <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10">
@@ -173,7 +175,9 @@ export default function AboutPage() {
                     variant="outline"
                     className="bg-white/80 hover:bg-white border-indigo-300 text-indigo-700 text-xs h-6 sm:h-7 px-1.5 sm:px-2 py-0"
                     onClick={() => toggleBookLanguage("book2")}>
-                    {bookVersions.book2 === "english" ? "🇷🇴 RO" : "🇬🇧 EN"}
+                    {bookVersions.book2 === "english"
+                      ? t("switchToRo", "🇷🇴 RO")
+                      : t("switchToEn", "🇬🇧 EN")}
                   </Button>
                 </div>
                 <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10">
@@ -305,7 +309,7 @@ export default function AboutPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                 <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 text-white">
                   <p className="text-base sm:text-lg font-medium text-indigo-200 drop-shadow-md">
-                    FOUNDER & CEO
+                    {t("founderTitle", "Fondator și Director Executiv")}
                   </p>
                 </div>
               </div>
@@ -314,21 +318,19 @@ export default function AboutPage() {
                   RUSU EMANUEL MARIUS
                 </h3>
                 <p className="text-gray-700 leading-relaxed text-sm sm:text-base md:text-lg">
-                  Visionary entrepreneur with extensive expertise in
-                  development, design, and marketing. Passionate about creating
-                  educational technology that empowers children to explore,
-                  learn, and grow. Founded TechTots with the mission to
-                  revolutionize how children interact with STEM subjects through
-                  thoughtfully designed educational toys.
+                  {t(
+                    "founderDescription",
+                    "Visionary entrepreneur with extensive expertise in development, design, and marketing. Passionate about creating educational technology that empowers children to explore, learn, and grow. Founded TechTots with the mission to revolutionize how children interact with STEM subjects through thoughtfully designed educational toys."
+                  )}
                 </p>
                 <div className="mt-4 sm:mt-6 flex gap-2 sm:gap-4 flex-wrap">
                   <Button className="bg-indigo-600 hover:bg-indigo-700 text-xs sm:text-sm h-8 sm:h-9">
-                    Contact
+                    {t("contact", "Contact")}
                   </Button>
                   <Button
                     variant="outline"
                     className="border-indigo-600 text-indigo-600 hover:bg-indigo-50 text-xs sm:text-sm h-8 sm:h-9">
-                    LinkedIn
+                    {t("linkedin", "LinkedIn")}
                   </Button>
                 </div>
               </div>

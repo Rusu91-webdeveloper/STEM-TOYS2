@@ -209,14 +209,9 @@ export default function ManageFeaturedProductsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
+                    <span className="text-lg font-bold">
                       {formatPrice(product.price)}
-                    </div>
-                    {product.compareAtPrice && (
-                      <div className="text-xs text-gray-500 line-through">
-                        {formatPrice(product.compareAtPrice)}
-                      </div>
-                    )}
+                    </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span

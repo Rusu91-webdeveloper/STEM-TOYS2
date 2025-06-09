@@ -46,7 +46,7 @@ export function OrderReview({
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Order Review</h2>
           <p className="text-sm text-gray-500">
-            Please review your order before placing it.
+            Te rugăm să verifici comanda înainte de a o plasa.
           </p>
         </div>
 
@@ -60,7 +60,7 @@ export function OrderReview({
               className="h-8 text-primary"
               onClick={() => onEditStep("shipping-address")}>
               <Edit className="h-4 w-4 mr-1" />
-              Edit
+              Editează
             </Button>
           </div>
 
@@ -80,7 +80,9 @@ export function OrderReview({
               <p>{checkoutData.shippingAddress.phone}</p>
             </div>
           ) : (
-            <p className="text-red-500">No shipping address provided</p>
+            <p className="text-red-500">
+              Nu a fost furnizată o adresă de livrare
+            </p>
           )}
         </div>
 
@@ -94,7 +96,7 @@ export function OrderReview({
               className="h-8 text-primary"
               onClick={() => onEditStep("shipping-method")}>
               <Edit className="h-4 w-4 mr-1" />
-              Edit
+              Editează
             </Button>
           </div>
 
@@ -111,7 +113,9 @@ export function OrderReview({
               </p>
             </div>
           ) : (
-            <p className="text-red-500">No shipping method selected</p>
+            <p className="text-red-500">
+              Nu a fost selectată o metodă de livrare
+            </p>
           )}
         </div>
 
@@ -125,7 +129,7 @@ export function OrderReview({
               className="h-8 text-primary"
               onClick={() => onEditStep("payment")}>
               <Edit className="h-4 w-4 mr-1" />
-              Edit
+              Editează
             </Button>
           </div>
 
@@ -139,7 +143,9 @@ export function OrderReview({
               <p>Expires: {checkoutData.paymentDetails.expiryDate}</p>
             </div>
           ) : (
-            <p className="text-red-500">No payment details provided</p>
+            <p className="text-red-500">
+              Nu au fost furnizate detalii de plată
+            </p>
           )}
         </div>
 
@@ -153,12 +159,12 @@ export function OrderReview({
               className="h-8 text-primary"
               onClick={() => onEditStep("payment")}>
               <Edit className="h-4 w-4 mr-1" />
-              Edit
+              Editează
             </Button>
           </div>
 
           {checkoutData.billingAddressSameAsShipping ? (
-            <p className="text-sm">Same as shipping address</p>
+            <p className="text-sm">Aceeași cu adresa de livrare</p>
           ) : checkoutData.billingAddress ? (
             <div className="text-sm">
               <p>{checkoutData.billingAddress.fullName}</p>
@@ -175,7 +181,9 @@ export function OrderReview({
               <p>{checkoutData.billingAddress.phone}</p>
             </div>
           ) : (
-            <p className="text-red-500">No billing address provided</p>
+            <p className="text-red-500">
+              Nu a fost furnizată o adresă de facturare
+            </p>
           )}
         </div>
       </div>
@@ -189,7 +197,7 @@ export function OrderReview({
           <AlertCircle className="h-5 w-5 text-red-600 mt-0.5" />
           <div>
             <h3 className="text-sm font-medium text-red-800">
-              Error placing order
+              Eroare la plasarea comenzii
             </h3>
             <p className="text-sm text-red-700 mt-1">{orderError}</p>
           </div>

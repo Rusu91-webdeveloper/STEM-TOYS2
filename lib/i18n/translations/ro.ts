@@ -460,7 +460,6 @@ export const ro = {
   ourMission: "Misiunea Noastră",
   ourApproach: "Abordarea Noastră",
   meetTheTeam: "Cunoaște Echipa",
-  founderTitle: "Fondator și Director Executiv",
   productManagerTitle: "Manager de Produs",
   educationalConsultantTitle: "Consultant Educațional",
   seniorDesignerTitle: "Designer Senior",
@@ -525,4 +524,57 @@ export const ro = {
   errorSubmittingReview:
     "Eroare la trimiterea recenziei. Te rugăm să încerci din nou.",
   returnItem: "Returnează produsul",
+
+  // Email templates
+  email_welcome_subject: "Bine ai venit la TechTots!",
+  email_welcome_greeting: "Bun venit, {name},",
+  email_welcome_body:
+    "Îți mulțumim că ți-ai creat un cont la TechTots. Suntem încântați să te avem în comunitatea noastră de minți curioase!",
+  email_welcome_cta: "Descoperă colecția noastră de jucării STEM",
+  email_welcome_footer: "Echipa TechTots",
+
+  email_verification_subject: "Verifică-ți adresa de email",
+  email_verification_greeting: "Salut, {name},",
+  email_verification_body:
+    "Pentru a finaliza înregistrarea, te rugăm să îți verifici adresa de email apăsând butonul de mai jos:",
+  email_verification_button: "Verifică adresa de email",
+  email_verification_expiry: "Acest link expiră în {hours} ore.",
+
+  email_password_reset_subject: "Resetează-ți parola",
+  email_password_reset_greeting: "Salut,",
+  email_password_reset_body:
+    "Am primit o solicitare de resetare a parolei. Apasă butonul de mai jos pentru a crea o parolă nouă:",
+  email_password_reset_button: "Resetează parola",
+  email_password_reset_expiry: "Acest link expiră în 1 oră.",
+
+  email_order_confirmation_subject: "Confirmare comandă #{orderNumber}",
+  email_order_confirmation_greeting: "Salut, {name},",
+  email_order_confirmation_body:
+    "Comanda ta a fost primită și este în curs de procesare. Poți urmări statusul comenzii din contul tău.",
+  email_order_confirmation_footer: "Îți mulțumim că ai ales TechTots!",
+
+  email_return_approved_subject:
+    "Cererea ta de retur a fost aprobată - Comanda #{orderNumber}",
+  email_return_approved_greeting: "Stimate {name},",
+  email_return_approved_body:
+    "Cererea ta de retur pentru <strong>{productName}</strong> a fost aprobată. Te rugăm să urmezi pașii de mai jos pentru a finaliza returul:",
+  email_return_approved_steps:
+    "1. Printează eticheta de retur atașată.\n2. Ambalează produsul în ambalajul original, dacă este posibil.\n3. Atașează eticheta de retur pe colet.\n4. Predă coletul la orice oficiu poștal sau curier.\n\n<b>Costul returului este suportat de tine și se achită direct la poștă sau curier.</b>",
+  email_return_approved_legal:
+    "Conform legislației din România, ai dreptul să returnezi produsele în termen de 14 zile de la primire, fără a oferi un motiv. Rambursarea se va face în contul folosit la plată, după recepționarea și verificarea produsului. Pentru detalii complete, consultă politica noastră de retur.",
+  email_return_approved_tracking:
+    "Poți urmări statusul returului din contul tău.",
+  email_return_approved_footer:
+    "Îți mulțumim că ai ales TechTots! Pentru întrebări, contactează-ne la {contactEmail}.",
+
+  book1TitleRo: "Născut pentru viitor",
+  book1TitleEn: "Born for the Future",
+  book2TitleRo: "Jocuri STEM pentru minți neurodivergente",
+  book2TitleEn: "STEM Play for Neurodiverse Minds",
+  switchToRo: "🇷🇴 RO",
+  switchToEn: "🇬🇧 EN",
+  founderDescription:
+    "Antreprenor vizionar cu expertiză extinsă în dezvoltare, design și marketing. Pasionat de crearea tehnologiei educaționale care îi ajută pe copii să exploreze, să învețe și să crească. A fondat TechTots cu misiunea de a revoluționa modul în care copiii interacționează cu disciplinele STEM prin jucării educaționale atent proiectate.",
+  contact: "Contact",
+  linkedin: "LinkedIn",
 };

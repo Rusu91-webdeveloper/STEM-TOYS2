@@ -4,11 +4,12 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getTranslations } from "@/lib/i18n/server";
-import { formatDate, formatCurrency } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import { ArrowLeft, Package, Star, Truck, Check } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useCurrency } from "@/lib/currency";
 
 interface PageProps {
   params: {
@@ -28,6 +29,7 @@ export async function generateMetadata({ params }: PageProps) {
 export default async function OrderDetailsPage({ params }: PageProps) {
   const session = await auth();
   const t = await getTranslations("ro");
+  const { formatPrice } = useCurrency();
 
   if (!session?.user) {
     return null;
@@ -216,11 +218,11 @@ export default async function OrderDetailsPage({ params }: PageProps) {
                             {item.name}
                           </Link>
                           <div className="text-sm text-muted-foreground">
-                            {formatCurrency(item.price)} × {item.quantity}
+                            {formatPrice(item.price)} × {item.quantity}
                           </div>
                         </div>
                         <div className="text-right font-medium">
-                          {formatCurrency(item.price * item.quantity)}
+                          {formatPrice(item.price * item.quantity)}
                         </div>
                       </div>
                       <div className="mt-auto pt-2">
@@ -275,20 +277,20 @@ export default async function OrderDetailsPage({ params }: PageProps) {
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>{t("subtotal")}</span>
-                <span>{formatCurrency(order.subtotal)}</span>
+                <span>{formatPrice(order.subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span>{t("shipping")}</span>
-                <span>{formatCurrency(order.shippingCost)}</span>
+                <span>{formatPrice(order.shippingCost)}</span>
               </div>
               <div className="flex justify-between">
                 <span>{t("tax")}</span>
-                <span>{formatCurrency(order.tax)}</span>
+                <span>{formatPrice(order.tax)}</span>
               </div>
               <Separator />
               <div className="flex justify-between font-medium">
                 <span>{t("total")}</span>
-                <span>{formatCurrency(order.total)}</span>
+                <span>{formatPrice(order.total)}</span>
               </div>
             </div>
           </div>

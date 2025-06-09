@@ -145,7 +145,7 @@ export function PaymentForm({
   };
 
   const handlePaymentError = (error: string) => {
-    setPaymentError(error);
+    setPaymentError("A apărut o eroare la procesarea plății.");
   };
 
   const handlePaymentMethodChange = (value: string) => {
@@ -182,7 +182,7 @@ export function PaymentForm({
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg border p-6">
-        <h2 className="text-xl font-semibold mb-4">Payment Method</h2>
+        <h2 className="text-xl font-semibold mb-4">Metodă de plată</h2>
 
         {isLoadingCards ? (
           <div className="flex justify-center items-center py-6">
@@ -191,7 +191,7 @@ export function PaymentForm({
         ) : savedCards.length > 0 ? (
           <div className="mb-6">
             <Label className="text-base font-medium mb-3 block">
-              Select Payment Method
+              Selectează metoda de plată
             </Label>
             <RadioGroup
               value={selectedPaymentMethod}

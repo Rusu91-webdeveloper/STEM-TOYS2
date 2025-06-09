@@ -70,18 +70,21 @@ export function Wishlist() {
       setWishlistItems(wishlistItems.filter((item) => item.id !== id));
 
       toast({
-        title: t("itemRemovedFromWishlist", "Item removed from wishlist"),
+        title: t(
+          "itemRemovedFromWishlist",
+          "Articol eliminat din lista de dorințe"
+        ),
         description: t(
           "itemRemovedDesc",
-          "The item has been removed from your wishlist."
+          "Articolul a fost eliminat din lista ta de dorințe."
         ),
       });
     } catch (error) {
       toast({
-        title: t("error", "Error"),
+        title: t("error", "Eroare"),
         description: t(
           "removeWishlistError",
-          "Failed to remove item from wishlist."
+          "Nu s-a putut elimina articolul din lista de dorințe."
         ),
         variant: "destructive",
       });
@@ -100,17 +103,20 @@ export function Wishlist() {
       });
 
       toast({
-        title: t("addedToCart", "Added to cart"),
+        title: t("addedToCart", "Adăugat în coș"),
         description: t(
           "productAddedToCart",
-          "Product has been added to your cart"
+          "Produsul a fost adăugat în coșul tău"
         ),
         variant: "cart",
       });
     } catch (error) {
       toast({
-        title: t("error", "Error"),
-        description: t("addToCartError", "Failed to add item to cart."),
+        title: t("error", "Eroare"),
+        description: t(
+          "addToCartError",
+          "Nu s-a putut adăuga articolul în coș."
+        ),
         variant: "destructive",
       });
     }
@@ -125,27 +131,27 @@ export function Wishlist() {
         .writeText(shareUrl)
         .then(() => {
           toast({
-            title: t("linkCopied", "Link copied"),
+            title: t("linkCopied", "Link copiat"),
             description: t(
               "linkCopiedDesc",
-              "Product link has been copied to clipboard."
+              "Link-ul produsului a fost copiat în clipboard."
             ),
           });
         })
         .catch(() => {
           toast({
-            title: t("error", "Error"),
-            description: t("copyLinkError", "Failed to copy link."),
+            title: t("error", "Eroare"),
+            description: t("copyLinkError", "Nu s-a putut copia link-ul."),
             variant: "destructive",
           });
         });
     } else {
       // Fallback for browsers that don't support clipboard API
       toast({
-        title: t("sharingNotSupported", "Sharing not supported"),
+        title: t("sharingNotSupported", "Partajarea nu este suportată"),
         description: t(
           "browserNotSupport",
-          "Your browser doesn't support sharing."
+          "Browserul tău nu suportă partajarea."
         ),
         variant: "destructive",
       });
@@ -161,11 +167,11 @@ export function Wishlist() {
         <p className="text-gray-500 mb-6">
           {t(
             "wishlistErrorDesc",
-            "We couldn't load your wishlist. Please try again later."
+            "Nu am putut încărca lista ta de dorințe. Te rugăm să încerci din nou mai târziu."
           )}
         </p>
         <Button onClick={() => window.location.reload()}>
-          {t("tryAgain", "Try Again")}
+          {t("tryAgain", "Încearcă din nou")}
         </Button>
       </div>
     );
@@ -203,16 +209,18 @@ export function Wishlist() {
       <div className="text-center py-12 border rounded-lg">
         <Heart className="h-12 w-12 mx-auto text-gray-400 mb-4" />
         <h3 className="text-lg font-medium mb-2">
-          {t("emptyWishlist", "Your wishlist is empty")}
+          {t("emptyWishlist", "Lista ta de dorințe este goală")}
         </h3>
         <p className="text-gray-500 mb-6">
           {t(
             "noProductsWishlist",
-            "You haven't added any products to your wishlist yet."
+            "Nu ai adăugat încă produse în lista de dorințe."
           )}
         </p>
         <Button asChild>
-          <Link href="/products">{t("startShopping", "Start Shopping")}</Link>
+          <Link href="/products">
+            {t("startShopping", "Începe Cumpărăturile")}
+          </Link>
         </Button>
       </div>
     );
@@ -237,7 +245,7 @@ export function Wishlist() {
               size="icon"
               className="absolute top-2 right-2 h-8 w-8 bg-white/70 hover:bg-white/90 text-red-500"
               onClick={() => handleRemoveFromWishlist(item.id)}
-              title={t("removeFromWishlist", "Remove from wishlist")}>
+              title={t("removeFromWishlist", "Elimină din Lista de Dorințe")}>
               <Trash className="h-4 w-4" />
             </Button>
           </div>
@@ -251,7 +259,9 @@ export function Wishlist() {
             {!item.inStock && (
               <div className="flex items-center gap-1 text-amber-600 text-sm mt-2">
                 <AlertCircle className="h-4 w-4" />
-                {t("outOfStock", "Out of stock")}
+                <span className="text-xs font-medium text-red-500">
+                  {t("outOfStock", "Stoc epuizat")}
+                </span>
               </div>
             )}
           </CardContent>
@@ -260,9 +270,10 @@ export function Wishlist() {
               variant="outline"
               size="sm"
               className="text-gray-600"
-              onClick={() => handleShare(item)}>
+              onClick={() => handleShare(item)}
+              title={t("share", "Partajează")}>
               <Share2 className="h-4 w-4 mr-1" />
-              {t("share", "Share")}
+              {t("share", "Partajează")}
             </Button>
             <Button
               size="sm"

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { sendMail } from "@/lib/brevo";
 import { generateReturnLabel } from "@/lib/return-label";
+import { ro as roTranslations } from "@/lib/i18n/translations/ro";
 
 // Return reason display labels
 const reasonLabels = {
@@ -100,22 +101,15 @@ export async function PATCH(
         // Create email content
         const emailHtml = `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <h1 style="color: #4f46e5;">Your Return Request Has Been Approved</h1>
-            <p>Dear ${updatedReturn.user.name || "Valued Customer"},</p>
-            <p>Good news! Your return request for <strong>${updatedReturn.orderItem.name}</strong> has been approved.</p>
-            <p>Please follow these steps to complete your return:</p>
-            <ol>
-              <li>Print the attached return label</li>
-              <li>Pack the item securely in its original packaging if possible</li>
-              <li>Attach the return label to the outside of the package</li>
-              <li>Drop off the package at your local post office or shipping carrier</li>
-            </ol>
-            <p>Once we receive your return, we'll process it within 3-5 business days and issue a refund to your original payment method.</p>
-            <p>You can track the status of your return in your <a href="${process.env.NEXT_PUBLIC_SITE_URL}/account/returns" style="color: #4f46e5;">account dashboard</a>.</p>
-            <p>If you have any questions, please contact our customer support team.</p>
-            <p>Thank you for shopping with TechTots!</p>
+            <h1 style="color: #4f46e5;">${roTranslations.email_return_approved_subject.replace("#{orderNumber}", updatedReturn.order.orderNumber)}</h1>
+            <p>${roTranslations.email_return_approved_greeting.replace("{name}", updatedReturn.user.name || updatedReturn.user.email)}</p>
+            <p>${roTranslations.email_return_approved_body.replace("{productName}", updatedReturn.orderItem.name)}</p>
+            <pre style="background: #f9f9f9; padding: 12px; border-radius: 6px;">${roTranslations.email_return_approved_steps}</pre>
+            <p style="margin-top: 16px; color: #b91c1c;"><b>${roTranslations.email_return_approved_legal}</b></p>
+            <p>${roTranslations.email_return_approved_tracking}</p>
+            <p>${roTranslations.email_return_approved_footer.replace("{contactEmail}", "support@techtots.com")}</p>
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eaeaea; font-size: 12px; color: #666;">
-              <p>© ${new Date().getFullYear()} TechTots STEM Store. All rights reserved.</p>
+              <p>© ${new Date().getFullYear()} TechTots STEM Store. Toate drepturile rezervate.</p>
               <p>Mehedinti 54-56, Bl D5, sc 2, apt 70, Cluj-Napoca, Cluj, Romania</p>
             </div>
           </div>

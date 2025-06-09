@@ -439,7 +439,6 @@ export const en = {
   ourMission: "Our Mission",
   ourApproach: "Our Approach",
   meetTheTeam: "Meet The Team",
-  founderTitle: "Founder & CEO",
   productManagerTitle: "Product Manager",
   educationalConsultantTitle: "Educational Consultant",
   seniorDesignerTitle: "Senior Designer",
@@ -486,4 +485,15 @@ export const en = {
   cancel: "Cancel",
   reviewSubmittedSuccess: "Review submitted successfully!",
   errorSubmittingReview: "Error submitting review. Please try again.",
+
+  book1TitleRo: "Născut pentru viitor",
+  book1TitleEn: "Born for the Future",
+  book2TitleRo: "Jocuri STEM pentru minți neurodivergente",
+  book2TitleEn: "STEM Play for Neurodiverse Minds",
+  switchToRo: "🇷🇴 RO",
+  switchToEn: "🇬🇧 EN",
+  founderDescription:
+    "Visionary entrepreneur with extensive expertise in development, design, and marketing. Passionate about creating educational technology that empowers children to explore, learn, and grow. Founded TechTots with the mission to revolutionize how children interact with STEM subjects through thoughtfully designed educational toys.",
+  contact: "Contact",
+  linkedin: "LinkedIn",
 };

@@ -318,8 +318,8 @@ export default function ProductForm({
       }
 
       toast({
-        title: isEditing ? "Product updated" : "Product created",
-        description: `${data.name} has been ${isEditing ? "updated" : "created"} successfully.`,
+        title: isEditing ? "Produs actualizat" : "Produs creat",
+        description: `${data.name} a fost ${isEditing ? "actualizat" : "creat"} cu succes.`,
       });
 
       // Redirect back to products list after a short delay
@@ -331,8 +331,8 @@ export default function ProductForm({
     } catch (error: any) {
       console.error("Form submission error:", error);
       toast({
-        title: "Error",
-        description: error.message || "Something went wrong",
+        title: "Eroare",
+        description: error.message || "A apărut o problemă",
         variant: "destructive",
       });
     } finally {

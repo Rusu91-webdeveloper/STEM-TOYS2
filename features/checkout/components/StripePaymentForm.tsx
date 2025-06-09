@@ -147,7 +147,7 @@ export function StripePaymentForm({
             <label
               htmlFor="card-element"
               className="block text-sm font-medium mb-1">
-              Credit or debit card
+              Card de credit sau debit
             </label>
             <div className="border rounded-md p-3">
               <CardElement
@@ -162,10 +162,13 @@ export function StripePaymentForm({
 
           <div className="pt-2 text-sm text-gray-500">
             <p>
-              For testing, you can use the card number:{" "}
+              Pentru testare, poți folosi numărul de card:{" "}
               <strong>4242 4242 4242 4242</strong>
             </p>
-            <p>Use any future date for expiry and any 3-digit CVC.</p>
+            <p>
+              Folosește orice dată viitoare pentru expirare și orice CVC de 3
+              cifre.
+            </p>
           </div>
         </div>
       </div>
@@ -175,7 +178,9 @@ export function StripePaymentForm({
           type="submit"
           disabled={!stripe || isProcessing}
           className="px-8">
-          {isProcessing ? "Processing..." : `Pay ${formatPrice(displayAmount)}`}
+          {isProcessing
+            ? "Se procesează..."
+            : `Plătește ${formatPrice(displayAmount)}`}
         </Button>
       </div>
     </form>
