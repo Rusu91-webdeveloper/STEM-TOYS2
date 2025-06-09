@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
-export default function VerifyPage() {
+function VerifyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -29,5 +29,22 @@ export default function VerifyPage() {
         Please wait while we verify your account.
       </p>
     </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center min-h-screen">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <h1 className="mt-4 text-xl font-semibold">Loading...</h1>
+          <p className="text-muted-foreground">
+            Please wait while we prepare verification...
+          </p>
+        </div>
+      }>
+      <VerifyContent />
+    </Suspense>
   );
 }

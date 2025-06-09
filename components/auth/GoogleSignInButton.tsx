@@ -1,11 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
-export function GoogleSignInButton() {
+function GoogleSignInContent() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
 
@@ -44,5 +44,23 @@ export function GoogleSignInButton() {
       </svg>
       Sign in with Google
     </Button>
+  );
+}
+
+export function GoogleSignInButton() {
+  return (
+    <Suspense
+      fallback={
+        <Button
+          variant="outline"
+          type="button"
+          disabled
+          className="w-full flex items-center justify-center gap-2">
+          <div className="w-5 h-5 border-2 border-gray-300 border-t-2 border-t-gray-600 rounded-full animate-spin"></div>
+          Loading...
+        </Button>
+      }>
+      <GoogleSignInContent />
+    </Suspense>
   );
 }

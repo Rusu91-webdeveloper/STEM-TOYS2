@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 
 // Schema for updating a blog post
 const updateBlogSchema = z.object({
@@ -26,7 +25,7 @@ export async function GET(
 ) {
   try {
     // Check if user is authenticated and is an admin
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -72,7 +71,7 @@ export async function PUT(
 ) {
   try {
     // Check if user is authenticated and is an admin
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -140,7 +139,7 @@ export async function DELETE(
 ) {
   try {
     // Check if user is authenticated and is an admin
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }

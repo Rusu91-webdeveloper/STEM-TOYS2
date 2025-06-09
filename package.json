@@ -8,7 +8,6 @@
     "start": "next start",
     "lint": "next lint",
     "seed": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed.ts",
-    "postinstall": "sed -i '' \"s/require('ApiClient')/require('.\\/ApiClient')/g\" ./node_modules/sib-api-v3-sdk/src/index.js",
     "seed:romanian": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed-romanian.ts",
     "setup:romanian": "npm run seed && npm run seed:romanian",
     "seed:blogs": "npx ts-node --compiler-options \"{\\\"module\\\":\\\"CommonJS\\\"}\" prisma/seed-blogs-romanian.ts",

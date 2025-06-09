@@ -1,4 +1,4 @@
-# Brevo (Sendinblue) Email Integration
+# Brevo (formerly Sendinblue) Email Integration
 
 This document explains how to set up and use Brevo for transactional emails in your Next.js e-commerce application.
 
@@ -16,7 +16,13 @@ This document explains how to set up and use Brevo for transactional emails in y
 
 ### 1. Install Dependencies
 
-Run the installation script to set up the required dependencies:
+This project uses the modern `@getbrevo/brevo` SDK. If you need to install it manually, run:
+
+```bash
+npm install @getbrevo/brevo
+```
+
+Or use the installation script to set up dependencies and environment variables:
 
 ```bash
 node scripts/install-brevo.js
@@ -24,7 +30,7 @@ node scripts/install-brevo.js
 
 This will:
 
-- Install `sib-api-v3-sdk` package
+- Install `@getbrevo/brevo` package (modern SDK)
 - Set up the required environment variables in your `.env.local` file
 
 ### 2. Create a Brevo Account

@@ -11,8 +11,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Suspense } from "react";
 
-export default function AuthErrorPage() {
+function AuthErrorContent() {
   const searchParams = useSearchParams();
   const errorType = searchParams.get("error") || "unknown";
 
@@ -62,5 +63,27 @@ export default function AuthErrorPage() {
         </CardFooter>
       </Card>
     </div>
+  );
+}
+
+export default function AuthErrorPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="container flex items-center justify-center min-h-screen py-12">
+          <Card className="w-full max-w-md shadow-lg">
+            <CardHeader className="space-y-1">
+              <div className="flex items-center justify-center mb-4">
+                <AlertCircle className="h-12 w-12 text-muted-foreground" />
+              </div>
+              <CardTitle className="text-2xl font-bold text-center">
+                Loading...
+              </CardTitle>
+            </CardHeader>
+          </Card>
+        </div>
+      }>
+      <AuthErrorContent />
+    </Suspense>
   );
 }

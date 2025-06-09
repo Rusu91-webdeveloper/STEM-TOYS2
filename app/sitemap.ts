@@ -44,9 +44,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Try to fetch dynamic products
   try {
-    const productsResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || ""}/api/products`
-    );
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || baseUrl;
+    const productsResponse = await fetch(`${apiUrl}/api/products`);
     if (productsResponse.ok) {
       const products = await productsResponse.json();
 
@@ -73,9 +72,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Try to fetch dynamic blog posts
   try {
-    const blogResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || ""}/api/blog`
-    );
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || baseUrl;
+    const blogResponse = await fetch(`${apiUrl}/api/blog`);
     if (blogResponse.ok) {
       const blogPosts = await blogResponse.json();
 
@@ -104,9 +102,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Try to fetch categories
   try {
-    const categoriesResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL || ""}/api/categories`
-    );
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || baseUrl;
+    const categoriesResponse = await fetch(`${apiUrl}/api/categories`);
     if (categoriesResponse.ok) {
       const categories = await categoriesResponse.json();
 

@@ -20,13 +20,13 @@ const colors = {
 };
 
 console.log(
-  `${colors.cyan}Installing Brevo (Sendinblue) dependencies...${colors.reset}`
+  `${colors.cyan}Installing Brevo (formerly Sendinblue) dependencies...${colors.reset}`
 );
 
 try {
-  // Install the Brevo API client and types
-  console.log(`${colors.blue}Installing sib-api-v3-sdk...${colors.reset}`);
-  execSync("npm install sib-api-v3-sdk", { stdio: "inherit" });
+  // Install the modern Brevo API client
+  console.log(`${colors.blue}Installing @getbrevo/brevo...${colors.reset}`);
+  execSync("npm install @getbrevo/brevo", { stdio: "inherit" });
 
   console.log(
     `\n${colors.green}✅ Brevo dependencies installed successfully!${colors.reset}`
@@ -50,7 +50,7 @@ try {
     // Append variables if they don't exist
     if (!hasBrevoApiKey) {
       envContent +=
-        "\n# Brevo (Sendinblue) API key\nBREVO_API_KEY=your_brevo_api_key\n";
+        "\n# Brevo (formerly Sendinblue) API key\nBREVO_API_KEY=your_brevo_api_key\n";
     }
 
     if (!hasBrevoSmtpLogin) {
@@ -80,7 +80,7 @@ try {
     console.log(
       `\n${colors.blue}Creating ${envPath} with Brevo environment variables...${colors.reset}`
     );
-    const envContent = `# Brevo (Sendinblue) API key
+    const envContent = `# Brevo (formerly Sendinblue) API key
 BREVO_API_KEY=your_brevo_api_key
 
 # Brevo SMTP credentials (alternative to API key)
@@ -110,6 +110,10 @@ EMAIL_FROM_NAME=YourStoreName
     `4. Update EMAIL_FROM and EMAIL_FROM_NAME with your actual values`
   );
   console.log(`5. Restart your Next.js development server`);
+
+  console.log(
+    `\n${colors.cyan}Note:${colors.reset} This project now uses the modern @getbrevo/brevo SDK instead of the legacy sib-api-v3-sdk.`
+  );
 } catch (error) {
   console.error(
     `${colors.red}Error installing Brevo dependencies:${colors.reset}`,
