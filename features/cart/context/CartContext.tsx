@@ -61,35 +61,88 @@ const getCartItemId = (productId: string, variantId?: string) => {
 
 export const CartProvider = ({ children }: CartProviderProps) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const { data: session, status } = useSession();
   const isAuthenticated = status === "authenticated";
   const previousAuthState = React.useRef(isAuthenticated);
+  const initialLoadComplete = React.useRef(false);
+  const serverFetchTimeout = React.useRef<NodeJS.Timeout | null>(null);
+
+  // Load cart from localStorage immediately for better UX
+  useEffect(() => {
+    // Only load from localStorage on first render
+    if (!initialLoadComplete.current && typeof window !== "undefined") {
+      const storedCart = localStorage.getItem("nextcommerce_cart");
+      if (storedCart) {
+        try {
+          const localCart = JSON.parse(storedCart);
+          setCartItems(localCart);
+        } catch (error) {
+          console.error("Failed to parse cart from localStorage:", error);
+          localStorage.removeItem("nextcommerce_cart");
+        }
+      }
+      // Mark initial load as complete to prevent reloading from localStorage
+      initialLoadComplete.current = true;
+    }
+  }, []);
 
   // Effect to handle auth state changes and cart merging
   useEffect(() => {
-    const handleAuthStateChange = async () => {
-      // Check if auth state has changed
-      if (previousAuthState.current !== isAuthenticated) {
-        previousAuthState.current = isAuthenticated;
+    // Skip if auth is still loading
+    if (status === "loading") return;
 
-        if (isAuthenticated) {
-          // User has logged in, we need to merge the carts
-          await mergeCartsOnLogin();
+    const handleAuthStateChange = async () => {
+      try {
+        // Check if auth state has changed
+        if (previousAuthState.current !== isAuthenticated) {
+          previousAuthState.current = isAuthenticated;
+
+          if (isAuthenticated) {
+            // User has logged in, we need to merge the carts
+            // Don't block UI while merging, do it in background
+            mergeCartsOnLogin().catch((error) => {
+              console.error("Error merging carts on login:", error);
+            });
+          }
+        } else if (isAuthenticated && initialLoadComplete.current) {
+          // Fetch from server in the background, without blocking the UI
+          fetchCartFromServer(false).catch((error) => {
+            console.error("Error fetching cart from server:", error);
+          });
         }
+      } catch (error) {
+        console.error("Error in auth state change handler:", error);
       }
     };
 
-    handleAuthStateChange();
-  }, [isAuthenticated]);
+    // Start server fetch with a small delay to improve perceived performance
+    if (serverFetchTimeout.current) {
+      clearTimeout(serverFetchTimeout.current);
+    }
+
+    serverFetchTimeout.current = setTimeout(() => {
+      handleAuthStateChange();
+    }, 100); // Small delay to prioritize UI responsiveness
+
+    return () => {
+      // Clear timeout on cleanup
+      if (serverFetchTimeout.current) {
+        clearTimeout(serverFetchTimeout.current);
+      }
+    };
+  }, [isAuthenticated, status]);
 
   // Function to merge local cart with server cart on login
   const mergeCartsOnLogin = async () => {
     if (!isAuthenticated) return;
 
-    setIsLoading(true);
-
     try {
+      // Set loading state only if cart is empty
+      if (cartItems.length === 0) {
+        setIsLoading(true);
+      }
+
       // Fetch server cart
       const serverCart = await fetchCart();
 
@@ -99,79 +152,67 @@ export const CartProvider = ({ children }: CartProviderProps) => {
         const mergedCart = mergeCarts(cartItems, serverCart);
         setCartItems(mergedCart);
         await saveCart(mergedCart);
+      } else if (serverCart.length > 0) {
+        // If server cart exists but no merging needed, use server cart
+        setCartItems(serverCart);
+      }
+
+      // Update localStorage
+      if (typeof window !== "undefined") {
+        localStorage.setItem(
+          "nextcommerce_cart",
+          JSON.stringify(serverCart.length > 0 ? serverCart : cartItems)
+        );
       }
     } catch (error) {
       console.error("Failed to merge carts on login:", error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Load cart from localStorage and server on initial render
-  useEffect(() => {
-    const initializeCart = async () => {
+  // Function to fetch cart from server
+  const fetchCartFromServer = async (setLoadingState = true) => {
+    if (setLoadingState) {
       setIsLoading(true);
+    }
 
-      // First try to load from localStorage for immediate display
-      let localCart: CartItem[] = [];
-      if (typeof window !== "undefined") {
-        const storedCart = localStorage.getItem("nextcommerce_cart");
-        if (storedCart) {
-          try {
-            localCart = JSON.parse(storedCart);
-            setCartItems(localCart);
-          } catch (error) {
-            console.error("Failed to parse cart from localStorage:", error);
-            localStorage.removeItem("nextcommerce_cart");
-          }
+    try {
+      // Add timeout to prevent long-running requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5-second timeout
+
+      const serverCart = await fetchCart();
+      clearTimeout(timeoutId);
+
+      // If server has items, use them
+      if (serverCart.length > 0) {
+        setCartItems(serverCart);
+
+        // Update localStorage
+        if (typeof window !== "undefined") {
+          localStorage.setItem("nextcommerce_cart", JSON.stringify(serverCart));
         }
+      } else if (cartItems.length > 0) {
+        // If local cart has items but server doesn't, sync to server
+        await saveCart(cartItems);
       }
-
-      // Then try to fetch from the server to get the latest data
-      try {
-        const serverCart = await fetchCart();
-
-        // If we have server data and it's different from local, use the server data
-        if (serverCart.length > 0) {
-          // If user is logged in and we have local items, merge the carts
-          if (
-            isAuthenticated &&
-            localCart.length > 0 &&
-            needsMerging(localCart, serverCart)
-          ) {
-            const mergedCart = mergeCarts(localCart, serverCart);
-            setCartItems(mergedCart);
-            await saveCart(mergedCart);
-          } else {
-            // Otherwise just use the server cart
-            setCartItems(serverCart);
-          }
-
-          // Update localStorage with the server data
-          if (typeof window !== "undefined") {
-            localStorage.setItem(
-              "nextcommerce_cart",
-              JSON.stringify(serverCart)
-            );
-          }
-        } else if (localCart.length > 0) {
-          // If we have local data but no server data, sync the local data to the server
-          await saveCart(localCart);
-        }
-      } catch (error) {
-        console.error("Failed to fetch cart from server:", error);
-        // Keep using the local cart if available
+    } catch (error) {
+      console.error("Failed to fetch cart from server:", error);
+      // If the fetch fails, we still have the localStorage cart
+      throw error;
+    } finally {
+      if (setLoadingState) {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
-    };
-
-    initializeCart();
-  }, [isAuthenticated]);
+    }
+  };
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
     if (
+      initialLoadComplete.current &&
       !isLoading &&
       typeof window !== "undefined" &&
       (cartItems.length > 0 || localStorage.getItem("nextcommerce_cart"))

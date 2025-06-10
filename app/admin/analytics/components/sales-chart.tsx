@@ -10,6 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { useCurrency } from "@/lib/currency";
 
 interface SalesDataPoint {
   date: string;
@@ -21,6 +22,8 @@ interface SalesChartProps {
 }
 
 export function SalesChart({ data }: SalesChartProps) {
+  const { formatPrice, currency } = useCurrency();
+
   return (
     <ResponsiveContainer
       width="100%"
@@ -41,12 +44,17 @@ export function SalesChart({ data }: SalesChartProps) {
             return `${d.getDate()}/${d.getMonth() + 1}`;
           }}
         />
-        <YAxis tickFormatter={(value: number) => `$${value}`} />
+        <YAxis
+          tickFormatter={(value: number) => {
+            if (currency.code === "RON") {
+              return `${value} ${currency.symbol}`;
+            } else {
+              return `${currency.symbol}${value}`;
+            }
+          }}
+        />
         <Tooltip
-          formatter={(value: number) => [
-            `$${Number(value).toFixed(2)}`,
-            "Sales",
-          ]}
+          formatter={(value: number) => [formatPrice(Number(value)), "Sales"]}
           labelFormatter={(label: string) => {
             const date = new Date(label);
             return date.toLocaleDateString();

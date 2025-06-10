@@ -6,37 +6,13 @@ import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useCurrency } from "@/lib/currency";
+import { useTranslation } from "@/lib/i18n";
 
 interface ShippingMethodSelectorProps {
   initialMethod?: ShippingMethod;
   onSubmit: (method: ShippingMethod) => void;
   onBack: () => void;
 }
-
-// Sample shipping method data - in a real app, this would come from an API
-const shippingMethods: ShippingMethod[] = [
-  {
-    id: "standard",
-    name: "Standard Shipping",
-    description: "Delivery in 3-5 business days",
-    price: 5.99,
-    estimatedDelivery: "3-5 business days",
-  },
-  {
-    id: "express",
-    name: "Express Shipping",
-    description: "Delivery in 1-2 business days",
-    price: 12.99,
-    estimatedDelivery: "1-2 business days",
-  },
-  {
-    id: "priority",
-    name: "Priority Shipping",
-    description: "Delivery in 24 hours",
-    price: 19.99,
-    estimatedDelivery: "24 hours",
-  },
-];
 
 export function ShippingMethodSelector({
   initialMethod,
@@ -47,6 +23,32 @@ export function ShippingMethodSelector({
     initialMethod?.id || "standard"
   );
   const { formatPrice } = useCurrency();
+  const { t } = useTranslation();
+
+  // Sample shipping method data - in a real app, this would come from an API
+  const shippingMethods: ShippingMethod[] = [
+    {
+      id: "standard",
+      name: t("standardShipping", "Standard Shipping"),
+      description: t("deliveryIn35Days", "Delivery in 3-5 business days"),
+      price: 5.99,
+      estimatedDelivery: t("businessDays35", "3-5 business days"),
+    },
+    {
+      id: "express",
+      name: t("expressShipping", "Express Shipping"),
+      description: t("deliveryIn12Days", "Delivery in 1-2 business days"),
+      price: 12.99,
+      estimatedDelivery: t("businessDays12", "1-2 business days"),
+    },
+    {
+      id: "priority",
+      name: t("priorityShipping", "Priority Shipping"),
+      description: t("deliveryIn24Hours", "Delivery in 24 hours"),
+      price: 19.99,
+      estimatedDelivery: t("hours24", "24 hours"),
+    },
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +65,9 @@ export function ShippingMethodSelector({
       onSubmit={handleSubmit}
       className="space-y-6">
       <div className="bg-white rounded-lg border p-6">
-        <h2 className="text-xl font-semibold mb-4">Shipping Method</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          {t("shippingMethod", "Shipping Method")}
+        </h2>
 
         <RadioGroup
           value={selectedMethodId}
@@ -90,7 +94,8 @@ export function ShippingMethodSelector({
                 </div>
                 <p className="text-sm text-gray-500">{method.description}</p>
                 <p className="text-sm text-gray-500">
-                  Estimated delivery: {method.estimatedDelivery}
+                  {t("estimatedDelivery", "Estimated delivery")}:{" "}
+                  {method.estimatedDelivery}
                 </p>
               </div>
             </div>
@@ -103,9 +108,11 @@ export function ShippingMethodSelector({
           type="button"
           variant="outline"
           onClick={onBack}>
-          Back to Shipping Address
+          {t("backToShippingAddress", "Back to Shipping Address")}
         </Button>
-        <Button type="submit">Continue to Payment</Button>
+        <Button type="submit">
+          {t("continueToPayment", "Continue to Payment")}
+        </Button>
       </div>
     </form>
   );

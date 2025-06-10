@@ -53,6 +53,7 @@ export default function Header() {
                   alt="TechTots Logo"
                   priority
                   fill
+                  sizes="(max-width: 640px) 8rem, (max-width: 768px) 9rem, 10rem"
                 />
               </div>
             </Link>
@@ -175,6 +176,7 @@ export default function Header() {
                     src="/TechTots_LOGO.png"
                     alt="TechTots Logo"
                     fill
+                    sizes="(max-width: 640px) 7rem, 8rem"
                   />
                 </div>
               </Link>

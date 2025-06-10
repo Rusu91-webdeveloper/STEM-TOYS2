@@ -148,7 +148,7 @@ export default async function OrderDetailsPage({ params }: PageProps) {
               <div className="text-sm font-medium">{t("orderDelivered")}</div>
             ) : (
               <div className="text-sm text-muted-foreground">
-                {t("estimatedDelivery", {
+                {t("estimatedDeliveryWithDate", {
                   date: formatDate(estimatedDelivery),
                 })}
               </div>

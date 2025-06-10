@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import { CurrencyProvider, useCurrency } from "@/lib/currency";
 
 // Type definitions
 type Order = {
@@ -91,6 +92,7 @@ export default function OrdersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [status, setStatus] = useState("all");
   const [period, setPeriod] = useState("30");
+  const { formatPrice } = useCurrency();
 
   // Function to fetch orders from the API
   const fetchOrders = async () => {
@@ -283,7 +285,7 @@ export default function OrdersPage() {
                         </div>
                       </td>
                       <td className="px-4 py-4 font-medium">
-                        ${order.total.toFixed(2)}
+                        {formatPrice(order.total)}
                       </td>
                       <td className="px-4 py-4">
                         <span
@@ -337,3 +339,5 @@ export default function OrdersPage() {
     </div>
   );
 }
+
+// Make sure the component is wrapped with CurrencyProvider in _app.tsx or layout.tsx

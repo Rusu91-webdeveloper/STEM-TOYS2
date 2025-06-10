@@ -25,21 +25,48 @@ const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined
 export function CurrencyProvider({ children }: { children: React.ReactNode }) {
   const [currency, setCurrencyState] = useState<CurrencyType>(currencies[0]);
 
-  // On mount, try to get the currency from localStorage
   useEffect(() => {
-    const storedCurrency =
-      typeof window !== "undefined" ? localStorage.getItem("currency") : null;
-
-    if (storedCurrency) {
-      const foundCurrency = currencies.find(c => c.code === storedCurrency);
-      if (foundCurrency) {
-        setCurrencyState(foundCurrency);
+    // Check if we're in the admin section
+    const isAdmin = typeof window !== "undefined" && window.location.pathname.startsWith('/admin');
+    
+    if (isAdmin) {
+      // Force RON for admin area
+      const ronCurrency = currencies.find(c => c.code === "RON") || currencies[0];
+      setCurrencyState(ronCurrency);
+      
+      if (typeof window !== "undefined") {
+        localStorage.setItem("currency", "RON");
+      }
+    } else {
+      // For non-admin areas, try to get from localStorage
+      const storedCurrency = typeof window !== "undefined" ? localStorage.getItem("currency") : null;
+      
+      if (storedCurrency) {
+        const foundCurrency = currencies.find(c => c.code === storedCurrency);
+        if (foundCurrency) {
+          setCurrencyState(foundCurrency);
+        }
       }
     }
   }, []);
 
   // Set currency based on currency code
   const setCurrency = (currencyCode: string) => {
+    // For admin area, enforce RON
+    const isAdmin = typeof window !== "undefined" && window.location.pathname.startsWith('/admin');
+    
+    if (isAdmin) {
+      // Force RON for admin area
+      const ronCurrency = currencies.find(c => c.code === "RON") || currencies[0];
+      setCurrencyState(ronCurrency);
+      
+      if (typeof window !== "undefined") {
+        localStorage.setItem("currency", "RON");
+      }
+      return;
+    }
+    
+    // For non-admin areas, allow currency switching
     const newCurrency = currencies.find(c => c.code === currencyCode) || currencies[0];
     setCurrencyState(newCurrency);
     

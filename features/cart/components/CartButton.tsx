@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { CartIcon } from "./CartIcon";
 import { MiniCart } from "./MiniCart";
 import { useShoppingCart } from "../hooks/useShoppingCart";
 import { Loader2, ShoppingCart } from "lucide-react";
@@ -24,10 +23,12 @@ export function CartButton({ className = "" }: CartButtonProps) {
       <button
         onClick={openCart}
         className={`flex items-center justify-center relative p-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm transition-all ${className}`}
-        aria-label="Open cart"
-        disabled={isLoading}>
+        aria-label="Open cart">
         {isLoading ? (
-          <Loader2 className="h-5 w-5 animate-spin text-white" />
+          <div className="relative">
+            <ShoppingCart className="h-5 w-5 text-white opacity-70" />
+            <Loader2 className="h-5 w-5 animate-spin text-white absolute top-0 left-0" />
+          </div>
         ) : (
           <>
             <ShoppingCart className="h-5 w-5 text-white" />

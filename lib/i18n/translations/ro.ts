@@ -30,6 +30,12 @@ export const ro = {
   shipping: "Livrare",
   total: "Total",
   clearCart: "Golește coșul",
+  loading: "Se încarcă...",
+  shippingNotice:
+    "Costurile de livrare și taxele vor fi calculate la finalizarea comenzii.",
+  processingCheckout: "Se procesează...",
+  goingToCheckout: "Se pregătește finalizarea comenzii...",
+  takingToLogin: "Te direcționăm către autentificare...",
 
   // Checkout page
   shippingAddress: "Adresa de livrare",
@@ -58,8 +64,35 @@ export const ro = {
   editShippingAddress: "Editează adresa de livrare",
   editShippingMethod: "Editează metoda de livrare",
   editPayment: "Editează metoda de plată",
-  paymentMethod: "Metoda de plată",
+  paymentMethod: "Metodă de plată",
   deliveryOnlyRomania: "Livrarea este disponibilă doar în România",
+  preparingCheckout: "Se pregătește finalizarea comenzii...",
+  gettingOrderReady:
+    "Pregătim comanda ta pentru finalizare. Te rugăm să aștepți un moment...",
+  pleaseLogIn:
+    "Te rugăm să te autentifici pentru a continua cu finalizarea comenzii. Te redirecționăm acum...",
+  qty: "Cant",
+  expires: "Expiră",
+  default: "Implicit",
+  useNewCard: "Folosește un card nou",
+  proceedToReview: "Poți continua la verificarea comenzii",
+  paymentError: "A apărut o eroare la procesarea plății",
+  continueToReview: "Continuă la verificare",
+  selectPaymentMethod: "Selectează metoda de plată",
+  failedToCreateOrder: "Nu s-a putut crea comanda",
+  orderProcessingError: "A apărut o eroare la plasarea comenzii",
+  standardShipping: "Livrare standard",
+  expressShipping: "Livrare expres",
+  priorityShipping: "Livrare prioritară",
+  deliveryIn35Days: "Livrare în 3-5 zile lucrătoare",
+  deliveryIn12Days: "Livrare în 1-2 zile lucrătoare",
+  deliveryIn24Hours: "Livrare în 24 de ore",
+  businessDays35: "3-5 zile lucrătoare",
+  businessDays12: "1-2 zile lucrătoare",
+  hours24: "24 de ore",
+  estimatedDelivery: "Livrare estimată",
+  backToShippingAddress: "Înapoi la adresa de livrare",
+  continueToPayment: "Continuă la plată",
 
   // Account page
   profile: "Profil",
@@ -175,7 +208,6 @@ export const ro = {
 
   // Order history
   all: "Toate",
-  processing: "În procesare",
   shipped: "Expediat",
   delivered: "Livrat",
   cancelled: "Anulat",
@@ -319,7 +351,7 @@ export const ro = {
   relatedArticles: "Articole conexe",
   viewAllArticles: "Vezi toate articolele",
   blogPostNotFound: "Articolul nu a fost găsit",
-  loading: "Se încarcă articolul",
+  loadingArticle: "Se încarcă articolul",
   tags: "Etichete",
 
   // About Page
@@ -490,7 +522,7 @@ export const ro = {
   orderPlaced: "Comandă plasată",
   orderShipped: "Comandă expediată",
   orderDelivered: "Comandă livrată",
-  estimatedDelivery: "Livrare estimată: {date}",
+  estimatedDeliveryWithDate: "Livrare estimată: {date}",
   items: "Produse",
   shippingInformation: "Informații livrare",
   paymentDetails: "Detalii plată",

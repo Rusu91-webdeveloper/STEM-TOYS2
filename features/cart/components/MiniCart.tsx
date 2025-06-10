@@ -9,6 +9,7 @@ import { useShoppingCart } from "../hooks/useShoppingCart";
 import { useSession } from "next-auth/react";
 import { useCheckoutTransition } from "../context/CheckoutTransitionContext";
 import { useCurrency } from "@/lib/currency";
+import { useTranslation } from "@/lib/i18n";
 
 interface MiniCartProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
     syncWithServer,
   } = useShoppingCart();
   const { formatPrice } = useCurrency();
+  const { t } = useTranslation();
 
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   const [checkoutStatus, setCheckoutStatus] = useState<string>("idle");
@@ -110,7 +112,7 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
         <div className="flex items-center justify-between mb-6 border-b pb-4 border-indigo-200">
           <h2 className="text-xl font-semibold flex items-center gap-2 text-indigo-900">
             <ShoppingCart className="h-5 w-5 text-indigo-700" />
-            Your Cart
+            {t("yourCart", "Your Cart")}
           </h2>
           <button
             onClick={onClose}
@@ -121,18 +123,28 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
         </div>
 
         {isLoading ? (
-          <div className="py-12 flex flex-col items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-700 mb-4" />
-            <p className="text-indigo-700">Loading your cart...</p>
+          <div className="py-8 flex flex-col items-center justify-center bg-white/50 rounded-lg shadow-sm">
+            <Loader2 className="h-6 w-6 animate-spin text-indigo-600 mb-2" />
+            <p className="text-indigo-600 text-sm">
+              {t("loading", "Loading cart items...")}
+            </p>
+            <p className="text-xs text-indigo-400 mt-1">
+              {t(
+                "continueWaiting",
+                "You can still browse while we load your cart"
+              )}
+            </p>
           </div>
         ) : isEmpty ? (
           <div className="py-12 text-center">
-            <p className="text-indigo-700 mb-6">Your cart is empty</p>
+            <p className="text-indigo-700 mb-6">
+              {t("emptyCart", "Your cart is empty")}
+            </p>
             <Link
               href="/products"
               className="inline-block rounded-md bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 px-6 py-2 text-white hover:from-indigo-700 hover:to-purple-800 shadow-md hover:shadow-lg transition-all"
               onClick={onClose}>
-              Continue Shopping
+              {t("continueShopping", "Continue Shopping")}
             </Link>
           </div>
         ) : (
@@ -202,13 +214,16 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
 
             <div className="border-t pt-6 mt-6 border-indigo-200">
               <div className="flex justify-between text-base font-medium">
-                <p className="text-indigo-900">Subtotal</p>
+                <p className="text-indigo-900">{t("subtotal", "Subtotal")}</p>
                 <p className="text-indigo-700 font-bold">
                   {formatPrice(getTotal())}
                 </p>
               </div>
               <p className="mt-1 text-sm text-indigo-600">
-                Shipping and taxes calculated at checkout.
+                {t(
+                  "shippingNotice",
+                  "Shipping and taxes calculated at checkout."
+                )}
               </p>
 
               <div className="mt-6 space-y-3">
@@ -224,14 +239,15 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
                   {isCheckoutLoading ? (
                     <>
                       <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                      {checkoutStatus === "processing" && "Processing..."}
+                      {checkoutStatus === "processing" &&
+                        t("processingCheckout", "Processing...")}
                       {checkoutStatus === "redirecting" &&
-                        "Going to checkout..."}
+                        t("goingToCheckout", "Going to checkout...")}
                       {checkoutStatus === "auth_required" &&
-                        "Taking you to login..."}
+                        t("takingToLogin", "Taking you to login...")}
                     </>
                   ) : (
-                    "Checkout"
+                    t("checkout", "Checkout")
                   )}
                 </button>
 
@@ -241,7 +257,7 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
                     onClose();
                   }}
                   className="flex w-full items-center justify-center rounded-md border border-indigo-300 px-6 py-3 text-base font-medium text-indigo-700 shadow-sm hover:bg-white transition-colors hover:border-indigo-400">
-                  Clear Cart
+                  {t("clearCart", "Clear Cart")}
                 </button>
               </div>
             </div>

@@ -1,4 +1,7 @@
-import { cookies } from "next/headers";
+"use client";
+
+// Remove the import of cookies from next/headers
+// import { cookies } from "next/headers";
 
 export interface DashboardStat {
   title: string;
@@ -31,25 +34,22 @@ export interface DashboardData {
 }
 
 /**
- * Fetches dashboard data from the API with server-side authentication
+ * Fetches dashboard data from the API with client-side authentication
  */
 export async function getDashboardData(
   period: number = 30
 ): Promise<DashboardData> {
   try {
-    // Use an absolute URL for fetch - this works in server components
+    // Use an absolute URL for fetch - this works for client components
     const url = new URL(
       "/api/admin/dashboard",
       process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
     );
     url.searchParams.append("period", period.toString());
 
-    const cookiesObj = await cookies();
-
+    // Client-side fetch will automatically include cookies
     const response = await fetch(url.toString(), {
-      headers: {
-        Cookie: cookiesObj.toString(),
-      },
+      // No need to manually add cookies, they are included automatically
       cache: "no-store", // Don't cache this data
     });
 
@@ -65,7 +65,7 @@ export async function getDashboardData(
       stats: [
         {
           title: "Total Revenue",
-          value: "$0.00",
+          value: "0.00 lei", // Default to RON currency
           change: "+0.0%",
           trend: "up",
           description: `Last ${period} days`,

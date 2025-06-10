@@ -3,6 +3,7 @@
 import React from "react";
 import { useCart } from "@/features/cart";
 import { useCurrency } from "@/lib/currency";
+import { useTranslation } from "@/lib/i18n";
 
 interface CheckoutSummaryProps {
   shippingCost?: number;
@@ -11,6 +12,7 @@ interface CheckoutSummaryProps {
 export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
   const { cartItems, getCartTotal, isLoading } = useCart();
   const { formatPrice } = useCurrency();
+  const { t } = useTranslation();
 
   const subtotal = getCartTotal();
   const tax = subtotal * 0.1; // 10% tax for example
@@ -54,15 +56,19 @@ export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
   if (cartItems.length === 0) {
     return (
       <div className="border rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
-        <p className="text-gray-500">Your cart is empty</p>
+        <h2 className="text-xl font-semibold mb-4">
+          {t("orderSummary", "Order Summary")}
+        </h2>
+        <p className="text-gray-500">{t("emptyCart", "Your cart is empty")}</p>
       </div>
     );
   }
 
   return (
     <div className="border rounded-lg p-6 space-y-4 sticky top-4">
-      <h2 className="text-xl font-semibold">Order Summary</h2>
+      <h2 className="text-xl font-semibold">
+        {t("orderSummary", "Order Summary")}
+      </h2>
 
       <div className="space-y-4 max-h-80 overflow-y-auto">
         {cartItems.map((item) => (
@@ -80,7 +86,9 @@ export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
             )}
             <div>
               <p className="font-medium">{item.name}</p>
-              <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
+              <p className="text-sm text-gray-500">
+                {t("qty", "Qty")}: {item.quantity}
+              </p>
               <p className="text-sm">{formatPrice(item.price)}</p>
             </div>
           </div>
@@ -89,19 +97,19 @@ export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
 
       <div className="space-y-2 pt-4 border-t">
         <div className="flex justify-between">
-          <span className="text-gray-600">Subtotal</span>
+          <span className="text-gray-600">{t("subtotal", "Subtotal")}</span>
           <span>{formatPrice(subtotal)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Tax (10%)</span>
+          <span className="text-gray-600">{t("tax", "Tax")} (10%)</span>
           <span>{formatPrice(tax)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">Shipping</span>
+          <span className="text-gray-600">{t("shipping", "Shipping")}</span>
           <span>{formatPrice(shippingCost)}</span>
         </div>
         <div className="flex justify-between font-semibold text-lg pt-2 border-t">
-          <span>Total</span>
+          <span>{t("total", "Total")}</span>
           <span>{formatPrice(total)}</span>
         </div>
       </div>

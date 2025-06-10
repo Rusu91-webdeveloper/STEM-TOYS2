@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function AboutPage() {
   const { t } = useTranslation();
@@ -12,6 +12,28 @@ export default function AboutPage() {
     book1: "romanian",
     book2: "romanian",
   });
+
+  // Image error handling state
+  const [imageErrors, setImageErrors] = useState({
+    book1_ro: false,
+    book2_ro: false,
+    book1_en: false,
+    book2_en: false,
+  });
+
+  // Preload images for smoother switching
+  useEffect(() => {
+    const preloadImage = (src: string) => {
+      const img = new globalThis.Image();
+      img.src = src;
+    };
+
+    // Preload all book images
+    preloadImage("/born_for_the_future.png");
+    preloadImage("/born_for_the_future_ro.png");
+    preloadImage("/STEM_play_for_neurodiverse_minds.jpg");
+    preloadImage("/STEM_play_for_neurodiverse_minds_ro.jpg");
+  }, []);
 
   // Toggle language for specific book
   const toggleBookLanguage = (book: "book1" | "book2") => {
@@ -21,13 +43,40 @@ export default function AboutPage() {
     }));
   };
 
-  // Get book image source based on selected language
+  // Handle image load error
+  const handleImageError = (book: string, language: string) => {
+    setImageErrors((prev) => ({
+      ...prev,
+      [`${book}_${language}`]: true,
+    }));
+    console.log(`Failed to load image for ${book} in ${language}`);
+  };
+
+  // Get book image source based on selected language with fallback
   const getBookImageSrc = (book: "book1" | "book2") => {
     if (book === "book1") {
+      // Check if Romanian image failed and fallback to English if needed
+      if (bookVersions.book1 === "romanian" && imageErrors.book1_ro) {
+        return "/born_for_the_future.png";
+      }
+      // Check if English image failed and fallback to Romanian if needed
+      if (bookVersions.book1 === "english" && imageErrors.book1_en) {
+        return "/born_for_the_future_ro.png";
+      }
+
       return bookVersions.book1 === "english"
         ? "/born_for_the_future.png"
         : "/born_for_the_future_ro.png";
     } else {
+      // Check if Romanian image failed and fallback to English if needed
+      if (bookVersions.book2 === "romanian" && imageErrors.book2_ro) {
+        return "/STEM_play_for_neurodiverse_minds.jpg";
+      }
+      // Check if English image failed and fallback to Romanian if needed
+      if (bookVersions.book2 === "english" && imageErrors.book2_en) {
+        return "/STEM_play_for_neurodiverse_minds_ro.jpg";
+      }
+
       return bookVersions.book2 === "english"
         ? "/STEM_play_for_neurodiverse_minds.jpg"
         : "/STEM_play_for_neurodiverse_minds_ro.jpg";
@@ -120,6 +169,9 @@ export default function AboutPage() {
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     style={{ objectFit: "contain", objectPosition: "center" }}
                     className="transition-transform group-hover:scale-105 duration-500"
+                    onError={() =>
+                      handleImageError("book1", bookVersions.book1)
+                    }
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
                 </div>
@@ -161,6 +213,9 @@ export default function AboutPage() {
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     style={{ objectFit: "cover", objectPosition: "center" }}
                     className="transition-transform group-hover:scale-105 duration-500"
+                    onError={() =>
+                      handleImageError("book2", bookVersions.book2)
+                    }
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
                 </div>

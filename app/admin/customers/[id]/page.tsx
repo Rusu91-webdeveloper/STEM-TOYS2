@@ -51,6 +51,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useCurrency } from "@/lib/currency";
 
 type Order = {
   id: string;
@@ -101,6 +102,7 @@ export default function CustomerDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
+  const { formatPrice } = useCurrency();
   const customerId = params.id as string;
 
   const [customer, setCustomer] = useState<CustomerDetails | null>(null);
@@ -374,8 +376,8 @@ export default function CustomerDetailsPage() {
                 Total Spent
               </span>
               <span className="flex items-center mt-1 gap-1">
-                <DollarSign className="h-4 w-4" />$
-                {customer.totalSpent.toFixed(2)}
+                <DollarSign className="h-4 w-4" />
+                {formatPrice(customer.totalSpent)}
               </span>
             </div>
             <div className="p-4 bg-muted rounded-md flex flex-col">
@@ -523,7 +525,9 @@ export default function CustomerDetailsPage() {
                             {formatDate(customer.lastOrder.date)}
                           </TableCell>
                           <TableCell>
-                            ${customer.lastOrder.total.toFixed(2)}
+                            <span className="text-lg font-semibold">
+                              {formatPrice(customer.lastOrder.total)}
+                            </span>
                           </TableCell>
                           <TableCell>
                             <Badge variant="outline">

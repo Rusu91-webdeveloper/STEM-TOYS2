@@ -3,6 +3,7 @@
 import React from "react";
 import { CheckoutStep, CheckoutData } from "../types";
 import { CheckCircle, Circle } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
 interface StepProps {
   label: string;
@@ -52,6 +53,8 @@ export function CheckoutStepper({
   onStepClick,
   checkoutData,
 }: CheckoutStepperProps) {
+  const { t } = useTranslation();
+
   const isCompleted = (step: CheckoutStep): boolean => {
     switch (step) {
       case "shipping-address":
@@ -88,7 +91,7 @@ export function CheckoutStepper({
     <div className="pb-6 border-b">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <Step
-          label="Shipping Address"
+          label={t("shippingAddress", "Shipping Address")}
           isActive={currentStep === "shipping-address"}
           isCompleted={isCompleted("shipping-address")}
           onClick={() => onStepClick("shipping-address")}
@@ -98,7 +101,7 @@ export function CheckoutStepper({
         <div className="hidden sm:block text-gray-300">→</div>
 
         <Step
-          label="Shipping Method"
+          label={t("shippingMethod", "Shipping Method")}
           isActive={currentStep === "shipping-method"}
           isCompleted={isCompleted("shipping-method")}
           onClick={() => onStepClick("shipping-method")}
@@ -108,7 +111,7 @@ export function CheckoutStepper({
         <div className="hidden sm:block text-gray-300">→</div>
 
         <Step
-          label="Payment"
+          label={t("payment", "Payment")}
           isActive={currentStep === "payment"}
           isCompleted={isCompleted("payment")}
           onClick={() => onStepClick("payment")}
@@ -118,7 +121,7 @@ export function CheckoutStepper({
         <div className="hidden sm:block text-gray-300">→</div>
 
         <Step
-          label="Review"
+          label={t("review", "Review")}
           isActive={currentStep === "review"}
           isCompleted={isCompleted("review")}
           onClick={() => onStepClick("review")}

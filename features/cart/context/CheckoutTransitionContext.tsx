@@ -44,7 +44,9 @@ export function CheckoutTransitionProvider({
 
   // Update authentication state when session changes
   useEffect(() => {
-    setIsAuthenticated(status === "authenticated");
+    if (status !== "loading") {
+      setIsAuthenticated(status === "authenticated");
+    }
   }, [status]);
 
   const startTransition = (dest: "checkout" | "login", callback?: string) => {
@@ -106,7 +108,7 @@ export function CheckoutTransitionProvider({
         isTransitioning: destination !== null,
       }}>
       {children}
-      {destination && (
+      {destination && status !== "loading" && (
         <CheckoutTransition
           destination={destination}
           onComplete={handleTransitionComplete}

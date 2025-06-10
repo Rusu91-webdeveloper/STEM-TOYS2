@@ -12,6 +12,7 @@ import { StripePaymentForm } from "./StripePaymentForm";
 import { useCart } from "@/features/cart";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Loader2, CreditCard } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
 interface PaymentCard {
   id: string;
@@ -46,6 +47,7 @@ export function PaymentForm({
   onBack,
 }: PaymentFormProps) {
   const { getCartTotal } = useCart();
+  const { t } = useTranslation();
   const [useSameAddress, setUseSameAddress] = useState(
     billingAddressSameAsShipping
   );
@@ -145,7 +147,9 @@ export function PaymentForm({
   };
 
   const handlePaymentError = (error: string) => {
-    setPaymentError("A apărut o eroare la procesarea plății.");
+    setPaymentError(
+      t("paymentError", "A apărut o eroare la procesarea plății.")
+    );
   };
 
   const handlePaymentMethodChange = (value: string) => {
@@ -182,7 +186,9 @@ export function PaymentForm({
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg border p-6">
-        <h2 className="text-xl font-semibold mb-4">Metodă de plată</h2>
+        <h2 className="text-xl font-semibold mb-4">
+          {t("paymentMethod", "Metodă de plată")}
+        </h2>
 
         {isLoadingCards ? (
           <div className="flex justify-center items-center py-6">
@@ -191,7 +197,7 @@ export function PaymentForm({
         ) : savedCards.length > 0 ? (
           <div className="mb-6">
             <Label className="text-base font-medium mb-3 block">
-              Selectează metoda de plată
+              {t("selectPaymentMethod", "Selectează metoda de plată")}
             </Label>
             <RadioGroup
               value={selectedPaymentMethod}
@@ -214,11 +220,12 @@ export function PaymentForm({
                         {getCardIcon(card.cardType)}
                         •••• {card.lastFourDigits}
                         <span className="text-sm text-gray-500 ml-2">
-                          Expires {card.expiryMonth}/{card.expiryYear}
+                          {t("expires", "Expires")} {card.expiryMonth}/
+                          {card.expiryYear}
                         </span>
                         {card.isDefault && (
                           <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded ml-2">
-                            Default
+                            {t("default", "Default")}
                           </span>
                         )}
                       </Label>
@@ -238,7 +245,7 @@ export function PaymentForm({
                 <Label
                   htmlFor="payment-new"
                   className="font-medium cursor-pointer">
-                  Use a new card
+                  {t("useNewCard", "Folosește un card nou")}
                 </Label>
               </div>
             </RadioGroup>
@@ -248,80 +255,110 @@ export function PaymentForm({
         {/* Billing Address Checkbox */}
         <div className="flex items-center space-x-2 mt-6 mb-4">
           <Checkbox
-            id="sameAsShipping"
+            id="billing-same"
             checked={useSameAddress}
             onCheckedChange={handleCheckboxChange}
           />
           <Label
-            htmlFor="sameAsShipping"
-            className="text-sm font-medium leading-none cursor-pointer">
-            Billing address is the same as shipping address
+            htmlFor="billing-same"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            {t("sameAsShipping", "Aceeași ca adresa de livrare")}
           </Label>
         </div>
 
-        {/* Billing Address Form (if different from shipping) */}
+        {/* Show the saved card or Stripe form */}
+        {!useNewCard && selectedPaymentMethod !== "new" ? (
+          <div className="my-6">
+            <div className="bg-gray-50 rounded-lg p-4 border">
+              <p className="text-gray-700">
+                {t("proceedToReview", "Poți continua la verificarea comenzii.")}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <StripeProvider>
+            <StripePaymentForm
+              onSuccess={handlePaymentSuccess}
+              onError={handlePaymentError}
+              billingDetails={getBillingDetails()}
+              amount={getCartTotal() * 100} // Convert to cents for Stripe
+            />
+          </StripeProvider>
+        )}
+
+        {/* Billing Address Form */}
         {showBillingForm && (
-          <div className="mt-6 pt-6 border-t">
-            <h3 className="text-lg font-medium mb-4">Billing Address</h3>
+          <div className="mt-6">
+            <div className="mb-4">
+              <h3 className="text-lg font-medium">
+                {t("billingAddress", "Adresa de facturare")}
+              </h3>
+            </div>
             <ShippingAddressForm
               initialData={currentBillingAddress}
-              onSubmit={(address) => setCurrentBillingAddress(address)}
+              onSubmit={(address) => {
+                setCurrentBillingAddress(address);
+              }}
             />
           </div>
         )}
 
-        {/* Payment Form - only show if using a new card */}
-        {useNewCard && (
-          <div className="mt-6">
-            <StripeProvider>
-              <StripePaymentForm
-                amount={getCartTotal() * 100} // Convert to cents for Stripe
-                onSuccess={handlePaymentSuccess}
-                onError={handlePaymentError}
-                billingDetails={getBillingDetails()}
-              />
-            </StripeProvider>
-            {paymentError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md mt-4">
-                {paymentError}
-              </div>
-            )}
+        {/* Payment Error */}
+        {paymentError && (
+          <div className="mt-4 p-3 bg-red-50 text-red-600 rounded-md">
+            {paymentError}
           </div>
         )}
-      </div>
 
-      {/* Navigation Buttons */}
-      <div className="flex justify-between">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onBack}>
-          Back to Shipping
-        </Button>
-
-        {/* Only show this button if using a saved card */}
-        {!useNewCard && (
+        {/* Navigation Buttons */}
+        <div className="flex justify-between mt-6">
           <Button
-            type="button"
+            variant="outline"
+            onClick={onBack}>
+            {t("backToShippingMethod", "Înapoi la metoda de livrare")}
+          </Button>
+          <Button
             onClick={() => {
-              const selectedCard = savedCards.find(
-                (card) => card.id === selectedPaymentMethod
-              );
-              if (selectedCard) {
-                const savedCardPaymentDetails: PaymentDetails = {
-                  cardholderName: selectedCard.cardholderName,
-                  cardNumber: `•••• •••• •••• ${selectedCard.lastFourDigits}`,
-                  savedCardId: selectedCard.id,
-                  expiryDate: `${selectedCard.expiryMonth}/${selectedCard.expiryYear}`,
-                  cardType: selectedCard.cardType,
-                };
+              // If using a saved card, handle submission here
+              if (!useNewCard && selectedPaymentMethod !== "new") {
+                const selectedCard = savedCards.find(
+                  (card) => card.id === selectedPaymentMethod
+                );
+                if (selectedCard) {
+                  // Create payment details from the selected card
+                  const savedCardPaymentDetails: PaymentDetails = {
+                    cardholderName: selectedCard.cardholderName,
+                    cardNumber: `•••• •••• •••• ${selectedCard.lastFourDigits}`,
+                    savedCardId: selectedCard.id,
+                    expiryDate: `${selectedCard.expiryMonth}/${selectedCard.expiryYear}`,
+                    cardType: selectedCard.cardType,
+                    // We don't need actual card details for a saved card
+                  };
 
-                handlePaymentSuccess(savedCardPaymentDetails);
+                  onSubmit({
+                    paymentDetails: savedCardPaymentDetails,
+                    billingAddressSameAsShipping: useSameAddress,
+                    billingAddress: useSameAddress
+                      ? undefined
+                      : currentBillingAddress,
+                  });
+                }
+              } else if (showBillingForm && !currentBillingAddress) {
+                // Scroll to the billing form if it's needed but empty
+                // In a real app, you'd want to validate the form first
+              } else {
+                // Otherwise, trigger the Stripe form submission
+                const submitButton = document.querySelector(
+                  ".stripe-submit-button"
+                ) as HTMLButtonElement;
+                if (submitButton) {
+                  submitButton.click();
+                }
               }
             }}>
-            Continue to Review
+            {t("continueToReview", "Continuă la verificare")}
           </Button>
-        )}
+        </div>
       </div>
     </div>
   );

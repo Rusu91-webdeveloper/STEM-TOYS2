@@ -39,6 +39,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
+import { useCurrency } from "@/lib/currency";
 
 // Type definitions
 type Customer = {
@@ -61,6 +62,7 @@ type Pagination = {
 export default function CustomersPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const { formatPrice } = useCurrency();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [pagination, setPagination] = useState<Pagination>({
     total: 0,
@@ -373,15 +375,20 @@ export default function CustomersPage() {
                       <td className="px-4 py-4">{customer.joined}</td>
                       <td className="px-4 py-4">{customer.orders}</td>
                       <td className="px-4 py-4 font-medium">
-                        ${customer.spent.toFixed(2)}
+                        {formatPrice(customer.spent)}
                       </td>
                       <td className="px-4 py-4">
                         <span
                           className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                             customer.status === "Active"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-gray-100 text-gray-800"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-gray-100 text-gray-700"
                           }`}>
+                          {customer.status === "Active" ? (
+                            <UserCheck className="mr-1 h-3 w-3" />
+                          ) : (
+                            <UserX className="mr-1 h-3 w-3" />
+                          )}
                           {customer.status}
                         </span>
                       </td>

@@ -8,6 +8,7 @@ import { LogOut } from "lucide-react";
 import SidebarNav, { adminNavItems } from "./components/sidebar-nav";
 import { useSession, signOut } from "next-auth/react";
 import { useEffect } from "react";
+import { CurrencyProvider, currencies } from "@/lib/currency";
 
 export default function AdminLayout({
   children,
@@ -91,7 +92,9 @@ export default function AdminLayout({
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 ml-64 p-6">{children}</main>
+        <main className="flex-1 ml-64 p-6">
+          <CurrencyProvider>{children}</CurrencyProvider>
+        </main>
       </div>
     </div>
   );

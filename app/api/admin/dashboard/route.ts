@@ -188,7 +188,7 @@ export async function GET(request: NextRequest) {
       id: order.orderNumber,
       customer: order.user?.name || "Guest User",
       date: order.createdAt.toISOString().split("T")[0],
-      amount: `$${order.total.toFixed(2)}`,
+      amount: order.total, // Return as number for client-side formatting with RON
       status:
         order.status.charAt(0).toUpperCase() +
         order.status.slice(1).toLowerCase(),
@@ -198,7 +198,7 @@ export async function GET(request: NextRequest) {
     const stats = [
       {
         title: "Total Revenue",
-        value: `$${(totalRevenue._sum.total || 0).toFixed(2)}`,
+        value: totalRevenue._sum.total || 0, // Return as number for client-side formatting with RON
         change: calculateChange(
           totalRevenue._sum.total || 0,
           prevTotalRevenue._sum.total || 0

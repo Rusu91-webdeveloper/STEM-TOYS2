@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Loader2, ArrowRight, ShoppingBag } from "lucide-react";
+import { useTranslation } from "@/lib/i18n";
 
 interface CheckoutTransitionProps {
   destination: "checkout" | "login";
@@ -13,6 +14,7 @@ export function CheckoutTransition({
   onComplete,
 }: CheckoutTransitionProps) {
   const [progress, setProgress] = useState(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Simulate progress to make animation smoother
@@ -47,13 +49,19 @@ export function CheckoutTransition({
 
         <h2 className="text-2xl font-semibold text-indigo-900 mb-3">
           {destination === "checkout"
-            ? "Preparing Your Checkout..."
-            : "Taking you to login..."}
+            ? t("preparingCheckout", "Preparing Your Checkout...")
+            : t("takingToLogin", "Taking you to login...")}
         </h2>
         <p className="text-indigo-600 mb-6">
           {destination === "checkout"
-            ? "Getting your order ready for checkout. Just a moment..."
-            : "Please log in to continue with checkout. Redirecting you now..."}
+            ? t(
+                "gettingOrderReady",
+                "Getting your order ready for checkout. Just a moment..."
+              )
+            : t(
+                "pleaseLogIn",
+                "Please log in to continue with checkout. Redirecting you now..."
+              )}
         </p>
 
         {/* Progress bar */}

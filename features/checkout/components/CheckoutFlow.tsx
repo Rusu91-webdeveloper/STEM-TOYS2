@@ -11,10 +11,12 @@ import { CheckoutStepper } from "./CheckoutStepper";
 import { createOrder } from "../lib/checkoutApi";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/features/cart";
+import { useTranslation } from "@/lib/i18n";
 
 export function CheckoutFlow() {
   const router = useRouter();
   const { clearCart } = useCart();
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] =
     useState<CheckoutStep>("shipping-address");
   const [checkoutData, setCheckoutData] = useState<CheckoutData>({
@@ -75,7 +77,7 @@ export function CheckoutFlow() {
       const result = await createOrder(orderData);
 
       if (!result) {
-        throw new Error("Failed to create order");
+        throw new Error(t("failedToCreateOrder", "Failed to create order"));
       }
 
       // Clear the cart
@@ -85,7 +87,11 @@ export function CheckoutFlow() {
       router.push(`/checkout/confirmation?orderId=${result.orderId}`);
     } catch (error) {
       setOrderError(
-        (error as Error).message || "An error occurred while placing your order"
+        (error as Error).message ||
+          t(
+            "orderProcessingError",
+            "An error occurred while placing your order"
+          )
       );
       setIsProcessingOrder(false);
     }

@@ -407,7 +407,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/emanuelrusu/Desktop/e-comerce/stem-toys-manus/How to Build an E-commerce Website from Provided Files/nextcommerce/app/generated/prisma",
+      "value": "/Users/emanuelrusu/Desktop/e-comerce/stem-toys-cloned/STEM-TOYS2/app/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -421,12 +421,11 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/emanuelrusu/Desktop/e-comerce/stem-toys-manus/How to Build an E-commerce Website from Provided Files/nextcommerce/prisma/schema.prisma",
+    "sourceFilePath": "/Users/emanuelrusu/Desktop/e-comerce/stem-toys-cloned/STEM-TOYS2/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../../prisma",
   "clientVersion": "6.9.0",
@@ -435,7 +434,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
+  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {

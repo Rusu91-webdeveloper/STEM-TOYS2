@@ -101,7 +101,9 @@ export function ProductCard({
         )}>
         <div className="relative w-full xs:w-1/3 h-48 xs:h-auto xs:max-w-[240px]">
           <Link href={`/products/${product.slug}`}>
-            <div className="relative h-full w-full">
+            <div
+              className="relative h-full w-full"
+              style={{ position: "relative" }}>
               <Image
                 src={imageUrl}
                 alt={product.name}
@@ -181,6 +183,7 @@ export function ProductCard({
         className="relative overflow-hidden"
         style={{
           height: calculatedHeight, // Use the calculated height based on screen size
+          position: "relative", // Add this to fix the Image fill warning
         }}>
         <Link href={`/products/${product.slug}`}>
           <Image
