@@ -3,10 +3,15 @@ import Stripe from "stripe";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { cookies } from "next/headers";
+import { getRequiredEnvVar } from "@/lib/env";
 
-// Initialize Stripe with a dummy key for testing if not provided
-const stripeSecretKey =
-  process.env.STRIPE_SECRET_KEY || "sk_test_dummy_key_for_testing";
+// Initialize Stripe with proper error handling for required keys
+const stripeSecretKey = getRequiredEnvVar(
+  "STRIPE_SECRET_KEY",
+  "Stripe secret key is required for payment processing. Please set the STRIPE_SECRET_KEY environment variable.",
+  true // Allow development placeholder in non-production environments
+);
+
 const stripe = new Stripe(stripeSecretKey);
 
 // Schema for validating the request body
@@ -23,15 +28,22 @@ export async function POST(request: Request) {
     // Validate the request
     const { amount } = paymentIntentSchema.parse(body);
 
+    // Create metadata including userId if available
+    const metadata: Record<string, string> = {
+      integration_check: "nextcommerce_payment",
+    };
+
+    // Only add userId if it exists
+    if (session?.user?.id) {
+      metadata.userId = session.user.id.toString();
+    }
+
     // Create a PaymentIntent with the order amount and currency
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: "usd",
       // Verify your integration by passing this to metadata
-      metadata: {
-        integration_check: "nextcommerce_payment",
-        userId: session?.user?.id,
-      },
+      metadata,
     });
 
     return NextResponse.json({

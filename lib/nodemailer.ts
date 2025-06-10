@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { logger } from "./logger";
 
 // Load environment variables
 const EMAIL_HOST = process.env.EMAIL_HOST || "smtp.gmail.com";
@@ -9,10 +10,8 @@ const EMAIL_FROM = process.env.EMAIL_FROM || "";
 
 // Check configuration on startup
 if (!EMAIL_USER || !EMAIL_PASS) {
-  console.warn(
-    "⚠️ Email credentials are not properly configured in .env.local!"
-  );
-  console.warn(
+  logger.warn("Email credentials are not properly configured in .env.local!");
+  logger.warn(
     "Required variables: EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS, EMAIL_FROM"
   );
 }
@@ -28,19 +27,20 @@ export const transporter = nodemailer.createTransport({
   },
   // Required for Gmail since May 30, 2022
   tls: {
-    // Do not fail on invalid certificates
-    rejectUnauthorized: false,
+    // Only disable certificate validation in development
+    rejectUnauthorized: process.env.NODE_ENV !== "development",
   },
 });
 
 // For development environment, provide console-based email simulation
 const devTransporter = {
   sendMail: async (options: any) => {
-    console.log(`\n📧 [DEV MODE] Email would be sent:`);
-    console.log(`From: ${options.from}`);
-    console.log(`To: ${options.to}`);
-    console.log(`Subject: ${options.subject}`);
-    console.log(`HTML Content: ${options.html.substring(0, 300)}...`);
+    logger.debug("Email would be sent (DEV MODE)", {
+      from: options.from,
+      to: options.to,
+      subject: options.subject,
+      contentPreview: options.html.substring(0, 100) + "...",
+    });
     return { messageId: `dev-${Date.now()}@localhost` };
   },
   verify: async () => true,
@@ -56,11 +56,11 @@ const activeTransporter =
 activeTransporter
   .verify()
   .then(() => {
-    console.log("✅ Email transport configured successfully");
+    logger.info("Email transport configured successfully");
   })
   .catch((error) => {
-    console.error("❌ Email transport configuration failed:", error);
-    console.log("📝 Will use fallback development mode for emails");
+    logger.error("Email transport configuration failed", error);
+    logger.info("Will use fallback development mode for emails");
   });
 
 // Send an email using Nodemailer
@@ -83,11 +83,12 @@ export async function sendMail({
       process.env.NODE_ENV === "development" &&
       (!EMAIL_USER || !EMAIL_PASS)
     ) {
-      console.log(`\n📧 [DEV MODE] Email would be sent:`);
-      console.log(`From: ${from}`);
-      console.log(`To: ${typeof to === "string" ? to : to.join(", ")}`);
-      console.log(`Subject: ${subject}`);
-      console.log(`HTML Content: ${html.substring(0, 300)}...`);
+      logger.debug("Email would be sent (DEV MODE)", {
+        from,
+        to: typeof to === "string" ? to : to.join(", "),
+        subject,
+        contentPreview: html.substring(0, 100) + "...",
+      });
       return { success: true, messageId: `dev-${Date.now()}@localhost` };
     }
 
@@ -100,17 +101,18 @@ export async function sendMail({
       html,
     });
 
-    console.log(`✅ Email sent: ${info.messageId}`);
+    logger.info("Email sent successfully", { messageId: info.messageId });
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error("❌ Error sending email:", error);
+    logger.error("Error sending email", error);
 
     // In development mode, simulate success
     if (process.env.NODE_ENV === "development") {
-      console.log(`\n📧 [DEV MODE] Email would be sent despite error:`);
-      console.log(`From: ${from}`);
-      console.log(`To: ${typeof to === "string" ? to : to.join(", ")}`);
-      console.log(`Subject: ${subject}`);
+      logger.debug("Email would be sent despite error (DEV MODE)", {
+        from,
+        to: typeof to === "string" ? to : to.join(", "),
+        subject,
+      });
       return { success: true, messageId: `dev-error-${Date.now()}@localhost` };
     }
 

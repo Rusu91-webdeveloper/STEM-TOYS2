@@ -1,13 +1,29 @@
 import { PrismaClient } from "../app/generated/prisma";
 import { hash } from "bcrypt";
+import * as dotenv from "dotenv";
+import * as path from "path";
+import * as fs from "fs";
+
+// Load environment variables from .env.local file
+const envLocalPath = path.resolve(process.cwd(), ".env.local");
+if (fs.existsSync(envLocalPath)) {
+  dotenv.config({ path: envLocalPath });
+  console.log("Loaded environment variables from .env.local");
+} else {
+  dotenv.config(); // Fallback to .env if .env.local doesn't exist
+  console.log("Loaded environment variables from .env (fallback)");
+}
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log("Starting database seeding...");
 
-  // Create an admin user
-  const adminEmail = "admin@stemtoys.com";
+  // Create an admin user using environment variables if available
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@stemtoys.com";
+  const adminName = process.env.ADMIN_NAME || "Admin User";
+  const adminPassword = process.env.ADMIN_PASSWORD || "Admin123!";
+
   const existingAdmin = await prisma.user.findUnique({
     where: { email: adminEmail },
   });
@@ -15,9 +31,9 @@ async function main() {
   if (!existingAdmin) {
     const adminUser = await prisma.user.create({
       data: {
-        name: "Admin User",
+        name: adminName,
         email: adminEmail,
-        password: await hash("Admin123!", 10),
+        password: await hash(adminPassword, 12),
         role: "ADMIN",
         isActive: true,
         emailVerified: new Date(),

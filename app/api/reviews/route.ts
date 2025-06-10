@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { logger } from "@/lib/logger";
+import {
+  withErrorHandling,
+  notFound,
+  unauthorized,
+  forbidden,
+  conflict,
+  handleZodError,
+} from "@/lib/api-error";
 
 // Schema for validating review submission
 const reviewSchema = z.object({
@@ -12,19 +21,16 @@ const reviewSchema = z.object({
   content: z.string().min(10).max(1000),
 });
 
-export async function POST(req: NextRequest) {
-  try {
-    // Verify authentication
-    const session = await auth();
-    if (!session || !session.user) {
-      return NextResponse.json(
-        { error: "Unauthorized. Please log in to submit a review." },
-        { status: 401 }
-      );
-    }
+export const POST = withErrorHandling(async (req: NextRequest) => {
+  // Verify authentication
+  const session = await auth();
+  if (!session || !session.user) {
+    return unauthorized("You must be logged in to submit a review");
+  }
 
-    // Parse and validate request body
-    const body = await req.json();
+  // Parse and validate request body
+  const body = await req.json();
+  try {
     const validatedData = reviewSchema.parse(body);
 
     // Check if the order item belongs to the user and is in "delivered" status
@@ -38,26 +44,17 @@ export async function POST(req: NextRequest) {
     });
 
     if (!orderItem) {
-      return NextResponse.json(
-        { error: "Order item not found" },
-        { status: 404 }
-      );
+      return notFound("The specified order item does not exist");
     }
 
     // Verify that the order belongs to the user
     if (orderItem.order.userId !== session.user.id) {
-      return NextResponse.json(
-        { error: "You can only review items from your own orders" },
-        { status: 403 }
-      );
+      return forbidden("You can only review items from your own orders");
     }
 
     // Verify that the order is delivered
     if (orderItem.order.status !== "DELIVERED") {
-      return NextResponse.json(
-        { error: "You can only review items from delivered orders" },
-        { status: 403 }
-      );
+      return forbidden("You can only review items from delivered orders");
     }
 
     // Check if the user has already reviewed this order item
@@ -69,10 +66,7 @@ export async function POST(req: NextRequest) {
     });
 
     if (existingReview) {
-      return NextResponse.json(
-        { error: "You have already reviewed this item" },
-        { status: 409 }
-      );
+      return conflict("You have already reviewed this item");
     }
 
     // Create the review
@@ -87,69 +81,60 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    logger.info("Created review", {
+      reviewId: review.id,
+      productId: review.productId,
+    });
     return NextResponse.json(review, { status: 201 });
   } catch (error) {
-    console.error("Error creating review:", error);
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: "Invalid review data", details: error.errors },
-        { status: 400 }
-      );
+      return handleZodError(error);
     }
-    return NextResponse.json(
-      { error: "Failed to create review" },
-      { status: 500 }
-    );
+    throw error; // Let the withErrorHandling wrapper catch this
   }
-}
+});
 
-export async function GET(req: NextRequest) {
-  try {
-    const url = new URL(req.url);
-    const productId = url.searchParams.get("productId");
+export const GET = withErrorHandling(async (req: NextRequest) => {
+  const url = new URL(req.url);
+  const productId = url.searchParams.get("productId");
 
-    if (!productId) {
-      return NextResponse.json(
-        { error: "Product ID is required" },
-        { status: 400 }
-      );
-    }
+  if (!productId) {
+    return notFound("Product ID is required");
+  }
 
-    const reviews = await db.review.findMany({
-      where: {
-        productId,
-      },
-      include: {
-        user: {
-          select: {
-            name: true,
-          },
+  const reviews = await db.review.findMany({
+    where: {
+      productId,
+    },
+    include: {
+      user: {
+        select: {
+          name: true,
         },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
 
-    // Format the reviews for the frontend
-    const formattedReviews = reviews.map((review) => ({
-      id: review.id,
-      productId: review.productId,
-      userId: review.userId,
-      userName: review.user.name || "Anonymous",
-      rating: review.rating,
-      title: review.title,
-      content: review.content,
-      date: review.createdAt.toISOString(),
-      verified: true, // Since we verify that the user purchased the item
-    }));
+  // Format the reviews for the frontend
+  const formattedReviews = reviews.map((review) => ({
+    id: review.id,
+    productId: review.productId,
+    userId: review.userId,
+    userName: review.user.name || "Anonymous",
+    rating: review.rating,
+    title: review.title,
+    content: review.content,
+    date: review.createdAt.toISOString(),
+    verified: true, // Since we verify that the user purchased the item
+  }));
 
-    return NextResponse.json(formattedReviews);
-  } catch (error) {
-    console.error("Error fetching reviews:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch reviews" },
-      { status: 500 }
-    );
-  }
-}
+  logger.info("Fetched product reviews", {
+    productId,
+    count: reviews.length,
+  });
+
+  return NextResponse.json(formattedReviews);
+});

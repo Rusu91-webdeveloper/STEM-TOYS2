@@ -1,9 +1,13 @@
 import Stripe from "stripe";
+import { getRequiredEnvVar } from "./env";
 
 // Initialize Stripe with the secret key from environment variable
-// In a real app, this would be set in .env.local
-const stripeSecretKey =
-  process.env.STRIPE_SECRET_KEY || "sk_test_your_test_key";
+// Throw an error if the key is not set in production
+const stripeSecretKey = getRequiredEnvVar(
+  "STRIPE_SECRET_KEY",
+  "Stripe secret key is required for payment processing. Please set the STRIPE_SECRET_KEY environment variable.",
+  true // Allow development placeholder in non-production environments
+);
 
 // Create a Stripe instance
 const stripe = new Stripe(stripeSecretKey);

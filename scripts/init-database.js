@@ -2,6 +2,7 @@
 // Execute with: node scripts/init-database.js
 const { PrismaClient } = require("../app/generated/prisma");
 const bcrypt = require("bcrypt");
+require("dotenv").config();
 
 const prisma = new PrismaClient();
 
@@ -11,45 +12,55 @@ async function main() {
   try {
     // 1. Create Admin User
     console.log("\n📝 Creating admin user...");
-    const adminEmail = "rusu.emanuel.webdeveloper@gmail.com";
-    const adminPassword = "Itist199!"; // This will be hashed before storage
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminName = process.env.ADMIN_NAME || "Admin User";
+    const adminPassword = process.env.ADMIN_PASSWORD;
 
-    const existingAdmin = await prisma.user.findUnique({
-      where: { email: adminEmail },
-    });
-
-    let adminUser;
-    if (existingAdmin) {
-      console.log(
-        `Admin user already exists: ${adminEmail}. Updating role and activating...`
+    if (!adminEmail || !adminPassword) {
+      console.error("Admin credentials not set in environment variables.");
+      console.error(
+        "Please set ADMIN_EMAIL, ADMIN_NAME, and ADMIN_PASSWORD in your .env file."
       );
-
-      adminUser = await prisma.user.update({
-        where: { email: adminEmail },
-        data: {
-          role: "ADMIN",
-          isActive: true,
-          emailVerified: new Date(),
-        },
-      });
-
-      console.log(`✅ Updated admin user: ${adminUser.email}`);
+      console.log("Skipping admin user creation...");
     } else {
-      // Create the admin user
-      const hashedPassword = await bcrypt.hash(adminPassword, 10);
-
-      adminUser = await prisma.user.create({
-        data: {
-          name: "Emanuel Rusu",
-          email: adminEmail,
-          password: hashedPassword,
-          role: "ADMIN",
-          isActive: true,
-          emailVerified: new Date(),
-        },
+      const existingAdmin = await prisma.user.findUnique({
+        where: { email: adminEmail },
       });
 
-      console.log(`✅ Created admin user: ${adminUser.email}`);
+      let adminUser;
+      if (existingAdmin) {
+        console.log(
+          `Admin user already exists: ${adminEmail}. Updating role and activating...`
+        );
+
+        adminUser = await prisma.user.update({
+          where: { email: adminEmail },
+          data: {
+            name: adminName,
+            role: "ADMIN",
+            isActive: true,
+            emailVerified: new Date(),
+          },
+        });
+
+        console.log(`✅ Updated admin user: ${adminUser.email}`);
+      } else {
+        // Create the admin user
+        const hashedPassword = await bcrypt.hash(adminPassword, 12);
+
+        adminUser = await prisma.user.create({
+          data: {
+            name: adminName,
+            email: adminEmail,
+            password: hashedPassword,
+            role: "ADMIN",
+            isActive: true,
+            emailVerified: new Date(),
+          },
+        });
+
+        console.log(`✅ Created admin user: ${adminUser.email}`);
+      }
     }
 
     // 2. Create Categories

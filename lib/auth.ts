@@ -1,18 +1,42 @@
 import NextAuth from "next-auth";
-import type { DefaultSession } from "next-auth";
+import { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { db } from "@/lib/db";
-import { compare, hash } from "bcrypt";
+import { compare } from "bcrypt";
+import { logger } from "@/lib/logger";
+import { hashAdminPassword, verifyAdminPassword } from "@/lib/admin-auth";
+
+// Extended user type that includes our custom fields
+interface ExtendedUser {
+  id: string;
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  isActive?: boolean;
+  role?: string;
+}
 
 // Extend the session types
 declare module "next-auth" {
-  interface Session extends DefaultSession {
+  interface Session {
     user: {
       id: string;
       isActive?: boolean;
       role?: string;
-    } & DefaultSession["user"];
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+    };
+  }
+}
+
+// Extend the JWT token types
+declare module "next-auth/jwt" {
+  interface JWT {
+    id?: string;
+    isActive?: boolean;
+    role?: string;
   }
 }
 
@@ -20,11 +44,32 @@ declare module "next-auth" {
 const createMockAdminFromEnv = async () => {
   const adminEmail = process.env.ADMIN_EMAIL;
   const adminName = process.env.ADMIN_NAME;
+
+  // Look for hashed password first (preferred), fall back to plaintext
+  const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
   const adminPassword = process.env.ADMIN_PASSWORD;
 
-  if (adminEmail && adminPassword) {
-    // Hash the admin password
-    const hashedPassword = await hash(adminPassword, 10);
+  if (!adminEmail) {
+    return null;
+  }
+
+  if (adminPasswordHash) {
+    // Use the pre-hashed password directly
+    return {
+      id: "admin_env",
+      name: adminName || "Admin User",
+      email: adminEmail,
+      password: adminPasswordHash,
+      isActive: true,
+      role: "ADMIN",
+      passwordIsHashed: true, // Flag to indicate the password is already hashed
+    };
+  } else if (adminPassword) {
+    // Hash the plaintext password
+    logger.warn(
+      "Using plaintext ADMIN_PASSWORD from environment variables. Consider using ADMIN_PASSWORD_HASH instead for better security."
+    );
+    const hashedPassword = await hashAdminPassword(adminPassword);
 
     return {
       id: "admin_env",
@@ -35,42 +80,29 @@ const createMockAdminFromEnv = async () => {
       role: "ADMIN",
     };
   }
+
   return null;
 };
 
-// For development/testing without an actual database
-// Export mockUsers so they can be imported and updated by API routes
-export const mockUsers = [
-  {
-    id: "user_1",
-    name: "Test User",
-    email: "test@example.com",
-    password: "$2a$10$lZ1zCDOkW0F6VfW.Vr7Y7.lNzFDLaC5OYqiWSDURcH3TEuStNRQO2", // "password123"
-    isActive: true,
-    role: "CUSTOMER",
-  },
-  {
-    id: "user_2",
-    name: "Admin User",
-    email: "admin@example.com",
-    password: "$2a$10$lZ1zCDOkW0F6VfW.Vr7Y7.lNzFDLaC5OYqiWSDURcH3TEuStNRQO2", // "password123"
-    isActive: true,
-    role: "ADMIN",
-  },
-  {
-    id: "user_3",
-    name: "Emanuel Rusu",
-    email: "rusu.emanuel.webdeveloper@gmail.com",
-    password: "$2a$10$lZ1zCDOkW0F6VfW.Vr7Y7.lNzFDLaC5OYqiWSDURcH3TEuStNRQO2", // "password123"
-    isActive: true,
-    role: "CUSTOMER",
-  },
-];
-
 // Initialize auth options
-export const authOptions = {
+export const authOptions: NextAuthConfig = {
   session: {
     strategy: "jwt",
+  },
+  // Secure cookie settings
+  cookies: {
+    sessionToken: {
+      name:
+        process.env.NODE_ENV === "production"
+          ? "__Secure-next-auth.session-token"
+          : "next-auth.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
   },
   providers: [
     GoogleProvider({
@@ -86,91 +118,98 @@ export const authOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          console.log("Missing credentials");
+          logger.warn("Missing credentials for login attempt");
           return null;
         }
 
         try {
           // Find user in database
-          let user;
-          let mockUser;
+          let user: any = null;
 
-          // Force mock data mode if not explicitly set
-          const useMockData =
-            process.env.USE_MOCK_DATA === "true" ||
-            process.env.NODE_ENV === "development";
+          // Check if we should use the development admin account
+          const isDevelopmentEnv = process.env.NODE_ENV === "development";
+          const useEnvAdmin =
+            process.env.USE_ENV_ADMIN === "true" || isDevelopmentEnv;
 
-          // First, try to find a mock user if we're in development mode
-          if (useMockData) {
-            console.log("Checking mock data for authentication");
-
-            // Check if the credentials match our environment-based admin
-            if (credentials.email === process.env.ADMIN_EMAIL) {
-              // Create the admin user on the fly
-              const envAdmin = await createMockAdminFromEnv();
-              if (envAdmin) {
-                console.log("Using admin from environment variables");
-                mockUser = envAdmin;
-              }
-            } else {
-              // Regular mock user
-              mockUser = mockUsers.find((u) => u.email === credentials.email);
-            }
-
-            if (mockUser) {
-              console.log("Found user in mock data");
-              user = mockUser;
+          // Check if admin credentials from environment should be used
+          if (useEnvAdmin && credentials.email === process.env.ADMIN_EMAIL) {
+            logger.info("Using admin from environment variables");
+            const envAdmin = await createMockAdminFromEnv();
+            if (envAdmin) {
+              user = envAdmin;
             }
           }
 
-          // If no mock user was found or we're not in mock data mode, try the database
+          // If no admin user was found or not using environment admin,
+          // try to find the user in the database
           if (!user) {
-            console.log(
-              `Looking up user with email in database: ${credentials.email}`
-            );
+            logger.debug("Looking up user in database", {
+              email: credentials.email,
+            });
             try {
               user = await db.user.findUnique({
                 where: { email: credentials.email },
               });
 
               if (user) {
-                console.log("Found user in database");
+                logger.debug("Found user in database", { userId: user.id });
               }
             } catch (dbError) {
-              console.error("Database error:", dbError);
-              // If DB error and we have a mock user, use that instead
-              if (mockUser) {
-                user = mockUser;
-              }
+              logger.error("Database error during login", dbError);
+              return null;
             }
           }
 
           if (!user) {
-            console.log("User not found in mock data or database");
+            logger.warn("User not found during login attempt", {
+              email: credentials.email,
+            });
             return null;
           }
 
           // Verify password
-          console.log("Checking password...");
-          const passwordMatch = await compare(
-            credentials.password,
-            user.password
-          );
+          logger.debug("Checking password for user", { userId: user.id });
+
+          let passwordMatch = false;
+          if (user.passwordIsHashed) {
+            // Direct comparison for pre-hashed admin password
+            passwordMatch = user.password === credentials.password;
+          } else if (user.id === "admin_env") {
+            // For environment variable admin using our secure hashing
+            passwordMatch = await verifyAdminPassword(
+              credentials.password,
+              user.password as string
+            );
+          } else {
+            // Standard database user with bcrypt hash
+            passwordMatch = await compare(
+              credentials.password,
+              user.password as string
+            );
+          }
 
           if (!passwordMatch) {
-            console.log("Password doesn't match");
+            logger.warn("Password mismatch during login attempt", {
+              userId: user.id,
+            });
             return null;
           }
 
           // Check if user is active (email verified)
           if (!user.isActive) {
-            console.log("User account not verified");
+            logger.warn("Login attempt with unverified account", {
+              userId: user.id,
+            });
             throw new Error(
               "Account not verified. Please check your email for verification link."
             );
           }
 
-          console.log("Authentication successful");
+          logger.info("Authentication successful", {
+            userId: user.id,
+            role: user.role,
+          });
+
           // Return user without password
           return {
             id: user.id,
@@ -180,7 +219,7 @@ export const authOptions = {
             role: user.role,
           };
         } catch (error) {
-          console.error("Auth error:", error);
+          logger.error("Auth error", error);
           throw error;
         }
       },
@@ -188,21 +227,18 @@ export const authOptions = {
   ],
   callbacks: {
     async session({ session, token }) {
-      if (token) {
-        session.user.id = token.sub;
-        session.user.isActive = token.isActive;
-        session.user.role = token.role;
+      if (token && session.user) {
+        session.user.id = token.sub || "";
+        session.user.isActive = token.isActive as boolean;
+        session.user.role = token.role as string;
       }
       return session;
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.isActive = user.isActive;
-        token.role = user.role;
-      }
-      if (account) {
-        token.accessToken = account.access_token;
+        token.isActive = (user as any).isActive;
+        token.role = (user as any).role;
       }
       return token;
     },
@@ -210,7 +246,6 @@ export const authOptions = {
   debug: process.env.NODE_ENV === "development",
   pages: {
     signIn: "/auth/login",
-    signUp: "/auth/register",
     error: "/auth/error",
   },
   secret: process.env.NEXTAUTH_SECRET || "placeholder-secret-for-development",

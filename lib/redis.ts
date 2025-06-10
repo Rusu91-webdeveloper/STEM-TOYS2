@@ -1,9 +1,13 @@
 import { Redis } from "@upstash/redis";
 
+// Get Redis timeout from environment variables with a default of 5 seconds
+const REDIS_TIMEOUT = parseInt(process.env.REDIS_TIMEOUT || "5000", 10);
+
 // Create Redis client with connection info from environment variables
 export const redis = new Redis({
   url: process.env.REDIS_URL || "",
   token: process.env.REDIS_TOKEN || "",
+  automaticDeserialization: true,
 });
 
 // Check if Redis is configured
@@ -12,8 +16,35 @@ const isRedisConfigured = !!(process.env.REDIS_URL && process.env.REDIS_TOKEN);
 // Use a memory fallback when Redis is not available
 const memoryCache = new Map<string, { value: string; expiry: number }>();
 
+/**
+ * Execute a Redis operation with a timeout to prevent hanging in case of Redis issues
+ * @param operation The async Redis operation to execute
+ * @param fallbackFn Function to call if the operation times out or fails
+ * @returns Result of the operation or fallback
+ */
+async function withTimeout<T>(
+  operation: Promise<T>,
+  fallbackFn: () => T
+): Promise<T> {
+  try {
+    // Create a promise that rejects after the timeout
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error(`Redis operation timed out after ${REDIS_TIMEOUT}ms`));
+      }, REDIS_TIMEOUT);
+    });
+
+    // Race the operation against the timeout
+    return await Promise.race([operation, timeoutPromise]);
+  } catch (error) {
+    console.error("Redis operation failed or timed out:", error);
+    // Execute fallback function if operation fails or times out
+    return fallbackFn();
+  }
+}
+
 // Helper functions for cart caching
-export async function getCartFromCache(userId: string) {
+export async function getCartFromCache(userId: string): Promise<string | null> {
   try {
     if (!isRedisConfigured) {
       // Use memory cache fallback
@@ -24,8 +55,12 @@ export async function getCartFromCache(userId: string) {
       return null;
     }
 
-    // Use Redis
-    return await redis.get(`cart:${userId}`);
+    // Use Redis with timeout
+    return await withTimeout<string | null>(redis.get(`cart:${userId}`), () => {
+      // Fallback to memory cache on timeout
+      const item = memoryCache.get(`cart:${userId}`);
+      return item && item.expiry > Date.now() ? item.value : null;
+    });
   } catch (error) {
     console.error("Redis get error:", error);
     // Fallback to memory cache on Redis error
@@ -38,7 +73,7 @@ export async function setCartInCache(
   userId: string,
   cart: any,
   expirationSeconds = 600
-) {
+): Promise<boolean> {
   const cartString = JSON.stringify(cart);
 
   try {
@@ -51,10 +86,22 @@ export async function setCartInCache(
       return true;
     }
 
-    // Use Redis
-    return await redis.set(`cart:${userId}`, cartString, {
-      ex: expirationSeconds,
-    });
+    // Use Redis with timeout
+    return await withTimeout<boolean>(
+      redis
+        .set(`cart:${userId}`, cartString, {
+          ex: expirationSeconds,
+        })
+        .then(() => true),
+      () => {
+        // Fallback to memory cache on timeout
+        memoryCache.set(`cart:${userId}`, {
+          value: cartString,
+          expiry: Date.now() + expirationSeconds * 1000,
+        });
+        return false;
+      }
+    );
   } catch (error) {
     console.error("Redis set error:", error);
     // Fallback to memory cache on Redis error
@@ -66,7 +113,7 @@ export async function setCartInCache(
   }
 }
 
-export async function invalidateCartCache(userId: string) {
+export async function invalidateCartCache(userId: string): Promise<boolean> {
   try {
     if (!isRedisConfigured) {
       // Use memory cache fallback
@@ -74,8 +121,15 @@ export async function invalidateCartCache(userId: string) {
       return true;
     }
 
-    // Use Redis
-    return await redis.del(`cart:${userId}`);
+    // Use Redis with timeout
+    return await withTimeout<boolean>(
+      redis.del(`cart:${userId}`).then((count) => count > 0),
+      () => {
+        // Fallback to memory cache on timeout
+        memoryCache.delete(`cart:${userId}`);
+        return false;
+      }
+    );
   } catch (error) {
     console.error("Redis del error:", error);
     // Fallback to memory cache on Redis error

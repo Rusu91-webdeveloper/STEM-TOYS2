@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
+import { getRequiredEnvVar } from "@/lib/env";
 
-// Initialize Stripe with a dummy key for testing if not provided
-const stripeSecretKey =
-  process.env.STRIPE_SECRET_KEY || "sk_test_dummy_key_for_testing";
+// Initialize Stripe with proper error handling for required keys
+const stripeSecretKey = getRequiredEnvVar(
+  "STRIPE_SECRET_KEY",
+  "Stripe secret key is required for payment processing. Please set the STRIPE_SECRET_KEY environment variable.",
+  true // Allow development placeholder in non-production environments
+);
+
 const stripe = new Stripe(stripeSecretKey);
 
 export async function POST(request: Request) {

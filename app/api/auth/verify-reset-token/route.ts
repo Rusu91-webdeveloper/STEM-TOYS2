@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { withRateLimit } from "@/lib/rate-limit";
 
-export async function GET(request: NextRequest) {
+// Handle the verify reset token request
+async function handleVerifyResetToken(request: NextRequest) {
   try {
     const token = request.nextUrl.searchParams.get("token");
 
@@ -32,3 +34,10 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+// Apply rate limiting to the verify reset token endpoint
+// Limit to 5 requests per IP address per 5 minutes
+export const GET = withRateLimit(handleVerifyResetToken, {
+  limit: 5,
+  windowMs: 5 * 60 * 1000, // 5 minutes
+});

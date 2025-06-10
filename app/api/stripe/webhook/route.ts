@@ -1,13 +1,22 @@
 import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { headers } from "next/headers";
+import { getRequiredEnvVar } from "@/lib/env";
 
-// Initialize Stripe with a dummy key for testing if not provided
-const stripeSecretKey =
-  process.env.STRIPE_SECRET_KEY || "sk_test_dummy_key_for_testing";
+// Initialize Stripe with proper error handling for required keys
+const stripeSecretKey = getRequiredEnvVar(
+  "STRIPE_SECRET_KEY",
+  "Stripe secret key is required for webhook processing. Please set the STRIPE_SECRET_KEY environment variable.",
+  true // Allow development placeholder in non-production environments
+);
+
 const stripe = new Stripe(stripeSecretKey);
-const webhookSecret =
-  process.env.STRIPE_WEBHOOK_SECRET || "whsec_dummy_key_for_testing";
+
+const webhookSecret = getRequiredEnvVar(
+  "STRIPE_WEBHOOK_SECRET",
+  "Stripe webhook secret is required for secure webhook processing. Please set the STRIPE_WEBHOOK_SECRET environment variable.",
+  true // Allow development placeholder in non-production environments
+);
 
 export async function POST(request: Request) {
   const body = await request.text();

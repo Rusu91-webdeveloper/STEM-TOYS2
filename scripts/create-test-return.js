@@ -1,20 +1,43 @@
 const { PrismaClient } = require("../app/generated/prisma");
+const bcrypt = require("bcrypt");
+const dotenv = require("dotenv");
+const path = require("path");
+const fs = require("fs");
+
+// Load environment variables from .env.local file
+const envLocalPath = path.resolve(process.cwd(), ".env.local");
+if (fs.existsSync(envLocalPath)) {
+  dotenv.config({ path: envLocalPath });
+  console.log("Loaded environment variables from .env.local");
+} else {
+  dotenv.config(); // Fallback to .env if .env.local doesn't exist
+  console.log("Loaded environment variables from .env (fallback)");
+}
+
 const prisma = new PrismaClient();
 
 async function createTestReturn() {
   try {
+    // Use test email from environment variables or default to a test email
+    const testEmail = process.env.TEST_USER_EMAIL || "test-user@example.com";
+    const testName = process.env.TEST_USER_NAME || "Test User";
+
     // First, check if the user exists
     let user = await prisma.user.findUnique({
-      where: { email: "rusuemanuel1991@gmail.com" },
+      where: { email: testEmail },
     });
 
     // If user doesn't exist, create one
     if (!user) {
+      // Generate a secure random password or use one from environment
+      const testPassword = process.env.TEST_USER_PASSWORD || "TestPassword123!";
+      const hashedPassword = await bcrypt.hash(testPassword, 12);
+
       user = await prisma.user.create({
         data: {
-          email: "rusuemanuel1991@gmail.com",
-          name: "Emanuel Rusu",
-          password: "$2b$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", // Placeholder password hash
+          email: testEmail,
+          name: testName,
+          password: hashedPassword,
           isActive: true,
         },
       });
@@ -45,7 +68,7 @@ async function createTestReturn() {
         data: {
           userId: user.id,
           name: "Home",
-          fullName: "Emanuel Rusu",
+          fullName: testName,
           addressLine1: "123 Test Street",
           city: "Test City",
           state: "Test State",

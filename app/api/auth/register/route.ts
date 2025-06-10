@@ -8,6 +8,7 @@ import {
   sendWelcomeEmail,
   sendVerificationEmail,
 } from "@/lib/email";
+import { withRateLimit } from "@/lib/rate-limit";
 
 // Registration schema
 const registerSchema = z.object({
@@ -16,7 +17,8 @@ const registerSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
-export async function POST(req: Request) {
+// Define a function that handles the POST request
+async function handleRegistration(req: Request) {
   try {
     const body = await req.json();
 
@@ -47,7 +49,7 @@ export async function POST(req: Request) {
     }
 
     // Hash password
-    const hashedPassword = await hash(password, 10);
+    const hashedPassword = await hash(password, 12);
 
     // Generate verification token
     const verificationToken = randomBytes(32).toString("hex");
@@ -133,3 +135,10 @@ export async function POST(req: Request) {
     );
   }
 }
+
+// Apply rate limiting to the registration endpoint
+// Limit to 5 requests per IP address per 15 minutes
+export const POST = withRateLimit(handleRegistration, {
+  limit: 5,
+  windowMs: 15 * 60 * 1000, // 15 minutes
+});

@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { withRateLimit } from "@/lib/rate-limit";
 
-export async function GET(request: Request) {
+// Handle the email verification request
+async function handleVerify(request: Request) {
   const { searchParams } = new URL(request.url);
   const token = searchParams.get("token");
 
@@ -44,3 +46,10 @@ export async function GET(request: Request) {
     );
   }
 }
+
+// Apply rate limiting to the verify endpoint
+// Limit to 5 requests per IP address per 5 minutes
+export const GET = withRateLimit(handleVerify, {
+  limit: 5,
+  windowMs: 5 * 60 * 1000, // 5 minutes
+});

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { securityHeaders, isDevelopment } from "@/lib/security";
+import crypto from "crypto";
 
 // Supported locales
 const locales = ["en", "ro"];
@@ -256,7 +257,11 @@ export async function middleware(request: NextRequest) {
     if (value) {
       // Dynamically set CSP for better security
       if (key === "Content-Security-Policy") {
-        response.headers.set(key, getContentSecurityPolicy());
+        // Generate a nonce for scripts
+        const nonce = crypto.randomBytes(16).toString("base64");
+        // Store nonce in request context for use in page templates
+        response.headers.set("x-nonce", nonce);
+        response.headers.set(key, getContentSecurityPolicy(nonce));
       } else {
         response.headers.set(key, value);
       }
@@ -290,7 +295,7 @@ export const config = {
 /**
  * Generate the Content-Security-Policy header value
  */
-function getContentSecurityPolicy() {
+function getContentSecurityPolicy(nonce: string) {
   // Check if we're in development mode
   const dev = isDevelopment();
 
@@ -366,14 +371,14 @@ function getContentSecurityPolicy() {
   return Object.entries({
     ...baseDirectives,
 
-    // In production, we restrict to specific hashes and no unsafe practices
+    // In production, use nonces and strict-dynamic
     "script-src": [
-      "'self'",
+      `'nonce-${nonce}'`,
+      "'strict-dynamic'",
+      "https:",
+      "'unsafe-inline'", // Fallback for browsers that don't support strict-dynamic
       "js.stripe.com",
       "uploadthing.com",
-      // Common hashes for Next.js chunks
-      "'sha256-3nDgRibK3UlmR76UWeJNDmmAY5aX4OOXTmuvgixQxZA='",
-      // For production, you should collect all script hashes during build
     ],
 
     // Specific connection permissions for production

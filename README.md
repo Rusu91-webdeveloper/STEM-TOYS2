@@ -38,6 +38,38 @@ NextCommerce is a modern e-commerce platform built with Next.js, designed to pro
 - Uploadthing for image uploads
 - Resend for email notifications
 
+## Security
+
+NextCommerce prioritizes security with several important measures:
+
+### Content Security Policy (CSP)
+
+- Implements a robust Content Security Policy using nonces and strict-dynamic
+- Scripts are only executed if they contain a valid nonce generated for each request
+- Prevents malicious script injection and XSS attacks
+- Proper CSP implementation in both development and production environments
+
+### Secure File Uploads
+
+- All file uploads require authenticated users
+- Role-based permissions for sensitive upload endpoints (e.g., category images)
+- File type, size, and count restrictions for all upload endpoints
+- Secure file storage with Uploadthing
+
+### Authentication & Authorization
+
+- JWT-based authentication with NextAuth.js
+- Secure password handling with bcrypt
+- Role-based access control for administrative features
+- CSRF protection for all forms and mutations
+
+### Other Security Measures
+
+- HTTPS enforcement in production
+- Secure HTTP headers (X-Content-Type-Options, X-Frame-Options, etc.)
+- Sanitized user inputs to prevent injection attacks
+- Rate limiting on sensitive endpoints
+
 ## Getting Started
 
 ### Prerequisites

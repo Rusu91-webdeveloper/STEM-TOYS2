@@ -83,7 +83,7 @@ export async function PUT(req: Request) {
           name,
           email,
           password: newPassword
-            ? await hash(newPassword, 10)
+            ? await hash(newPassword, 12)
             : mockUser.password,
         };
 
@@ -103,9 +103,14 @@ export async function PUT(req: Request) {
         email,
       };
 
+      // If new password is provided, hash it
+      const hashedPassword = newPassword
+        ? await hash(newPassword, 12)
+        : undefined;
+
       // If password is being updated, hash it
-      if (newPassword) {
-        updateData.password = await hash(newPassword, 10);
+      if (hashedPassword) {
+        updateData.password = hashedPassword;
       }
 
       // Use transaction to ensure atomicity

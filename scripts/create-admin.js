@@ -2,22 +2,30 @@
 // Note: This script must be run from the root of the project
 const { PrismaClient } = require("../app/generated/prisma");
 const bcrypt = require("bcrypt");
+require("dotenv").config();
 
 const prisma = new PrismaClient();
 
 async function createAdminUser() {
   try {
-    // Admin user details
-    const adminUser = {
-      name: "Rusu Emanuel",
-      email: "rusu.emanuel.webdeveloper@gmail.com",
-      password: "Itist199!", // Will be hashed before saving
-      role: "ADMIN",
-    };
+    // Get admin credentials from environment variables
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminName = process.env.ADMIN_NAME || "Admin User";
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminEmail || !adminPassword) {
+      console.error("Admin credentials not set in environment variables.");
+      console.error(
+        "Please set ADMIN_EMAIL, ADMIN_NAME, and ADMIN_PASSWORD in your .env file."
+      );
+      process.exit(1);
+    }
+
+    console.log(`Setting up admin user with email: ${adminEmail}`);
 
     // Check if the admin user already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email: adminUser.email },
+      where: { email: adminEmail },
     });
 
     if (existingUser) {
@@ -28,6 +36,7 @@ async function createAdminUser() {
         await prisma.user.update({
           where: { id: existingUser.id },
           data: {
+            name: adminName,
             role: "ADMIN",
             isActive: true,
           },
@@ -38,14 +47,14 @@ async function createAdminUser() {
       return;
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(adminUser.password, 10);
+    // Hash the password with bcrypt
+    const hashedPassword = await bcrypt.hash(adminPassword, 12);
 
     // Create the admin user
     const user = await prisma.user.create({
       data: {
-        name: adminUser.name,
-        email: adminUser.email,
+        name: adminName,
+        email: adminEmail,
         password: hashedPassword,
         role: "ADMIN",
         isActive: true, // Auto-activate the admin user

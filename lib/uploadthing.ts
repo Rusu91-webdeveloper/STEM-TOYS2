@@ -1,5 +1,7 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UTApi } from "uploadthing/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 const f = createUploadthing();
 
@@ -90,9 +92,18 @@ export async function deleteUploadThingFiles(
 export const ourFileRouter = {
   // Product image endpoint with minimal configuration
   productImage: f({ image: { maxFileSize: "4MB", maxFileCount: 10 } })
-    .middleware(() => {
+    .middleware(async () => {
       console.log("UploadThing middleware running for productImage");
-      return { userId: "anonymous" };
+
+      // Get the authenticated user from the session
+      const session = await getServerSession(authOptions);
+
+      // Check if the user is authenticated
+      if (!session || !session.user) {
+        throw new Error("Unauthorized: You must be logged in to upload files");
+      }
+
+      return { userId: session.user.id };
     })
     .onUploadComplete((res) => {
       console.log("Upload complete:", res);
@@ -101,9 +112,18 @@ export const ourFileRouter = {
 
   // Blog cover image endpoint with minimal configuration
   blogCoverImage: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
-    .middleware(() => {
+    .middleware(async () => {
       console.log("UploadThing middleware running for blogCoverImage");
-      return { userId: "anonymous" };
+
+      // Get the authenticated user from the session
+      const session = await getServerSession(authOptions);
+
+      // Check if the user is authenticated
+      if (!session || !session.user) {
+        throw new Error("Unauthorized: You must be logged in to upload files");
+      }
+
+      return { userId: session.user.id };
     })
     .onUploadComplete((res) => {
       console.log("Blog image upload complete:", res);
@@ -112,9 +132,23 @@ export const ourFileRouter = {
 
   // Category image endpoint
   categoryImage: f({ image: { maxFileSize: "2MB", maxFileCount: 1 } })
-    .middleware(() => {
+    .middleware(async () => {
       console.log("UploadThing middleware running for categoryImage");
-      return { userId: "anonymous" };
+
+      // Get the authenticated user from the session
+      const session = await getServerSession(authOptions);
+
+      // Check if the user is authenticated and is an admin
+      if (!session || !session.user) {
+        throw new Error("Unauthorized: You must be logged in to upload files");
+      }
+
+      // Check for admin role - adjust according to your user/role model
+      if (session.user.role !== "admin") {
+        throw new Error("Forbidden: Only admins can upload category images");
+      }
+
+      return { userId: session.user.id };
     })
     .onUploadComplete((res) => {
       console.log("Category image upload complete:", res);
@@ -123,9 +157,18 @@ export const ourFileRouter = {
 
   // General document uploads
   document: f({ pdf: { maxFileSize: "16MB", maxFileCount: 5 } })
-    .middleware(() => {
+    .middleware(async () => {
       console.log("UploadThing middleware running for document");
-      return { userId: "anonymous" };
+
+      // Get the authenticated user from the session
+      const session = await getServerSession(authOptions);
+
+      // Check if the user is authenticated
+      if (!session || !session.user) {
+        throw new Error("Unauthorized: You must be logged in to upload files");
+      }
+
+      return { userId: session.user.id };
     })
     .onUploadComplete((res) => {
       console.log("Document upload complete:", res);

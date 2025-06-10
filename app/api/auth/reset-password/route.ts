@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { hash } from "bcrypt";
+import { withRateLimit } from "@/lib/rate-limit";
 
 // Schema for request validation
 const resetPasswordSchema = z.object({
@@ -16,7 +17,8 @@ const resetPasswordSchema = z.object({
     ),
 });
 
-export async function POST(request: NextRequest) {
+// Handle the reset password request
+async function handleResetPassword(request: NextRequest) {
   try {
     const body = await request.json();
 
@@ -72,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     try {
       // Hash the new password
-      const hashedPassword = await hash(password, 10);
+      const hashedPassword = await hash(password, 12);
 
       // Update the user's password in the database
       const updatedUser = await db.user.update({
@@ -127,3 +129,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "An error occurred" }, { status: 500 });
   }
 }
+
+// Apply rate limiting to the reset password endpoint
+// Limit to 3 requests per IP address per 30 minutes
+export const POST = withRateLimit(handleResetPassword, {
+  limit: 3,
+  windowMs: 30 * 60 * 1000, // 30 minutes
+});

@@ -3,6 +3,7 @@ import { z } from "zod";
 import crypto from "crypto";
 import { sendPasswordResetEmail } from "@/lib/email";
 import { db } from "@/lib/db";
+import { withRateLimit } from "@/lib/rate-limit";
 
 // Token expiration time (1 hour)
 const TOKEN_EXPIRY = 60 * 60 * 1000; // 1 hour in milliseconds
@@ -12,7 +13,8 @@ const forgotPasswordSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
 });
 
-export async function POST(request: NextRequest) {
+// Handle the forgot password request
+async function handleForgotPassword(request: NextRequest) {
   try {
     const body = await request.json();
 
@@ -96,3 +98,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "An error occurred" }, { status: 500 });
   }
 }
+
+// Apply rate limiting to the forgot password endpoint
+// Limit to 3 requests per IP address per 30 minutes
+export const POST = withRateLimit(handleForgotPassword, {
+  limit: 3,
+  windowMs: 30 * 60 * 1000, // 30 minutes
+});
