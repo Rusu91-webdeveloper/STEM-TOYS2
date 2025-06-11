@@ -11,15 +11,19 @@ export async function GET(request: NextRequest) {
     const categoryId =
       searchParams.get("categoryId") || searchParams.get("category"); // Support both param names
     const language = searchParams.get("language") || "en"; // Default to English if not specified
+    const publishedParam = searchParams.get("published") || "true"; // Default to published only
 
     console.log(
-      `Fetching blogs with filters: language=${language}, stemCategory=${stemCategory}, categoryId=${categoryId}`
+      `Fetching blogs with filters: language=${language}, stemCategory=${stemCategory}, categoryId=${categoryId}, published=${publishedParam}`
     );
 
     // Build filter object
-    const filter: any = {
-      isPublished: true,
-    };
+    const filter: any = {};
+
+    // Handle the published parameter (allow 'all' to show all blogs including drafts)
+    if (publishedParam !== "all") {
+      filter.isPublished = publishedParam === "true";
+    }
 
     if (stemCategory && stemCategory !== "all") {
       filter.stemCategory = stemCategory;
@@ -57,6 +61,9 @@ export async function GET(request: NextRequest) {
     // If metadata.language exists, use it for filtering
     // Otherwise assume it's available in the user's language
     const filteredBlogs = blogs.filter((blog) => {
+      // If requesting all blogs (admin dashboard), don't filter by language
+      if (publishedParam === "all") return true;
+
       if (!blog.metadata) return true;
 
       const metadata = blog.metadata as any;
@@ -139,7 +146,7 @@ export async function POST(request: NextRequest) {
 
     // Create default metadata if not provided
     const metadata = {
-      language: "en",
+      language: data.language || "en",
       metaTitle: data.title,
       metaDescription: data.excerpt,
       keywords: tags,
@@ -151,6 +158,7 @@ export async function POST(request: NextRequest) {
       authorId,
       categoryId: data.categoryId,
       tags,
+      language: data.language || "en",
     });
 
     const blog = await db.blog.create({

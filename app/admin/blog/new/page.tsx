@@ -51,6 +51,7 @@ export default function NewBlogPage() {
     stemCategory: "GENERAL",
     tags: "",
     isPublished: false,
+    language: "en",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -74,7 +75,7 @@ export default function NewBlogPage() {
     fetchCategories();
   }, []);
 
-  // Handle form input changes
+  // Handle input change
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -127,6 +128,15 @@ export default function NewBlogPage() {
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate category is selected
+    if (!blogData.categoryId) {
+      alert(
+        "Please select a category. If no categories are available, you need to create a category first."
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -291,6 +301,23 @@ export default function NewBlogPage() {
                   </Select>
                 </div>
 
+                <div className="space-y-2 pt-2">
+                  <Label htmlFor="language">Language</Label>
+                  <Select
+                    value={blogData.language}
+                    onValueChange={(value) =>
+                      handleSelectChange("language", value)
+                    }>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en">English 🇬🇧</SelectItem>
+                      <SelectItem value="ro">Romanian 🇷🇴</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="categoryId">Content Category</Label>
                   <Select
@@ -332,6 +359,22 @@ export default function NewBlogPage() {
                       )}
                     </SelectContent>
                   </Select>
+                  {categories.length === 0 && !isLoading && (
+                    <div className="mt-2 text-sm text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20 p-2 rounded border border-yellow-200 dark:border-yellow-800">
+                      <p className="font-medium">
+                        Warning: No categories available
+                      </p>
+                      <p>
+                        You need to create a category first before creating a
+                        blog post.
+                      </p>
+                      <Link
+                        href="/admin/categories/new"
+                        className="text-primary hover:underline mt-1 inline-block">
+                        Create a category
+                      </Link>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-2">

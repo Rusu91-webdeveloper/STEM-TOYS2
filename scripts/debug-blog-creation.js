@@ -9,6 +9,21 @@
  *   node scripts/debug-blog-creation.js
  */
 
+// Load environment variables from .env file
+require("dotenv").config();
+
+// Check if DATABASE_URL is available
+if (!process.env.DATABASE_URL) {
+  console.error("ERROR: DATABASE_URL environment variable is not set");
+  console.error(
+    "Please make sure your .env file contains the DATABASE_URL variable"
+  );
+  console.error(
+    'Example: DATABASE_URL="postgresql://username:password@localhost:5432/mydatabase"'
+  );
+  process.exit(1);
+}
+
 const { PrismaClient } = require("../app/generated/prisma");
 const prisma = new PrismaClient({
   log: ["query", "info", "warn", "error"],
@@ -43,6 +58,9 @@ async function main() {
     if (!category) {
       console.error(
         "No category found in the database! Creating blog post will fail."
+      );
+      console.log(
+        "Please run node scripts/check-create-category.js first to create a default category."
       );
       return;
     }
