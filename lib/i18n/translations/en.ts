@@ -1,4 +1,4 @@
-git add// English translations
+// English translations
 export const en = {
   home: "Home",
   products: "Products",
