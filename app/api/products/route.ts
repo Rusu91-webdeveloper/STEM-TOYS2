@@ -1,5 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { Prisma } from "@/app/generated/prisma";
+
+// Type definitions to help with type safety
+type StemCategoryMap = {
+  science: string[];
+  technology: string[];
+  engineering: string[];
+  mathematics: string[];
+  "educational-books": string[];
+};
 
 export async function GET(request: NextRequest) {
   try {
@@ -7,51 +17,222 @@ export async function GET(request: NextRequest) {
     const category = searchParams.get("category");
     const stemCategory = searchParams.get("stemCategory");
     const featured = searchParams.get("featured");
+    const minPrice = searchParams.get("minPrice");
+    const maxPrice = searchParams.get("maxPrice");
 
-    console.log("API Request Params:", { category, stemCategory, featured });
+    console.log("API Request Params:", {
+      category,
+      stemCategory,
+      featured,
+      minPrice,
+      maxPrice,
+    });
 
-    // Build where clause directly instead of filtering in memory
-    const where = {
-      isActive: true, // Only return active products
-      ...(category ? { categoryId: category } : {}),
-      ...(stemCategory ? { stemCategory: stemCategory } : {}),
-      ...(featured === "true" ? { featured: true } : {}),
+    // Map STEM categories to their variations and translations
+    const stemCategories: StemCategoryMap = {
+      science: ["science", "stiinta", "știință", "ştiinţă", "stiinţă"],
+      technology: ["technology", "tehnologie", "tech"],
+      engineering: ["engineering", "inginerie"],
+      mathematics: ["mathematics", "matematica", "matematică", "math", "mate"],
+      "educational-books": [
+        "educational-books",
+        "books",
+        "carti",
+        "cărți",
+        "carte",
+        "educational books",
+        "carti educationale",
+        "cărți educaționale",
+      ],
     };
 
-    // Let the database filter instead of filtering in memory
-    try {
-      const products = await db.product.findMany({
-        where,
-        include: {
-          category: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-      });
+    // Standardize category name for consistent matching
+    const normalizeCategory = (categoryName: string): string => {
+      if (!categoryName) return "";
 
-      console.log(`Found ${products.length} matching products in database`);
+      const lowerCat = categoryName.toLowerCase().trim();
 
-      // Create response with products
-      const response = NextResponse.json(products);
+      // Check each stem category for a match
+      for (const [standardCategory, variations] of Object.entries(
+        stemCategories
+      )) {
+        if (variations.includes(lowerCat)) {
+          return standardCategory;
+        }
+      }
 
-      // Add cache control header for CDN and browser caching
-      response.headers.set(
-        "Cache-Control",
-        "public, s-maxage=60, stale-while-revalidate=300"
-      );
+      return lowerCat;
+    };
 
-      return response;
-    } catch (error) {
-      console.error("Database query error:", error);
-      return NextResponse.json(
-        {
-          error: "Database query failed",
-          details: error instanceof Error ? error.message : String(error),
-        },
-        { status: 500 }
-      );
+    // Build where clause based on the request parameters
+    let where: any = {
+      isActive: true, // Only return active products
+    };
+
+    // Handle price filtering
+    if (minPrice || maxPrice) {
+      where.price = {};
+
+      if (minPrice) {
+        where.price.gte = parseFloat(minPrice);
+      }
+
+      if (maxPrice) {
+        where.price.lte = parseFloat(maxPrice);
+      }
     }
+
+    // Handle category filtering with improved debug
+    if (category) {
+      console.log(`Processing category filter: ${category}`);
+      const normalizedCategory = normalizeCategory(category);
+      console.log(`Normalized category: ${normalizedCategory}`);
+
+      // Special handling for standard STEM categories
+      if (Object.keys(stemCategories).includes(normalizedCategory)) {
+        console.log(`Handling STEM category: ${normalizedCategory}`);
+
+        // For books - check specifically for book category matches
+        if (normalizedCategory === "educational-books") {
+          where.OR = [
+            {
+              category: {
+                slug: {
+                  in: [
+                    "educational-books",
+                    "carti",
+                    "books",
+                    "carti-educationale",
+                  ],
+                },
+              },
+            },
+            { category: { name: { contains: "book", mode: "insensitive" } } },
+            { category: { name: { contains: "carti", mode: "insensitive" } } },
+            { category: { name: { contains: "carte", mode: "insensitive" } } },
+          ];
+        }
+        // For the other STEM categories, check both category and stemCategory attribute
+        else {
+          // Type assertion to ensure TypeScript understands this is a valid key
+          const key = normalizedCategory as keyof StemCategoryMap;
+          const variations = stemCategories[key];
+
+          where.OR = [
+            // Match by category
+            {
+              category: {
+                OR: [
+                  { slug: { in: variations } },
+                  { name: { in: variations } },
+                ],
+              },
+            },
+            // Match by stemCategory attribute
+            { stemCategory: { in: variations, mode: "insensitive" } },
+            // Match by stemCategory in attributes JSON
+            {
+              attributes: {
+                path: ["stemCategory"],
+                string_contains: normalizedCategory,
+              },
+            },
+          ];
+        }
+      } else {
+        // For custom categories
+        where.OR = [
+          { category: { slug: normalizedCategory } },
+          { category: { name: normalizedCategory } },
+        ];
+      }
+    }
+
+    // Handle STEM category filter
+    if (stemCategory) {
+      const normalizedStemCategory = normalizeCategory(stemCategory);
+      where.OR = [
+        { stemCategory: normalizedStemCategory },
+        {
+          attributes: {
+            path: ["stemCategory"],
+            string_contains: normalizedStemCategory,
+          },
+        },
+      ];
+    }
+
+    // Handle featured products filter
+    if (featured === "true") {
+      where.featured = true;
+    }
+
+    console.log("Final query where clause:", JSON.stringify(where, null, 2));
+
+    // Fetch products with the built where clause
+    const products = await db.product.findMany({
+      where,
+      include: {
+        category: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    console.log(`Found ${products.length} products matching criteria`);
+
+    // Transform product data for the response
+    const transformedProducts = products.map((product) => {
+      // Extract data safely
+      const productData = {
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        description: product.description,
+        price: product.price,
+        compareAtPrice: product.compareAtPrice,
+        images: product.images,
+        featured: product.featured,
+        isActive: product.isActive,
+        category: product.category
+          ? {
+              id: product.category.id,
+              name: product.category.name,
+              slug: product.category.slug,
+            }
+          : null,
+        attributes: product.attributes,
+      };
+
+      // Add additional fields that might not be in all product records
+      const result: any = { ...productData };
+
+      // Extract stemCategory from attributes if it exists
+      if (product.attributes && typeof product.attributes === "object") {
+        const attrs = product.attributes as Record<string, any>;
+        if (attrs.stemCategory) {
+          result.stemCategory = attrs.stemCategory;
+        }
+      }
+
+      // Add these fields only if they exist in the product record
+      if ("ageRange" in product) {
+        result.ageRange = (product as any).ageRange;
+      }
+
+      if ("stockLevel" in product) {
+        result.stockLevel = (product as any).stockLevel;
+      }
+
+      return result;
+    });
+
+    // Return the products
+    return NextResponse.json({
+      count: products.length,
+      products: transformedProducts,
+    });
   } catch (error) {
     console.error("Error fetching products:", error);
     return NextResponse.json(

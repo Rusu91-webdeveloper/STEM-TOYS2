@@ -60,13 +60,18 @@ const stemCategories = [
 ];
 
 export default function BlogPage() {
-  const { t, language } = useTranslation();
+  const { t, language, setLanguage } = useTranslation();
   const [activeCategory, setActiveCategory] = useState("all");
   const [activeCategoryId, setActiveCategoryId] = useState("all");
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Handle language switch
+  const toggleLanguage = () => {
+    setLanguage(language === "ro" ? "en" : "ro");
+  };
 
   // Fetch categories
   useEffect(() => {
@@ -170,12 +175,36 @@ export default function BlogPage() {
             {t("blogDescription")}
           </p>
 
-          {/* Language indicator */}
-          <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/20 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm font-medium mb-3 sm:mb-4">
-            {language === "ro" ? "🇷🇴" : "🇬🇧"}
-            <span>
-              {language === "ro" ? "Articole în Română" : "Articles in English"}
-            </span>
+          {/* Language switch button */}
+          <div className="mb-4">
+            <Button
+              onClick={toggleLanguage}
+              className="bg-white/20 hover:bg-white/30 text-white border border-white/30 shadow-md transition-all"
+              size="sm">
+              <span className="flex items-center gap-2">
+                <span className="text-lg">
+                  {language === "ro" ? "🇷🇴" : "🇬🇧"}
+                </span>
+                <span>
+                  {language === "ro"
+                    ? "Switch to English"
+                    : "Schimbă în Română"}
+                </span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="ml-1">
+                  <path d="m18 7-6 6-6-6" />
+                </svg>
+              </span>
+            </Button>
           </div>
 
           <div className="mb-3 sm:mb-4">

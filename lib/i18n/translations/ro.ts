@@ -388,9 +388,12 @@ export const ro = {
   shopCollection: "Explorează Colecția Noastră",
 
   // Product & Category Specific Content
-  scienceToysTitle: "Jucării și Kituri de Învățare Științifice",
+  scienceToysTitle: "Jucării științifice pentru copii curioși",
   scienceToysDescription:
-    "Inspiră tinerii oameni de știință cu experimente practice și kituri de descoperire",
+    "Descoperă jucării care introduc copiii în lumea fascinantă a științei prin experimente distractive și descoperiri captivante.",
+  scienceLearning: "Învățare prin Știință",
+  scienceLearningDesc:
+    "Jucăriile noastre de știință încurajează copiii să exploreze lumea naturală și să descopere legile științei prin experimente practice.",
   technologyToysTitle: "Jucării și Kituri de Învățare Tehnologice",
   technologyToysDescription:
     "Împuternicește viitorii inovatori cu instrumente de programare, robotică și învățare digitală",
@@ -425,6 +428,8 @@ export const ro = {
   technologyCategory: "Tehnologie",
   engineeringCategory: "Inginerie",
   mathematicsCategory: "Matematică",
+  educationalBooksCategory: "Cărți educaționale",
+  engineeringLearningCategory: "Inginerie și Învățare",
 
   // Product page specific translations
   backToProducts: "Înapoi la Produse",
@@ -485,6 +490,9 @@ export const ro = {
   buyInRomanian: "Cumpără în Română",
   viewAllBooks: "Vezi Toate Cărțile Educaționale",
   recommendedForYou: "Recomandate pentru tine",
+  booksLearning: "Cărți care inspiră mințile tinere",
+  booksLearningDesc:
+    "Cărțile noastre educaționale sunt atent concepute pentru a cultiva dragostea pentru învățare și a inspira curiozitatea la copii.",
 
   // Additional about page translations
   inspiredOurMission: "Ne-a inspirat misiunea",
@@ -609,4 +617,24 @@ export const ro = {
     "Antreprenor vizionar cu expertiză extinsă în dezvoltare, design și marketing. Pasionat de crearea tehnologiei educaționale care îi ajută pe copii să exploreze, să învețe și să crească. A fondat TechTots cu misiunea de a revoluționa modul în care copiii interacționează cu disciplinele STEM prin jucării educaționale atent proiectate.",
   contact: "Contact",
   linkedin: "LinkedIn",
+
+  // Engineering Learning
+  engineeringLearningTitle: "Concepte de Inginerie și Învățare",
+  engineeringLearningDescription:
+    "Aceste jucării ajută copiii să dezvolte abilități de inginerie prin proiecte și experimente practice și captivante.",
+
+  // Mathematics Learning
+  mathematicsLearning: "Învățare prin Matematică",
+  mathematicsLearningDesc:
+    "Descoperă frumusețea numerelor și a tiparelor cu jucăriile noastre de matematică.",
+
+  // Engineering Learning
+  engineeringLearning: "Învățare prin Inginerie",
+  engineeringLearningDesc:
+    "Dezvoltă abilități de rezolvare a problemelor prin proiecte practice de inginerie.",
+
+  // Technology Learning
+  technologyLearning: "Învățare prin Tehnologie",
+  technologyLearningDesc:
+    "Descoperă cum funcționează tehnologia prin proiecte interactive și jucării educaționale.",
 };

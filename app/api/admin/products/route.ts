@@ -110,18 +110,13 @@ export async function GET(request: NextRequest) {
 // POST new product
 export async function POST(request: NextRequest) {
   try {
-    // Get the auth session to see if there's an auth issue
+    // Get the auth session and enforce admin role check
     const session = await auth();
     console.log("Auth session in POST /api/admin/products:", session);
 
-    // Debug auth check but don't enforce it temporarily
     if (session?.user?.role !== "ADMIN") {
-      console.log(
-        "WARNING: User is not an admin, but allowing request for debugging"
-      );
-      // For debugging, we'll allow the request to continue
-      // In production, uncomment the next line:
-      // return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      console.log("Unauthorized access attempt: User is not an admin");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     console.log("Creating new product");
@@ -174,7 +169,9 @@ export async function POST(request: NextRequest) {
               data.metaDescription || data.description.substring(0, 160),
             metaKeywords: data.metaKeywords || data.tags || [],
             ageRange: data.ageRange,
-            stemCategory: data.stemCategory,
+            stemCategory: data.stemCategory
+              ? data.stemCategory.toUpperCase()
+              : undefined,
             difficultyLevel: data.difficultyLevel,
             learningObjectives: data.learningObjectives,
             // Any other custom attributes
@@ -253,47 +250,86 @@ export async function PUT(request: NextRequest) {
     const updateData: any = {};
 
     // Add basic fields if they exist
-    if (data.name) updateData.name = data.name;
-    if (data.slug) updateData.slug = data.slug;
-    if (data.description) updateData.description = data.description;
+    if (data.name !== undefined) updateData.name = data.name;
+    if (data.slug !== undefined) updateData.slug = data.slug;
+    if (data.description !== undefined)
+      updateData.description = data.description;
     if (data.price !== undefined) updateData.price = data.price;
     if (data.compareAtPrice !== undefined)
       updateData.compareAtPrice = data.compareAtPrice;
-    if (data.images) updateData.images = data.images;
-    if (data.categoryId) updateData.categoryId = data.categoryId;
-    if (data.tags) updateData.tags = data.tags;
+    if (data.images !== undefined) updateData.images = data.images;
+    if (data.categoryId !== undefined) updateData.categoryId = data.categoryId;
+    if (data.tags !== undefined) updateData.tags = data.tags;
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
 
-    // Handle attributes - merge with existing attributes
-    const currentAttributes =
-      (existingProduct.attributes as Record<string, any>) || {};
-    const newAttributes: Record<string, any> = {};
+    // Handle attributes update
+    if (existingProduct.attributes) {
+      const currentAttributes = existingProduct.attributes as Record<
+        string,
+        any
+      >;
 
-    // Copy existing attributes
-    Object.keys(currentAttributes).forEach((key) => {
-      newAttributes[key] = currentAttributes[key];
-    });
+      const updatedAttributes = {
+        ...currentAttributes,
+        ...(data.metaTitle !== undefined && {
+          metaTitle: data.metaTitle || data.name,
+        }),
+        ...(data.metaDescription !== undefined && {
+          metaDescription:
+            data.metaDescription ||
+            (data.description ? data.description.substring(0, 160) : undefined),
+        }),
+        ...(data.metaKeywords !== undefined && {
+          metaKeywords: data.metaKeywords,
+        }),
+        ...(data.ageRange !== undefined && { ageRange: data.ageRange }),
+        ...(data.stemCategory !== undefined && {
+          stemCategory: data.stemCategory
+            ? data.stemCategory.toUpperCase()
+            : undefined,
+        }),
+        ...(data.difficultyLevel !== undefined && {
+          difficultyLevel: data.difficultyLevel,
+        }),
+        ...(data.learningObjectives !== undefined && {
+          learningObjectives: data.learningObjectives,
+        }),
+        ...(data.attributes || {}),
+      };
 
-    // Add new attributes
-    if (data.attributes) {
-      Object.keys(data.attributes).forEach((key) => {
-        newAttributes[key] = data.attributes![key];
-      });
+      updateData.attributes = updatedAttributes;
+    } else if (
+      data.metaTitle ||
+      data.metaDescription ||
+      data.metaKeywords ||
+      data.ageRange ||
+      data.stemCategory ||
+      data.difficultyLevel ||
+      data.learningObjectives ||
+      data.attributes
+    ) {
+      // If there were no previous attributes but now we have some
+      updateData.attributes = {
+        ...(data.metaTitle && { metaTitle: data.metaTitle || data.name }),
+        ...(data.metaDescription && {
+          metaDescription:
+            data.metaDescription ||
+            (data.description ? data.description.substring(0, 160) : undefined),
+        }),
+        ...(data.metaKeywords && { metaKeywords: data.metaKeywords }),
+        ...(data.ageRange && { ageRange: data.ageRange }),
+        ...(data.stemCategory && {
+          stemCategory: data.stemCategory
+            ? data.stemCategory.toUpperCase()
+            : undefined,
+        }),
+        ...(data.difficultyLevel && { difficultyLevel: data.difficultyLevel }),
+        ...(data.learningObjectives && {
+          learningObjectives: data.learningObjectives,
+        }),
+        ...(data.attributes || {}),
+      };
     }
-
-    // Add SEO and STEM fields to attributes
-    if (data.metaTitle) newAttributes.metaTitle = data.metaTitle;
-    if (data.metaDescription)
-      newAttributes.metaDescription = data.metaDescription;
-    if (data.metaKeywords) newAttributes.metaKeywords = data.metaKeywords;
-    if (data.ageRange) newAttributes.ageRange = data.ageRange;
-    if (data.stemCategory) newAttributes.stemCategory = data.stemCategory;
-    if (data.difficultyLevel)
-      newAttributes.difficultyLevel = data.difficultyLevel;
-    if (data.learningObjectives)
-      newAttributes.learningObjectives = data.learningObjectives;
-
-    updateData.attributes = newAttributes;
 
     // Update product in database
     const updatedProduct = await db.product.update({

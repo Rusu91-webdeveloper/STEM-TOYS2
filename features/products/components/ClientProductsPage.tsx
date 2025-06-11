@@ -68,6 +68,12 @@ const categoryInfo: Record<string, CategoryIconInfo> = {
     textColor: "text-red-500",
     letter: "B",
   },
+  engineeringlearning: {
+    icon: Rocket,
+    bgColor: "bg-amber-500",
+    textColor: "text-amber-500",
+    letter: "E",
+  },
 };
 
 // Benefits of STEM toys with icons
@@ -128,48 +134,209 @@ export default function ClientProductsPage({
   // State for filters
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
     const categoryParam = urlSearchParams.get("category");
-    return categoryParam ? [categoryParam] : [];
+
+    // Debug the initial category parameter
+    console.log("Initial category param:", categoryParam);
+
+    // Use normalizeCategory for consistent category handling
+    return categoryParam ? [normalizeCategory(categoryParam)] : [];
   });
 
   const [selectedFilters, setSelectedFilters] = useState<
     Record<string, string[]>
   >({});
   const [priceRangeFilter, setPriceRangeFilter] = useState<PriceRange>(() => {
-    // Calculate initial price range from products
+    // Calculate initial price range from products with wider boundaries
     if (initialProducts.length > 0) {
       const prices = initialProducts.map((p) => p.price);
-      const minPrice = Math.floor(Math.min(...prices));
-      const maxPrice = Math.ceil(Math.max(...prices));
+      // Set a reasonable minimum and maximum with wider boundaries
+      const minPrice = Math.max(1, Math.floor(Math.min(...prices)));
+      const maxPrice = Math.min(5000, Math.ceil(Math.max(...prices) * 1.5)); // Add 50% to highest price with max cap
       return { min: minPrice, max: maxPrice };
     }
-    return { min: 0, max: 200 };
+    // Default wider range if no products available
+    return { min: 1, max: 5000 };
   });
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
+  // Helper function to standardize category names to avoid duplicates
+  const normalizeCategory = (name: string): string => {
+    // Convert to lowercase for consistency
+    const lower = name.toLowerCase();
+
+    // Handle various forms of "educational books" category
+    if (
+      lower === "educational-books" ||
+      lower === "educational books" ||
+      lower === "books" ||
+      lower === "carti" ||
+      lower === "carti educationale" ||
+      lower.includes("book") ||
+      lower.includes("carte")
+    ) {
+      return "educational-books";
+    }
+
+    // Handle various forms of engineering category
+    if (lower === "inginerie" || lower.includes("engineer")) {
+      return "engineering";
+    }
+
+    // Handle various forms of mathematics category
+    if (
+      lower === "mathematics" ||
+      lower === "matematica" ||
+      lower === "matematică" ||
+      lower.includes("math") ||
+      lower.includes("mate")
+    ) {
+      return "mathematics";
+    }
+
+    // Handle engineeringLearning category
+    if (
+      lower === "engineeringlearning" ||
+      lower === "engineering learning" ||
+      lower === "inginerie si invatare" ||
+      lower === "inginerie și învățare"
+    ) {
+      return "engineeringlearning";
+    }
+
+    return lower;
+  };
+
   // Create category filter from initial data
   const categoryFilter = useMemo(() => {
-    const categories = [
-      ...new Set(
-        products
-          .filter((p) => p.category?.name)
-          .map((p) => p.category!.name.toLowerCase())
+    // Track normalized category names to avoid duplicates
+    const categoryMap = new Map<
+      string,
+      {
+        id: string;
+        label: string;
+        count: number;
+        originalName: string;
+      }
+    >();
+
+    // Always ensure all standard STEM categories are added
+    // These categories should always be available in the filter
+    const standardCategories = [
+      "science",
+      "technology",
+      "engineering",
+      "mathematics",
+      "educational-books",
+    ];
+
+    // Get translations for standard categories
+    const categoryTranslations: Record<string, string> = {
+      science: t("scienceCategory", "Știință"),
+      technology: t("technologyCategory", "Tehnologie"),
+      engineering: t("engineeringCategory", "Inginerie"),
+      mathematics: t("mathematicsCategory", "Matematică"),
+      "educational-books": t("educationalBooksCategory", "Cărți educaționale"),
+      engineeringLearning: t(
+        "engineeringLearningCategory",
+        "Inginerie și Învățare"
       ),
-    ] as string[];
+    };
+
+    // Add all standard categories first
+    standardCategories.forEach((cat) => {
+      const normalizedCat = normalizeCategory(cat);
+      categoryMap.set(normalizedCat, {
+        id: normalizedCat,
+        label:
+          categoryTranslations[normalizedCat] ||
+          normalizedCat.charAt(0).toUpperCase() + normalizedCat.slice(1),
+        count: 0,
+        originalName: cat,
+      });
+    });
+
+    // Then add any additional categories from products, normalizing them first
+    products.forEach((product) => {
+      if (product.category?.name) {
+        const normalizedCat = normalizeCategory(product.category.name);
+        const existingCategory = categoryMap.get(normalizedCat);
+
+        if (existingCategory) {
+          existingCategory.count += 1;
+        } else {
+          // Only add if it's not already in the map
+          categoryMap.set(normalizedCat, {
+            id: normalizedCat,
+            label: categoryTranslations[normalizedCat] || product.category.name,
+            count: 1,
+            originalName: product.category.name,
+          });
+        }
+      }
+
+      // Also check stemCategory in attributes
+      if (product.stemCategory) {
+        const normalizedCat = normalizeCategory(product.stemCategory);
+        const existingCategory = categoryMap.get(normalizedCat);
+
+        if (existingCategory) {
+          existingCategory.count += 1;
+        } else {
+          categoryMap.set(normalizedCat, {
+            id: normalizedCat,
+            label: categoryTranslations[normalizedCat] || product.stemCategory,
+            count: 1,
+            originalName: product.stemCategory,
+          });
+        }
+      } else if (product.attributes && typeof product.attributes === "object") {
+        const attrs = product.attributes as Record<string, any>;
+        if (attrs.stemCategory) {
+          const normalizedCat = normalizeCategory(attrs.stemCategory);
+          const existingCategory = categoryMap.get(normalizedCat);
+
+          if (existingCategory) {
+            existingCategory.count += 1;
+          } else {
+            categoryMap.set(normalizedCat, {
+              id: normalizedCat,
+              label: categoryTranslations[normalizedCat] || attrs.stemCategory,
+              count: 1,
+              originalName: attrs.stemCategory,
+            });
+          }
+        }
+      }
+    });
+
+    // Convert map to array
+    const categories = Array.from(categoryMap.values());
+    console.log("Available categories for filter:", categories);
 
     return {
       id: "category",
       name: t("stemCategory", "STEM Category"),
-      options: categories.map((category) => ({
-        id: category.toLowerCase(),
-        label: t(
-          `${category.toLowerCase()}Category`,
-          category.charAt(0).toUpperCase() + category.slice(1)
-        ),
-        count: products.filter(
-          (p) => p.category?.name.toLowerCase() === category.toLowerCase()
-        ).length,
-      })),
+      options: categories
+        // Sort options: first by standard categories in their defined order, then by name
+        .sort((a, b) => {
+          const aIndex = standardCategories.indexOf(a.id);
+          const bIndex = standardCategories.indexOf(b.id);
+
+          // If both are standard categories, sort by their order in standardCategories
+          if (aIndex >= 0 && bIndex >= 0) {
+            return aIndex - bIndex;
+          }
+
+          // If only a is a standard category, it should come first
+          if (aIndex >= 0) return -1;
+
+          // If only b is a standard category, it should come first
+          if (bIndex >= 0) return 1;
+
+          // If neither is a standard category, sort alphabetically
+          return a.label.localeCompare(b.label);
+        }),
     };
   }, [products, t]);
 
@@ -203,19 +370,83 @@ export default function ClientProductsPage({
   const filteredProducts = useMemo(() => {
     let filtered = [...products];
 
-    // Filter by category - using category.name or slug
+    console.log("All products:", products.length);
+    console.log("Selected categories:", selectedCategories);
+
+    // Filter by category - using category.name or slug or stemCategory
     if (selectedCategories.length > 0) {
       filtered = filtered.filter((product) => {
         // Get category info from the product
-        const categoryName = product.category?.name.toLowerCase() || "";
-        const categorySlug = product.category?.slug.toLowerCase() || "";
+        const prodCategoryName = (product.category?.name || "").toLowerCase();
+        const prodCategorySlug = (product.category?.slug || "").toLowerCase();
 
+        // Get STEM category from attributes or from the stemCategory field
+        let stemCategoryValue = "";
+        if (product.stemCategory) {
+          stemCategoryValue = product.stemCategory.toLowerCase();
+        } else if (
+          product.attributes &&
+          typeof product.attributes === "object"
+        ) {
+          const attrs = product.attributes as Record<string, any>;
+          stemCategoryValue = attrs.stemCategory
+            ? attrs.stemCategory.toLowerCase()
+            : "";
+        }
+
+        // Improved category matching with better logging
         return selectedCategories.some((cat) => {
           const lowerCat = cat.toLowerCase();
-          return categoryName === lowerCat || categorySlug === lowerCat;
+
+          // Special case for engineering category
+          if (lowerCat === "engineering") {
+            const matchByCategorySlug =
+              prodCategorySlug === "engineering" ||
+              prodCategorySlug.includes("inginerie");
+            const matchByStemCategory = stemCategoryValue === "engineering";
+            const matchByEngineeringInName =
+              prodCategoryName.includes("inginerie") ||
+              prodCategoryName.includes("engineer");
+
+            const match =
+              matchByCategorySlug ||
+              matchByStemCategory ||
+              matchByEngineeringInName;
+
+            console.log(
+              `  Engineering match for ${product.name}: ${match} (slug:${matchByCategorySlug}, stem:${matchByStemCategory}, name:${matchByEngineeringInName})`
+            );
+            return match;
+          }
+
+          // Special case for educational-books
+          if (lowerCat === "educational-books" || lowerCat === "books") {
+            const isBook =
+              prodCategoryName.includes("book") ||
+              prodCategorySlug.includes("book") ||
+              prodCategorySlug === "educational-books" ||
+              prodCategorySlug === "carti" ||
+              prodCategoryName.includes("carti");
+
+            console.log(`  Book match for ${product.name}: ${isBook}`);
+            return isBook;
+          }
+
+          // Regular matching for other categories
+          const match =
+            prodCategoryName === lowerCat ||
+            prodCategorySlug === lowerCat ||
+            stemCategoryValue === lowerCat;
+
+          console.log(
+            `  Matching ${product.name} with ${lowerCat}: ${match} (name:${prodCategoryName}, slug:${prodCategorySlug}, stem:${stemCategoryValue})`
+          );
+          return match;
         });
       });
     }
+
+    console.log("Filtered products count:", filtered.length);
 
     // Filter by attributes
     Object.entries(selectedFilters).forEach(([filterId, values]) => {
@@ -287,21 +518,24 @@ export default function ClientProductsPage({
 
   // Handler for category filter changes
   const handleCategoryChange = (categoryId: string) => {
+    // Use the normalizeCategory function to ensure consistent category naming
+    const normalizedCategoryId = normalizeCategory(categoryId);
+
     setSelectedCategories((prev) => {
       // Check if this category is already selected (case insensitive comparison)
       const isAlreadySelected = prev.some(
-        (cat) => cat.toLowerCase() === categoryId.toLowerCase()
+        (cat) => normalizeCategory(cat) === normalizedCategoryId
       );
 
       if (isAlreadySelected) {
         // Remove this category
         return prev.filter(
-          (id) => id.toLowerCase() !== categoryId.toLowerCase()
+          (cat) => normalizeCategory(cat) !== normalizedCategoryId
         );
       } else {
         // Add this category, replacing any existing ones
         // This ensures only one category is selected at a time
-        return [categoryId];
+        return [normalizedCategoryId];
       }
     });
   };
@@ -344,12 +578,9 @@ export default function ClientProductsPage({
   const activeCategory =
     selectedCategories.length === 1
       ? categoryFilter.options.find((c) => {
-          // Normalize comparison to handle different slug/id formats
+          // Use normalizeCategory for consistent category matching
           return (
-            c.id.toLowerCase() === selectedCategories[0].toLowerCase() ||
-            (c.id === "books" &&
-              selectedCategories[0] === "educational-books") ||
-            (c.id === "educational-books" && selectedCategories[0] === "books")
+            normalizeCategory(c.id) === normalizeCategory(selectedCategories[0])
           );
         })
       : null;
@@ -425,6 +656,8 @@ export default function ClientProductsPage({
         return t("mathematicsLearning");
       case "educational-books":
         return t("booksLearning", "Books That Inspire Young Minds");
+      case "engineeringlearning":
+        return t("engineeringLearningTitle", "Engineering Learning Concepts");
       default:
         return "";
     }
@@ -448,9 +681,63 @@ export default function ClientProductsPage({
           "booksLearningDesc",
           "Our educational books are carefully crafted to foster a love of learning and inspire curiosity in children."
         );
+      case "engineeringlearning":
+        return t(
+          "engineeringLearningDescription",
+          "These toys help children develop engineering skills through engaging, hands-on projects and experiments."
+        );
       default:
         return "";
     }
+  };
+
+  // Modified product card content
+  const getProductCardContent = (product: ProductData) => {
+    // Determine what to display based on the product type/category
+    const category = product.category?.slug?.toLowerCase() || "";
+    const stemCategory = (product.stemCategory || "").toLowerCase();
+
+    // Default content
+    let title = product.name;
+    let description = product.description;
+
+    // Handle special category-specific content
+    if (
+      category === "educational-books" ||
+      stemCategory === "educational-books"
+    ) {
+      title = t("booksLearning", "Cărți care inspiră mințile tinere");
+      description = t(
+        "booksLearningDesc",
+        "Cărțile noastre educaționale sunt atent concepute pentru a cultiva dragostea pentru învățare și a inspira curiozitatea la copii."
+      );
+    } else if (category === "mathematics" || stemCategory === "mathematics") {
+      title = t("mathematicsLearning", "Învățare prin Matematică");
+      description = t(
+        "mathematicsLearningDesc",
+        "Descoperă frumusețea numerelor și a tiparelor cu jucăriile noastre de matematică."
+      );
+    } else if (category === "engineering" || stemCategory === "engineering") {
+      title = t("engineeringLearning", "Învățare prin Inginerie");
+      description = t(
+        "engineeringLearningDesc",
+        "Dezvoltă abilități de rezolvare a problemelor prin proiecte practice de inginerie."
+      );
+    } else if (category === "science" || stemCategory === "science") {
+      title = t("scienceLearning", "Învățare prin Știință");
+      description = t(
+        "scienceLearningDesc",
+        "Explorează concepte științifice prin experimente captivante."
+      );
+    } else if (category === "technology" || stemCategory === "technology") {
+      title = t("technologyLearning", "Învățare prin Tehnologie");
+      description = t(
+        "technologyLearningDesc",
+        "Descoperă cum funcționează tehnologia prin proiecte interactive."
+      );
+    }
+
+    return { title, description };
   };
 
   return (
@@ -507,50 +794,60 @@ export default function ClientProductsPage({
       {/* Enhanced STEM Category Filters - Prominent positioning */}
       <div className="sticky top-14 sm:top-16 z-20 bg-white border-b border-gray-200 shadow-sm">
         <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-4">
+          {/* Top navigation buttons - Filter out duplicates by key */}
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
             <div className="flex flex-wrap gap-1.5 sm:gap-3 justify-center">
-              {Object.entries(categoryInfo).map(([key, category]) => {
-                const CategoryIcon = category.icon;
-                const categoryColor =
-                  key === "science"
-                    ? "border-blue-500 text-blue-700 hover:bg-blue-50"
-                    : key === "technology"
-                      ? "border-green-500 text-green-700 hover:bg-green-50"
-                      : key === "engineering"
-                        ? "border-orange-500 text-orange-700 hover:bg-orange-50"
-                        : "border-purple-500 text-purple-700 hover:bg-purple-50";
+              {Object.entries(categoryInfo)
+                .filter(
+                  ([key, _]) =>
+                    // Filter out engineeringlearning from top nav to prevent duplication with engineering
+                    key !== "engineeringlearning"
+                )
+                .map(([key, category]) => {
+                  const CategoryIcon = category.icon;
+                  const categoryColor =
+                    key === "science"
+                      ? "border-blue-500 text-blue-700 hover:bg-blue-50"
+                      : key === "technology"
+                        ? "border-green-500 text-green-700 hover:bg-green-50"
+                        : key === "engineering"
+                          ? "border-orange-500 text-orange-700 hover:bg-orange-50"
+                          : "border-purple-500 text-purple-700 hover:bg-purple-50";
 
-                const activeColor =
-                  key === "science"
-                    ? "bg-blue-500 text-white"
-                    : key === "technology"
-                      ? "bg-green-500 text-white"
-                      : key === "engineering"
-                        ? "bg-orange-500 text-white"
-                        : "bg-purple-500 text-white";
+                  const activeColor =
+                    key === "science"
+                      ? "bg-blue-500 text-white"
+                      : key === "technology"
+                        ? "bg-green-500 text-white"
+                        : key === "engineering"
+                          ? "bg-orange-500 text-white"
+                          : "bg-purple-500 text-white";
 
-                // Convert both to lowercase for comparison
-                const isSelected = selectedCategories.some(
-                  (cat) => cat.toLowerCase() === key.toLowerCase()
-                );
+                  // Convert both to lowercase for comparison
+                  const isSelected = selectedCategories.some(
+                    (cat) => normalizeCategory(cat) === normalizeCategory(key)
+                  );
 
-                return (
-                  <Button
-                    key={key}
-                    variant="outline"
-                    size="sm"
-                    className={`h-8 sm:h-12 px-2 sm:px-5 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 border-2 transition-all hover:scale-105 ${
-                      isSelected ? activeColor : categoryColor
-                    }`}
-                    onClick={() => handleCategoryChange(key)}>
-                    <CategoryIcon className="h-4 w-4 sm:h-5 sm:w-5" />
-                    <span className="hidden xs:inline">
-                      {key.charAt(0).toUpperCase() + key.slice(1)}
-                    </span>
-                    <span className="xs:hidden">{category.letter}</span>
-                  </Button>
-                );
-              })}
+                  return (
+                    <Button
+                      key={key}
+                      variant="outline"
+                      size="sm"
+                      className={`h-8 sm:h-12 px-2 sm:px-5 rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 border-2 transition-all hover:scale-105 ${
+                        isSelected ? activeColor : categoryColor
+                      }`}
+                      onClick={() => handleCategoryChange(key)}>
+                      <CategoryIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+                      <span className="hidden xs:inline">
+                        {t(
+                          `${key}Category`,
+                          key.charAt(0).toUpperCase() + key.slice(1)
+                        )}
+                      </span>
+                      <span className="xs:hidden">{category.letter}</span>
+                    </Button>
+                  );
+                })}
             </div>
           </div>
         </div>
@@ -679,92 +976,126 @@ export default function ClientProductsPage({
               {viewMode === "grid" ? (
                 <div className="bg-gray-50/50 rounded-xl p-2 sm:p-4">
                   <ProductGrid
-                    products={filteredProducts as unknown as Product[]}
+                    products={filteredProducts.map((product) => {
+                      // If the product name or description contains raw translation keys,
+                      // replace them with properly translated content
+                      let modifiedProduct = { ...product };
+
+                      // Check if the product has raw translation keys in name or description
+                      if (
+                        product.name?.includes("Learning") ||
+                        product.description?.includes("LearningDesc")
+                      ) {
+                        // Get appropriate content for this product based on category
+                        const content = getProductCardContent(product);
+                        modifiedProduct.name = content.title;
+                        modifiedProduct.description = content.description;
+                      }
+
+                      return modifiedProduct as unknown as Product;
+                    })}
                     columns={{ sm: 1, md: 2, lg: 3, xl: 3 }}
                   />
                 </div>
               ) : (
                 <div className="bg-gray-50/50 rounded-xl p-2 sm:p-4 space-y-2 sm:space-y-3">
-                  {filteredProducts.map((product) => (
-                    <div
-                      key={product.id}
-                      className="flex flex-col xs:flex-row gap-3 sm:gap-4 bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow relative group">
-                      {/* Fun shape decoration - smaller size */}
-                      <div className="absolute -left-2 -top-2 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary/10 transition-transform group-hover:scale-110 -z-0 hidden sm:block"></div>
-                      <div className="absolute -right-2 -bottom-2 w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-yellow-200/30 transition-transform group-hover:scale-110 -z-0 hidden sm:block"></div>
+                  {filteredProducts.map((product) => {
+                    // Get appropriate content for this product if it contains raw translation keys
+                    let displayName = product.name;
+                    let displayDescription = product.description;
 
-                      <div className="xs:w-1/3 relative h-32 xs:h-36 sm:h-40 z-10">
-                        <Image
-                          src={product.images[0]}
-                          alt={product.name}
-                          fill
-                          style={{ objectFit: "cover" }}
-                          className="transition-transform hover:scale-105 duration-300"
-                        />
-                        {product.compareAtPrice && (
-                          <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md">
-                            Sale
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-3 sm:p-4 xs:w-2/3 z-10">
-                        <div className="flex flex-wrap gap-1 sm:gap-2 mb-1.5 sm:mb-2">
-                          <Badge
-                            variant="outline"
-                            className={`text-xs px-1.5 py-0 sm:px-2 sm:py-0.5
-                            ${
-                              product.category?.name.toLowerCase() === "science"
-                                ? "bg-blue-100 text-blue-700 border-blue-200"
-                                : product.category?.name.toLowerCase() ===
-                                    "technology"
-                                  ? "bg-green-100 text-green-700 border-green-200"
+                    // Check if the product has raw translation keys in name or description
+                    if (
+                      product.name?.includes("Learning") ||
+                      product.description?.includes("LearningDesc")
+                    ) {
+                      const content = getProductCardContent(product);
+                      displayName = content.title;
+                      displayDescription = content.description;
+                    }
+
+                    return (
+                      <div
+                        key={product.id}
+                        className="flex flex-col xs:flex-row gap-3 sm:gap-4 bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow relative group">
+                        {/* Fun shape decoration - smaller size */}
+                        <div className="absolute -left-2 -top-2 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary/10 transition-transform group-hover:scale-110 -z-0 hidden sm:block"></div>
+                        <div className="absolute -right-2 -bottom-2 w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-yellow-200/30 transition-transform group-hover:scale-110 -z-0 hidden sm:block"></div>
+
+                        <div className="xs:w-1/3 relative h-32 xs:h-36 sm:h-40 z-10">
+                          <Image
+                            src={product.images[0]}
+                            alt={displayName}
+                            fill
+                            style={{ objectFit: "cover" }}
+                            className="transition-transform hover:scale-105 duration-300"
+                          />
+                          {product.compareAtPrice && (
+                            <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md">
+                              Sale
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-3 sm:p-4 xs:w-2/3 z-10">
+                          <div className="flex flex-wrap gap-1 sm:gap-2 mb-1.5 sm:mb-2">
+                            <Badge
+                              variant="outline"
+                              className={`text-xs px-1.5 py-0 sm:px-2 sm:py-0.5
+                              ${
+                                product.category?.name.toLowerCase() ===
+                                "science"
+                                  ? "bg-blue-100 text-blue-700 border-blue-200"
                                   : product.category?.name.toLowerCase() ===
-                                      "engineering"
-                                    ? "bg-orange-100 text-orange-700 border-orange-200"
-                                    : "bg-purple-100 text-purple-700 border-purple-200"
-                            }
-                          `}>
-                            {product.category?.name}
-                          </Badge>
-                          <Badge
-                            variant="outline"
-                            className="bg-gray-100 text-gray-700 border-gray-200 text-xs px-1.5 py-0 sm:px-2 sm:py-0.5">
-                            {product.ageRange} years
-                          </Badge>
-                          <Badge
-                            variant="outline"
-                            className="bg-gray-100 text-gray-700 border-gray-200 text-xs px-1.5 py-0 sm:px-2 sm:py-0.5">
-                            {product.attributes?.difficulty}
-                          </Badge>
-                        </div>
-                        <h3 className="text-sm sm:text-base font-semibold mb-0.5 sm:mb-1">
-                          {product.name}
-                        </h3>
-                        <p className="text-xs text-gray-600 mb-2 sm:mb-3 line-clamp-2">
-                          {product.description}
-                        </p>
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-baseline gap-1 sm:gap-2">
-                            <span className="text-sm sm:text-base font-bold">
-                              ${product.price.toFixed(2)}
-                            </span>
-                            {product.compareAtPrice && (
-                              <span className="text-xs text-gray-500 line-through">
-                                ${product.compareAtPrice.toFixed(2)}
-                              </span>
-                            )}
+                                      "technology"
+                                    ? "bg-green-100 text-green-700 border-green-200"
+                                    : product.category?.name.toLowerCase() ===
+                                        "engineering"
+                                      ? "bg-orange-100 text-orange-700 border-orange-200"
+                                      : "bg-purple-100 text-purple-700 border-purple-200"
+                              }
+                            `}>
+                              {product.category?.name}
+                            </Badge>
+                            <Badge
+                              variant="outline"
+                              className="bg-gray-100 text-gray-700 border-gray-200 text-xs px-1.5 py-0 sm:px-2 sm:py-0.5">
+                              {product.ageRange} years
+                            </Badge>
+                            <Badge
+                              variant="outline"
+                              className="bg-gray-100 text-gray-700 border-gray-200 text-xs px-1.5 py-0 sm:px-2 sm:py-0.5">
+                              {product.attributes?.difficulty}
+                            </Badge>
                           </div>
-                          <Link href={`/products/${product.slug}`}>
-                            <Button
-                              size="sm"
-                              className="rounded-full px-2 sm:px-3 text-xs py-0.5 sm:py-1 h-6 sm:h-7 transition-transform hover:scale-105">
-                              {t("viewDetails")}
-                            </Button>
-                          </Link>
+                          <h3 className="text-sm sm:text-base font-semibold mb-0.5 sm:mb-1">
+                            {displayName}
+                          </h3>
+                          <p className="text-xs text-gray-600 mb-2 sm:mb-3 line-clamp-2">
+                            {displayDescription}
+                          </p>
+                          <div className="flex justify-between items-center">
+                            <div className="flex items-baseline gap-1 sm:gap-2">
+                              <span className="text-sm sm:text-base font-bold">
+                                ${product.price.toFixed(2)}
+                              </span>
+                              {product.compareAtPrice && (
+                                <span className="text-xs text-gray-500 line-through">
+                                  ${product.compareAtPrice.toFixed(2)}
+                                </span>
+                              )}
+                            </div>
+                            <Link href={`/products/${product.slug}`}>
+                              <Button
+                                size="sm"
+                                className="rounded-full px-2 sm:px-3 text-xs py-0.5 sm:py-1 h-6 sm:h-7 transition-transform hover:scale-105">
+                                {t("viewDetails")}
+                              </Button>
+                            </Link>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

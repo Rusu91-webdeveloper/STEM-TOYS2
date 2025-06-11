@@ -222,6 +222,11 @@ export default function ProductForm({
   const handleImagesUploaded = (imageUrls: string[]) => {
     console.log("Images uploaded:", imageUrls);
     form.setValue("images", imageUrls);
+
+    // Clear any previous image-related errors
+    if (imageUrls.length > 0) {
+      form.clearErrors("images");
+    }
   };
 
   const removeImage = (imageUrl: string) => {
@@ -244,6 +249,28 @@ export default function ProductForm({
       setIsLoading(true);
       console.log("Form submission started", { data });
 
+      // Validate that at least one image is uploaded
+      if (!data.images || data.images.length === 0) {
+        toast({
+          title: "Eroare",
+          description: "Trebuie să încărcați cel puțin o imagine",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Validate that a category is selected
+      if (!data.categoryId) {
+        toast({
+          title: "Eroare",
+          description: "Trebuie să selectați o categorie",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       // API endpoint and method based on whether we're editing or creating
       let endpoint = isEditing
         ? `/api/admin/products/${initialData.id}`
@@ -251,26 +278,46 @@ export default function ProductForm({
 
       const method = isEditing ? "PUT" : "POST";
 
-      const submitData = data;
+      // Prepare the attributes object with STEM-specific fields
+      const attributes = {
+        ...(data.ageRange ? { ageRange: data.ageRange } : {}),
+        ...(data.stemCategory
+          ? { stemCategory: data.stemCategory.toUpperCase() }
+          : {}),
+        ...(data.difficultyLevel
+          ? { difficultyLevel: data.difficultyLevel }
+          : {}),
+        ...(data.learningObjectives && data.learningObjectives.length > 0
+          ? { learningObjectives: data.learningObjectives }
+          : {}),
+      };
 
-      console.log("Submitting product data:", {
-        method,
-        endpoint,
-        isEditing,
-        productId: isEditing ? initialData.id : "new product",
-        data: submitData,
-      });
+      // Prepare metadata
+      const metadata = {
+        metaTitle: data.metaTitle || data.name,
+        metaDescription:
+          data.metaDescription || data.description?.substring(0, 160),
+        keywords: data.metaKeywords,
+      };
 
-      console.log("Before fetch call");
+      // Prepare the request body
+      const requestBody = {
+        ...data,
+        attributes,
+        metadata,
+      };
+
+      console.log("Sending request to:", endpoint);
+      console.log("Request body:", JSON.stringify(requestBody, null, 2));
+
+      // Send the request to the API
       const response = await fetch(endpoint, {
         method,
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
-        body: JSON.stringify(submitData),
+        body: JSON.stringify(requestBody),
       });
-      console.log("After fetch call");
 
       console.log("Response status:", response.status);
       console.log(
@@ -484,7 +531,9 @@ export default function ProductForm({
                       <FormItem>
                         <FormLabel>Category</FormLabel>
                         <Select
+                          disabled={isLoading}
                           onValueChange={field.onChange}
+                          value={field.value}
                           defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
@@ -492,15 +541,50 @@ export default function ProductForm({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {categories.map((category) => (
-                              <SelectItem
-                                key={category.id}
-                                value={category.id}>
-                                {category.name}
-                              </SelectItem>
-                            ))}
+                            {categories.length > 0 ? (
+                              categories.map((category) => (
+                                <SelectItem
+                                  key={category.id}
+                                  value={category.id}>
+                                  {category.name}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <div className="p-2 text-center">
+                                <p className="text-amber-500 mb-2">
+                                  No categories found
+                                </p>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    window.open(
+                                      "/admin/categories/create",
+                                      "_blank"
+                                    );
+                                  }}>
+                                  Create Category
+                                </Button>
+                              </div>
+                            )}
                           </SelectContent>
                         </Select>
+                        <FormDescription>
+                          Select a product category.{" "}
+                          {categories.length === 0 && (
+                            <span className="text-amber-500">
+                              You need to{" "}
+                              <a
+                                href="/admin/categories/create"
+                                target="_blank"
+                                className="underline">
+                                create a category
+                              </a>{" "}
+                              first.
+                            </span>
+                          )}
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -649,31 +733,31 @@ export default function ProductForm({
                       <FormItem>
                         <FormLabel>STEM Category</FormLabel>
                         <Select
+                          disabled={isLoading}
                           onValueChange={field.onChange}
-                          defaultValue={field.value}>
+                          value={field.value || ""}
+                          defaultValue={field.value || ""}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select STEM category" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="science">Science</SelectItem>
-                            <SelectItem value="technology">
+                            <SelectItem value="SCIENCE">Science</SelectItem>
+                            <SelectItem value="TECHNOLOGY">
                               Technology
                             </SelectItem>
-                            <SelectItem value="engineering">
+                            <SelectItem value="ENGINEERING">
                               Engineering
                             </SelectItem>
-                            <SelectItem value="mathematics">
+                            <SelectItem value="MATHEMATICS">
                               Mathematics
                             </SelectItem>
-                            <SelectItem value="multiple">
-                              Multiple Areas
-                            </SelectItem>
+                            <SelectItem value="GENERAL">General</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormDescription>
-                          Primary STEM discipline this product focuses on.
+                          Categorize this product by STEM discipline
                         </FormDescription>
                         <FormMessage />
                       </FormItem>

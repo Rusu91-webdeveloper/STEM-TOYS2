@@ -34,6 +34,11 @@ export default async function ProductsPage({
     category: typeof params.category === "string" ? params.category : undefined,
   });
 
+  console.log(
+    `Found ${productsData.length} products from API with category filter:`,
+    params.category
+  );
+
   // Fetch books as well
   let booksData: Book[] = [];
   try {
@@ -88,9 +93,29 @@ export default async function ProductsPage({
       }
     }
 
+    // Extract stemCategory from attributes if it exists
+    let stemCategory = product.stemCategory;
+    if (
+      !stemCategory &&
+      product.attributes &&
+      typeof product.attributes === "object"
+    ) {
+      const attrs = product.attributes as Record<string, any>;
+      stemCategory = attrs.stemCategory || null;
+    }
+
+    // Debug the product's stemCategory and category information
+    console.log(`Product ${product.name} mapping:`, {
+      categoryId: product.categoryId,
+      categoryName: categoryData?.name,
+      categorySlug: categoryData?.slug,
+      stemCategory: stemCategory,
+    });
+
     return {
       ...product,
       category: categoryData,
+      stemCategory: stemCategory,
     } as ProductData;
   });
 

@@ -151,24 +151,76 @@ export function ProductFilters({
       {priceRange && (
         <div className="space-y-3 sm:space-y-4">
           <h3 className="text-xs sm:text-sm font-medium">Price Range</h3>
-          <div className="space-y-4 sm:space-y-6 px-1 sm:px-2">
+          <div className="space-y-4 sm:space-y-5 px-1 sm:px-2">
+            {/* Direct input fields for price range */}
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <div className="relative flex items-center w-full">
+                <span className="absolute left-2 text-xs text-muted-foreground">
+                  MIN
+                </span>
+                <input
+                  type="number"
+                  value={localPriceRange.min}
+                  min={priceRange.min}
+                  max={localPriceRange.max - 1}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (
+                      !isNaN(value) &&
+                      value >= priceRange.min &&
+                      value < localPriceRange.max
+                    ) {
+                      handlePriceChange([value, localPriceRange.max]);
+                      handlePriceChangeComplete();
+                    }
+                  }}
+                  className="w-full pl-9 pr-1 py-1 text-xs border rounded-md h-7"
+                />
+                <span className="absolute right-2 text-xs">lei</span>
+              </div>
+              <span className="text-xs text-muted-foreground">-</span>
+              <div className="relative flex items-center w-full">
+                <span className="absolute left-2 text-xs text-muted-foreground">
+                  MAX
+                </span>
+                <input
+                  type="number"
+                  value={localPriceRange.max}
+                  min={localPriceRange.min + 1}
+                  max={priceRange.max}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (
+                      !isNaN(value) &&
+                      value <= priceRange.max &&
+                      value > localPriceRange.min
+                    ) {
+                      handlePriceChange([localPriceRange.min, value]);
+                      handlePriceChangeComplete();
+                    }
+                  }}
+                  className="w-full pl-9 pr-1 py-1 text-xs border rounded-md h-7"
+                />
+                <span className="absolute right-2 text-xs">lei</span>
+              </div>
+            </div>
+
+            {/* Slider for visual price adjustment */}
             <Slider
               defaultValue={[localPriceRange.min, localPriceRange.max]}
               min={priceRange.min}
               max={priceRange.max}
-              step={1}
+              step={priceRange.max > 1000 ? 10 : 1} // Use larger steps for high price ranges
               value={[localPriceRange.min, localPriceRange.max]}
               onValueChange={handlePriceChange}
               onValueCommit={handlePriceChangeComplete}
-              className="mt-4 sm:mt-6"
+              className="mt-4 sm:mt-5"
             />
-            <div className="flex items-center justify-between">
-              <div className="text-xs sm:text-sm">
-                {formatPrice(localPriceRange.min)}
-              </div>
-              <div className="text-xs sm:text-sm">
-                {formatPrice(localPriceRange.max)}
-              </div>
+
+            {/* Price labels */}
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <div>{formatPrice(priceRange.min)}</div>
+              <div>{formatPrice(priceRange.max)}</div>
             </div>
           </div>
         </div>

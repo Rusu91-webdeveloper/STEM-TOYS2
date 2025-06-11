@@ -1,6 +1,7 @@
 import React from "react";
 import { Metadata } from "next";
 import ProductForm from "@/components/admin/ProductForm";
+import { CategoryCheck } from "@/components/admin/CategoryCheck";
 
 export const metadata: Metadata = {
   title: "Create Product | Admin Dashboard",
@@ -17,6 +18,8 @@ export default function CreateProductPage() {
           settings.
         </p>
       </div>
+
+      <CategoryCheck />
 
       <ProductForm />
     </div>

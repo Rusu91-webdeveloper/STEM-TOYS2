@@ -347,9 +347,12 @@ export const en = {
   shopCollection: "Shop Our Collection",
 
   // Product & Category Specific Content
-  scienceToysTitle: "Science Learning Toys & Kits",
+  scienceToysTitle: "Science Toys for Curious Kids",
   scienceToysDescription:
-    "Inspire young scientists with hands-on experiments and discovery kits",
+    "Discover toys that introduce children to the fascinating world of science through fun experiments and engaging discoveries.",
+  scienceLearning: "Science Learning",
+  scienceLearningDesc:
+    "Our science toys encourage children to explore the natural world and discover the laws of science through hands-on experiments.",
   technologyToysTitle: "Technology Learning Toys & Kits",
   technologyToysDescription:
     "Empower future innovators with coding, robotics, and digital learning tools",
@@ -383,6 +386,8 @@ export const en = {
   technologyCategory: "Technology",
   engineeringCategory: "Engineering",
   mathematicsCategory: "Mathematics",
+  educationalBooksCategory: "Educational Books",
+  engineeringLearningCategory: "Engineering & Learning",
 
   // Product page specific translations
   backToProducts: "Back to Products",
@@ -496,4 +501,24 @@ export const en = {
     "Visionary entrepreneur with extensive expertise in development, design, and marketing. Passionate about creating educational technology that empowers children to explore, learn, and grow. Founded TechTots with the mission to revolutionize how children interact with STEM subjects through thoughtfully designed educational toys.",
   contact: "Contact",
   linkedin: "LinkedIn",
+
+  // Engineering Learning
+  engineeringLearningTitle: "Engineering Learning Concepts",
+  engineeringLearningDescription:
+    "These toys help children develop engineering skills through engaging, hands-on projects and experiments.",
+
+  // Mathematics Learning
+  mathematicsLearning: "Mathematics Learning",
+  mathematicsLearningDesc:
+    "Discover the beauty of numbers and patterns with our math toys.",
+
+  // Engineering Learning
+  engineeringLearning: "Engineering Learning",
+  engineeringLearningDesc:
+    "Develop problem-solving skills with hands-on engineering projects.",
+
+  // Technology Learning
+  technologyLearning: "Technology Learning",
+  technologyLearningDesc:
+    "Discover how technology works through interactive projects and educational toys.",
 };
