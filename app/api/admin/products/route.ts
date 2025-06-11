@@ -4,17 +4,13 @@ import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { revalidateTag } from "next/cache";
 import { isAdmin } from "@/lib/auth/admin";
-import { productSchema } from "@/lib/validations";
 import { slugify } from "@/lib/utils";
 import { handleFormData } from "@/lib/api-helpers";
 import { utapi } from "@/lib/uploadthing";
+import { productSchema as baseProductSchema } from "@/lib/validations";
 
-// Schema for product validation
-const productSchema = z.object({
-  name: z.string().min(3, "Name must be at least 3 characters"),
-  slug: z.string().min(3, "Slug must be at least 3 characters"),
-  description: z.string().min(10, "Description must be at least 10 characters"),
-  price: z.number().positive("Price must be positive"),
+// Extend the base product schema with additional fields specific to this API
+const productSchema = baseProductSchema.extend({
   compareAtPrice: z
     .number()
     .positive("Compare at price must be positive")
@@ -22,19 +18,12 @@ const productSchema = z.object({
     .optional(),
   categoryId: z.string().min(1, "Category is required"),
   images: z.array(z.string()).default([]),
-  tags: z.array(z.string()).optional(),
   isActive: z.boolean().default(true),
   // Optional meta fields
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.array(z.string()).optional(),
   // Optional product attributes
-  ageRange: z
-    .object({
-      min: z.number().int().min(0, "Min age must be positive"),
-      max: z.number().int().min(0, "Max age must be positive"),
-    })
-    .optional(),
   stemCategory: z.string().optional(),
   difficultyLevel: z.string().optional(),
   learningObjectives: z.array(z.string()).optional(),
@@ -45,12 +34,6 @@ const productSchema = z.object({
 const productUpdateSchema = productSchema.partial().extend({
   id: z.string().min(1, { message: "Product ID is required" }),
 });
-
-// Helper function to check if user is admin
-async function isAdmin(request: NextRequest) {
-  const session = await auth();
-  return session?.user?.role === "ADMIN";
-}
 
 // GET all products
 export async function GET(request: NextRequest) {
