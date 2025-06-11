@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -23,19 +23,41 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/use-toast";
-import { Edit, MoreHorizontal, Trash2 } from "lucide-react";
+import { Edit, MoreHorizontal, Trash2, ExternalLink } from "lucide-react";
 
 interface ProductActionsDropdownProps {
   productId: string;
+  productSlug?: string; // Add optional slug property for view link
 }
 
 export function ProductActionsDropdown({
   productId,
+  productSlug,
 }: ProductActionsDropdownProps) {
   const router = useRouter();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const [slug, setSlug] = useState<string | undefined>(productSlug);
+
+  // If slug wasn't provided, fetch it
+  useEffect(() => {
+    if (!productSlug) {
+      const fetchProductSlug = async () => {
+        try {
+          const response = await fetch(`/api/admin/products/${productId}`);
+          if (response.ok) {
+            const data = await response.json();
+            setSlug(data.slug);
+          }
+        } catch (error) {
+          console.error("Error fetching product details:", error);
+        }
+      };
+
+      fetchProductSlug();
+    }
+  }, [productId, productSlug]);
 
   const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -49,6 +71,10 @@ export function ProductActionsDropdown({
     try {
       setIsDeleting(true);
 
+      // Add debug logging to verify the productId
+      console.log(`Attempting to delete product with ID: ${productId}`);
+      console.log(`Delete URL: /api/admin/products/${productId}`);
+
       const response = await fetch(`/api/admin/products/${productId}`, {
         method: "DELETE",
         headers: {
@@ -56,9 +82,13 @@ export function ProductActionsDropdown({
         },
       });
 
+      // Log the response status
+      console.log(`Delete response status: ${response.status}`);
+
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || "Failed to delete product");
+        console.error("Delete error response:", error);
+        throw new Error(error.error || "Failed to delete product");
       }
 
       // Close dialog first
@@ -132,9 +162,16 @@ export function ProductActionsDropdown({
               Edit
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href={`/products/${productId}`}>View</Link>
-          </DropdownMenuItem>
+          {slug && (
+            <DropdownMenuItem asChild>
+              <Link
+                href={`/products/${slug}`}
+                target="_blank">
+                <ExternalLink className="h-4 w-4 mr-2" />
+                View on Site
+              </Link>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="text-red-600"

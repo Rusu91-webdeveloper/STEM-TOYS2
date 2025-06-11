@@ -10,6 +10,7 @@ import { ProductActionsDropdown } from "./ProductActionsDropdown";
 interface Product {
   id: string;
   name: string;
+  slug: string;
   price: number;
   category: {
     name: string;
@@ -124,7 +125,10 @@ export function ProductTable({ products }: { products: Product[] }) {
                     </span>
                   </td>
                   <td className="px-4 py-4 text-right">
-                    <ProductActionsDropdown productId={product.id} />
+                    <ProductActionsDropdown
+                      productId={product.id}
+                      productSlug={product.slug}
+                    />
                   </td>
                 </tr>
               ))

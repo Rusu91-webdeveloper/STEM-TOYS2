@@ -67,6 +67,22 @@ export async function DELETE(
     const productId = context.params.id;
     console.log(`Attempting to delete product with ID: ${productId}`);
 
+    // Add debug logs to trace the issue
+    console.log(`Product ID type: ${typeof productId}`);
+    console.log(`Product ID length: ${productId.length}`);
+
+    // List all products to check if ID exists
+    try {
+      const allProducts = await db.product.findMany({
+        select: { id: true, name: true },
+        take: 10, // Limit to 10 products for debugging
+      });
+      console.log(`Available products (${allProducts.length}):`);
+      allProducts.forEach((p) => console.log(`- ID: ${p.id}, Name: ${p.name}`));
+    } catch (listError) {
+      console.error("Error listing products:", listError);
+    }
+
     // Check if product exists before trying to delete
     const product = await db.product.findUnique({
       where: { id: productId },
@@ -74,6 +90,26 @@ export async function DELETE(
 
     if (!product) {
       console.log(`Product with ID ${productId} not found`);
+
+      // Try to find by different means if available
+      try {
+        const productBySlug = await db.product.findFirst({
+          where: {
+            OR: [{ slug: productId }, { name: productId }],
+          },
+        });
+
+        if (productBySlug) {
+          console.log(
+            `Found product by alternative means: ${productBySlug.id} (${productBySlug.name})`
+          );
+        } else {
+          console.log("Could not find product by any means");
+        }
+      } catch (alternativeError) {
+        console.error("Error in alternative product lookup:", alternativeError);
+      }
+
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
