@@ -36,7 +36,10 @@ export default function RootLayout({
         <I18nProvider>
           <CurrencyProvider>
             <CartProviderWrapper>
-              <ClientLayout>{children}</ClientLayout>
+              <ClientLayout>
+                {children}
+                <SpeedInsights />
+              </ClientLayout>
               <Toaster />
             </CartProviderWrapper>
           </CurrencyProvider>

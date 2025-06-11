@@ -50,6 +50,7 @@
     "@types/pdfkit": "^0.13.9",
     "@uploadthing/react": "^7.3.1",
     "@upstash/redis": "^1.35.0",
+    "@vercel/speed-insights": "^1.2.0",
     "autoprefixer": "^10.4.16",
     "axios": "^1.9.0",
     "bcrypt": "^6.0.0",
