@@ -15,8 +15,9 @@ export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
   const { t } = useTranslation();
 
   const subtotal = getCartTotal();
-  const tax = subtotal * 0.1; // 10% tax for example
-  const total = subtotal + tax + shippingCost;
+  const vatRate = 0.19; // 19% VAT for Romania
+  const vat = subtotal * vatRate;
+  const total = subtotal + vat + shippingCost;
 
   if (isLoading) {
     return (
@@ -101,8 +102,8 @@ export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
           <span>{formatPrice(subtotal)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-gray-600">{t("tax", "Tax")} (10%)</span>
-          <span>{formatPrice(tax)}</span>
+          <span className="text-gray-600">{t("tax", "TVA")} (19%)</span>
+          <span>{formatPrice(vat)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-gray-600">{t("shipping", "Shipping")}</span>

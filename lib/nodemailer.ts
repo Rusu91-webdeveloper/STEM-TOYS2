@@ -215,22 +215,55 @@ export const emailTemplates = {
         price: number;
       }>;
       total: number;
+      subtotal?: number;
+      tax?: number;
+      shippingCost?: number;
+      shippingAddress?: any;
+      shippingMethod?: any;
+      orderDate?: string;
     };
   }) => {
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #333;">Order Confirmation</h1>
-        <p>Thank you for your order! We've received your order and will process it shortly.</p>
+        <h1 style="color: #333;">Confirmare Comandă</h1>
+        <p>Vă mulțumim pentru comanda dumneavoastră! Am primit comanda și o vom procesa în curând.</p>
         
-        <h2 style="color: #333;">Order Details</h2>
-        <p><strong>Order ID:</strong> ${order.id}</p>
+        <h2 style="color: #333;">Detalii Comandă</h2>
+        <p><strong>ID Comandă:</strong> ${order.id}</p>
+        <p><strong>Data comenzii:</strong> ${order.orderDate ? new Date(order.orderDate).toLocaleDateString("ro-RO") : new Date().toLocaleDateString("ro-RO")}</p>
         
+        ${
+          order.shippingAddress
+            ? `
+        <h3 style="color: #333; margin-top: 20px;">Adresă de livrare</h3>
+        <p>${order.shippingAddress.fullName}<br>
+        ${order.shippingAddress.addressLine1}<br>
+        ${order.shippingAddress.addressLine2 ? `${order.shippingAddress.addressLine2}<br>` : ""}
+        ${order.shippingAddress.city}, ${order.shippingAddress.state} ${order.shippingAddress.postalCode}<br>
+        ${order.shippingAddress.country}<br>
+        Tel: ${order.shippingAddress.phone}</p>
+        `
+            : ""
+        }
+        
+        ${
+          order.shippingMethod
+            ? `
+        <h3 style="color: #333;">Metoda de livrare</h3>
+        <p><strong>${order.shippingMethod.name || "Livrare standard"}</strong><br>
+        ${order.shippingMethod.description || "Livrare între 3-5 zile lucrătoare"}<br>
+        <strong>Cost livrare:</strong> ${(order.shippingMethod.price || 0).toFixed(2)} Lei</p>
+        `
+            : ""
+        }
+        
+        <h3 style="color: #333; margin-top: 20px;">Produse comandate</h3>
         <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
           <thead>
             <tr style="background-color: #f3f4f6;">
-              <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Item</th>
-              <th style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">Qty</th>
-              <th style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">Price</th>
+              <th style="padding: 8px; text-align: left; border-bottom: 1px solid #ddd;">Produs</th>
+              <th style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">Cant.</th>
+              <th style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">Preț</th>
               <th style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">Total</th>
             </tr>
           </thead>
@@ -245,38 +278,71 @@ export const emailTemplates = {
                 <td style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">${
                   item.quantity
                 }</td>
-                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">$${item.price.toFixed(
+                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">${item.price.toFixed(
                   2
-                )}</td>
-                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">$${(
+                )} Lei</td>
+                <td style="padding: 8px; text-align: right; border-bottom: 1px solid #ddd;">${(
                   item.price * item.quantity
-                ).toFixed(2)}</td>
+                ).toFixed(2)} Lei</td>
               </tr>
             `
               )
               .join("")}
           </tbody>
           <tfoot>
+            <tr>
+              <td colspan="3" style="padding: 8px; text-align: right;">Subtotal:</td>
+              <td style="padding: 8px; text-align: right;">${(order.subtotal || order.total).toFixed(2)} Lei</td>
+            </tr>
+            ${
+              order.tax !== undefined
+                ? `
+            <tr>
+              <td colspan="3" style="padding: 8px; text-align: right;">TVA (19%):</td>
+              <td style="padding: 8px; text-align: right;">${order.tax.toFixed(2)} Lei</td>
+            </tr>`
+                : ""
+            }
+            ${
+              order.shippingMethod
+                ? `
+            <tr>
+              <td colspan="3" style="padding: 8px; text-align: right;">Livrare (${order.shippingMethod.name || "Standard"}):</td>
+              <td style="padding: 8px; text-align: right;">${(order.shippingCost || order.shippingMethod.price || 0).toFixed(2)} Lei</td>
+            </tr>
+            <tr style="background-color: #f9fafb;">
+              <td colspan="3" style="padding: 8px; text-align: right; font-weight: bold;">Total comandă:</td>
+              <td style="padding: 8px; text-align: right; font-weight: bold;">${order.total.toFixed(2)} Lei</td>
+            </tr>
+            `
+                : `
             <tr style="background-color: #f9fafb;">
               <td colspan="3" style="padding: 8px; text-align: right; font-weight: bold;">Total:</td>
-              <td style="padding: 8px; text-align: right; font-weight: bold;">$${order.total.toFixed(
-                2
-              )}</td>
+              <td style="padding: 8px; text-align: right; font-weight: bold;">${order.total.toFixed(2)} Lei</td>
             </tr>
+            `
+            }
           </tfoot>
         </table>
         
-        <div style="margin-top: 24px;">
-          <p>If you have any questions about your order, please contact our customer service team.</p>
-          <p>Thank you for shopping with us!</p>
+        <div style="margin-top: 24px; padding: 15px; background-color: #f9fafb; border-radius: 5px;">
+          <h3 style="color: #333; margin-top: 0;">Informații importante</h3>
+          <p>Vă vom informa prin email când comanda dumneavoastră va fi expediată.</p>
+          <p>Pentru orice întrebări legate de comanda dumneavoastră, vă rugăm să ne contactați la <a href="mailto:webira.rem.srl@gmail.com">webira.rem.srl@gmail.com</a> și menționați ID-ul comenzii.</p>
+        </div>
+        
+        <div style="margin-top: 24px; border-top: 1px solid #e5e7eb; padding-top: 16px;">
+          <p>Vă mulțumim că ați ales TeechTots!</p>
+          <p>Cu stimă,<br>Echipa TeechTots</p>
         </div>
       </div>
     `;
 
     return sendMail({
       to,
-      subject: `Order Confirmation #${order.id}`,
+      subject: `Confirmare Comandă TeechTots #${order.id}`,
       html,
+      from: `"TeechTots" <webira.rem.srl@gmail.com>`,
     });
   },
 

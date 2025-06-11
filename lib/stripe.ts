@@ -1,7 +1,7 @@
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 
 // Load the Stripe public key from environment variable
-const stripePublicKey = process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY;
+const stripePublicKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
 
 // Create a promise that resolves to the Stripe object
 let stripePromise: Promise<Stripe | null>;
@@ -12,7 +12,7 @@ export const getStripe = () => {
     // Check if the key is available
     if (!stripePublicKey) {
       console.error(
-        "Stripe public key is not set. Payment functionality will not work correctly."
+        "Stripe publishable key is not set. Payment functionality will not work correctly."
       );
       // Return a rejected promise in production
       if (process.env.NODE_ENV === "production") {
@@ -28,7 +28,7 @@ export const getStripe = () => {
     // Validate the key format
     if (!stripePublicKey.startsWith("pk_")) {
       console.error(
-        "Invalid Stripe public key format. Keys should start with 'pk_'"
+        "Invalid Stripe publishable key format. Keys should start with 'pk_'"
       );
       if (process.env.NODE_ENV === "production") {
         return Promise.reject(

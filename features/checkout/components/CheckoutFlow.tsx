@@ -15,7 +15,7 @@ import { useTranslation } from "@/lib/i18n";
 
 export function CheckoutFlow() {
   const router = useRouter();
-  const { clearCart } = useCart();
+  const { cartItems, getCartTotal, clearCart } = useCart();
   const { t } = useTranslation();
   const [currentStep, setCurrentStep] =
     useState<CheckoutStep>("shipping-address");
@@ -64,13 +64,28 @@ export function CheckoutFlow() {
     setOrderError(null);
 
     try {
-      // In a real implementation, this would create an order in the database
-      // and process the payment with Stripe
+      // Calculate amounts
+      const subtotal = getCartTotal();
+      const vatRate = 0.19; // 19% VAT for Romania
+      const tax = subtotal * vatRate;
+      const shippingCost = checkoutData.shippingMethod?.price || 0;
+      const total = subtotal + tax + shippingCost;
+
+      // Create order data with financial information
       const orderData = {
         ...checkoutData,
-        // Additional order data would be included here
         orderDate: new Date().toISOString(),
         status: "pending",
+        subtotal,
+        tax,
+        shippingCost,
+        total,
+        items: cartItems.map((item) => ({
+          productId: item.productId,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+        })),
       };
 
       // Create order in the database

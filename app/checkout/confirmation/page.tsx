@@ -4,8 +4,8 @@ import { Check, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const metadata = {
-  title: "Order Confirmation | NextCommerce",
-  description: "Your order has been placed successfully",
+  title: "Confirmare Comandă | TeechTots",
+  description: "Comanda dvs. a fost plasată cu succes",
 };
 
 export default function OrderConfirmationPage({
@@ -13,6 +13,7 @@ export default function OrderConfirmationPage({
 }: {
   searchParams: { orderId?: string };
 }) {
+  // No need to await here, just access the value directly
   const orderId = searchParams.orderId || "123456789"; // Fallback for demo
 
   return (
@@ -21,54 +22,55 @@ export default function OrderConfirmationPage({
         <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
           <Check className="h-8 w-8 text-green-600" />
         </div>
-        <h1 className="text-3xl font-bold mb-2">Thank you for your order!</h1>
+        <h1 className="text-3xl font-bold mb-2">Vă mulțumim pentru comandă!</h1>
         <p className="text-gray-600 text-lg">
-          Your order has been successfully placed.
+          Comanda dvs. a fost plasată cu succes.
         </p>
       </div>
 
       <div className="bg-white rounded-lg border shadow-sm p-8 mb-8">
         <div className="flex flex-col md:flex-row justify-between border-b pb-6 mb-6">
           <div>
-            <h2 className="text-xl font-semibold mb-2">Order Details</h2>
-            <p className="text-gray-600">Order #{orderId}</p>
+            <h2 className="text-xl font-semibold mb-2">Detalii Comandă</h2>
+            <p className="text-gray-600">Comanda #{orderId}</p>
             <p className="text-gray-600">
-              Date: {new Date().toLocaleDateString()}
+              Data: {new Date().toLocaleDateString("ro-RO")}
             </p>
           </div>
           <div className="mt-4 md:mt-0">
             <div className="bg-blue-50 text-blue-600 px-4 py-2 rounded-md inline-block">
-              <p className="font-medium">Order Status: Processing</p>
+              <p className="font-medium">Status Comandă: Procesare</p>
             </div>
           </div>
         </div>
 
         <p className="mb-6">
-          We have sent a confirmation email with order details to your email
-          address. You can also view your order in your account dashboard.
+          Am trimis un email de confirmare cu detaliile comenzii la adresa dvs.
+          de email. De asemenea, puteți vizualiza comanda în panoul de control
+          al contului dvs.
         </p>
 
-        <h3 className="font-semibold mb-2">What happens next?</h3>
+        <h3 className="font-semibold mb-2">Ce urmează?</h3>
         <ul className="space-y-2 mb-6 list-disc list-inside">
-          <li>Your order is being prepared for shipment</li>
-          <li>You'll receive an email when your order ships</li>
+          <li>Comanda dvs. este pregătită pentru expediere</li>
+          <li>Veți primi un email când comanda dvs. va fi expediată</li>
           <li>
-            You can track your order status in your{" "}
+            Puteți urmări statusul comenzii în{" "}
             <Link
               href="/account/orders"
               className="text-primary underline">
-              order history
+              istoricul comenzilor
             </Link>
           </li>
         </ul>
 
         <p className="text-gray-600 mb-6">
-          If you have any questions about your order, please contact our
-          customer service team at{" "}
+          Dacă aveți întrebări despre comanda dvs., vă rugăm să contactați
+          echipa noastră de asistență la{" "}
           <a
-            href="mailto:support@nextcommerce.com"
+            href="mailto:webira.rem.srl@gmail.com"
             className="text-primary underline">
-            support@nextcommerce.com
+            webira.rem.srl@gmail.com
           </a>
         </p>
 
@@ -78,13 +80,13 @@ export default function OrderConfirmationPage({
             className="flex items-center gap-2">
             <Link href="/products">
               <ShoppingBag className="h-4 w-4" />
-              Continue Shopping
+              Continuă Cumpărăturile
             </Link>
           </Button>
           <Button
             asChild
             variant="outline">
-            <Link href="/account/orders">View My Orders</Link>
+            <Link href="/account/orders">Vezi Comenzile Mele</Link>
           </Button>
         </div>
       </div>
