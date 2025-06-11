@@ -3,37 +3,42 @@ import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { revalidateTag } from "next/cache";
+import { isAdmin } from "@/lib/auth/admin";
+import { productSchema } from "@/lib/validations";
+import { slugify } from "@/lib/utils";
+import { handleFormData } from "@/lib/api-helpers";
+import { utapi } from "@/lib/uploadthing";
 
 // Schema for product validation
 const productSchema = z.object({
-  name: z.string().min(3, { message: "Name must be at least 3 characters" }),
-  slug: z
-    .string()
-    .min(3, { message: "Slug must be at least 3 characters" })
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
-      message: "Slug must contain only lowercase letters, numbers, and hyphens",
-    }),
-  description: z
-    .string()
-    .min(10, { message: "Description must be at least 10 characters" }),
-  price: z.number().positive({ message: "Price must be positive" }),
-  compareAtPrice: z.number().positive().optional(),
-  images: z
-    .array(z.string())
-    .min(1, { message: "At least one image is required" }),
-  categoryId: z.string().min(1, { message: "Category is required" }),
-  tags: z.array(z.string()).optional().default([]),
-  attributes: z.record(z.string()).optional(),
-  isActive: z.boolean().optional().default(true),
-  // SEO fields
+  name: z.string().min(3, "Name must be at least 3 characters"),
+  slug: z.string().min(3, "Slug must be at least 3 characters"),
+  description: z.string().min(10, "Description must be at least 10 characters"),
+  price: z.number().positive("Price must be positive"),
+  compareAtPrice: z
+    .number()
+    .positive("Compare at price must be positive")
+    .nullable()
+    .optional(),
+  categoryId: z.string().min(1, "Category is required"),
+  images: z.array(z.string()).default([]),
+  tags: z.array(z.string()).optional(),
+  isActive: z.boolean().default(true),
+  // Optional meta fields
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
   metaKeywords: z.array(z.string()).optional(),
-  // STEM specific fields
-  ageRange: z.string().optional(),
+  // Optional product attributes
+  ageRange: z
+    .object({
+      min: z.number().int().min(0, "Min age must be positive"),
+      max: z.number().int().min(0, "Max age must be positive"),
+    })
+    .optional(),
   stemCategory: z.string().optional(),
   difficultyLevel: z.string().optional(),
   learningObjectives: z.array(z.string()).optional(),
+  attributes: z.record(z.any()).optional(),
 });
 
 // Schema for product update validation (similar to create but all fields optional)
@@ -108,7 +113,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST new product
+// POST - Create a new product
 export async function POST(request: NextRequest) {
   try {
     // Get the auth session and enforce admin role check
@@ -186,6 +191,21 @@ export async function POST(request: NextRequest) {
       });
 
       console.log("Product created successfully:", product.id);
+
+      // Revalidate caches to ensure new product is visible immediately
+      console.log("Revalidating cache tags for new product creation");
+
+      // Revalidate the products list
+      revalidateTag("products");
+
+      // Revalidate specific product
+      revalidateTag(`product-${data.slug}`);
+
+      // Revalidate category pages
+      if (data.categoryId) {
+        revalidateTag(`category-${data.categoryId}`);
+      }
+
       return NextResponse.json(product, { status: 201 });
     } catch (dbError) {
       console.error("Database error creating product:", dbError);
@@ -340,6 +360,34 @@ export async function PUT(request: NextRequest) {
         category: true,
       },
     });
+
+    // Store the product slug and category for cache revalidation
+    const productSlug = updatedProduct.slug;
+    const categoryId = updatedProduct.categoryId;
+
+    // Revalidate caches to ensure product updates are visible immediately
+    console.log("Revalidating cache tags for product update");
+
+    // Revalidate the products list
+    revalidateTag("products");
+
+    // Revalidate specific product
+    revalidateTag(`product-${productSlug}`);
+
+    // If old slug is different from new slug, revalidate the old one too
+    if (existingProduct.slug !== productSlug) {
+      revalidateTag(`product-${existingProduct.slug}`);
+    }
+
+    // Revalidate category pages
+    if (categoryId) {
+      revalidateTag(`category-${categoryId}`);
+    }
+
+    // If category was changed, revalidate the old category too
+    if (existingProduct.categoryId !== categoryId) {
+      revalidateTag(`category-${existingProduct.categoryId}`);
+    }
 
     return NextResponse.json(updatedProduct);
   } catch (error) {

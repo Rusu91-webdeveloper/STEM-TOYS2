@@ -20,6 +20,9 @@ interface ProductData extends Omit<Product, "category"> {
   stemCategory?: string;
 }
 
+// Set fetch directive at the page level to always get fresh data
+export const dynamic = "force-dynamic";
+
 // Metadata is exported from a separate file
 export default async function ProductsPage({
   searchParams,

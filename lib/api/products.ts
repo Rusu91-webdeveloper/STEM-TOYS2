@@ -42,7 +42,7 @@ export async function getProduct(slug: string): Promise<Product | null> {
       next: {
         // Use tags for more precise invalidation
         tags: [`product-${slug}`, "products"],
-        revalidate: 3600, // Revalidate every hour
+        revalidate: 0, // Don't cache individual products to ensure freshness
       },
     });
 
@@ -115,7 +115,7 @@ export async function getProducts(
       next: {
         // Use tags for more precise invalidation
         tags: ["products", category ? `category-${category}` : ""],
-        revalidate: 3600, // Revalidate every hour
+        revalidate: 0, // Don't cache the products list to ensure freshness
       },
     });
 
