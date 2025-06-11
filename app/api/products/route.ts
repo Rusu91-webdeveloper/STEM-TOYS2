@@ -169,70 +169,81 @@ export async function GET(request: NextRequest) {
 
     console.log("Final query where clause:", JSON.stringify(where, null, 2));
 
-    // Fetch products with the built where clause
-    const products = await db.product.findMany({
-      where,
-      include: {
-        category: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    });
+    try {
+      // Fetch products with the built where clause
+      const products = await db.product.findMany({
+        where,
+        include: {
+          category: true,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+      });
 
-    console.log(`Found ${products.length} products matching criteria`);
+      console.log(`Found ${products.length} products matching criteria`);
 
-    // Transform product data for the response
-    const transformedProducts = products.map((product) => {
-      // Extract data safely
-      const productData = {
-        id: product.id,
-        name: product.name,
-        slug: product.slug,
-        description: product.description,
-        price: product.price,
-        compareAtPrice: product.compareAtPrice,
-        images: product.images,
-        featured: product.featured,
-        isActive: product.isActive,
-        category: product.category
-          ? {
-              id: product.category.id,
-              name: product.category.name,
-              slug: product.category.slug,
-            }
-          : null,
-        attributes: product.attributes,
-      };
+      // Transform product data for the response
+      const transformedProducts = products.map((product) => {
+        // Extract data safely
+        const productData = {
+          id: product.id,
+          name: product.name,
+          slug: product.slug,
+          description: product.description,
+          price: product.price,
+          compareAtPrice: product.compareAtPrice,
+          images: product.images,
+          featured: product.featured,
+          isActive: product.isActive,
+          category: product.category
+            ? {
+                id: product.category.id,
+                name: product.category.name,
+                slug: product.category.slug,
+              }
+            : null,
+          attributes: product.attributes,
+        };
 
-      // Add additional fields that might not be in all product records
-      const result: any = { ...productData };
+        // Add additional fields that might not be in all product records
+        const result: any = { ...productData };
 
-      // Extract stemCategory from attributes if it exists
-      if (product.attributes && typeof product.attributes === "object") {
-        const attrs = product.attributes as Record<string, any>;
-        if (attrs.stemCategory) {
-          result.stemCategory = attrs.stemCategory;
+        // Extract stemCategory from attributes if it exists
+        if (product.attributes && typeof product.attributes === "object") {
+          const attrs = product.attributes as Record<string, any>;
+          if (attrs.stemCategory) {
+            result.stemCategory = attrs.stemCategory;
+          }
         }
-      }
 
-      // Add these fields only if they exist in the product record
-      if ("ageRange" in product) {
-        result.ageRange = (product as any).ageRange;
-      }
+        // Add these fields only if they exist in the product record
+        if ("ageRange" in product) {
+          result.ageRange = (product as any).ageRange;
+        }
 
-      if ("stockLevel" in product) {
-        result.stockLevel = (product as any).stockLevel;
-      }
+        if ("stockLevel" in product) {
+          result.stockLevel = (product as any).stockLevel;
+        }
 
-      return result;
-    });
+        return result;
+      });
 
-    // Return the products
-    return NextResponse.json({
-      count: products.length,
-      products: transformedProducts,
-    });
+      console.log("Response structure format:", {
+        count: products.length,
+        hasProducts: true,
+        format: "standard",
+      });
+
+      // Return the products - ensure consistent format between environments
+      return NextResponse.json(transformedProducts);
+    } catch (dbError) {
+      console.error("Database error when fetching products:", dbError);
+      return NextResponse.json(
+        { error: "Database error", details: dbError },
+        { status: 500 }
+      );
+    }
   } catch (error) {
     console.error("Error fetching products:", error);
     return NextResponse.json(

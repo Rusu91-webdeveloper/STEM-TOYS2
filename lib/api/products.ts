@@ -112,12 +112,30 @@ export async function getProducts(
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch products: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error(
+        `API error (${response.status}): ${response.statusText}`,
+        errorText
+      );
+      throw new Error(
+        `Failed to fetch products: ${response.statusText}. Details: ${errorText}`
+      );
     }
 
     const data = await response.json();
+    console.log("API response structure:", Object.keys(data));
+
     // API returns { count, products }, but we need to return just the products array
-    return data.products || [];
+    if (data.products && Array.isArray(data.products)) {
+      console.log(`Retrieved ${data.products.length} products from API`);
+      return data.products;
+    } else if (Array.isArray(data)) {
+      console.log(`Retrieved ${data.length} products from API (array format)`);
+      return data;
+    } else {
+      console.error("Unexpected API response format:", data);
+      return [];
+    }
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];
