@@ -253,3 +253,23 @@ export const authOptions: NextAuthConfig = {
 
 // For Next Auth v5
 export const { handlers, auth, signIn, signOut } = NextAuth(authOptions);
+
+// Mock users for development purposes
+export const mockUsers = [
+  {
+    id: "mock_user_1",
+    name: "Test User",
+    email: "test@example.com",
+    password: "$2a$12$QduVQePXgFInw8z.j1bBXuwxQPKVzxS4j9FWXD1Afxy3NQbIBMSqy", // hashed 'Password123'
+    isActive: true,
+    role: "CUSTOMER",
+  },
+  {
+    id: "mock_admin",
+    name: "Admin User",
+    email: "admin@example.com",
+    password: "$2a$12$QduVQePXgFInw8z.j1bBXuwxQPKVzxS4j9FWXD1Afxy3NQbIBMSqy", // hashed 'Password123'
+    isActive: true,
+    role: "ADMIN",
+  },
+];

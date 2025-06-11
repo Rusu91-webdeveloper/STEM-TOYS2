@@ -1,7 +1,6 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UTApi } from "uploadthing/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 
 const f = createUploadthing();
 
@@ -96,7 +95,7 @@ export const ourFileRouter = {
       console.log("UploadThing middleware running for productImage");
 
       // Get the authenticated user from the session
-      const session = await getServerSession(authOptions);
+      const session = await auth();
 
       // Check if the user is authenticated
       if (!session || !session.user) {
@@ -116,7 +115,7 @@ export const ourFileRouter = {
       console.log("UploadThing middleware running for blogCoverImage");
 
       // Get the authenticated user from the session
-      const session = await getServerSession(authOptions);
+      const session = await auth();
 
       // Check if the user is authenticated
       if (!session || !session.user) {
@@ -136,7 +135,7 @@ export const ourFileRouter = {
       console.log("UploadThing middleware running for categoryImage");
 
       // Get the authenticated user from the session
-      const session = await getServerSession(authOptions);
+      const session = await auth();
 
       // Check if the user is authenticated and is an admin
       if (!session || !session.user) {
@@ -161,7 +160,7 @@ export const ourFileRouter = {
       console.log("UploadThing middleware running for document");
 
       // Get the authenticated user from the session
-      const session = await getServerSession(authOptions);
+      const session = await auth();
 
       // Check if the user is authenticated
       if (!session || !session.user) {
