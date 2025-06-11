@@ -115,7 +115,9 @@ export async function getProducts(
       throw new Error(`Failed to fetch products: ${response.statusText}`);
     }
 
-    return await response.json();
+    const data = await response.json();
+    // API returns { count, products }, but we need to return just the products array
+    return data.products || [];
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];
