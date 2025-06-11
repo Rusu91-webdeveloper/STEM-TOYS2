@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { PrismaClient } from "@/app/generated/prisma";
-
-const prisma = new PrismaClient();
+import { db } from "@/lib/db";
 
 // GET all blogs with optional filters
 export async function GET(request: NextRequest) {
@@ -32,7 +30,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch blog posts
-    const blogs = await prisma.blog.findMany({
+    const blogs = await db.blog.findMany({
       where: filter,
       include: {
         author: {
@@ -117,14 +115,14 @@ export async function POST(request: NextRequest) {
 
     // Check if the user exists in the database
     let authorId = session.user.id;
-    const userExists = await prisma.user.findUnique({
+    const userExists = await db.user.findUnique({
       where: { id: authorId },
       select: { id: true },
     });
 
     // If user doesn't exist, use the admin user from the database
     if (!userExists) {
-      const adminUser = await prisma.user.findFirst({
+      const adminUser = await db.user.findFirst({
         where: { role: "ADMIN" },
         select: { id: true },
       });
@@ -139,7 +137,23 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const blog = await prisma.blog.create({
+    // Create default metadata if not provided
+    const metadata = {
+      language: "en",
+      metaTitle: data.title,
+      metaDescription: data.excerpt,
+      keywords: tags,
+    };
+
+    console.log("Creating blog post with data:", {
+      title: data.title,
+      slug: data.slug,
+      authorId,
+      categoryId: data.categoryId,
+      tags,
+    });
+
+    const blog = await db.blog.create({
       data: {
         title: data.title,
         slug: data.slug,
@@ -153,6 +167,7 @@ export async function POST(request: NextRequest) {
         isPublished: data.isPublished || false,
         publishedAt,
         readingTime: Math.ceil(data.content.split(" ").length / 200), // Rough estimate: 200 words per minute
+        metadata,
       },
     });
 
@@ -168,8 +183,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Provide more detailed error information
     return NextResponse.json(
-      { error: "Failed to create blog post" },
+      {
+        error: "Failed to create blog post",
+        details: error.message || "Unknown error",
+        code: error.code || "UNKNOWN",
+      },
       { status: 500 }
     );
   }

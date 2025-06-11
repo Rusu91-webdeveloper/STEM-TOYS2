@@ -141,7 +141,10 @@ export default function NewBlogPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create blog post");
+        console.error("Server error response:", errorData);
+        throw new Error(
+          errorData.details || errorData.error || "Failed to create blog post"
+        );
       }
 
       const createdBlog = await response.json();
