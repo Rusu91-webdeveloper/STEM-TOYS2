@@ -8,7 +8,7 @@ import { CurrencyProvider } from "@/lib/currency";
 import ClientLayout from "@/components/layout/ClientLayout";
 import { metadata as appMetadata } from "./metadata";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-git add
+
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
