@@ -17,7 +17,10 @@ export async function getProduct(slug: string): Promise<Product | null> {
     } else {
       // Server environment - use environment variable or default to localhost
       const apiBase =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+        process.env.NEXT_PUBLIC_API_URL ||
+        process.env.NEXT_PUBLIC_SITE_URL ||
+        process.env.NEXTAUTH_URL ||
+        "http://localhost:3000";
 
       // Make sure we have a complete URL with protocol
       const baseUrl = apiBase.startsWith("http")
@@ -29,6 +32,7 @@ export async function getProduct(slug: string): Promise<Product | null> {
         ? baseUrl.slice(0, -1)
         : baseUrl;
 
+      console.log(`Using API base URL: ${cleanBaseUrl}`);
       url = `${cleanBaseUrl}/api/products/${encodedSlug}`;
     }
 
@@ -86,7 +90,10 @@ export async function getProducts(
     } else {
       // Server environment - use environment variable or default to localhost
       const apiBase =
-        process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+        process.env.NEXT_PUBLIC_API_URL ||
+        process.env.NEXT_PUBLIC_SITE_URL ||
+        process.env.NEXTAUTH_URL ||
+        "http://localhost:3000";
 
       // Make sure we have a complete URL with protocol
       const baseUrl = apiBase.startsWith("http")
@@ -98,6 +105,7 @@ export async function getProducts(
         ? baseUrl.slice(0, -1)
         : baseUrl;
 
+      console.log(`Using API base URL: ${cleanBaseUrl}`);
       url = `${cleanBaseUrl}/api/products${queryString}`;
     }
 
@@ -132,6 +140,31 @@ export async function getProducts(
     } else if (Array.isArray(data)) {
       console.log(`Retrieved ${data.length} products from API (array format)`);
       return data;
+    } else if (typeof data === "object" && data !== null) {
+      // If it's an object but not in the expected format, try to extract any array we can find
+      const possibleArrays = Object.values(data).filter((val) =>
+        Array.isArray(val)
+      );
+      if (possibleArrays.length > 0) {
+        // Use the largest array found (likely the products)
+        const productArray = possibleArrays.reduce(
+          (prev, current) => (current.length > prev.length ? current : prev),
+          []
+        );
+        console.log(
+          `Found product array with ${productArray.length} items in unexpected format`
+        );
+        return productArray;
+      }
+
+      // If we can't find an array, convert the object to an array if it looks like a product
+      if ("id" in data && "name" in data) {
+        console.log("Found single product object, converting to array");
+        return [data];
+      }
+
+      console.error("Unexpected API response format (object):", data);
+      return [];
     } else {
       console.error("Unexpected API response format:", data);
       return [];

@@ -31,6 +31,8 @@ export default async function ProductsPage({
 
   console.log("Environment:", process.env.NODE_ENV);
   console.log("API URL:", process.env.NEXT_PUBLIC_API_URL || "Not set");
+  console.log("SITE URL:", process.env.NEXT_PUBLIC_SITE_URL || "Not set");
+  console.log("NEXTAUTH URL:", process.env.NEXTAUTH_URL || "Not set");
 
   // Debug database connection
   try {
