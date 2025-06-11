@@ -7,6 +7,7 @@ import { I18nProvider } from "@/lib/i18n";
 import { CurrencyProvider } from "@/lib/currency";
 import ClientLayout from "@/components/layout/ClientLayout";
 import { metadata as appMetadata } from "./metadata";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   subsets: ["latin"],
