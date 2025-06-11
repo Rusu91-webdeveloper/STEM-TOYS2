@@ -80,6 +80,7 @@ export function ProductActionsDropdown({
         headers: {
           "Content-Type": "application/json",
         },
+        cache: "no-store",
       });
 
       // Log the response status
@@ -100,10 +101,13 @@ export function ProductActionsDropdown({
         description: "The product has been successfully deleted.",
       });
 
-      // Use a timeout to ensure dialog is fully closed before refreshing
+      // Force router refresh to update the UI with latest data
+      router.refresh();
+
+      // Use a timeout to ensure dialog is fully closed before redirecting
       setTimeout(() => {
-        // Navigate to the products page instead of refresh
-        window.location.href = "/admin/products";
+        // Navigate to the products page
+        router.push("/admin/products");
       }, 300);
     } catch (error) {
       console.error("Error deleting product:", error);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
+import { revalidateTag } from "next/cache";
 
 // Schema for product validation
 const productSchema = z.object({
@@ -381,6 +382,10 @@ export async function DELETE(request: NextRequest) {
     // Store product images before deleting the product
     const productImages = existingProduct.images as string[];
 
+    // Store product info for cache invalidation
+    const productSlug = existingProduct.slug;
+    const categoryId = existingProduct.categoryId;
+
     // Delete product
     await db.product.delete({
       where: { id },
@@ -396,6 +401,20 @@ export async function DELETE(request: NextRequest) {
         // Log but don't fail the request if image deletion fails
         console.error("Failed to delete product images:", imageError);
       }
+    }
+
+    // Revalidate caches to ensure product disappears from the UI
+    console.log("Revalidating cache tags for product deletion");
+
+    // Revalidate the products list
+    revalidateTag("products");
+
+    // Revalidate specific product
+    revalidateTag(`product-${productSlug}`);
+
+    // Revalidate category if it exists
+    if (categoryId) {
+      revalidateTag(`category-${categoryId}`);
     }
 
     return NextResponse.json(

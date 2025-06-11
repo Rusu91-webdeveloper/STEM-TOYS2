@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { deleteUploadThingFiles } from "@/lib/uploadthing";
+import { revalidateTag } from "next/cache";
 
 // In a production application, you would properly implement auth checks
 // For this demo, we'll skip authentication since it's causing import issues
@@ -120,6 +121,10 @@ export async function DELETE(
       productImages
     );
 
+    // Store the product slug before deletion for cache invalidation
+    const productSlug = product.slug;
+    const categoryId = product.categoryId;
+
     // Delete the product from the database
     await db.product.delete({
       where: { id: productId },
@@ -154,6 +159,20 @@ export async function DELETE(
       }
     } else {
       console.log(`No images to delete for product ${productId}`);
+    }
+
+    // Revalidate caches to ensure product disappears from the UI
+    console.log("Revalidating cache tags for product deletion");
+
+    // Revalidate the products list
+    revalidateTag("products");
+
+    // Revalidate specific product
+    revalidateTag(`product-${productSlug}`);
+
+    // Revalidate category if it exists
+    if (categoryId) {
+      revalidateTag(`category-${categoryId}`);
     }
 
     return NextResponse.json({
