@@ -29,6 +29,7 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
+      accountLinked?: boolean;
     };
   }
 }
@@ -39,6 +40,7 @@ declare module "next-auth/jwt" {
     id?: string;
     isActive?: boolean;
     role?: string;
+    accountLinked?: boolean;
   }
 }
 
@@ -243,7 +245,7 @@ export const authOptions: NextAuthConfig = {
                 name: "Find Google user",
                 maxRetries: 3,
                 delayMs: 300,
-                logParams: { email: profile.email },
+                logParams: { email: profile.email as string },
               }
             );
           } catch (findError) {
@@ -257,36 +259,94 @@ export const authOptions: NextAuthConfig = {
           }
 
           if (existingUser) {
-            // Update existing user with retry logic
-            await withRetry(
-              () =>
-                db.user.update({
-                  where: { id: existingUser!.id },
-                  data: {
-                    name: profile.name || existingUser!.name,
-                    isActive: true, // Ensure Google-authenticated users are active
-                    emailVerified: new Date(),
-                  },
-                }),
+            // User already exists with this email
+            logger.info(
+              "User already exists with this email, signing in as existing user",
               {
-                name: "Update Google user",
-                maxRetries: 5,
-                delayMs: 300,
-                logParams: { userId: existingUser.id, email: profile.email },
+                userId: existingUser.id,
+                email: profile.email as string,
               }
             );
 
-            logger.info("Updated existing user from Google login", {
-              userId: existingUser.id,
-              email: profile.email,
-            });
+            // Check if this is a regular account (non-empty password) trying to sign in with Google
+            const isRegularAccount =
+              existingUser.password && existingUser.password !== "";
 
-            // Store the user ID to be used in the JWT callback
-            if (user) {
-              user.id = existingUser.id;
+            if (isRegularAccount) {
+              // For security, still link the account but inform the user through an error
+              logger.warn("Regular user attempting to sign in with Google", {
+                userId: existingUser.id,
+                email: profile.email as string,
+              });
+
+              // Update existing user to mark as active and store Google credentials
+              // but preserve their role and other important fields
+              await withRetry(
+                () =>
+                  db.user.update({
+                    where: { id: existingUser!.id },
+                    data: {
+                      name: profile.name || existingUser!.name,
+                      isActive: true,
+                      emailVerified: new Date(),
+                      // Do NOT change role - preserve the existing user's role
+                      // role is intentionally omitted to keep the original value
+                    },
+                  }),
+                {
+                  name: "Update Google user",
+                  maxRetries: 5,
+                  delayMs: 300,
+                  logParams: {
+                    userId: existingUser.id,
+                    email: profile.email as string,
+                  },
+                }
+              );
+
+              // Store the user ID to be used in the JWT callback
+              if (user) {
+                user.id = existingUser.id;
+              }
+
+              // We'll display a message on the client side about account linking
+              // Add a custom property to pass through to jwt callback
+              (user as any).accountLinked = true;
+            } else {
+              // This is a Google account - regular update flow
+              await withRetry(
+                () =>
+                  db.user.update({
+                    where: { id: existingUser!.id },
+                    data: {
+                      name: profile.name || existingUser!.name,
+                      isActive: true, // Ensure Google-authenticated users are active
+                      emailVerified: new Date(),
+                    },
+                  }),
+                {
+                  name: "Update Google user",
+                  maxRetries: 5,
+                  delayMs: 300,
+                  logParams: {
+                    userId: existingUser.id,
+                    email: profile.email as string,
+                  },
+                }
+              );
+
+              logger.info("Updated existing user from Google login", {
+                userId: existingUser.id,
+                email: profile.email as string,
+              });
+
+              // Store the user ID to be used in the JWT callback
+              if (user) {
+                user.id = existingUser.id;
+              }
             }
           } else {
-            // Create new user for Google authentication using retry logic
+            // No user with this email exists - create new user for Google authentication
             let newUser: any;
             try {
               newUser = await withRetry(
@@ -376,6 +436,30 @@ export const authOptions: NextAuthConfig = {
         session.user.id = token.id || token.sub || "";
         session.user.isActive = token.isActive || false;
         session.user.role = token.role || "CUSTOMER";
+        session.user.accountLinked = token.accountLinked || false;
+
+        // For Google-linked accounts, double-check the role from the database
+        // This ensures admin privileges are preserved after Google sign-in
+        if (token.accountLinked && session.user.id) {
+          try {
+            // Only make this additional check for accounts marked as linked
+            const dbUser = await db.user.findUnique({
+              where: { id: session.user.id },
+              select: { role: true },
+            });
+
+            if (dbUser && dbUser.role) {
+              // Make sure to use the latest role from DB
+              session.user.role = dbUser.role;
+            }
+          } catch (error) {
+            logger.error("Error verifying role in session callback", {
+              error: error instanceof Error ? error.message : String(error),
+              userId: session.user.id,
+            });
+            // Continue with existing role on error
+          }
+        }
 
         // For middleware and API routes, add token data to session
         // This makes googleAuthTimestamp accessible in the middleware
@@ -400,6 +484,19 @@ export const authOptions: NextAuthConfig = {
       // Verify that the user still exists in the database using our retry helper
       try {
         if (session.user.id) {
+          // Special handling for environment-based admin accounts
+          // These accounts don't exist in the database but are valid
+          if (session.user.id === "admin_env") {
+            // Check if the ADMIN_EMAIL env var is still set
+            if (process.env.ADMIN_EMAIL) {
+              logger.info("Session validated for environment admin user", {
+                userId: session.user.id,
+              });
+              // Admin env user is valid, continue
+              return session;
+            }
+          }
+
           const userExists = await verifyUserExists(session.user.id, {
             maxRetries: 3,
             delayMs: 500,
@@ -440,10 +537,40 @@ export const authOptions: NextAuthConfig = {
         token.isActive = extendedUser.isActive || false;
         token.role = extendedUser.role || "CUSTOMER";
 
+        // Capture account linking information if present
+        token.accountLinked = (user as any).accountLinked || false;
+
         // For Google auth, add a timestamp when the user is created/updated
         // This helps identify fresh Google auth sessions
         if (account?.provider === "google") {
           token.googleAuthTimestamp = Date.now();
+
+          // For linked accounts (especially ADMIN), verify the role directly from the database
+          if ((user as any).accountLinked) {
+            try {
+              const dbUser = await db.user.findUnique({
+                where: { id: user.id },
+                select: { role: true },
+              });
+
+              if (dbUser && dbUser.role) {
+                // Use the role from the database to ensure admins keep their privileges
+                token.role = dbUser.role;
+                logger.info(
+                  "Updated user role from database during Google auth",
+                  {
+                    userId: user.id,
+                    role: dbUser.role,
+                  }
+                );
+              }
+            } catch (error) {
+              logger.error("Error fetching user role during Google auth", {
+                error: error instanceof Error ? error.message : String(error),
+                userId: user.id,
+              });
+            }
+          }
         }
       }
       return token;

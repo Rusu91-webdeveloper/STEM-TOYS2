@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import { useEffect } from "react";
 import { SessionValidator } from "@/components/auth/SessionValidator";
 import { SessionProvider } from "next-auth/react";
+import { AccountLinkingNotice } from "@/components/auth/AccountLinkingNotice";
 
 export default function ClientLayout({
   children,
@@ -22,6 +23,7 @@ export default function ClientLayout({
   return (
     <SessionProvider>
       <SessionValidator />
+      <AccountLinkingNotice />
       <Header />
       <main className="flex-grow">{children}</main>
       <Footer />

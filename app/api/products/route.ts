@@ -15,14 +15,12 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = new URL(request.url).searchParams;
     const category = searchParams.get("category");
-    const stemCategory = searchParams.get("stemCategory");
     const featured = searchParams.get("featured");
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
 
     console.log("API Request Params:", {
       category,
-      stemCategory,
       featured,
       minPrice,
       maxPrice,
@@ -119,7 +117,7 @@ export async function GET(request: NextRequest) {
           const variations = stemCategories[key];
 
           where.OR = [
-            // Match by category
+            // Match by category (string variations)
             {
               category: {
                 OR: [
@@ -128,9 +126,7 @@ export async function GET(request: NextRequest) {
                 ],
               },
             },
-            // Match by stemCategory attribute
-            { stemCategory: { in: variations, mode: "insensitive" } },
-            // Match by stemCategory in attributes JSON
+            // Match by stemCategory in attributes JSON (string)
             {
               attributes: {
                 path: ["stemCategory"],
@@ -146,20 +142,6 @@ export async function GET(request: NextRequest) {
           { category: { name: normalizedCategory } },
         ];
       }
-    }
-
-    // Handle STEM category filter
-    if (stemCategory) {
-      const normalizedStemCategory = normalizeCategory(stemCategory);
-      where.OR = [
-        { stemCategory: normalizedStemCategory },
-        {
-          attributes: {
-            path: ["stemCategory"],
-            string_contains: normalizedStemCategory,
-          },
-        },
-      ];
     }
 
     // Handle featured products filter

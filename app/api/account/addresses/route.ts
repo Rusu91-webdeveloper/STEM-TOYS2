@@ -22,14 +22,42 @@ export async function GET() {
       );
     }
 
-    const addresses = await db.address.findMany({
-      where: {
-        userId: session.user.id,
-      },
-      orderBy: {
-        isDefault: "desc", // Default addresses first
-      },
-    });
+    // Special handling for environment-based admin accounts
+    // These have a userId of "admin_env" but need to access addresses by email
+    let addresses: any[] = [];
+
+    if (session.user.id === "admin_env" && session.user.email) {
+      // First, try to find the real user ID by email
+      const realUser = await db.user.findUnique({
+        where: { email: session.user.email },
+        select: { id: true },
+      });
+
+      if (realUser) {
+        // If a real user with this email exists, use their ID to find addresses
+        addresses = await db.address.findMany({
+          where: {
+            userId: realUser.id,
+          },
+          orderBy: {
+            isDefault: "desc", // Default addresses first
+          },
+        });
+      } else {
+        // If no real user found, return empty array
+        addresses = [];
+      }
+    } else {
+      // Regular case - get addresses for the current user ID
+      addresses = await db.address.findMany({
+        where: {
+          userId: session.user.id,
+        },
+        orderBy: {
+          isDefault: "desc", // Default addresses first
+        },
+      });
+    }
 
     return NextResponse.json(addresses);
   } catch (error) {
@@ -66,13 +94,37 @@ export async function POST(req: Request) {
 
     const { isDefault, ...addressData } = result.data;
 
+    // Handle the special case for environment-based admin accounts
+    let userId = session.user.id;
+
+    if (userId === "admin_env" && session.user.email) {
+      // Try to find the real user ID by email
+      const realUser = await db.user.findUnique({
+        where: { email: session.user.email },
+        select: { id: true },
+      });
+
+      if (realUser) {
+        // Use the real user ID instead
+        userId = realUser.id;
+      } else {
+        return NextResponse.json(
+          {
+            error:
+              "Cannot create address for environment-based admin. Please sign in with Google.",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     // Use transaction to ensure operations are atomic
     const newAddress = await db.$transaction(async (tx) => {
       // If this is the default address, unset any existing default addresses
       if (isDefault) {
         await tx.address.updateMany({
           where: {
-            userId: session.user.id,
+            userId: userId,
             isDefault: true,
           },
           data: {
@@ -86,7 +138,7 @@ export async function POST(req: Request) {
         data: {
           ...addressData,
           isDefault,
-          userId: session.user.id,
+          userId: userId,
         },
       });
     });

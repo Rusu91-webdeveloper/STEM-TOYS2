@@ -27,11 +27,27 @@ export async function GET(
 
     const addressId = params.id;
 
+    // Handle special case for environment-based admin accounts
+    let userId = session.user.id;
+
+    if (userId === "admin_env" && session.user.email) {
+      // Try to find the real user ID by email
+      const realUser = await db.user.findUnique({
+        where: { email: session.user.email },
+        select: { id: true },
+      });
+
+      if (realUser) {
+        // Use the real user ID instead
+        userId = realUser.id;
+      }
+    }
+
     // Fetch the address and ensure it belongs to the current user
     const address = await db.address.findFirst({
       where: {
         id: addressId,
-        userId: session.user.id,
+        userId: userId,
       },
     });
 
@@ -76,11 +92,27 @@ export async function PUT(
       );
     }
 
+    // Handle special case for environment-based admin accounts
+    let userId = session.user.id;
+
+    if (userId === "admin_env" && session.user.email) {
+      // Try to find the real user ID by email
+      const realUser = await db.user.findUnique({
+        where: { email: session.user.email },
+        select: { id: true },
+      });
+
+      if (realUser) {
+        // Use the real user ID instead
+        userId = realUser.id;
+      }
+    }
+
     // Check if the address exists and belongs to the user
     const existingAddress = await db.address.findFirst({
       where: {
         id: addressId,
-        userId: session.user.id,
+        userId: userId,
       },
     });
 
@@ -96,7 +128,7 @@ export async function PUT(
       if (isDefault && !existingAddress.isDefault) {
         await tx.address.updateMany({
           where: {
-            userId: session.user.id,
+            userId: userId, // Use the resolved userId which handles admin_env
             isDefault: true,
           },
           data: {
@@ -144,11 +176,27 @@ export async function DELETE(
 
     const addressId = params.id;
 
+    // Handle special case for environment-based admin accounts
+    let userId = session.user.id;
+
+    if (userId === "admin_env" && session.user.email) {
+      // Try to find the real user ID by email
+      const realUser = await db.user.findUnique({
+        where: { email: session.user.email },
+        select: { id: true },
+      });
+
+      if (realUser) {
+        // Use the real user ID instead
+        userId = realUser.id;
+      }
+    }
+
     // Check if the address exists and belongs to the user
     const existingAddress = await db.address.findFirst({
       where: {
         id: addressId,
-        userId: session.user.id,
+        userId: userId,
       },
     });
 
@@ -169,7 +217,7 @@ export async function DELETE(
       if (existingAddress.isDefault) {
         const anotherAddress = await tx.address.findFirst({
           where: {
-            userId: session.user.id,
+            userId: userId, // Use the resolved userId which handles admin_env
           },
         });
 

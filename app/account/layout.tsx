@@ -32,52 +32,61 @@ export default async function AccountLayout({
   // Extract user ID
   const userId = session.user.id;
 
-  // Check if this is a fresh Google auth session
-  const tokenData = (session as any).token || {};
-  const isRecentGoogleAuth =
-    tokenData.googleAuthTimestamp &&
-    Date.now() - tokenData.googleAuthTimestamp < 120000; // 2 minute grace period
-
-  if (isRecentGoogleAuth) {
+  // Special handling for environment-based admin accounts
+  if (userId === "admin_env" && process.env.ADMIN_EMAIL) {
     logger.info(
-      "Fresh Google auth session detected in account layout, using extended verification",
-      {
-        userId,
-      }
+      "Session validated for environment admin user in account layout",
+      { userId }
     );
+    // Admin env user is valid, continue to render the account page
+  } else {
+    // For regular users, verify they exist in the database
+    const tokenData = (session as any).token || {};
+    const isRecentGoogleAuth =
+      tokenData.googleAuthTimestamp &&
+      Date.now() - tokenData.googleAuthTimestamp < 120000; // 2 minute grace period
 
-    // For fresh Google auth, use extended verification with multiple retries and longer delays
-    let userExists = false;
-
-    // Multiple rounds of verification with increasing delays
-    for (let attempt = 0; attempt < 5; attempt++) {
-      userExists = await verifyUserExists(userId, {
-        maxRetries: 3,
-        delayMs: 500 * (attempt + 1), // Increasing delay with each attempt
-      });
-
-      if (userExists) {
-        logger.info(`User verified on attempt ${attempt + 1}`, { userId });
-        break;
-      }
-
-      // Wait before next verification round
-      await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
-    }
-
-    if (!userExists) {
-      logger.warn(
-        "User not found after extended verification for fresh auth session",
+    if (isRecentGoogleAuth) {
+      logger.info(
+        "Fresh Google auth session detected in account layout, using extended verification",
         { userId }
       );
-      redirect("/auth/login?error=UserDeleted");
-    }
-  } else {
-    // Standard verification for established sessions
-    const userExists = await verifyUserExists(userId);
-    if (!userExists) {
-      logger.warn("User not found in standard verification", { userId });
-      redirect("/auth/login?error=UserDeleted");
+
+      // For fresh Google auth, use extended verification with multiple retries and longer delays
+      let userExists = false;
+
+      // Multiple rounds of verification with increasing delays
+      for (let attempt = 0; attempt < 5; attempt++) {
+        userExists = await verifyUserExists(userId, {
+          maxRetries: 3,
+          delayMs: 500 * (attempt + 1), // Increasing delay with each attempt
+        });
+
+        if (userExists) {
+          logger.info(`User verified on attempt ${attempt + 1}`, { userId });
+          break;
+        }
+
+        // Wait before next verification round
+        await new Promise((resolve) =>
+          setTimeout(resolve, 500 * (attempt + 1))
+        );
+      }
+
+      if (!userExists) {
+        logger.warn(
+          "User not found after extended verification for fresh auth session",
+          { userId }
+        );
+        redirect("/auth/login?error=UserDeleted");
+      }
+    } else {
+      // Standard verification for established sessions
+      const userExists = await verifyUserExists(userId);
+      if (!userExists) {
+        logger.warn("User not found in standard verification", { userId });
+        redirect("/auth/login?error=UserDeleted");
+      }
     }
   }
 
@@ -93,7 +102,7 @@ export default async function AccountLayout({
                     {t("account")}
                   </h2>
                   <p className="text-sm text-muted-foreground">
-                    {t("myAccount")}
+                    {session.user.name || t("account")}
                   </p>
                 </div>
                 <div className="md:hidden">

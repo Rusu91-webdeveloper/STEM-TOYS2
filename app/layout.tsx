@@ -14,6 +14,7 @@ import { ClientProviders } from "@/components/layout/ClientProviders";
 import { ProvideCart } from "@/components/layout/ProvideCart";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { NavigationProgress } from "@/components/ui/navigation-progress";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -40,6 +41,7 @@ export default function RootLayout({
       </head>
       <body
         className={`${inter.variable} font-sans antialiased min-h-screen flex flex-col`}>
+        <NavigationProgress />
         <I18nProvider>
           <CurrencyProvider>
             <CartProviderWrapper>

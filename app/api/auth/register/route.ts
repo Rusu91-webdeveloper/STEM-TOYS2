@@ -39,10 +39,14 @@ async function handleRegistration(req: Request) {
     });
 
     if (existingUser) {
+      // Check if this is a Google-authenticated user (empty password)
+      const isGoogleUser = existingUser.password === "";
+
       return NextResponse.json(
         {
-          error:
-            "An account with this email already exists. Please use a different email or try logging in.",
+          error: isGoogleUser
+            ? "This email is already registered with Google. Please sign in with Google instead."
+            : "An account with this email already exists. Please use a different email or try logging in.",
         },
         { status: 409 }
       );

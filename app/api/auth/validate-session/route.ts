@@ -21,6 +21,12 @@ export async function GET(request: NextRequest) {
     // Extract user ID for clarity
     const userId = session.user.id;
 
+    // Special handling for environment-based admin accounts
+    if (userId === "admin_env" && process.env.ADMIN_EMAIL) {
+      logger.info("Session validated for environment admin user", { userId });
+      return NextResponse.json({ valid: true });
+    }
+
     // Check if this is a fresh Google auth session
     const tokenData = (session as any).token || {};
     const isRecentGoogleAuth =

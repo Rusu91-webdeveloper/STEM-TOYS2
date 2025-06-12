@@ -53,6 +53,14 @@ interface Category {
   productCount: number;
 }
 
+// Add a mapping from slug to the correct query value for the products page
+const slugToQueryCategory: Record<string, string> = {
+  science: "science",
+  technology: "technology",
+  engineering: "engineering",
+  math: "mathematics", // Fix: math → mathematics
+};
+
 export default function CategoriesPage() {
   const { t, language } = useTranslation();
   const [categories, setCategories] = useState<Category[]>(
@@ -189,7 +197,7 @@ export default function CategoriesPage() {
                       size="lg"
                       className="rounded-full font-medium h-9 sm:h-10 md:h-11 text-xs sm:text-sm md:text-base px-4 sm:px-6">
                       <Link
-                        href={`/products?category=${category.slug.toLowerCase()}`}>
+                        href={`/products?category=${slugToQueryCategory[category.slug] || category.slug}`}>
                         {t("explorerCategoryToys").replace(
                           "{0}",
                           category.name
