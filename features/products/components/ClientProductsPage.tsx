@@ -36,43 +36,50 @@ interface CategoryIconInfo {
   letter: string;
 }
 
+// Define letter constants first to avoid circular references
+const LETTER_S = "S";
+const LETTER_T = "T";
+const LETTER_E = "E";
+const LETTER_M = "M";
+const LETTER_B = "B";
+
 // Category icons and styling for better visual representation
 const categoryInfo: Record<string, CategoryIconInfo> = {
   science: {
     icon: Atom,
     bgColor: "bg-blue-500",
     textColor: "text-blue-500",
-    letter: "S",
+    letter: LETTER_S,
   },
   technology: {
     icon: Lightbulb,
     bgColor: "bg-green-500",
     textColor: "text-green-500",
-    letter: "T",
+    letter: LETTER_T,
   },
   engineering: {
     icon: Microscope,
     bgColor: "bg-orange-500",
     textColor: "text-orange-500",
-    letter: "E",
+    letter: LETTER_E,
   },
   mathematics: {
     icon: ShieldQuestion,
     bgColor: "bg-purple-500",
     textColor: "text-purple-500",
-    letter: "M",
+    letter: LETTER_M,
   },
   "educational-books": {
     icon: Brain,
     bgColor: "bg-red-500",
     textColor: "text-red-500",
-    letter: "B",
+    letter: LETTER_B,
   },
   engineeringlearning: {
     icon: Rocket,
     bgColor: "bg-amber-500",
     textColor: "text-amber-500",
-    letter: "E",
+    letter: LETTER_E,
   },
 };
 
