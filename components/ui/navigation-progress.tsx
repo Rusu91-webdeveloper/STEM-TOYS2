@@ -6,11 +6,12 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-export function NavigationProgress() {
+// Internal component that uses useSearchParams and usePathname
+function NavigationProgressContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isNavigating, setIsNavigating] = useState(false);
@@ -56,5 +57,23 @@ export function NavigationProgress() {
         style={{ width: `${progress}%` }}
       />
     </div>
+  );
+}
+
+// Loading fallback - simpler version of the progress bar
+function NavigationProgressFallback() {
+  return (
+    <div className="fixed top-0 left-0 right-0 h-1 z-50 opacity-0">
+      <div className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500" />
+    </div>
+  );
+}
+
+// Export the main component with Suspense boundary
+export function NavigationProgress() {
+  return (
+    <Suspense fallback={<NavigationProgressFallback />}>
+      <NavigationProgressContent />
+    </Suspense>
   );
 }

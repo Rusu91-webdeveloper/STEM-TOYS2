@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useTranslation } from "@/lib/i18n";
 import Image from "next/image";
@@ -173,7 +173,8 @@ const normalizeCategory = (name: string): string => {
   return lower;
 };
 
-export default function ClientProductsPage({
+// Internal component that uses useSearchParams
+function ClientProductsPageContent({
   initialProducts,
   searchParams,
 }: ClientProductsPageProps) {
@@ -1146,5 +1147,40 @@ export default function ClientProductsPage({
         </div>
       </div>
     </ProductVariantProvider>
+  );
+}
+
+// Loading fallback component
+function ClientProductsPageFallback() {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="animate-pulse">
+        <div className="h-[20vh] bg-gray-200 rounded-xl mb-8"></div>
+        <div className="flex flex-col md:flex-row gap-6">
+          <div className="w-full md:w-64 h-96 bg-gray-200 rounded-xl"></div>
+          <div className="flex-1 space-y-4">
+            <div className="h-8 bg-gray-200 rounded"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array(6)
+                .fill(0)
+                .map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-64 bg-gray-200 rounded-xl"></div>
+                ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Export the main component with Suspense boundary
+export default function ClientProductsPage(props: ClientProductsPageProps) {
+  return (
+    <Suspense fallback={<ClientProductsPageFallback />}>
+      <ClientProductsPageContent {...props} />
+    </Suspense>
   );
 }
