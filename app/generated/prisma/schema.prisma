@@ -8,15 +8,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum OrderItemReturnStatus {
-  NONE
-  REQUESTED
-  APPROVED
-  REJECTED
-  RECEIVED
-  REFUNDED
-}
-
 model User {
   id                  String               @id @default(cuid())
   name                String?
@@ -30,12 +21,12 @@ model User {
   updatedAt           DateTime             @updatedAt
   addresses           Address[]
   blogs               Blog[]
+  orders              Order[]
   passwordResetTokens PasswordResetToken[]
   paymentCards        PaymentCard[]
-  wishlistItems       Wishlist[]
-  orders              Order[]
   returns             Return[]
   reviews             Review[]
+  wishlistItems       Wishlist[]
 }
 
 model PasswordResetToken {
@@ -94,7 +85,7 @@ model Category {
   parentId    String?
   image       String?
   isActive    Boolean    @default(true)
-  metadata    Json? // SEO metadata structure: { "metaTitle": "", "metaDescription": "", "keywords": [], "structuredData": {}, "canonical": "" }
+  metadata    Json?
   blogs       Blog[]
   parent      Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryToCategory")
@@ -117,15 +108,15 @@ model Product {
   updatedAt      DateTime    @updatedAt
   barcode        String?
   dimensions     Json?
-  metadata       Json? // SEO metadata structure: { "metaTitle": "", "metaDescription": "", "keywords": [], "structuredData": {}, "canonical": "" }
+  metadata       Json?
   sku            String?
   stockQuantity  Int         @default(0)
   weight         Float?
   featured       Boolean     @default(false)
-  category       Category    @relation(fields: [categoryId], references: [id])
-  wishlistItems  Wishlist[]
   orderItems     OrderItem[]
+  category       Category    @relation(fields: [categoryId], references: [id])
   reviews        Review[]
+  wishlistItems  Wishlist[]
 
   @@index([categoryId])
   @@index([isActive])
@@ -140,8 +131,8 @@ model Wishlist {
   userId    String
   productId String
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, productId])
   @@index([userId])
@@ -158,7 +149,7 @@ model Blog {
   categoryId   String
   authorId     String
   tags         String[]
-  metadata     Json? // SEO metadata structure: { "metaTitle": "", "metaDescription": "", "keywords": [], "structuredData": {}, "canonical": "" }
+  metadata     Json?
   isPublished  Boolean      @default(false)
   publishedAt  DateTime?
   createdAt    DateTime     @default(now())
@@ -184,7 +175,7 @@ model Book {
   isActive    Boolean    @default(true)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  metadata    Json? // SEO metadata structure: { "metaTitle": "", "metaDescription": "", "keywords": [], "structuredData": {}, "canonical": "" }
+  metadata    Json?
   languages   Language[]
 }
 
@@ -215,9 +206,9 @@ model Order {
   billingAddressId  String?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
-  items             OrderItem[]
-  user              User          @relation(fields: [userId], references: [id])
   shippingAddress   Address       @relation(fields: [shippingAddressId], references: [id])
+  user              User          @relation(fields: [userId], references: [id])
+  items             OrderItem[]
   returns           Return[]
 
   @@index([userId])
@@ -259,9 +250,57 @@ model StoreSettings {
   metaKeywords     String   @default("STEM toys, educational toys, science toys, technology toys, engineering toys, math toys")
   shippingSettings Json?
   paymentSettings  Json?
-  metadata         Json? // Additional SEO metadata structure: { "structuredData": {}, "socialMedia": {}, "analytics": {} }
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+  metadata         Json?
+}
+
+model Return {
+  id          String       @id @default(cuid())
+  userId      String
+  orderId     String
+  orderItemId String
+  reason      ReturnReason
+  details     String?
+  status      ReturnStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  order       Order        @relation(fields: [orderId], references: [id])
+  orderItem   OrderItem    @relation(fields: [orderItemId], references: [id])
+  user        User         @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([orderId])
+  @@index([orderItemId])
+}
+
+model Review {
+  id          String    @id @default(cuid())
+  userId      String
+  productId   String
+  orderItemId String
+  rating      Int       @default(0)
+  title       String
+  content     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@unique([userId, orderItemId])
+  @@index([userId])
+  @@index([productId])
+  @@index([orderItemId])
+}
+
+enum OrderItemReturnStatus {
+  NONE
+  REQUESTED
+  APPROVED
+  REJECTED
+  RECEIVED
+  REFUNDED
 }
 
 enum Role {
@@ -307,47 +346,4 @@ enum ReturnStatus {
   REJECTED
   RECEIVED
   REFUNDED
-}
-
-model Return {
-  id          String       @id @default(cuid())
-  userId      String
-  orderId     String
-  orderItemId String
-  reason      ReturnReason
-  details     String? // Optional text for "Other" reason
-  status      ReturnStatus @default(PENDING)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  // Relations
-  user      User      @relation(fields: [userId], references: [id])
-  order     Order     @relation(fields: [orderId], references: [id])
-  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
-
-  @@index([userId])
-  @@index([orderId])
-  @@index([orderItemId])
-}
-
-model Review {
-  id          String   @id @default(cuid())
-  userId      String
-  productId   String
-  orderItemId String
-  rating      Int      @default(0) // 1-5 stars
-  title       String
-  content     String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Relations
-  user      User      @relation(fields: [userId], references: [id])
-  product   Product   @relation(fields: [productId], references: [id])
-  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
-
-  @@unique([userId, orderItemId]) // User can only review an item once per order
-  @@index([userId])
-  @@index([productId])
-  @@index([orderItemId])
 }

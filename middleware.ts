@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { securityHeaders, isDevelopment } from "@/lib/security";
 import crypto from "crypto";
+import { getToken } from "next-auth/jwt";
 
 // Supported locales
 const locales = ["en", "ro"];
@@ -271,6 +272,129 @@ export async function middleware(request: NextRequest) {
   // Add cache headers for static content
   addCacheHeaders(response, pathname);
 
+  try {
+    const token = await getToken({
+      req: request,
+      secret:
+        process.env.NEXTAUTH_SECRET ||
+        "935925a21cc9c5f18fbec20510b9655211e16f4f06ba63c23e7b45862bd6cc9e",
+    });
+
+    // Check if this is a fresh Google auth session
+    const isRecentGoogleAuth =
+      token?.googleAuthTimestamp &&
+      Date.now() - (token.googleAuthTimestamp as number) < 120000; // 2 minute grace period
+
+    // For account path, always check validation
+    const isAccountPath = request.nextUrl.pathname.startsWith("/account");
+
+    if (isRecentGoogleAuth && !isAccountPath) {
+      console.log(
+        `Fresh Google auth detected in middleware, bypassing error checks`
+      );
+      // For fresh Google auth, bypass error checks to allow time for database propagation
+      // Unless it's the account path which needs its own validation
+      return response;
+    }
+
+    // Don't try to access the database directly from middleware
+    // This was causing browser hanging in some environments
+    // Instead use our validate-session API
+    if (token && token.id) {
+      // Skip validation for static assets and API routes to avoid unnecessary checks
+      if (
+        request.nextUrl.pathname.startsWith("/_next") ||
+        request.nextUrl.pathname.startsWith("/static") ||
+        request.nextUrl.pathname.startsWith("/api/auth/validate-session") ||
+        request.nextUrl.pathname.startsWith("/api/auth/clear-session")
+      ) {
+        return response;
+      }
+
+      // Only validate sessions for account area and admin routes
+      // This prevents unnecessary API calls for regular browsing
+      if (
+        !request.nextUrl.pathname.startsWith("/account") &&
+        !request.nextUrl.pathname.startsWith("/admin")
+      ) {
+        return response;
+      }
+
+      // Log the auth state to help debugging
+      console.log(
+        `Path: ${request.nextUrl.pathname}, Auth Status: Authenticated`
+      );
+      console.log(`Auth Cookie Present: Yes, Client Auth: ${!!token}`);
+
+      // For account area, validate the user still exists in database
+      try {
+        const validationResponse = await fetch(
+          new URL("/api/auth/validate-session", request.url),
+          {
+            headers: request.headers,
+          }
+        );
+
+        if (validationResponse.ok) {
+          const data = await validationResponse.json();
+          if (!data.valid) {
+            console.log(`Session validation failed: ${data.reason}`);
+
+            // For fresh Google auth that failed validation, show a special error
+            if (isRecentGoogleAuth && data.isRecentAuth) {
+              console.log(
+                "Fresh Google auth detected but validation failed - giving more time"
+              );
+
+              // For very fresh sessions (under 15 seconds), give more time
+              // by delaying the redirect slightly to allow database propagation
+              if (Date.now() - (token.googleAuthTimestamp as number) < 15000) {
+                console.log(
+                  "Very fresh session, delaying validation to allow propagation"
+                );
+
+                // Return the normal response to allow the page to load
+                // The client-side will handle this with the googleAuthInProgress flag
+                return response;
+              }
+
+              return NextResponse.redirect(
+                new URL(`/auth/login?error=RecentAuthFailed`, request.url)
+              );
+            }
+
+            // Standard invalid sessions are cleared
+            return NextResponse.redirect(
+              new URL("/api/auth/clear-session", request.url)
+            );
+          }
+        }
+      } catch (error) {
+        // If validation fails, still allow the user to proceed
+        // This prevents a validation error from blocking access
+        console.error("Error validating session:", error);
+      }
+    }
+
+    // If the user is on the login page but already has a valid session
+    // redirect them directly to the account page for better UX
+    if (
+      token &&
+      token.id &&
+      request.nextUrl.pathname === "/auth/login" &&
+      !request.nextUrl.search.includes("error=")
+    ) {
+      // Log the auth state for debugging
+      console.log(
+        `Redirecting authenticated user from login page to account page`
+      );
+      return NextResponse.redirect(new URL("/account", request.url));
+    }
+  } catch (error) {
+    // Log the error but don't fail the middleware
+    console.error("Error checking session token:", error);
+  }
+
   return response;
 }
 
@@ -279,16 +403,14 @@ export async function middleware(request: NextRequest) {
  */
 export const config = {
   matcher: [
-    /**
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    "/((?!api|_next/static|_next/image|favicon.ico).*)",
-    // Add protection for checkout routes
-    "/checkout/:path*",
+    // Match all paths except:
+    // - API routes (except auth endpoints which we want to process)
+    // - Static files in _next or public folders
+    // - Favicon, images, etc.
+    "/((?!api/auth/clear-session|api/auth/\\[...nextauth\\]|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Explicitly include account and profile routes to ensure they're always checked
+    "/account/:path*",
+    "/profile/:path*",
   ],
 };
 

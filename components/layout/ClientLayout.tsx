@@ -4,6 +4,8 @@ import { useTranslation } from "@/lib/i18n";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { useEffect } from "react";
+import { SessionValidator } from "@/components/auth/SessionValidator";
+import { SessionProvider } from "next-auth/react";
 
 export default function ClientLayout({
   children,
@@ -18,10 +20,11 @@ export default function ClientLayout({
   }, [language]);
 
   return (
-    <>
+    <SessionProvider>
+      <SessionValidator />
       <Header />
       <main className="flex-grow">{children}</main>
       <Footer />
-    </>
+    </SessionProvider>
   );
 }

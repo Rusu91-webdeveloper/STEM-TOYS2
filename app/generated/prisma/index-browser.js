@@ -298,9 +298,9 @@ exports.Prisma.StoreSettingsScalarFieldEnum = {
   metaKeywords: 'metaKeywords',
   shippingSettings: 'shippingSettings',
   paymentSettings: 'paymentSettings',
-  metadata: 'metadata',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  metadata: 'metadata'
 };
 
 exports.Prisma.ReturnScalarFieldEnum = {

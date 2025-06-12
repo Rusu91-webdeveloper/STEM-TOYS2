@@ -69,35 +69,108 @@ function LoginForm() {
       setSuccess(
         "Your account has been created! Please check your email to verify your account before logging in."
       );
+    } else if (searchParams.get("error") === "UserDeleted") {
+      // Check if we're in an active Google auth flow first
+      const isGoogleAuthInProgress = localStorage.getItem(
+        "googleAuthInProgress"
+      );
+
+      if (isGoogleAuthInProgress) {
+        console.log("Google auth in progress, suppressing error message");
+        // Don't show error during OAuth flow, it might be temporary
+        // Remove the error parameter from URL to prevent it from showing up
+        // when the user is redirected back
+        const params = new URLSearchParams(window.location.search);
+        params.delete("error");
+
+        const newUrl =
+          window.location.pathname +
+          (params.toString() ? `?${params.toString()}` : "");
+
+        // Replace current URL without the error
+        window.history.replaceState(null, "", newUrl);
+        return;
+      }
+
+      // If we get here, it's not a temporary error, so show it
+      setError(
+        "Your account has been deleted or no longer exists. Please create a new account or contact support."
+      );
+
+      // Force clear all authentication data
+      const clearAuthData = async () => {
+        try {
+          // Sign out using NextAuth
+          await signOut({ redirect: false });
+
+          // Clear all cookies with more aggressive approach
+          document.cookie.split(";").forEach((cookie) => {
+            const [name] = cookie.trim().split("=");
+            if (name) {
+              const paths = [
+                "/",
+                "/account",
+                "/profile",
+                "/auth",
+                "/checkout",
+                "/api",
+              ];
+              const domains = [window.location.hostname, "", null, undefined];
+
+              // Clear cookie on all paths and potential domains
+              paths.forEach((path) => {
+                domains.forEach((domain) => {
+                  const domainStr = domain ? `domain=${domain}; ` : "";
+                  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:01 GMT; ${domainStr}path=${path}; secure; samesite=lax`;
+                  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:01 GMT; ${domainStr}path=${path}`;
+                });
+              });
+            }
+          });
+
+          // Clear storage
+          localStorage.clear();
+          sessionStorage.clear();
+
+          console.log("Cleared all auth data due to UserDeleted error");
+
+          // Force reload to ensure clean state
+          setTimeout(() => {
+            window.location.href = "/auth/login";
+          }, 100);
+        } catch (error) {
+          console.error("Error clearing auth data:", error);
+        }
+      };
+
+      clearAuthData();
     }
   }, [searchParams]);
 
   // If user is already authenticated and there's a callbackUrl, redirect there
   useEffect(() => {
     if (status === "authenticated" && session) {
-      const callbackUrl = searchParams.get("callbackUrl");
-      if (callbackUrl) {
-        console.log("User is authenticated, redirecting to:", callbackUrl);
+      const callbackUrl = searchParams.get("callbackUrl") || "/account";
+      console.log("User is authenticated, redirecting to:", callbackUrl);
 
-        // Add a small delay to allow state to settle
-        const redirectTimer = setTimeout(() => {
-          // Check if the callbackUrl is already in the browser history
-          // This helps prevent redirect loops when changing language/currency
-          const isRedirectedFromCallbackUrl =
-            document.referrer && document.referrer.includes(callbackUrl);
+      // Add a small delay to allow state to settle
+      const redirectTimer = setTimeout(() => {
+        // Check if the callbackUrl is already in the browser history
+        // This helps prevent redirect loops when changing language/currency
+        const isRedirectedFromCallbackUrl =
+          document.referrer && document.referrer.includes(callbackUrl);
 
-          if (isRedirectedFromCallbackUrl) {
-            console.log(
-              "Detected potential redirect loop, navigating to homepage instead"
-            );
-            window.location.href = "/";
-          } else {
-            window.location.href = callbackUrl;
-          }
-        }, 500);
+        if (isRedirectedFromCallbackUrl) {
+          console.log(
+            "Detected potential redirect loop, navigating to homepage instead"
+          );
+          window.location.href = "/";
+        } else {
+          window.location.href = callbackUrl;
+        }
+      }, 500);
 
-        return () => clearTimeout(redirectTimer);
-      }
+      return () => clearTimeout(redirectTimer);
     }
   }, [session, status, searchParams]);
 

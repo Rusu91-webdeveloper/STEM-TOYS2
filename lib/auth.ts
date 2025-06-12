@@ -2,10 +2,12 @@ import NextAuth from "next-auth";
 import { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { db } from "@/lib/db";
+import { z } from "zod";
 import { compare } from "bcrypt";
+import { db } from "@/lib/db";
 import { logger } from "@/lib/logger";
 import { hashAdminPassword, verifyAdminPassword } from "@/lib/admin-auth";
+import { withRetry, verifyUserExists } from "@/lib/db-helpers";
 
 // Extended user type that includes our custom fields
 interface ExtendedUser {
@@ -226,19 +228,223 @@ export const authOptions: NextAuthConfig = {
     }),
   ],
   callbacks: {
-    async session({ session, token }) {
-      if (token && session.user) {
-        session.user.id = token.sub || "";
-        session.user.isActive = token.isActive as boolean;
-        session.user.role = token.role as string;
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "google" && profile?.email) {
+        try {
+          // Check if user already exists - with retries
+          let existingUser = null;
+          try {
+            existingUser = await withRetry(
+              () =>
+                db.user.findUnique({
+                  where: { email: profile.email! },
+                }),
+              {
+                name: "Find Google user",
+                maxRetries: 3,
+                delayMs: 300,
+                logParams: { email: profile.email },
+              }
+            );
+          } catch (findError) {
+            logger.error("Error finding existing user", {
+              error:
+                findError instanceof Error
+                  ? findError.message
+                  : String(findError),
+              email: profile.email,
+            });
+          }
+
+          if (existingUser) {
+            // Update existing user with retry logic
+            await withRetry(
+              () =>
+                db.user.update({
+                  where: { id: existingUser!.id },
+                  data: {
+                    name: profile.name || existingUser!.name,
+                    isActive: true, // Ensure Google-authenticated users are active
+                    emailVerified: new Date(),
+                  },
+                }),
+              {
+                name: "Update Google user",
+                maxRetries: 5,
+                delayMs: 300,
+                logParams: { userId: existingUser.id, email: profile.email },
+              }
+            );
+
+            logger.info("Updated existing user from Google login", {
+              userId: existingUser.id,
+              email: profile.email,
+            });
+
+            // Store the user ID to be used in the JWT callback
+            if (user) {
+              user.id = existingUser.id;
+            }
+          } else {
+            // Create new user for Google authentication using retry logic
+            let newUser: any;
+            try {
+              newUser = await withRetry(
+                () =>
+                  db.user.create({
+                    data: {
+                      email: profile.email!,
+                      name: profile.name ?? "Google User",
+                      // For Google users, we don't need a password since they authenticate via Google
+                      password: "", // Empty password for Google users
+                      isActive: true, // Google-authenticated users are verified by default
+                      emailVerified: new Date(),
+                      role: "CUSTOMER", // Use the enum value from the Prisma schema
+                    },
+                  }),
+                {
+                  name: "Create Google user",
+                  maxRetries: 5,
+                  delayMs: 300,
+                  logParams: { email: profile.email },
+                }
+              );
+
+              logger.info("Created new user from Google login", {
+                userId: newUser.id,
+                email: profile.email,
+              });
+
+              // Store the user ID to be used in the JWT callback
+              if (user) {
+                user.id = newUser.id;
+              }
+
+              // Double check user exists right after creation
+              const verifyCreation = await withRetry(
+                () =>
+                  db.user.findUnique({
+                    where: { id: newUser.id },
+                    select: { id: true },
+                  }),
+                {
+                  name: "Verify Google user creation",
+                  maxRetries: 3,
+                  delayMs: 300,
+                  logParams: { userId: newUser.id, email: profile.email },
+                }
+              );
+
+              if (!verifyCreation) {
+                logger.error(
+                  "User created but not found in verification check",
+                  {
+                    userId: newUser.id,
+                    email: profile.email,
+                  }
+                );
+                return false;
+              }
+            } catch (createError) {
+              logger.error("Failed to create user after multiple attempts", {
+                error:
+                  createError instanceof Error
+                    ? createError.message
+                    : String(createError),
+                email: profile.email,
+              });
+              return false;
+            }
+          }
+
+          // Force a delay to ensure database operations complete
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+        } catch (error) {
+          logger.error("Error in Google sign-in flow", {
+            error: error instanceof Error ? error.message : String(error),
+            email: profile.email,
+          });
+          return false; // Prevent sign-in on database error
+        }
       }
+
+      return true; // Allow sign-in
+    },
+    async session({ session, token }) {
+      // Assign token data to session
+      if (token) {
+        session.user.id = token.id || token.sub || "";
+        session.user.isActive = token.isActive || false;
+        session.user.role = token.role || "CUSTOMER";
+
+        // For middleware and API routes, add token data to session
+        // This makes googleAuthTimestamp accessible in the middleware
+        (session as any).token = {
+          googleAuthTimestamp: token.googleAuthTimestamp,
+        };
+      }
+
+      // Skip database verification for fresh Google auth sessions
+      // This gives time for the user creation in the database to complete
+      const isRecentGoogleAuth =
+        token.googleAuthTimestamp &&
+        Date.now() - (token.googleAuthTimestamp as number) < 120000; // 2 minute grace period (increased)
+
+      if (isRecentGoogleAuth) {
+        logger.info("Bypassing database check for fresh Google auth session", {
+          userId: session.user.id,
+        });
+        return session;
+      }
+
+      // Verify that the user still exists in the database using our retry helper
+      try {
+        if (session.user.id) {
+          const userExists = await verifyUserExists(session.user.id, {
+            maxRetries: 3,
+            delayMs: 500,
+          });
+
+          // If user doesn't exist in database, invalidate the session
+          if (!userExists) {
+            logger.warn("Session requested for deleted user", {
+              userId: session.user.id,
+            });
+            // Set an error flag so middleware can detect and handle this
+            return {
+              ...session,
+              user: {
+                ...session.user,
+                error: "UserNotFound",
+              },
+              expires: "0",
+            };
+          }
+        }
+      } catch (error) {
+        logger.error("Error verifying user existence during session", {
+          error: error instanceof Error ? error.message : String(error),
+          userId: session.user?.id,
+        });
+        // Continue in case of database error to avoid blocking access
+      }
+
       return session;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, account, profile }) {
+      // If the user has just signed in, add their database id to the token
       if (user) {
         token.id = user.id;
-        token.isActive = (user as any).isActive;
-        token.role = (user as any).role;
+        // Use type assertion to handle the custom fields safely
+        const extendedUser = user as ExtendedUser;
+        token.isActive = extendedUser.isActive || false;
+        token.role = extendedUser.role || "CUSTOMER";
+
+        // For Google auth, add a timestamp when the user is created/updated
+        // This helps identify fresh Google auth sessions
+        if (account?.provider === "google") {
+          token.googleAuthTimestamp = Date.now();
+        }
       }
       return token;
     },
@@ -248,7 +454,9 @@ export const authOptions: NextAuthConfig = {
     signIn: "/auth/login",
     error: "/auth/error",
   },
-  secret: process.env.NEXTAUTH_SECRET || "placeholder-secret-for-development",
+  secret:
+    process.env.NEXTAUTH_SECRET ||
+    "935925a21cc9c5f18fbec20510b9655211e16f4f06ba63c23e7b45862bd6cc9e",
 };
 
 // For Next Auth v5
