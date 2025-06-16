@@ -14,6 +14,7 @@ const categoryDescKeys: Record<string, TranslationKey> = {
   technology: "technologyCategoryDesc",
   engineering: "engineeringCategoryDesc",
   math: "mathCategoryDesc",
+  "educational-books": "educationalBooksDesc",
 };
 
 // Static data for fallback with translated names
@@ -42,6 +43,12 @@ const categoryData = [
     slug: "math",
     image: "/images/category_banner_math_01.png",
   },
+  {
+    nameKey: "Educational Books",
+    description: "educationalBooksDesc",
+    slug: "educational-books",
+    image: "/images/category_banner_books_01.jpg",
+  },
 ];
 
 interface Category {
@@ -59,6 +66,7 @@ const slugToQueryCategory: Record<string, string> = {
   technology: "technology",
   engineering: "engineering",
   math: "mathematics", // Fix: math → mathematics
+  "educational-books": "educational-books", // Add books category
 };
 
 export default function CategoriesPage() {
@@ -83,6 +91,8 @@ export default function CategoriesPage() {
         return language === "ro" ? "Inginerie" : "Engineering";
       case "math":
         return language === "ro" ? "Matematică" : "Math";
+      case "educational-books":
+        return language === "ro" ? "Cărți Educaționale" : "Educational Books";
       default:
         return slug;
     }
@@ -150,8 +160,8 @@ export default function CategoriesPage() {
             key={category.slug}
             className={`flex flex-col ${
               index % 2 !== 0 ? "md:flex-row-reverse" : "md:flex-row"
-            } gap-6 sm:gap-8 md:gap-12 items-center`}>
-            <div className="w-full md:w-1/2 transition-all duration-500 hover:scale-[1.02]">
+            } gap-6 sm:gap-8 md:gap-12 items-center transition-all duration-500 hover:scale-[1.02] shadow-lg hover:shadow-xl rounded-xl sm:rounded-2xl overflow-hidden`}>
+            <div className="w-full md:w-1/2">
               <div className="relative h-56 sm:h-64 md:h-96 w-full overflow-hidden rounded-xl sm:rounded-2xl shadow-lg">
                 {isLoading ? (
                   <Skeleton className="h-full w-full" />
@@ -195,7 +205,7 @@ export default function CategoriesPage() {
                     <Button
                       asChild
                       size="lg"
-                      className="rounded-full font-medium h-9 sm:h-10 md:h-11 text-xs sm:text-sm md:text-base px-4 sm:px-6">
+                      className="rounded-full font-medium h-9 sm:h-10 md:h-11 text-xs sm:text-sm md:text-base px-4 sm:px-6 bg-gradient-to-r from-primary to-secondary text-white hover:from-secondary hover:to-primary">
                       <Link
                         href={`/products?category=${slugToQueryCategory[category.slug] || category.slug}`}>
                         {t("explorerCategoryToys").replace(

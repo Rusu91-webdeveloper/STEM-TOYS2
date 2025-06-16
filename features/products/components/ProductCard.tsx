@@ -164,7 +164,7 @@ export function ProductCard({
             <ProductAddToCartButton
               product={productData}
               showQuantity={false}
-              className="scale-90 sm:scale-100"
+              className="scale-90 sm:scale-100 hover:scale-95 transition-transform duration-300"
             />
           </div>
         </div>
@@ -176,7 +176,7 @@ export function ProductCard({
   return (
     <div
       className={cn(
-        "group border rounded-lg overflow-hidden h-full flex flex-col",
+        "group border rounded-lg overflow-hidden h-full flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300",
         className
       )}>
       <div
@@ -240,7 +240,7 @@ export function ProductCard({
           <ProductAddToCartButton
             product={productData}
             showQuantity={false}
-            className="scale-90 sm:scale-100"
+            className="scale-90 sm:scale-100 hover:scale-95 transition-transform duration-300"
           />
         </div>
       </div>

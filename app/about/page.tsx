@@ -5,10 +5,16 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n";
 import { useState, useEffect } from "react";
+import { BookCarousel } from "@/components/ui/book-carousel";
+
+type BookLanguage = "english" | "romanian";
 
 export default function AboutPage() {
   const { t } = useTranslation();
-  const [bookVersions, setBookVersions] = useState({
+  const [bookVersions, setBookVersions] = useState<{
+    book1: BookLanguage;
+    book2: BookLanguage;
+  }>({
     book1: "romanian",
     book2: "romanian",
   });
@@ -36,10 +42,11 @@ export default function AboutPage() {
   }, []);
 
   // Toggle language for specific book
-  const toggleBookLanguage = (book: "book1" | "book2") => {
+  const toggleBookLanguage = (index: number) => {
+    const bookKey = index === 0 ? "book1" : "book2";
     setBookVersions((prev) => ({
       ...prev,
-      [book]: prev[book] === "english" ? "romanian" : "english",
+      [bookKey]: prev[bookKey] === "english" ? "romanian" : "english",
     }));
   };
 
@@ -96,6 +103,34 @@ export default function AboutPage() {
     }
   };
 
+  // Book data for carousel
+  const books = [
+    {
+      english: {
+        src: "/born_for_the_future.png",
+        alt: "Born for the Future",
+        language: "english" as const,
+      },
+      romanian: {
+        src: "/born_for_the_future_ro.png",
+        alt: "Născut pentru viitor",
+        language: "romanian" as const,
+      },
+    },
+    {
+      english: {
+        src: "/STEM_play_for_neurodiverse_minds.jpg",
+        alt: "STEM Play for Neurodiverse Minds",
+        language: "english" as const,
+      },
+      romanian: {
+        src: "/STEM_play_for_neurodiverse_minds_ro.jpg",
+        alt: "Jocuri STEM pentru minți neurodivergente",
+        language: "romanian" as const,
+      },
+    },
+  ];
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -138,20 +173,20 @@ export default function AboutPage() {
                   {t("ourStory")}
                 </h2>
               </div>
-              <div className="space-y-3 sm:space-y-4 text-sm sm:text-base md:text-lg text-gray-700">
-                <p className="leading-relaxed">
+              <div className="space-y-4 sm:space-y-5 text-sm sm:text-base md:text-lg">
+                <p className="leading-relaxed text-gray-800 font-medium">
                   {t(
                     "ourStoryParagraph1",
                     'Established in 2025, TechTots was founded on a vision sparked by two pivotal books: "STEM Play for Neurodiverse Minds" by Casey Wrenly and "Born for the Future" by a dedicated educator and parent. These works highlighted the profound impact of STEM play on child development and the importance of future-ready skills, shaping our core mission.'
                   )}
                 </p>
-                <p className="leading-relaxed">
+                <p className="leading-relaxed text-gray-700">
                   {t(
                     "ourStoryParagraph2",
                     'At TechTots, we believe STEM toys are essential catalysts for cognitive growth in all children, igniting natural curiosity and building foundations in computational thinking and scientific reasoning. We champion an approach where learning aligns with a child\'s natural interests and neurology. We are especially committed to neurodiverse children, including those with ADHD and autism. Drawing inspiration from "STEM Play for Neurodiverse Minds," we offer tools designed for sensory-rich experiences that enhance focus and cognitive skills, transforming their unique strengths into pathways for learning and confidence.'
                   )}
                 </p>
-                <p className="leading-relaxed">
+                <p className="leading-relaxed text-gray-700 italic border-l-4 border-indigo-300 pl-4">
                   {t(
                     "ourStoryParagraph3",
                     'Further shaped by "Born for the Future," which emphasizes preparing children with critical human skills for an AI-driven world, we understand that STEM integration builds crucial technical and creative problem-solving abilities. Our mission at TechTots is to be your trusted partner, providing enriching educational toys and parental guidance. We aim to show how these carefully selected tools foster development, nurture curiosity, and equip all children with essential skills for tomorrow—all through the power of joyful play.'
@@ -159,88 +194,13 @@ export default function AboutPage() {
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6 lg:mt-0">
-              <div className="relative h-[300px] sm:h-[350px] md:h-[400px] rounded-lg overflow-hidden shadow-xl group flex items-center justify-center">
-                <div className="absolute inset-0">
-                  <Image
-                    src={getBookImageSrc("book1")}
-                    alt={getBookTitle("book1")}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    style={{ objectFit: "contain", objectPosition: "center" }}
-                    className="transition-transform group-hover:scale-105 duration-500"
-                    onError={() =>
-                      handleImageError("book1", bookVersions.book1)
-                    }
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent"></div>
-                </div>
-                <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 flex items-center bg-white/80 p-1.5 sm:p-2 rounded-lg shadow-md">
-                  <Image
-                    src="/TechTots_LOGO.png"
-                    alt="TechTots Logo"
-                    width={30}
-                    height={15}
-                    className="mr-1.5 sm:mr-2 h-4 sm:h-5 w-auto"
-                  />
-                  <span className="text-xs sm:text-sm font-medium text-indigo-900">
-                    {t("inspiredOurMission")}
-                  </span>
-                </div>
-                <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-10">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="bg-white/80 hover:bg-white border-indigo-300 text-indigo-700 text-xs h-6 sm:h-7 px-1.5 sm:px-2 py-0"
-                    onClick={() => toggleBookLanguage("book1")}>
-                    {bookVersions.book1 === "english"
-                      ? t("switchToRo", "🇷🇴 RO")
-                      : t("switchToEn", "🇬🇧 EN")}
-                  </Button>
-                </div>
-                <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10">
-                  <div className="bg-white/80 px-2 sm:px-3 py-0.5 sm:py-1 rounded-md font-medium text-indigo-900 text-xs sm:text-sm">
-                    {getBookTitle("book1")}
-                  </div>
-                </div>
-              </div>
-              <div className="relative h-[300px] sm:h-[350px] md:h-[400px] rounded-lg overflow-hidden shadow-xl group flex items-center justify-center">
-                <div className="absolute inset-0">
-                  <Image
-                    src={getBookImageSrc("book2")}
-                    alt={getBookTitle("book2")}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    style={{ objectFit: "cover", objectPosition: "center" }}
-                    className="transition-transform group-hover:scale-105 duration-500"
-                    onError={() =>
-                      handleImageError("book2", bookVersions.book2)
-                    }
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-                </div>
-                <div className="absolute bottom-3 sm:bottom-4 right-3 sm:right-4 flex items-center bg-white/80 p-1.5 sm:p-2 rounded-lg shadow-md">
-                  <span className="text-xs sm:text-sm font-medium text-indigo-900">
-                    {t("empoweringNeurodiverse")}
-                  </span>
-                </div>
-                <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-10">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="bg-white/80 hover:bg-white border-indigo-300 text-indigo-700 text-xs h-6 sm:h-7 px-1.5 sm:px-2 py-0"
-                    onClick={() => toggleBookLanguage("book2")}>
-                    {bookVersions.book2 === "english"
-                      ? t("switchToRo", "🇷🇴 RO")
-                      : t("switchToEn", "🇬🇧 EN")}
-                  </Button>
-                </div>
-                <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-10">
-                  <div className="bg-white/80 px-2 sm:px-3 py-0.5 sm:py-1 rounded-md font-medium text-indigo-900 text-xs sm:text-sm">
-                    {getBookTitle("book2")}
-                  </div>
-                </div>
-              </div>
+            <div className="mt-6 lg:mt-0">
+              <BookCarousel
+                books={books}
+                onLanguageToggle={toggleBookLanguage}
+                currentLanguages={[bookVersions.book1, bookVersions.book2]}
+                showLanguageToggle={false}
+              />
             </div>
           </div>
         </div>
@@ -364,7 +324,7 @@ export default function AboutPage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
                 <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 right-4 sm:right-6 text-white">
                   <p className="text-base sm:text-lg font-medium text-indigo-200 drop-shadow-md">
-                    {t("founderTitle", "Fondator și Director Executiv")}
+                    {"Fondator și Director Executiv"}
                   </p>
                 </div>
               </div>

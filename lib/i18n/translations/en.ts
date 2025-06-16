@@ -108,10 +108,13 @@ export const en = {
   marketingEmails: "Marketing emails",
   receiveMarketingEmails:
     "Receive emails about new products, features, and more.",
+  orderUpdates: "Order updates",
   receiveOrderEmails:
     "Receive emails about your order status, shipping, and delivery.",
+  newProducts: "New products",
   receiveNewProductNotifications:
     "Get notified when new products are available.",
+  accountActivity: "Account activity",
   receiveAccountNotifications:
     "Get important notifications about your account activity.",
   settingsUpdated: "Settings updated",
@@ -137,6 +140,10 @@ export const en = {
   accountDeletionRequested: "Account deletion requested",
   contactSupportToComplete:
     "Please contact support to complete account deletion.",
+  accountSecurity: "Account Security",
+  manageAccountSecurity: "Manage your account security",
+  changePassword: "Change Password",
+  irreversibleActions: "Actions that cannot be undone",
 
   // Wishlist
   emptyWishlist: "Your wishlist is empty",
@@ -274,6 +281,9 @@ export const en = {
   termsOfService: "Terms of Service",
   privacyPolicy: "Privacy Policy",
   cookiePolicy: "Cookie Policy",
+  contact: "Contact",
+  address: "Address",
+  customerSupport: "Customer Support",
 
   // SEO Translations
   metaTitle: "TechTots | STEM Toys for Curious Minds",
@@ -362,6 +372,9 @@ export const en = {
   mathematicsToysTitle: "Mathematics Learning Toys & Kits",
   mathematicsToysDescription:
     "Make math magical with puzzles, games, and interactive learning tools",
+  educationalBooksTitle: "Educational Books for Young Minds",
+  educationalBooksDescription:
+    "Discover books that inspire learning and spark curiosity in children of all ages",
 
   // Filter and Sort UI
   filterOptions: "Filter Options",
@@ -499,7 +512,6 @@ export const en = {
   switchToEn: "🇬🇧 EN",
   founderDescription:
     "Visionary entrepreneur with extensive expertise in development, design, and marketing. Passionate about creating educational technology that empowers children to explore, learn, and grow. Founded TechTots with the mission to revolutionize how children interact with STEM subjects through thoughtfully designed educational toys.",
-  contact: "Contact",
   linkedin: "LinkedIn",
 
   // Engineering Learning

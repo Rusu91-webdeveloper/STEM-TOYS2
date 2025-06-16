@@ -3,6 +3,7 @@ import { ProfileForm } from "@/features/account/components/ProfileForm";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { getTranslations } from "@/lib/i18n/server";
+import { User } from "lucide-react";
 
 export async function generateMetadata() {
   const t = await getTranslations("ro");
@@ -18,7 +19,6 @@ export default async function ProfilePage() {
   let userData = {
     name: session?.user?.name || "",
     email: session?.user?.email || "",
-    image: session?.user?.image || "",
   };
 
   try {
@@ -34,7 +34,6 @@ export default async function ProfilePage() {
         userData = {
           name: user.name || "",
           email: user.email || "",
-          image: session?.user?.image || "", // Keep image from session since it's not in DB
         };
       }
     }
@@ -45,9 +44,16 @@ export default async function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">{t("profile")}</h2>
-        <p className="text-muted-foreground">{t("managePersonalInfo")}</p>
+      <div className="flex items-center gap-3 pb-2 border-b border-gray-200/70">
+        <div className="p-2 rounded-full bg-primary/10 backdrop-blur-sm">
+          <User className="h-5 w-5 text-primary" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            {t("profile")}
+          </h2>
+          <p className="text-muted-foreground">{t("managePersonalInfo")}</p>
+        </div>
       </div>
       <ProfileForm initialData={userData} />
     </div>

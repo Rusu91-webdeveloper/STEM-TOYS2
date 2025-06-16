@@ -10,6 +10,12 @@ import { useSession } from "next-auth/react";
 import { useCheckoutTransition } from "../context/CheckoutTransitionContext";
 import { useCurrency } from "@/lib/currency";
 import { useTranslation } from "@/lib/i18n";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faShieldAlt,
+  faThumbsUp,
+  faLock,
+} from "@fortawesome/free-solid-svg-icons";
 
 interface MiniCartProps {
   isOpen: boolean;
@@ -211,6 +217,22 @@ export function MiniCart({ isOpen, onClose }: MiniCartProps) {
                 </li>
               ))}
             </ul>
+
+            {/* Trust Badges */}
+            <div className="trust-badges flex justify-center space-x-4 mt-6">
+              <FontAwesomeIcon
+                icon={faShieldAlt}
+                className="h-8 w-8 text-indigo-600"
+              />
+              <FontAwesomeIcon
+                icon={faThumbsUp}
+                className="h-8 w-8 text-indigo-600"
+              />
+              <FontAwesomeIcon
+                icon={faLock}
+                className="h-8 w-8 text-indigo-600"
+              />
+            </div>
 
             <div className="border-t pt-6 mt-6 border-indigo-200">
               <div className="flex justify-between text-base font-medium">

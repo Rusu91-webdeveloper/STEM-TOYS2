@@ -190,7 +190,7 @@ export function OrderHistory() {
         value={activeTab}
         onValueChange={setActiveTab}
         className="w-full">
-        <TabsList className="grid grid-cols-5 mb-6">
+        <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 mb-6 gap-2">
           <TabsTrigger value="all">{t("all", "Toate")}</TabsTrigger>
           <TabsTrigger value="processing">
             {t("processing", "În procesare")}
@@ -244,21 +244,29 @@ export function OrderHistory() {
                     {order.items.map((item) => (
                       <div
                         key={item.id}
-                        className="flex gap-3">
-                        <div className="h-16 w-16 rounded bg-muted overflow-hidden relative shrink-0">
+                        className="flex flex-col sm:flex-row gap-3">
+                        <div className="h-16 w-16 rounded bg-muted overflow-hidden relative shrink-0 mx-auto sm:mx-0">
                           <img
                             src={item.image}
                             alt={item.productName}
                             className="object-cover h-full w-full"
                           />
                         </div>
-                        <div className="flex flex-col">
-                          <span className="font-medium">
+                        <div className="flex flex-col text-center sm:text-left">
+                          <Link
+                            href={`/products/${item.productSlug}`}
+                            className="font-medium hover:underline">
                             {item.productName}
-                          </span>
-                          <span className="text-sm text-muted-foreground">
-                            {formatPrice(item.price)} × {item.quantity}
-                          </span>
+                          </Link>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-sm text-muted-foreground">
+                            <span>
+                              {formatPrice(item.price)} x {item.quantity}
+                            </span>
+                            <span className="hidden sm:inline">•</span>
+                            <span>
+                              {formatPrice(item.price * item.quantity)}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -274,36 +282,27 @@ export function OrderHistory() {
                     </div>
                   </div>
                 </CardContent>
-                <CardFooter className="flex justify-between">
+                <CardFooter className="flex flex-col sm:flex-row justify-between gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    asChild>
+                    asChild
+                    className="w-full sm:w-auto">
                     <Link href={`/account/orders/${order.id}`}>
-                      <Eye className="h-4 w-4 mr-2" /> {t("viewDetails")}
+                      <Eye className="h-4 w-4 mr-2" />
+                      {t("viewDetails", "View Details")}
                     </Link>
                   </Button>
-                  {order.status === "delivered" && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      asChild>
-                      <Link href={`/account/orders/${order.id}/return`}>
-                        <Package className="h-4 w-4 mr-2" /> {t("returnItem")}
-                      </Link>
-                    </Button>
-                  )}
-                  {order.status === "delivered" &&
-                    order.items.some((item) => !item.hasReviewed) && (
-                      <Button
-                        size="sm"
-                        asChild>
-                        <Link href={`/account/orders/${order.id}`}>
-                          {t("writeReview")}{" "}
-                          <ArrowRight className="h-4 w-4 ml-2" />
-                        </Link>
-                      </Button>
-                    )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="w-full sm:w-auto">
+                    <Link href={`/account/orders/${order.id}/return`}>
+                      <ArrowRight className="h-4 w-4 mr-2" />
+                      {t("returnItem", "Return Items")}
+                    </Link>
+                  </Button>
                 </CardFooter>
               </Card>
             ))

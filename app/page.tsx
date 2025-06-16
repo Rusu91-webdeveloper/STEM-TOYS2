@@ -29,10 +29,16 @@ const categories = [
     image: "/images/category_banner_engineering_01.png",
   },
   {
-    name: "Math",
+    name: "Mathematics",
     description: "Make numbers fun and engaging",
     slug: "math",
     image: "/images/category_banner_math_01.png",
+  },
+  {
+    name: "Educational Books",
+    description: "Educational books to inspire young minds",
+    slug: "educational-books",
+    image: "/images/category_banner_books_01.jpg",
   },
 ];
 
@@ -68,7 +74,7 @@ export default function Home() {
   // Translate category names and descriptions based on current language
   const translatedCategories = categories.map((category) => ({
     ...category,
-    name: t((category.slug + "ToysTitle") as any, category.name),
+    name: t(category.name as any, category.name),
     description: t(
       (category.slug + "ToysDescription") as any,
       category.description
@@ -110,17 +116,17 @@ export default function Home() {
         </div>
         <div className="container relative z-10 text-white mx-auto px-4 md:px-6 lg:px-8 max-w-7xl">
           <div className="max-w-xl sm:max-w-2xl md:max-w-3xl">
-            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-2 md:mb-4 drop-shadow-md">
+            <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold mb-2 md:mb-4 drop-shadow-md animate-fade-in">
               {t("inspireMinds")}
             </h1>
-            <p className="text-base sm:text-lg md:text-2xl mb-4 md:mb-8 max-w-2xl drop-shadow-md">
+            <p className="text-base sm:text-lg md:text-2xl mb-4 md:mb-8 max-w-2xl drop-shadow-md animate-fade-in">
               {t("discoverCollection")}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <Button
                 asChild
                 size="lg"
-                className="text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-2 sm:py-5 md:py-6 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0 relative overflow-hidden group">
+                className="text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-2 sm:py-5 md:py-6 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white border-0 relative overflow-hidden group animate-bounce">
                 <Link
                   href="/products"
                   className="flex items-center">
@@ -147,7 +153,7 @@ export default function Home() {
                 asChild
                 size="lg"
                 variant="outline"
-                className="text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-2 sm:py-5 md:py-6 bg-orange-500 text-white border-orange-500 hover:bg-orange-600 hover:border-orange-600 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 mt-3 sm:mt-0">
+                className="text-sm sm:text-base md:text-lg px-4 sm:px-6 md:px-8 py-2 sm:py-5 md:py-6 bg-orange-500 text-white border-orange-500 hover:bg-orange-600 hover:border-orange-600 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:scale-105 mt-3 sm:mt-0 animate-bounce">
                 <Link href="/categories">{t("exploreCategories")}</Link>
               </Button>
             </div>
@@ -164,7 +170,7 @@ export default function Home() {
           <p className="text-center text-muted-foreground mb-8 sm:mb-10 max-w-3xl mx-auto px-2">
             {t("stemCategoriesDesc")}
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-6 md:gap-8">
             {translatedCategories.map((category) => (
               <Link
                 href={`/products?category=${category.slug}`}
@@ -175,7 +181,7 @@ export default function Home() {
                       src={category.image}
                       alt={category.name}
                       fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 25vw"
+                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 20vw"
                       style={{ objectFit: "cover" }}
                     />
                   </div>
@@ -363,7 +369,7 @@ export default function Home() {
             {/* Book 1: STEM Play for Neurodiverse Minds */}
             <div className="bg-background rounded-xl overflow-hidden shadow-lg border border-gray-200 flex flex-col md:flex-row">
               <div className="md:w-2/5 relative p-4">
-                <div className="aspect-[3/4] relative shadow-lg rounded-md overflow-hidden book-cover-effect">
+                <div className="aspect-[3/4] relative shadow-lg rounded-md overflow-hidden book-cover-effect max-w-[120px] sm:max-w-[150px] md:max-w-none mx-auto md:mx-0">
                   <Image
                     src="/STEM_play_for_neurodiverse_minds.jpg"
                     alt={t(
@@ -371,7 +377,7 @@ export default function Home() {
                       "STEM Play for Neurodiverse Minds"
                     )}
                     fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
+                    sizes="(max-width: 768px) 120px, (max-width: 1024px) 150px, 33vw"
                     style={{ objectFit: "cover" }}
                     className="transition-transform hover:scale-105 duration-300"
                   />
@@ -426,12 +432,12 @@ export default function Home() {
             {/* Book 2: Born for the Future */}
             <div className="bg-background rounded-xl overflow-hidden shadow-lg border border-gray-200 flex flex-col md:flex-row">
               <div className="md:w-2/5 relative p-4">
-                <div className="aspect-[3/4] relative shadow-lg rounded-md overflow-hidden book-cover-effect">
+                <div className="aspect-[3/4] relative shadow-lg rounded-md overflow-hidden book-cover-effect max-w-[120px] sm:max-w-[150px] md:max-w-none mx-auto md:mx-0">
                   <Image
                     src="/born_for_the_future.png"
                     alt={t("bornFutureBook" as any, "Born for the Future")}
                     fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
+                    sizes="(max-width: 768px) 120px, (max-width: 1024px) 150px, 33vw"
                     style={{ objectFit: "cover" }}
                     className="transition-transform hover:scale-105 duration-300"
                   />
@@ -508,6 +514,20 @@ export default function Home() {
         .book-cover-effect:hover {
           box-shadow: 7px 7px 20px rgba(0, 0, 0, 0.3);
           transform: translateY(-5px);
+        }
+
+        /* Responsive book sizing */
+        @media (max-width: 768px) {
+          .book-cover-effect {
+            max-width: 120px;
+            margin: 0 auto;
+          }
+        }
+
+        @media (min-width: 769px) and (max-width: 1024px) {
+          .book-cover-effect {
+            max-width: 150px;
+          }
         }
       `}</style>
 

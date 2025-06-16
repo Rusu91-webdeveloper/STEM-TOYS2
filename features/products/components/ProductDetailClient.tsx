@@ -306,19 +306,29 @@ export default function ProductDetailClient({
               </div>
             </div>
 
-            <div className="flex items-center">
-              <div className="text-2xl font-bold">
-                {formatPrice(product.price)}
+            <div className="flex items-center space-x-4 mt-4">
+              <div className="flex items-center space-x-2">
+                <ShieldCheck className="w-5 h-5 text-green-500" />
+                <span className="text-sm text-gray-600">Secure Payments</span>
               </div>
+              <div className="flex items-center space-x-2">
+                <Truck className="w-5 h-5 text-blue-500" />
+                <span className="text-sm text-gray-600">Fast Shipping</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RotateCcw className="w-5 h-5 text-orange-500" />
+                <span className="text-sm text-gray-600">Quality Guarantee</span>
+              </div>
+            </div>
+
+            <div className="mt-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {formatPrice(product.price)}
+              </h2>
               {isOnSale && (
-                <>
-                  <div className="ml-2 text-lg text-muted-foreground line-through">
-                    {formatPrice(product.compareAtPrice!)}
-                  </div>
-                  <Badge className="ml-2 bg-red-500">
-                    {discountPercentage}% {t("off")}
-                  </Badge>
-                </>
+                <span className="text-sm text-red-500 ml-2">
+                  {discountPercentage}% off
+                </span>
               )}
             </div>
 

@@ -45,6 +45,12 @@ export function I18nProvider({ children }: I18nProviderProps): React.ReactNode {
 
     if (storedLang && languages.some((lang) => lang.code === storedLang)) {
       setLanguage(storedLang);
+    } else {
+      // If no stored language or invalid language, set to Romanian
+      setLanguage("ro");
+      if (typeof window !== "undefined") {
+        localStorage.setItem("language", "ro");
+      }
     }
   }, []);
 
@@ -89,3 +95,6 @@ export function useTranslation() {
   }
   return context;
 }
+
+// Export the I18nContextType for use in other components
+export type { I18nContextType };

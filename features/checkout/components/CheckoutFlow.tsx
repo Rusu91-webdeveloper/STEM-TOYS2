@@ -143,19 +143,38 @@ export function CheckoutFlow() {
         )}
 
         {currentStep === "payment" && (
-          <PaymentForm
-            initialData={checkoutData.paymentDetails}
-            billingAddressSameAsShipping={
-              checkoutData.billingAddressSameAsShipping
-            }
-            shippingAddress={checkoutData.shippingAddress}
-            billingAddress={checkoutData.billingAddress}
-            onSubmit={(paymentData) => {
-              updateCheckoutData(paymentData);
-              goToNextStep();
-            }}
-            onBack={goToPreviousStep}
-          />
+          <div>
+            <div className="trust-badges flex justify-center space-x-4 mb-4">
+              <img
+                src="/images/secure-payment.png"
+                alt="Secure Payment"
+                className="h-8"
+              />
+              <img
+                src="/images/money-back-guarantee.png"
+                alt="Money-Back Guarantee"
+                className="h-8"
+              />
+              <img
+                src="/images/trusted-seller.png"
+                alt="Trusted Seller"
+                className="h-8"
+              />
+            </div>
+            <PaymentForm
+              initialData={checkoutData.paymentDetails}
+              billingAddressSameAsShipping={
+                checkoutData.billingAddressSameAsShipping
+              }
+              shippingAddress={checkoutData.shippingAddress}
+              billingAddress={checkoutData.billingAddress}
+              onSubmit={(paymentData) => {
+                updateCheckoutData(paymentData);
+                goToNextStep();
+              }}
+              onBack={goToPreviousStep}
+            />
+          </div>
         )}
 
         {currentStep === "review" && (

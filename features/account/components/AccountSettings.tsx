@@ -7,6 +7,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,8 @@ import { toast } from "@/components/ui/use-toast";
 import { useTranslation } from "@/lib/i18n";
 import { useRouter } from "next/navigation";
 import { setCookie } from "cookies-next";
+import { LogOut } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 export function AccountSettings() {
   const { t, language } = useTranslation();
@@ -121,11 +124,15 @@ export function AccountSettings() {
     });
   };
 
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: "/" });
+  };
+
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>
+      <Card className="bg-white/50 backdrop-blur-sm border border-gray-100 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xl">
             {t("emailNotifications", "Notificări prin Email")}
           </CardTitle>
           <CardDescription>
@@ -133,9 +140,11 @@ export function AccountSettings() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center p-3 hover:bg-white/70 rounded-lg transition-all">
             <div className="space-y-0.5">
-              <Label htmlFor="marketing">
+              <Label
+                htmlFor="marketing"
+                className="text-gray-800 font-medium">
                 {t("marketingEmails", "Email-uri de marketing")}
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -149,11 +158,14 @@ export function AccountSettings() {
               id="marketing"
               checked={emailNotifications.marketing}
               onCheckedChange={() => handleToggleNotification("marketing")}
+              className="data-[state=checked]:bg-primary"
             />
           </div>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center p-3 hover:bg-white/70 rounded-lg transition-all">
             <div className="space-y-0.5">
-              <Label htmlFor="orderUpdates">
+              <Label
+                htmlFor="orderUpdates"
+                className="text-gray-800 font-medium">
                 {t("orderUpdates", "Actualizări comandă")}
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -167,11 +179,14 @@ export function AccountSettings() {
               id="orderUpdates"
               checked={emailNotifications.orderUpdates}
               onCheckedChange={() => handleToggleNotification("orderUpdates")}
+              className="data-[state=checked]:bg-primary"
             />
           </div>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center p-3 hover:bg-white/70 rounded-lg transition-all">
             <div className="space-y-0.5">
-              <Label htmlFor="newProducts">
+              <Label
+                htmlFor="newProducts"
+                className="text-gray-800 font-medium">
                 {t("newProducts", "Produse noi")}
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -185,11 +200,14 @@ export function AccountSettings() {
               id="newProducts"
               checked={emailNotifications.newProducts}
               onCheckedChange={() => handleToggleNotification("newProducts")}
+              className="data-[state=checked]:bg-primary"
             />
           </div>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center p-3 hover:bg-white/70 rounded-lg transition-all">
             <div className="space-y-0.5">
-              <Label htmlFor="accountActivity">
+              <Label
+                htmlFor="accountActivity"
+                className="text-gray-800 font-medium">
                 {t("accountActivity", "Activitate cont")}
               </Label>
               <p className="text-sm text-muted-foreground">
@@ -205,26 +223,35 @@ export function AccountSettings() {
               onCheckedChange={() =>
                 handleToggleNotification("accountActivity")
               }
+              className="data-[state=checked]:bg-primary"
             />
           </div>
           <div className="pt-4">
             <Button
               onClick={handleSaveNotifications}
-              disabled={isLoading}>
-              {isLoading
-                ? t("saving", "Se salvează...")
-                : t(
-                    "saveNotificationPreferences",
-                    "Salvează preferințele de notificare"
-                  )}
+              disabled={isLoading}
+              className="bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary transition-all duration-300 shadow-sm hover:shadow-md">
+              {isLoading ? (
+                <>
+                  <span className="animate-spin mr-2">⏳</span>
+                  {t("saving", "Se salvează...")}
+                </>
+              ) : (
+                t(
+                  "saveNotificationPreferences",
+                  "Salvează preferințele de notificare"
+                )
+              )}
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>{t("accountPreferences", "Preferințe Cont")}</CardTitle>
+      <Card className="bg-white/50 backdrop-blur-sm border border-gray-100 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xl">
+            {t("accountPreferences", "Preferințe Cont")}
+          </CardTitle>
           <CardDescription>
             {t(
               "manageAccountSettings",
@@ -233,35 +260,43 @@ export function AccountSettings() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="language">{t("language", "Limbă")}</Label>
+              <Label
+                htmlFor="language"
+                className="text-gray-800 font-medium">
+                {t("language", "Limbă")}
+              </Label>
               <Select
                 value={selectedLanguage}
                 onValueChange={handleLanguageChange}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white/70 transition-all focus:ring-primary/30">
                   <SelectValue
                     placeholder={t("selectLanguage", "Selectează limba")}
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ro">{t("romanian", "Română")}</SelectItem>
-                  <SelectItem value="en">{t("english", "Engleză")}</SelectItem>
+                  <SelectItem value="ro">Română</SelectItem>
+                  <SelectItem value="en">English</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="currency">{t("currency", "Monedă")}</Label>
+              <Label
+                htmlFor="currency"
+                className="text-gray-800 font-medium">
+                {t("currency", "Monedă")}
+              </Label>
               <Select
                 value={currency}
                 onValueChange={setCurrency}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white/70 transition-all focus:ring-primary/30">
                   <SelectValue
                     placeholder={t("selectCurrency", "Selectează moneda")}
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="RON">RON (lei)</SelectItem>
+                  <SelectItem value="RON">RON (Lei)</SelectItem>
                   <SelectItem value="EUR">EUR (€)</SelectItem>
                   <SelectItem value="USD">USD ($)</SelectItem>
                 </SelectContent>
@@ -271,33 +306,48 @@ export function AccountSettings() {
           <div className="pt-4">
             <Button
               onClick={handleSavePreferences}
-              disabled={isLoading}>
-              {isLoading
-                ? t("saving", "Se salvează...")
-                : t("savePreferences", "Salvează preferințele")}
+              disabled={isLoading}
+              className="bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary transition-all duration-300 shadow-sm hover:shadow-md">
+              {isLoading ? (
+                <>
+                  <span className="animate-spin mr-2">⏳</span>
+                  {t("saving", "Se salvează...")}
+                </>
+              ) : (
+                t("savePreferences", "Salvează preferințele")
+              )}
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-destructive">
-            {t("dangerZone", "Zonă de Pericol")}
+      <Card className="bg-white/50 backdrop-blur-sm border border-gray-100 shadow-sm">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-xl text-red-600">
+            {t("dangerZone", "Zonă de pericol")}
           </CardTitle>
           <CardDescription>
-            {t(
-              "permanentlyDelete",
-              "Șterge definitiv contul tău și toate datele tale"
-            )}
+            {t("irreversibleActions", "Acțiuni ireversibile pentru contul tău")}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button
-            variant="destructive"
-            onClick={handleDeleteAccount}>
-            {t("deleteAccount", "Șterge Contul")}
-          </Button>
+          <div className="p-4 border border-red-200 rounded-lg bg-red-50/50">
+            <h4 className="font-medium text-red-800 mb-2">
+              {t("deleteAccount", "Șterge contul")}
+            </h4>
+            <p className="text-sm text-red-700 mb-4">
+              {t(
+                "permanentlyDelete",
+                "Această acțiune este permanentă și nu poate fi anulată. Toate datele tale vor fi șterse definitiv."
+              )}
+            </p>
+            <Button
+              onClick={handleDeleteAccount}
+              variant="destructive"
+              className="bg-red-600 hover:bg-red-700 transition-all shadow-sm hover:shadow-md">
+              {t("deleteAccount", "Șterge contul meu")}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

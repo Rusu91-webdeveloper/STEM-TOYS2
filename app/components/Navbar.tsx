@@ -7,9 +7,16 @@ import { useTranslation } from "@/lib/i18n";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import MiniCart from "../features/cart/components/MiniCart";
+import { I18nContextType } from "@/lib/i18n";
+
+const vibrantColors = {
+  primary: "#007BFF", // Electric Blue
+  secondary: "#FF6B35", // Bright Orange
+  accent: "#32CD32", // Lime Green
+};
 
 const Navbar = () => {
-  const { t, i18n } = useTranslation("common");
+  const { t, i18n } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
@@ -94,12 +101,12 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="bg-white shadow-md sticky top-0 z-50">
+      <nav className="bg-white shadow-md sticky top-0 z-50 transition-all duration-300">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex-shrink-0">
               <Link href={`/${i18n.language}`}>
-                <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent hover:from-indigo-700 hover:to-purple-700 transition-all">
+                <span className="text-2xl font-bold bg-gradient-to-r from-[vibrantColors.primary] to-[vibrantColors.secondary] bg-clip-text text-transparent hover:from-[vibrantColors.primary] hover:to-[vibrantColors.secondary] transition-all">
                   {t("navbar.brandName", "NextCommerce")}
                 </span>
               </Link>
@@ -110,15 +117,13 @@ const Navbar = () => {
               {navLinks.map((link) => (
                 <Link
                   key={link.labelKey}
-                  href={`/${i18n.language}${
-                    link.href === "/" ? "" : link.href
-                  }`}>
+                  href={`/${i18n.language}${link.href === "/" ? "" : link.href}`}>
                   <span
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-all ${
                       pathname === `/${i18n.language}${link.href}` ||
                       (link.href === "/" && pathname === `/${i18n.language}`)
-                        ? "bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 border border-indigo-200 shadow-sm"
-                        : "text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:text-indigo-700 hover:border hover:border-indigo-200 hover:shadow-sm"
+                        ? "bg-gradient-to-r from-[vibrantColors.primary] to-[vibrantColors.secondary] text-[vibrantColors.accent] border border-[vibrantColors.primary] shadow-sm"
+                        : "text-gray-700 hover:bg-gradient-to-r hover:from-[vibrantColors.primary] hover:to-[vibrantColors.secondary] hover:text-[vibrantColors.accent] hover:border hover:border-[vibrantColors.primary] hover:shadow-sm"
                     }`}>
                     {t(link.labelKey, link.labelKey.split(".")[1])}
                   </span>
@@ -136,7 +141,7 @@ const Navbar = () => {
                       setIsLangMenuOpen(!isLangMenuOpen);
                       setIsCurrencyMenuOpen(false);
                     }}
-                    className="flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700 hover:from-indigo-100 hover:to-purple-100 border border-indigo-200 shadow-sm transition-all"
+                    className="flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-[vibrantColors.primary] to-[vibrantColors.secondary] text-[vibrantColors.accent] hover:from-[vibrantColors.secondary] hover:to-[vibrantColors.primary] border border-[vibrantColors.primary] shadow-sm transition-all"
                     aria-expanded={isLangMenuOpen}
                     aria-haspopup="true">
                     <Image
@@ -165,13 +170,13 @@ const Navbar = () => {
                     </svg>
                   </button>
                   {isLangMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg py-1 z-20 ring-1 ring-black ring-opacity-5 animate-fadeIn border border-indigo-100">
+                    <div className="absolute right-0 mt-2 w-40 bg-white rounded-md shadow-lg py-1 z-20 ring-1 ring-black ring-opacity-5 animate-fadeIn border border-[vibrantColors.primary]">
                       <button
                         onClick={() => handleLanguageChange("en")}
                         className={`block w-full text-left px-4 py-2 text-sm ${
                           i18n.language === "en"
-                            ? "bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700"
-                            : "text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:text-indigo-700"
+                            ? "bg-gradient-to-r from-[vibrantColors.primary] to-[vibrantColors.secondary] text-[vibrantColors.accent]"
+                            : "text-gray-700 hover:bg-gradient-to-r hover:from-[vibrantColors.primary] hover:to-[vibrantColors.secondary] hover:text-[vibrantColors.accent]"
                         } flex items-center transition-colors`}>
                         <Image
                           src="/images/flags/en.svg"
@@ -186,8 +191,8 @@ const Navbar = () => {
                         onClick={() => handleLanguageChange("ro")}
                         className={`block w-full text-left px-4 py-2 text-sm ${
                           i18n.language === "ro"
-                            ? "bg-gradient-to-r from-indigo-50 to-purple-50 text-indigo-700"
-                            : "text-gray-700 hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 hover:text-indigo-700"
+                            ? "bg-gradient-to-r from-[vibrantColors.primary] to-[vibrantColors.secondary] text-[vibrantColors.accent]"
+                            : "text-gray-700 hover:bg-gradient-to-r hover:from-[vibrantColors.primary] hover:to-[vibrantColors.secondary] hover:text-[vibrantColors.accent]"
                         } flex items-center transition-colors`}>
                         <Image
                           src="/images/flags/ro.svg"

@@ -147,27 +147,27 @@ export function ProductGrid({
                 <SelectContent>
                   <SelectItem
                     value="featured"
-                    className="text-xs sm:text-sm">
+                    className="text-xs sm:text-sm hover:bg-gray-100">
                     {t("featured")}
                   </SelectItem>
                   <SelectItem
                     value="price-low"
-                    className="text-xs sm:text-sm">
+                    className="text-xs sm:text-sm hover:bg-gray-100">
                     {t("priceLowToHigh")}
                   </SelectItem>
                   <SelectItem
                     value="price-high"
-                    className="text-xs sm:text-sm">
+                    className="text-xs sm:text-sm hover:bg-gray-100">
                     {t("priceHighToLow")}
                   </SelectItem>
                   <SelectItem
                     value="newest"
-                    className="text-xs sm:text-sm">
+                    className="text-xs sm:text-sm hover:bg-gray-100">
                     {t("newest")}
                   </SelectItem>
                   <SelectItem
                     value="rating"
-                    className="text-xs sm:text-sm">
+                    className="text-xs sm:text-sm hover:bg-gray-100">
                     {t("topRated")}
                   </SelectItem>
                 </SelectContent>
@@ -183,7 +183,7 @@ export function ProductGrid({
               <Button
                 variant={layout === "grid" ? "default" : "outline"}
                 size="sm"
-                className="px-1.5 sm:px-2 h-7 sm:h-8"
+                className="px-1.5 sm:px-2 h-7 sm:h-8 shadow-md hover:shadow-lg transition-shadow duration-300"
                 onClick={() => setLayout("grid")}
                 aria-label={t("gridView")}>
                 <Grid2X2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -191,7 +191,7 @@ export function ProductGrid({
               <Button
                 variant={layout === "list" ? "default" : "outline"}
                 size="sm"
-                className="px-1.5 sm:px-2 h-7 sm:h-8"
+                className="px-1.5 sm:px-2 h-7 sm:h-8 shadow-md hover:shadow-lg transition-shadow duration-300"
                 onClick={() => setLayout("list")}
                 aria-label={t("listView")}>
                 <List className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -206,13 +206,15 @@ export function ProductGrid({
           {t("noProductsFound")}
         </div>
       ) : layout === "grid" ? (
-        <div className={cn("grid gap-3 sm:gap-6", gridColsClass)}>
+        <div className={`grid ${gridColsClass} gap-4 sm:gap-6`}>
           {sortedProducts.map((product, index) => (
             <ProductCard
               key={product.id}
               product={product}
+              className="hover:shadow-lg transition-shadow duration-300"
+              imageHeight={index < aboveFoldItems ? 64 : 48}
               layout="grid"
-              priority={index < aboveFoldItems} // Mark first items as priority to improve LCP
+              priority={index < aboveFoldItems}
             />
           ))}
         </div>
@@ -223,7 +225,7 @@ export function ProductGrid({
               key={product.id}
               product={product}
               layout="list"
-              priority={index < aboveFoldItems} // Mark first items as priority to improve LCP
+              priority={index < aboveFoldItems}
             />
           ))}
         </div>

@@ -6,22 +6,22 @@ import { useTranslation } from "@/lib/i18n";
 import { TranslationKey } from "@/lib/i18n/translations";
 
 const footerLinks = {
-  shop: [{ name: "All Products", href: "/products" }],
+  shop: [{ name: "products", href: "/products" }],
   company: [
-    { name: "About", href: "/about" },
-    { name: "Blog", href: "/blog" },
-    { name: "Contact", href: "/contact" },
+    { name: "about", href: "/about" },
+    { name: "blog", href: "/blog" },
+    { name: "contact", href: "/contact" },
   ],
   support: [
     { name: "Help Center", href: "/help" },
-    { name: "Shipping", href: "/shipping" },
-    { name: "Returns", href: "/returns" },
+    { name: "shipping", href: "/shipping" },
+    { name: "returns", href: "/returns" },
     { name: "FAQ", href: "/faq" },
   ],
   legal: [
-    { name: "Terms", href: "/terms" },
-    { name: "Privacy", href: "/privacy" },
-    { name: "Cookies", href: "/cookies" },
+    { name: "termsOfService", href: "/terms" },
+    { name: "privacyPolicy", href: "/privacy" },
+    { name: "cookiePolicy", href: "/cookies" },
   ],
 };
 
@@ -29,7 +29,7 @@ export default function Footer() {
   const { t } = useTranslation();
 
   return (
-    <footer className="bg-muted">
+    <footer className="bg-gradient-to-r from-gray-800 to-gray-900 text-white relative z-10 shadow-lg">
       <div className="container mx-auto py-8 sm:py-10 md:py-12 px-3 sm:px-4 md:px-6">
         <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 sm:gap-8">
           <div className="col-span-2 xs:col-span-2 sm:col-span-3 lg:col-span-2">
@@ -44,13 +44,13 @@ export default function Footer() {
                 className="h-7 sm:h-8 md:h-9 w-auto"
               />
             </Link>
-            <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-muted-foreground max-w-md">
+            <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-300 max-w-md">
               {t("discoverCollection")}
             </p>
             <div className="mt-4 sm:mt-6 flex space-x-3 sm:space-x-4">
               <a
                 href="#"
-                className="text-muted-foreground hover:text-primary">
+                className="text-gray-300 hover:text-white">
                 <span className="sr-only">Facebook</span>
                 <svg
                   className="h-5 w-5 sm:h-6 sm:w-6"
@@ -66,7 +66,7 @@ export default function Footer() {
               </a>
               <a
                 href="#"
-                className="text-muted-foreground hover:text-primary">
+                className="text-gray-300 hover:text-white">
                 <span className="sr-only">Instagram</span>
                 <svg
                   className="h-5 w-5 sm:h-6 sm:w-6"
@@ -82,7 +82,7 @@ export default function Footer() {
               </a>
               <a
                 href="#"
-                className="text-muted-foreground hover:text-primary">
+                className="text-gray-300 hover:text-white">
                 <span className="sr-only">Twitter</span>
                 <svg
                   className="h-5 w-5 sm:h-6 sm:w-6"
@@ -94,7 +94,7 @@ export default function Footer() {
               </a>
               <a
                 href="#"
-                className="text-muted-foreground hover:text-primary">
+                className="text-gray-300 hover:text-white">
                 <span className="sr-only">YouTube</span>
                 <svg
                   className="h-5 w-5 sm:h-6 sm:w-6"
@@ -112,7 +112,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-foreground">
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200">
               {t("shop")}
             </h3>
             <ul className="mt-2 sm:mt-4 space-y-1.5 sm:space-y-2">
@@ -120,8 +120,8 @@ export default function Footer() {
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-xs sm:text-sm text-muted-foreground hover:text-primary">
-                    {item.name}
+                    className="text-xs sm:text-sm text-gray-300 hover:text-white">
+                    {t(item.name as TranslationKey)}
                   </Link>
                 </li>
               ))}
@@ -129,7 +129,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-foreground">
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200">
               {t("company")}
             </h3>
             <ul className="mt-2 sm:mt-4 space-y-1.5 sm:space-y-2">
@@ -137,8 +137,8 @@ export default function Footer() {
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-xs sm:text-sm text-muted-foreground hover:text-primary">
-                    {item.name}
+                    className="text-xs sm:text-sm text-gray-300 hover:text-white">
+                    {t(item.name as TranslationKey)}
                   </Link>
                 </li>
               ))}
@@ -146,7 +146,7 @@ export default function Footer() {
           </div>
 
           <div className="col-span-2 xs:col-span-1 sm:col-span-1">
-            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-foreground">
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200">
               {t("support")}
             </h3>
             <ul className="mt-2 sm:mt-4 space-y-1.5 sm:space-y-2">
@@ -154,13 +154,15 @@ export default function Footer() {
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-xs sm:text-sm text-muted-foreground hover:text-primary">
-                    {item.name}
+                    className="text-xs sm:text-sm text-gray-300 hover:text-white">
+                    {item.name === "Help Center"
+                      ? item.name
+                      : t(item.name as TranslationKey)}
                   </Link>
                 </li>
               ))}
             </ul>
-            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-foreground mt-6 sm:mt-8">
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200 mt-6 sm:mt-8">
               {t("legal")}
             </h3>
             <ul className="mt-2 sm:mt-4 space-y-1.5 sm:space-y-2">
@@ -168,8 +170,8 @@ export default function Footer() {
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-xs sm:text-sm text-muted-foreground hover:text-primary">
-                    {item.name}
+                    className="text-xs sm:text-sm text-gray-300 hover:text-white">
+                    {t(item.name as TranslationKey)}
                   </Link>
                 </li>
               ))}
@@ -177,13 +179,15 @@ export default function Footer() {
           </div>
 
           <div className="col-span-2 xs:col-span-1 sm:col-span-1">
-            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-foreground">
-              Contact Us
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200">
+              {t("contact")}
             </h3>
             <div className="mt-2 sm:mt-4 space-y-3">
               <div>
-                <p className="text-xs sm:text-sm font-semibold">Address:</p>
-                <address className="text-xs text-muted-foreground not-italic">
+                <p className="text-xs sm:text-sm font-semibold">
+                  {t("address" as TranslationKey, "Address")}:
+                </p>
+                <address className="text-xs text-gray-300 not-italic">
                   TechTots Headquarters
                   <br />
                   Mehedinti 54-56
@@ -195,26 +199,11 @@ export default function Footer() {
               </div>
               <div>
                 <p className="text-xs sm:text-sm font-semibold">
-                  Customer Support:
+                  {t("customerSupport" as TranslationKey, "Customer Support")}:
                 </p>
-                <div className="text-xs text-muted-foreground">
-                  <p>
-                    Email:{" "}
-                    <a
-                      href="mailto:webira.rem.srl@gmail.com"
-                      className="hover:text-primary">
-                      webira.rem.srl@gmail.com
-                    </a>
-                  </p>
-                  <p>
-                    Phone:{" "}
-                    <a
-                      href="tel:+40771248029"
-                      className="hover:text-primary">
-                      +40771 248 029
-                    </a>
-                  </p>
-                  <p>Hours: Monday-Friday, 9am-5pm PST</p>
+                <div className="text-xs text-gray-300">
+                  <p>Email: support@techtots.com</p>
+                  <p>Phone: +40 123 456 789</p>
                 </div>
               </div>
             </div>
@@ -222,24 +211,24 @@ export default function Footer() {
         </div>
 
         <div className="mt-8 sm:mt-10 md:mt-12 border-t border-[hsl(var(--border))] pt-4 sm:pt-6 md:pt-8 flex flex-col md:flex-row justify-between">
-          <p className="text-[10px] xs:text-xs text-muted-foreground">
+          <p className="text-[10px] xs:text-xs text-gray-300">
             &copy; {new Date().getFullYear()} TechTots, Inc.{" "}
             {t("allRightsReserved")}
           </p>
           <div className="mt-3 md:mt-0 flex flex-wrap gap-4 sm:gap-6">
             <Link
               href="/terms"
-              className="text-[10px] xs:text-xs text-muted-foreground hover:text-primary">
+              className="text-[10px] xs:text-xs text-gray-300 hover:text-white">
               {t("termsOfService")}
             </Link>
             <Link
               href="/privacy"
-              className="text-[10px] xs:text-xs text-muted-foreground hover:text-primary">
+              className="text-[10px] xs:text-xs text-gray-300 hover:text-white">
               {t("privacyPolicy")}
             </Link>
             <Link
               href="/cookies"
-              className="text-[10px] xs:text-xs text-muted-foreground hover:text-primary">
+              className="text-[10px] xs:text-xs text-gray-300 hover:text-white">
               {t("cookiePolicy")}
             </Link>
           </div>

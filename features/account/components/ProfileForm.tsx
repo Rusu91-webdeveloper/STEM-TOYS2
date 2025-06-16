@@ -5,8 +5,6 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { User, Upload } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "@/lib/i18n";
@@ -14,7 +12,6 @@ import { useTranslation } from "@/lib/i18n";
 interface ProfileFormData {
   name: string;
   email: string;
-  image?: string;
   newPassword?: string;
   confirmPassword?: string;
 }
@@ -23,7 +20,6 @@ interface ProfileFormProps {
   initialData: {
     name: string;
     email: string;
-    image?: string;
   };
 }
 
@@ -41,7 +37,6 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     defaultValues: {
       name: initialData.name,
       email: initialData.email,
-      image: initialData.image,
       newPassword: "",
       confirmPassword: "",
     },
@@ -154,50 +149,17 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     <form
       onSubmit={handleSubmit(onSubmit)}
       className="space-y-8">
-      <div className="flex flex-col sm:flex-row gap-8 items-start sm:items-center">
-        <div className="flex-shrink-0">
-          <Avatar className="h-24 w-24">
-            <AvatarImage
-              src={initialData.image}
-              alt={initialData.name}
-            />
-            <AvatarFallback className="text-2xl">
-              <User className="h-12 w-12" />
-            </AvatarFallback>
-          </Avatar>
-        </div>
-        <div>
-          <h3 className="text-lg font-medium mb-2">
-            {t("profilePicture", "Poză de profil")}
-          </h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            {t(
-              "profilePictureDescription",
-              "Aceasta va fi afișată pe profilul tău"
-            )}
-          </p>
-          <div className="flex gap-4">
-            <Button
-              type="button"
-              size="sm"
-              variant="outline">
-              <Upload className="h-4 w-4 mr-2" />
-              {t("change", "Schimbă")}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline">
-              {t("remove", "Elimină")}
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-4 bg-white/50 p-6 rounded-xl shadow-sm border border-gray-100 backdrop-blur-sm">
+        <h3 className="text-lg font-medium mb-4 text-gray-800">
+          {t("profile", "Informații personale")}
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="name">{t("name", "Nume")}</Label>
+            <Label
+              htmlFor="name"
+              className="text-gray-700">
+              {t("name", "Nume")}
+            </Label>
             <Input
               id="name"
               {...register("name", {
@@ -205,13 +167,18 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               })}
               placeholder={t("yourName", "Numele tău")}
               disabled={isLoading}
+              className="transition-all focus:border-primary/50 focus:ring-primary/30"
             />
             {errors.name && (
               <p className="text-sm text-red-500">{errors.name.message}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">{t("email", "Email")}</Label>
+            <Label
+              htmlFor="email"
+              className="text-gray-700">
+              {t("email", "Email")}
+            </Label>
             <Input
               id="email"
               type="email"
@@ -224,6 +191,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               })}
               placeholder={t("yourEmail", "Emailul tău")}
               disabled={isLoading}
+              className="transition-all focus:border-primary/50 focus:ring-primary/30"
             />
             {errors.email && (
               <p className="text-sm text-red-500">{errors.email.message}</p>
@@ -232,11 +200,15 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         </div>
       </div>
 
-      <div>
-        <h3 className="text-lg font-medium mb-4">{t("password", "Parolă")}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-white/50 p-6 rounded-xl shadow-sm border border-gray-100 backdrop-blur-sm">
+        <h3 className="text-lg font-medium mb-4 text-gray-800">
+          {t("password", "Parolă")}
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="newPassword">
+            <Label
+              htmlFor="newPassword"
+              className="text-gray-700">
               {t("newPassword", "Parolă nouă")}
             </Label>
             <Input
@@ -248,11 +220,19 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                 "Leave blank to keep current password"
               )}
               disabled={isLoading}
+              className="transition-all focus:border-primary/50 focus:ring-primary/30"
             />
+            {errors.newPassword && (
+              <p className="text-sm text-red-500">
+                {errors.newPassword.message}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">
-              {t("confirmNewPassword", "Confirmă parola nouă")}
+            <Label
+              htmlFor="confirmPassword"
+              className="text-gray-700">
+              {t("confirmNewPassword", "Confirmă parola")}
             </Label>
             <Input
               id="confirmPassword"
@@ -263,11 +243,9 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
                   value === watchNewPassword ||
                   t("passwordsDontMatch", "Parolele nu se potrivesc"),
               })}
-              placeholder={t(
-                "confirmNewPasswordPlaceholder",
-                "Confirm new password"
-              )}
-              disabled={isLoading || !watchNewPassword}
+              placeholder={t("confirmNewPassword", "Confirmă parola nouă")}
+              disabled={isLoading}
+              className="transition-all focus:border-primary/50 focus:ring-primary/30"
             />
             {errors.confirmPassword && (
               <p className="text-sm text-red-500">
@@ -276,16 +254,21 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
             )}
           </div>
         </div>
-      </div>
-
-      <div className="flex justify-end">
-        <Button
-          type="submit"
-          disabled={isLoading}>
-          {isLoading
-            ? t("saving", "Se salvează...")
-            : t("saveChanges", "Salvează modificările")}
-        </Button>
+        <div className="mt-6">
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary transition-all duration-300 shadow-md hover:shadow-lg">
+            {isLoading ? (
+              <>
+                <span className="animate-spin mr-2">⏳</span>
+                {t("saving", "Se salvează...")}
+              </>
+            ) : (
+              t("saveChanges", "Salvează modificările")
+            )}
+          </Button>
+        </div>
       </div>
     </form>
   );

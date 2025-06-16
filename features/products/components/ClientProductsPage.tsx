@@ -600,7 +600,11 @@ function ClientProductsPageContent({
 
   // Get category image based on active category
   const categoryImagePath = activeCategory
-    ? `/images/category_banner_${activeCategory.id}_01.png`
+    ? activeCategory.id === "mathematics"
+      ? "/images/category_banner_math_01.png"
+      : activeCategory.id === "educational-books"
+        ? "/images/category_banner_books_01.jpg"
+        : `/images/category_banner_${activeCategory.id}_01.png`
     : "/images/homepage_hero_banner_01.png";
 
   const IconComponent = activeCategoryInfo.icon;

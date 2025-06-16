@@ -142,10 +142,13 @@ export const ro = {
   marketingEmails: "Email-uri de marketing",
   receiveMarketingEmails:
     "Primește email-uri despre produse noi, funcții și altele.",
+  orderUpdates: "Actualizări comandă",
   receiveOrderEmails:
     "Primește email-uri despre starea comenzii, expediere și livrare.",
+  newProducts: "Produse noi",
   receiveNewProductNotifications:
     "Primește notificări când sunt disponibile produse noi.",
+  accountActivity: "Activitate cont",
   receiveAccountNotifications:
     "Primește notificări importante despre activitatea contului tău.",
   settingsUpdated: "Setări actualizate",
@@ -173,6 +176,10 @@ export const ro = {
   accountDeletionRequested: "Ștergere cont solicitată",
   contactSupportToComplete:
     "Te rugăm să contactezi asistența pentru a finaliza ștergerea contului.",
+  accountSecurity: "Securitatea Contului",
+  manageAccountSecurity: "Gestionează securitatea contului tău",
+  changePassword: "Schimbă parola",
+  irreversibleActions: "Acțiuni care nu pot fi anulate",
 
   // Wishlist
   emptyWishlist: "Lista ta de dorințe este goală",
@@ -314,6 +321,9 @@ export const ro = {
   termsOfService: "Termeni și Condiții",
   privacyPolicy: "Politica de Confidențialitate",
   cookiePolicy: "Politica de Cookie-uri",
+  contact: "Contact",
+  address: "Adresă",
+  customerSupport: "Asistență Clienți",
 
   // SEO Translations
   metaTitle: "TechTots | Jucării STEM pentru minți curioase",
@@ -403,6 +413,14 @@ export const ro = {
   mathematicsToysTitle: "Jucării și Kituri de Învățare Matematică",
   mathematicsToysDescription:
     "Fă matematica magică cu puzzle-uri, jocuri și instrumente interactive de învățare",
+  Mathematics: "Matematică",
+  "Educational Books": "Cărți Educaționale",
+  mathToysTitle: "Jucării Matematice pentru Învățare Distractivă",
+  mathToysDescription:
+    "Descoperă jucării care fac matematica distractivă și captivantă pentru copii de toate vârstele",
+  educationalBooksTitle: "Cărți Educaționale pentru Minți Tinere",
+  educationalBooksDescription:
+    "Descoperă cărți care inspiră învățarea și stimulează curiozitatea la copiii de toate vârstele",
 
   // Filter and Sort UI
   filterOptions: "Opțiuni de Filtrare",
@@ -615,7 +633,6 @@ export const ro = {
   switchToEn: "🇬🇧 EN",
   founderDescription:
     "Antreprenor vizionar cu expertiză extinsă în dezvoltare, design și marketing. Pasionat de crearea tehnologiei educaționale care îi ajută pe copii să exploreze, să învețe și să crească. A fondat TechTots cu misiunea de a revoluționa modul în care copiii interacționează cu disciplinele STEM prin jucării educaționale atent proiectate.",
-  contact: "Contact",
   linkedin: "LinkedIn",
 
   // Engineering Learning
