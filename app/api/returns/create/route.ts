@@ -21,6 +21,13 @@ export async function POST(request: Request) {
       where: { id: orderItemId },
       include: {
         order: true,
+        product: {
+          select: {
+            name: true,
+            sku: true,
+            images: true,
+          },
+        },
       },
     });
 
@@ -87,6 +94,14 @@ export async function POST(request: Request) {
         details: reason === "OTHER" ? details : null,
         status: "PENDING",
       },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
     });
 
     // Update the order item status to reflect return requested
@@ -95,10 +110,56 @@ export async function POST(request: Request) {
       data: { returnStatus: "REQUESTED" },
     });
 
-    // Send return confirmation email
+    // Get store settings for admin email
+    const storeSettings = await prisma.storeSettings.findFirst();
+    const adminEmail = storeSettings?.contactEmail || "info@techtots.com";
+
+    // Log environment variables for debugging
+    console.log("==== RETURN EMAIL DEBUG INFO ====");
+    console.log("EMAIL_FROM env:", process.env.EMAIL_FROM);
+    console.log("BREVO_API_KEY available:", !!process.env.BREVO_API_KEY);
+    console.log("BREVO_SMTP_KEY available:", !!process.env.BREVO_SMTP_KEY);
+    console.log("Admin email from store settings:", adminEmail);
+    console.log("================================");
+
+    // Map reason code to human-readable text
+    const reasonLabels = {
+      DOES_NOT_MEET_EXPECTATIONS: "Does not meet expectations",
+      DAMAGED_OR_DEFECTIVE: "Damaged or defective",
+      WRONG_ITEM_SHIPPED: "Wrong item shipped",
+      CHANGED_MIND: "Changed my mind",
+      ORDERED_WRONG_PRODUCT: "Ordered wrong product",
+      OTHER: "Other reason",
+    };
+
+    // Send emails
     try {
+      // Send admin notification using the dedicated template
+      console.log("Sending admin notification email to:", adminEmail);
+      await import("@/lib/nodemailer").then(async ({ emailTemplates }) => {
+        try {
+          const result = await emailTemplates.returnNotification({
+            to: adminEmail,
+            orderNumber: orderItem.order.orderNumber,
+            productName: orderItem.name,
+            productSku: orderItem.product.sku || undefined,
+            customerName: returnRecord.user.name || returnRecord.user.email,
+            customerEmail: returnRecord.user.email,
+            reason: reasonLabels[reason as keyof typeof reasonLabels] || reason,
+            details: details || undefined,
+            returnId: returnRecord.id,
+          });
+
+          console.log("Admin notification email result:", result);
+        } catch (error) {
+          console.error("Failed to send admin notification email:", error);
+        }
+      });
+
+      // Send customer confirmation email
       const userEmail = session.user.email;
       if (typeof userEmail === "string" && userEmail) {
+        console.log("Sending customer confirmation email to:", userEmail);
         await import("@/lib/nodemailer").then(async ({ sendMail }) => {
           await sendMail({
             to: userEmail,
@@ -119,7 +180,9 @@ export async function POST(request: Request) {
         );
       }
     } catch (emailError) {
-      console.error("Error sending return confirmation email:", emailError);
+      console.error("Error sending return emails:", emailError);
+      // Log more details about the error
+      console.error("Error details:", JSON.stringify(emailError, null, 2));
     }
 
     return NextResponse.json({

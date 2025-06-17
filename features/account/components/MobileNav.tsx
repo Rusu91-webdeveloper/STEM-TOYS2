@@ -11,6 +11,7 @@ import {
   Heart,
   Settings,
   LogOut,
+  RotateCcw,
 } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
 import { signOut } from "next-auth/react";
@@ -30,6 +31,12 @@ export function MobileNav() {
       label: t("orders"),
       href: "/account/orders",
       icon: Package,
+      exact: false,
+    },
+    {
+      label: t("returns"),
+      href: "/account/returns",
+      icon: RotateCcw,
       exact: false,
     },
     {
@@ -53,7 +60,7 @@ export function MobileNav() {
   return (
     <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-background/80 backdrop-blur-md border-t border-gray-200 shadow-lg md:hidden">
       <div className="grid h-full grid-cols-5 mx-auto">
-        {navItems.map((item) => {
+        {navItems.slice(0, 4).map((item) => {
           const isActive = item.exact
             ? pathname === item.href
             : pathname.startsWith(item.href);

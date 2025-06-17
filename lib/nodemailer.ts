@@ -158,6 +158,66 @@ export const emailTemplates = {
   },
 
   /**
+   * Return notification email for admin
+   */
+  returnNotification: async ({
+    to,
+    orderNumber,
+    productName,
+    productSku,
+    customerName,
+    customerEmail,
+    reason,
+    details,
+    returnId,
+  }: {
+    to: string;
+    orderNumber: string;
+    productName: string;
+    productSku?: string;
+    customerName: string;
+    customerEmail: string;
+    reason: string;
+    details?: string;
+    returnId: string;
+  }) => {
+    // Make sure we log the email being used
+    logger.info("Sending return notification email", {
+      to,
+      from: EMAIL_FROM || process.env.EMAIL_FROM || "webira.rem.srl@gmail.com",
+    });
+
+    const html = `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #333;">New Return Request Received</h1>
+        <p>A customer has initiated a return request:</p>
+        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0;">
+          <p><strong>Return ID:</strong> ${returnId}</p>
+          <p><strong>Order:</strong> #${orderNumber}</p>
+          <p><strong>Product:</strong> ${productName} ${productSku ? `(SKU: ${productSku})` : ""}</p>
+          <p><strong>Customer:</strong> ${customerName}</p>
+          <p><strong>Email:</strong> ${customerEmail}</p>
+          <p><strong>Reason:</strong> ${reason}</p>
+          ${details ? `<p><strong>Details:</strong> ${details}</p>` : ""}
+          <p><strong>Date Requested:</strong> ${new Date().toLocaleString()}</p>
+        </div>
+        <p>Please review this return request in your <a href="${process.env.NEXT_PUBLIC_BASE_URL || "https://techtots.com"}/admin/returns">admin dashboard</a>.</p>
+      </div>
+    `;
+
+    // Force the use of the EMAIL_FROM environment variable
+    const from =
+      EMAIL_FROM || process.env.EMAIL_FROM || "webira.rem.srl@gmail.com";
+
+    return sendMail({
+      to,
+      from,
+      subject: `New Return Request - Order #${orderNumber}`,
+      html,
+    });
+  },
+
+  /**
    * Verification email
    */
   verification: async ({

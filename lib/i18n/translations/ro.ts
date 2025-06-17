@@ -131,6 +131,7 @@ export const ro = {
 
   // Account navigation
   orders: "Comenzi",
+  returns: "Returnări",
   addresses: "Adrese",
   paymentMethods: "Metode de plată",
   wishlist: "Lista de dorințe",

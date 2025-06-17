@@ -11,6 +11,7 @@ import {
   Heart,
   Settings,
   LogOut,
+  RotateCcw,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useTranslation } from "@/lib/i18n";
@@ -29,6 +30,11 @@ export function AccountNav() {
       label: t("orders"),
       href: "/account/orders",
       icon: Package,
+    },
+    {
+      label: t("returns"),
+      href: "/account/returns",
+      icon: RotateCcw,
     },
     {
       label: t("addresses"),
