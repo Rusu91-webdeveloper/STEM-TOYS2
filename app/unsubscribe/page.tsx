@@ -1,8 +1,7 @@
 import { Metadata } from "next";
 import { Container } from "@/components/ui/container";
 import { Button } from "@/components/ui/button";
-import { useTranslations } from "@/lib/i18n/translations";
-import { getTranslations } from "@/lib/i18n/translations";
+import { getTranslations } from "@/lib/i18n/server";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
@@ -10,12 +9,12 @@ export const metadata: Metadata = {
   description: "Dezabonează-te de la newsletter-ul TechTots.",
 };
 
-export default function UnsubscribePage({
+export default async function UnsubscribePage({
   searchParams,
 }: {
   searchParams: { email?: string };
 }) {
-  const t = getTranslations();
+  const t = await getTranslations();
   const email = searchParams.email || "";
 
   return (
