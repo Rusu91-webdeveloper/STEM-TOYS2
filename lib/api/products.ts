@@ -1,6 +1,69 @@
 import type { Product } from "@/types/product";
 
 /**
+ * Get a combined product or book by slug
+ * This will check both products and books tables
+ */
+export async function getCombinedProduct(
+  slug: string
+): Promise<Product | null> {
+  try {
+    // Encode the slug to handle special characters
+    const encodedSlug = encodeURIComponent(slug);
+
+    // In server components, we need to ensure absolute URLs
+    let url: string;
+
+    if (typeof window !== "undefined") {
+      // Browser environment
+      url = `${window.location.origin}/api/products/combined/${encodedSlug}`;
+    } else {
+      // Server environment - use environment variable or default to localhost
+      const apiBase =
+        process.env.NEXT_PUBLIC_API_URL ||
+        process.env.NEXT_PUBLIC_SITE_URL ||
+        process.env.NEXTAUTH_URL ||
+        "http://localhost:3000";
+
+      // Make sure we have a complete URL with protocol
+      const baseUrl = apiBase.startsWith("http")
+        ? apiBase
+        : `http://${apiBase}`;
+
+      // Remove trailing slash if present
+      const cleanBaseUrl = baseUrl.endsWith("/")
+        ? baseUrl.slice(0, -1)
+        : baseUrl;
+
+      console.log(`Using API base URL: ${cleanBaseUrl}`);
+      url = `${cleanBaseUrl}/api/products/combined/${encodedSlug}`;
+    }
+
+    console.log(`Fetching combined product/book with URL: ${url}`);
+
+    const response = await fetch(url, {
+      next: {
+        // Use tags for more precise invalidation
+        tags: [`product-${slug}`, "products", `book-${slug}`, "books"],
+        revalidate: 0, // Don't cache individual products to ensure freshness
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        return null;
+      }
+      throw new Error(`Failed to fetch product: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching combined product:", error);
+    return null;
+  }
+}
+
+/**
  * Get a product by slug
  */
 export async function getProduct(slug: string): Promise<Product | null> {

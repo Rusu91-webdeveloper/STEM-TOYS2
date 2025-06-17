@@ -19,12 +19,14 @@ interface ProductAddToCartButtonProps {
   };
   className?: string;
   showQuantity?: boolean;
+  isBook?: boolean;
 }
 
 export function ProductAddToCartButton({
   product,
   className = "",
   showQuantity = false,
+  isBook = false,
 }: ProductAddToCartButtonProps) {
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
@@ -53,6 +55,7 @@ export function ProductAddToCartButton({
       price: selectedVariant?.price ?? product.price,
       quantity,
       image: product.image,
+      isBook,
     };
 
     addItem(item, quantity);

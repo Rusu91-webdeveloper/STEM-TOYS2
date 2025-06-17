@@ -20,10 +20,12 @@ import { useSession } from "next-auth/react";
 
 type ProductDetailClientProps = {
   product: Product;
+  isBook?: boolean;
 };
 
 export default function ProductDetailClient({
   product,
+  isBook = false,
 }: ProductDetailClientProps) {
   const { t } = useTranslation();
   const { formatPrice } = useCurrency();
@@ -366,7 +368,10 @@ export default function ProductDetailClient({
 
             {/* Action Buttons */}
             <div className="pt-4 flex flex-col gap-3">
-              <ProductAddToCartButton product={product} />
+              <ProductAddToCartButton
+                product={product}
+                isBook={isBook}
+              />
               <Button
                 variant="outline"
                 className={`flex items-center gap-2 ${isInWishlist ? "text-red-500" : ""}`}

@@ -7,6 +7,7 @@ import { useTranslation } from "@/lib/i18n";
 import { useCurrency } from "@/lib/currency";
 import { useState, useEffect } from "react";
 import type { Product } from "@/types/product";
+import { toast } from "@/components/ui/use-toast";
 
 // Mock data for STEM categories
 const categories = [
@@ -47,6 +48,7 @@ export default function Home() {
   const { formatPrice } = useCurrency();
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch featured products from the database
   useEffect(() => {
@@ -629,43 +631,152 @@ export default function Home() {
               </p>
             </div>
             <form
-              className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md sm:max-w-xl mx-auto"
-              onSubmit={(e) => {
+              className="flex flex-col gap-3 sm:gap-4 max-w-md sm:max-w-xl mx-auto"
+              onSubmit={async (e) => {
                 e.preventDefault();
                 const form = e.currentTarget;
                 const email = form.email.value;
+                const firstName = form.firstName?.value || "";
+
+                // Get selected categories
+                const categoryCheckboxes = form.querySelectorAll(
+                  'input[name="categories"]:checked'
+                );
+                const categories = Array.from(categoryCheckboxes).map(
+                  (checkbox) => (checkbox as HTMLInputElement).value
+                );
 
                 if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                  alert(
-                    t(
+                  toast({
+                    title: t("invalidEmailTitle" as any, "Invalid Email"),
+                    description: t(
                       "invalidEmailMessage" as any,
                       "Please enter a valid email address"
-                    )
-                  );
+                    ),
+                    variant: "destructive",
+                  });
                   return;
                 }
 
-                // Here you would typically send this to an API endpoint
-                // For now just show a success message
-                alert(
-                  t(
-                    "subscribedSuccessMessage" as any,
-                    "Thank you for subscribing to our newsletter!"
-                  )
-                );
-                form.reset();
+                setIsSubmitting(true);
+
+                try {
+                  const response = await fetch("/api/newsletter", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email, firstName, categories }),
+                  });
+
+                  const data = await response.json();
+
+                  if (response.ok) {
+                    toast({
+                      title: t(
+                        "subscribedSuccessTitle" as any,
+                        "Subscription Successful"
+                      ),
+                      description:
+                        data.message ||
+                        t(
+                          "subscribedSuccessMessage" as any,
+                          "Thank you for subscribing to our newsletter! You'll receive a confirmation email shortly."
+                        ),
+                      variant: "success",
+                    });
+                    form.reset();
+                  } else {
+                    throw new Error(data.message || "Failed to subscribe");
+                  }
+                } catch (error) {
+                  console.error("Newsletter subscription error:", error);
+                  toast({
+                    title: t(
+                      "subscribedErrorTitle" as any,
+                      "Subscription Error"
+                    ),
+                    description: t(
+                      "subscribedErrorMessage" as any,
+                      "An error occurred while subscribing. Please try again."
+                    ),
+                    variant: "destructive",
+                  });
+                } finally {
+                  setIsSubmitting(false);
+                }
               }}>
-              <input
-                type="email"
-                name="email"
-                placeholder={t("emailPlaceholder")}
-                className="flex h-10 sm:h-12 w-full rounded-md border border-input bg-background px-3 sm:px-4 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                required
-              />
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <input
+                  type="text"
+                  name="firstName"
+                  placeholder="Prenume (opțional)"
+                  className="flex h-10 sm:h-12 w-full rounded-md border border-input bg-background px-3 sm:px-4 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder={t("emailPlaceholder")}
+                  className="flex h-10 sm:h-12 w-full rounded-md border border-input bg-background px-3 sm:px-4 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  required
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-2 justify-center mb-2">
+                <label className="flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="categories"
+                    value="SCIENCE"
+                    className="rounded text-primary focus:ring-primary"
+                  />
+                  Știință
+                </label>
+                <label className="flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="categories"
+                    value="TECHNOLOGY"
+                    className="rounded text-primary focus:ring-primary"
+                  />
+                  Tehnologie
+                </label>
+                <label className="flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="categories"
+                    value="ENGINEERING"
+                    className="rounded text-primary focus:ring-primary"
+                  />
+                  Inginerie
+                </label>
+                <label className="flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="categories"
+                    value="MATHEMATICS"
+                    className="rounded text-primary focus:ring-primary"
+                  />
+                  Matematică
+                </label>
+                <label className="flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="categories"
+                    value="GENERAL"
+                    className="rounded text-primary focus:ring-primary"
+                  />
+                  General
+                </label>
+              </div>
+
               <Button
                 type="submit"
-                className="h-10 sm:h-12 px-3 sm:px-6 text-xs sm:text-sm md:text-base transition-all hover:scale-105">
-                {t("subscribe")}
+                className="h-10 sm:h-12 px-3 sm:px-6 text-xs sm:text-sm md:text-base transition-all hover:scale-105"
+                disabled={isSubmitting}>
+                {isSubmitting
+                  ? t("subscribing" as any, "Subscribing...")
+                  : t("subscribe")}
               </Button>
             </form>
           </div>

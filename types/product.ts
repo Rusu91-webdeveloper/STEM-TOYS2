@@ -40,4 +40,6 @@ export interface Product {
     | string;
   rating?: number;
   reviewCount?: number;
+  stockQuantity?: number;
+  isBook?: boolean;
 }

@@ -8,7 +8,7 @@
  */
 
 import { prisma } from "@/lib/prisma";
-import { StoreSettings, Product } from "@/app/generated/prisma";
+import { StoreSettings, Product, Blog } from "@/app/generated/prisma";
 import { sendMail } from "./brevo";
 import { ro as roTranslations } from "@/lib/i18n/translations/ro";
 
@@ -18,6 +18,20 @@ type SEOMetadata = {
   metaDescription?: string;
   keywords?: string[];
 };
+
+// Type for blog with included relations
+interface BlogWithAuthorAndCategory {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string;
+  content: string;
+  coverImage: string | null;
+  publishedAt: Date | null;
+  createdAt: Date;
+  author: { name: string };
+  category: { name: string; slug: string };
+}
 
 // Base URL for links
 const getBaseUrl = () =>
@@ -271,6 +285,272 @@ export const emailTemplates = {
     return sendMail({
       to,
       subject: roTranslations.email_password_reset_subject,
+      html,
+      params: { email: to },
+    });
+  },
+
+  /**
+   * Newsletter welcome email in Romanian
+   */
+  newsletterWelcome: async ({ to, name }: { to: string; name: string }) => {
+    const storeSettings = await getStoreSettings();
+    const baseUrl = getBaseUrl();
+
+    // Fetch the latest 2 published blog posts
+    // Using 'any' type here to avoid complex typing issues with Prisma's return type
+    const latestBlogs = (await prisma.blog.findMany({
+      where: { isPublished: true },
+      orderBy: { publishedAt: "desc" },
+      take: 2,
+      include: {
+        author: {
+          select: { name: true },
+        },
+        category: {
+          select: { name: true, slug: true },
+        },
+      },
+    })) as any[];
+
+    // Generate blog section HTML based on available blogs
+    let blogSectionHtml = "";
+
+    if (latestBlogs.length > 0) {
+      blogSectionHtml = `
+        <h2 style="color: #333; margin-top: 32px;">Articole populare</h2>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 32px; text-align: center;">
+      `;
+
+      latestBlogs.forEach((blog) => {
+        const blogUrl = `${baseUrl}/blog/${blog.slug}`;
+        const coverImage =
+          blog.coverImage || `${baseUrl}/images/blog/default-cover.jpg`;
+
+        blogSectionHtml += `
+          <div style="flex: 1; margin: 0 8px;">
+            <a href="${blogUrl}" style="text-decoration: none; color: #333;">
+              <img src="${coverImage}" alt="${blog.title}" style="width: 100%; border-radius: 4px; margin-bottom: 8px;">
+              <p style="font-weight: bold;">${blog.title}</p>
+            </a>
+          </div>
+        `;
+      });
+
+      blogSectionHtml += `</div>`;
+    } else {
+      blogSectionHtml = `
+        <h2 style="color: #333; margin-top: 32px;">Articole populare</h2>
+        <div style="background-color: #f9fafb; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 32px;">
+          <p style="margin: 0;">În curând vom publica articole interesante despre educația STEM. Rămâi conectat!</p>
+        </div>
+      `;
+    }
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="ro">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Mulțumim pentru abonare - ${storeSettings.storeName}</title>
+      </head>
+      <body style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="${baseUrl}/logo.png" alt="${storeSettings.storeName} Logo" style="max-width: 200px;">
+        </div>
+        <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h1 style="color: #333; margin-bottom: 24px; text-align: center;">Mulțumim pentru abonare!</h1>
+          <p>Salut, ${name},</p>
+          <p>Îți mulțumim că te-ai abonat la newsletter-ul nostru. Suntem încântați să te avem în comunitatea noastră!</p>
+          <p>De acum înainte, vei primi:</p>
+          <ul style="margin-bottom: 20px;">
+            <li>Notificări despre noile articole de blog STEM</li>
+            <li>Sfaturi educaționale pentru părinți și educatori</li>
+            <li>Informații despre produsele și ofertele noastre speciale</li>
+            <li>Resurse exclusive pentru învățare STEM</li>
+          </ul>
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${baseUrl}/blog" 
+                style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+              Explorează blogul nostru
+            </a>
+          </div>
+          
+          ${blogSectionHtml}
+          
+          <p>Așteptăm cu nerăbdare să împărtășim conținut valoros cu tine!</p>
+          <p>Echipa ${storeSettings.storeName}</p>
+        </div>
+        ${generateEmailFooter(storeSettings)}
+      </body>
+      </html>
+    `;
+    return sendMail({
+      to,
+      subject: "Mulțumim pentru abonarea la newsletter-ul TechTots!",
+      html,
+      params: { email: to },
+    });
+  },
+
+  /**
+   * Newsletter resubscribe email in Romanian
+   */
+  newsletterResubscribe: async ({ to, name }: { to: string; name: string }) => {
+    const storeSettings = await getStoreSettings();
+    const baseUrl = getBaseUrl();
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="ro">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bine ai revenit - ${storeSettings.storeName}</title>
+      </head>
+      <body style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="${baseUrl}/logo.png" alt="${storeSettings.storeName} Logo" style="max-width: 200px;">
+        </div>
+        <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h1 style="color: #333; margin-bottom: 24px; text-align: center;">Bine ai revenit!</h1>
+          <p>Salut, ${name},</p>
+          <p>Ne bucurăm că te-ai abonat din nou la newsletter-ul nostru. Suntem încântați să te avem înapoi în comunitatea noastră!</p>
+          <p>De acum înainte, vei primi din nou:</p>
+          <ul style="margin-bottom: 20px;">
+            <li>Notificări despre noile articole de blog STEM</li>
+            <li>Sfaturi educaționale pentru părinți și educatori</li>
+            <li>Informații despre produsele și ofertele noastre speciale</li>
+            <li>Resurse exclusive pentru învățare STEM</li>
+          </ul>
+          <div style="text-align: center; margin: 32px 0;">
+            <a href="${baseUrl}/blog" 
+                style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
+              Explorează blogul nostru
+            </a>
+          </div>
+          <h2 style="color: #333; margin-top: 32px;">Ce ai ratat</h2>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 32px; text-align: center;">
+            <div style="flex: 1; margin: 0 8px;">
+              <a href="${baseUrl}/blog/latest-stem-trends" style="text-decoration: none; color: #333;">
+                <img src="${baseUrl}/images/blog/stem-trends.jpg" alt="Tendințe recente în STEM" style="width: 100%; border-radius: 4px; margin-bottom: 8px;">
+                <p style="font-weight: bold;">Tendințe recente în STEM</p>
+              </a>
+            </div>
+            <div style="flex: 1; margin: 0 8px;">
+              <a href="${baseUrl}/blog/stem-for-preschoolers" style="text-decoration: none; color: #333;">
+                <img src="${baseUrl}/images/blog/preschool-stem.jpg" alt="STEM pentru preșcolari" style="width: 100%; border-radius: 4px; margin-bottom: 8px;">
+                <p style="font-weight: bold;">STEM pentru preșcolari</p>
+              </a>
+            </div>
+          </div>
+          <p>Suntem bucuroși că ești din nou alături de noi!</p>
+          <p>Echipa ${storeSettings.storeName}</p>
+        </div>
+        ${generateEmailFooter(storeSettings)}
+      </body>
+      </html>
+    `;
+    return sendMail({
+      to,
+      subject: "Bine ai revenit la newsletter-ul TechTots!",
+      html,
+      params: { email: to },
+    });
+  },
+
+  /**
+   * Blog notification email in Romanian
+   */
+  blogNotification: async ({
+    to,
+    name,
+    blog,
+  }: {
+    to: string;
+    name: string;
+    blog: BlogWithAuthorAndCategory;
+  }) => {
+    const storeSettings = await getStoreSettings();
+    const baseUrl = getBaseUrl();
+
+    // Format the blog publication date
+    const publishDate = blog.publishedAt
+      ? new Date(blog.publishedAt).toLocaleDateString("ro-RO", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })
+      : new Date(blog.createdAt).toLocaleDateString("ro-RO", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+
+    // Create an excerpt if needed
+    const excerpt = blog.excerpt || blog.content.substring(0, 150) + "...";
+
+    // Get the blog URL
+    const blogUrl = `${baseUrl}/blog/${blog.slug}`;
+
+    // Get the cover image or use a placeholder
+    const coverImage =
+      blog.coverImage || `${baseUrl}/images/blog/default-cover.jpg`;
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="ro">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Articol nou: ${blog.title} - ${storeSettings.storeName}</title>
+      </head>
+      <body style="font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <img src="${baseUrl}/logo.png" alt="${storeSettings.storeName} Logo" style="max-width: 200px;">
+        </div>
+        <div style="background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h1 style="color: #333; margin-bottom: 24px; text-align: center;">Articol nou pe blogul nostru</h1>
+          <p>Salut, ${name},</p>
+          <p>Tocmai am publicat un nou articol pe blogul nostru care te-ar putea interesa:</p>
+          
+          <div style="margin: 24px 0; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+            <img src="${coverImage}" alt="${blog.title}" style="width: 100%; max-height: 300px; object-fit: cover;">
+            <div style="padding: 16px;">
+              <h2 style="margin-top: 0; margin-bottom: 8px; color: #333;">${blog.title}</h2>
+              <p style="margin-top: 0; color: #6b7280; font-size: 14px;">
+                Publicat de ${blog.author.name} în ${blog.category.name} | ${publishDate}
+              </p>
+              <p style="margin-bottom: 16px;">${excerpt}</p>
+              <div style="text-align: center;">
+                <a href="${blogUrl}" 
+                  style="background-color: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">
+                  Citește articolul complet
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <p>Sperăm că vei găsi acest articol informativ și util!</p>
+          <p>Echipa ${storeSettings.storeName}</p>
+          
+          <div style="margin-top: 32px; padding-top: 16px; border-top: 1px solid #e5e7eb; text-align: center;">
+            <p style="font-size: 14px; color: #6b7280;">
+              Primești acest email pentru că ești abonat la newsletter-ul nostru.
+              <br>
+              Dacă nu mai dorești să primești notificări despre articolele noi, poți să te 
+              <a href="${baseUrl}/unsubscribe?email={{params.email}}" style="color: #3b82f6; text-decoration: none;">dezabonezi aici</a>.
+            </p>
+          </div>
+        </div>
+        ${generateEmailFooter(storeSettings)}
+      </body>
+      </html>
+    `;
+    return sendMail({
+      to,
+      subject: `Articol nou: ${blog.title} - ${storeSettings.storeName}`,
       html,
       params: { email: to },
     });

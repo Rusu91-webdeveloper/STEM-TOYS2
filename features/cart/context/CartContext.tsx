@@ -26,6 +26,7 @@ export interface CartItem {
   price: number;
   quantity: number;
   image?: string;
+  isBook?: boolean;
 }
 
 interface CartContextType {

@@ -44,6 +44,7 @@ const orderItemSchema = z.object({
   name: z.string(),
   price: z.number(),
   quantity: z.number().int().positive(),
+  isBook: z.boolean().optional(), // Add isBook flag to identify book items
 });
 
 // Updated order schema
@@ -256,6 +257,7 @@ export async function POST(request: Request) {
     // Create order in the database
     let dbOrder;
     try {
+      // First, create the order without items
       dbOrder = await db.order.create({
         data: {
           orderNumber,
@@ -268,17 +270,72 @@ export async function POST(request: Request) {
           status: "PROCESSING",
           paymentStatus: "PAID", // In a real app, this would depend on payment processing
           shippingAddressId: shippingAddressId,
-          // Create order items
-          items: {
-            create: items.map((item) => ({
+        },
+      });
+
+      // Then, add items one by one, handling both products and books
+      for (const item of items) {
+        const isBook = item.isBook === true;
+
+        if (isBook) {
+          // For books, we need to find a valid product ID to use
+          // First, check if we have a product with this name already
+          let productId = item.productId;
+
+          // Try to find an existing product for this book
+          const existingProduct = await db.product.findFirst({
+            where: {
+              name: item.name,
+            },
+          });
+
+          if (existingProduct) {
+            productId = existingProduct.id;
+          } else {
+            // Create a placeholder product for this book
+            const placeholderProduct = await db.product.create({
+              data: {
+                name: item.name,
+                slug: `book-${item.productId}`,
+                description: `Book: ${item.name}`,
+                price: item.price,
+                categoryId:
+                  (
+                    await db.category.findFirst({
+                      where: { slug: "educational-books" },
+                    })
+                  )?.id || "", // Use educational books category
+                images: [],
+                tags: ["book"],
+                isActive: true,
+              },
+            });
+            productId = placeholderProduct.id;
+          }
+
+          // Create the order item with the valid product ID
+          await db.orderItem.create({
+            data: {
+              orderId: dbOrder.id,
+              productId: productId,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+            },
+          });
+        } else {
+          // Regular product, create order item directly
+          await db.orderItem.create({
+            data: {
+              orderId: dbOrder.id,
               productId: item.productId,
               name: item.name,
               price: item.price,
               quantity: item.quantity,
-            })),
-          },
-        },
-      });
+            },
+          });
+        }
+      }
     } catch (dbError) {
       console.error("Failed to create order in database:", dbError);
       // In development, continue without throwing

@@ -327,6 +327,17 @@ exports.Prisma.ReviewScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.NewsletterScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  categories: 'categories'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -421,7 +432,8 @@ exports.Prisma.ModelName = {
   OrderItem: 'OrderItem',
   StoreSettings: 'StoreSettings',
   Return: 'Return',
-  Review: 'Review'
+  Review: 'Review',
+  Newsletter: 'Newsletter'
 };
 
 /**

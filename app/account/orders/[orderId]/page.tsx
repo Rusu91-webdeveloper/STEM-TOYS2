@@ -28,14 +28,16 @@ function serializeOrder(order: any) {
 
 export async function generateMetadata({ params }: PageProps) {
   const t = await getTranslations();
+  const orderId = await params.orderId;
   return {
-    title: `${t("orderNumber" as TranslationKey)} ${params.orderId} | ${t("siteTitle" as TranslationKey)}`,
+    title: `${t("orderNumber" as TranslationKey)} ${orderId} | ${t("siteTitle" as TranslationKey)}`,
   };
 }
 
 export default async function OrderDetailsPage({ params }: PageProps) {
   const t = await getTranslations();
   const session = await auth();
+  const orderId = await params.orderId;
 
   if (!session?.user) {
     return notFound();
@@ -43,7 +45,7 @@ export default async function OrderDetailsPage({ params }: PageProps) {
 
   const order = await db.order.findUnique({
     where: {
-      id: params.orderId,
+      id: orderId,
       userId: session.user.id,
     },
     include: {

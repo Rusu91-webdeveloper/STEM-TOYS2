@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/lib/i18n";
 import { ArrowLeft } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 // Mock data for blog posts categorized by STEM areas
 export const blogPostsByCategory = {
@@ -427,16 +428,168 @@ export default function BlogCategoryPage() {
             <p className="text-xs sm:text-sm md:text-base mb-4 sm:mb-6 max-w-2xl leading-relaxed drop-shadow-sm">
               {t("newsletterDescription")}
             </p>
-            <div className="w-full max-w-md flex gap-2">
-              <input
-                type="email"
-                placeholder={t("emailPlaceholder")}
-                className="flex-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md border border-white/30 bg-white/10 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 shadow-inner transition-all text-xs sm:text-sm"
-              />
-              <Button className="bg-white text-indigo-700 hover:bg-white/90 border-none shadow-md transition-all text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
+            <form
+              className="w-full max-w-md flex flex-col gap-3"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const email = form.email.value;
+                const firstName = form.firstName?.value || "";
+
+                // Get selected categories
+                const categoryCheckboxes = form.querySelectorAll(
+                  'input[name="categories"]:checked'
+                );
+                const selectedCategories = Array.from(categoryCheckboxes).map(
+                  (checkbox) => (checkbox as HTMLInputElement).value
+                );
+
+                // Make sure the current category is included
+                const categories = [...selectedCategories];
+                if (!categories.includes(categorySlug.toUpperCase())) {
+                  categories.push(categorySlug.toUpperCase());
+                }
+
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                  toast({
+                    title: t("invalidEmailTitle" as any, "Invalid Email"),
+                    description: t(
+                      "invalidEmailMessage" as any,
+                      "Please enter a valid email address"
+                    ),
+                    variant: "destructive",
+                  });
+                  return;
+                }
+
+                try {
+                  const response = await fetch("/api/newsletter", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ email, firstName, categories }),
+                  });
+
+                  const data = await response.json();
+
+                  if (response.ok) {
+                    toast({
+                      title: t(
+                        "subscribedSuccessTitle" as any,
+                        "Subscription Successful"
+                      ),
+                      description:
+                        data.message ||
+                        t(
+                          "subscribedSuccessMessage" as any,
+                          "Thank you for subscribing to our newsletter! You'll receive a confirmation email shortly."
+                        ),
+                      variant: "default",
+                    });
+                    form.reset();
+                  } else {
+                    throw new Error(data.message || "Failed to subscribe");
+                  }
+                } catch (error) {
+                  console.error("Newsletter subscription error:", error);
+                  toast({
+                    title: t(
+                      "subscribedErrorTitle" as any,
+                      "Subscription Error"
+                    ),
+                    description: t(
+                      "subscribedErrorMessage" as any,
+                      "An error occurred while subscribing. Please try again."
+                    ),
+                    variant: "destructive",
+                  });
+                }
+              }}>
+              <div className="flex flex-col sm:flex-row gap-2 w-full">
+                <input
+                  type="text"
+                  name="firstName"
+                  placeholder="Prenume (opțional)"
+                  className="flex-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md border border-white/30 bg-white/10 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 shadow-inner transition-all text-xs sm:text-sm"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder={t("emailPlaceholder")}
+                  className="flex-1 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md border border-white/30 bg-white/10 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white focus:ring-opacity-50 shadow-inner transition-all text-xs sm:text-sm"
+                  required
+                />
+              </div>
+
+              <div className="flex flex-wrap gap-3 justify-center mb-2">
+                <label className="flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="categories"
+                    value="SCIENCE"
+                    className="rounded text-white border-white/50 bg-transparent focus:ring-white focus:ring-offset-indigo-700"
+                    defaultChecked={categorySlug.toUpperCase() === "SCIENCE"}
+                  />
+                  <span>Știință</span>
+                </label>
+                <label className="flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="categories"
+                    value="TECHNOLOGY"
+                    className="rounded text-white border-white/50 bg-transparent focus:ring-white focus:ring-offset-indigo-700"
+                    defaultChecked={categorySlug.toUpperCase() === "TECHNOLOGY"}
+                  />
+                  <span>Tehnologie</span>
+                </label>
+                <label className="flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="categories"
+                    value="ENGINEERING"
+                    className="rounded text-white border-white/50 bg-transparent focus:ring-white focus:ring-offset-indigo-700"
+                    defaultChecked={
+                      categorySlug.toUpperCase() === "ENGINEERING"
+                    }
+                  />
+                  <span>Inginerie</span>
+                </label>
+                <label className="flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="categories"
+                    value="MATHEMATICS"
+                    className="rounded text-white border-white/50 bg-transparent focus:ring-white focus:ring-offset-indigo-700"
+                    defaultChecked={
+                      categorySlug.toUpperCase() === "MATHEMATICS"
+                    }
+                  />
+                  <span>Matematică</span>
+                </label>
+                <label className="flex items-center gap-1.5 text-xs sm:text-sm cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="categories"
+                    value="GENERAL"
+                    className="rounded text-white border-white/50 bg-transparent focus:ring-white focus:ring-offset-indigo-700"
+                    defaultChecked={categorySlug.toUpperCase() === "GENERAL"}
+                  />
+                  <span>General</span>
+                </label>
+              </div>
+
+              <p className="text-xs text-white/80 mb-2">
+                Te-ai abonat la categoria <strong>{categoryName}</strong>.
+                Selectează și alte categorii de interes.
+              </p>
+
+              <Button
+                type="submit"
+                className="bg-white text-indigo-700 hover:bg-white/90 border-none shadow-md transition-all text-xs sm:text-sm h-8 sm:h-9 px-2 sm:px-3">
                 {t("subscribe")}
               </Button>
-            </div>
+            </form>
           </div>
         </div>
       </section>

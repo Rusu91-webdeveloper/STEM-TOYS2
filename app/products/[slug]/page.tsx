@@ -1,9 +1,10 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import { Metadata, ResolvingMetadata } from "next";
-import { getProduct } from "@/lib/api/products";
+import { getCombinedProduct } from "@/lib/api/products";
 import ProductDetailClient from "@/features/products/components/ProductDetailClient";
 import { generateProductMetadata } from "@/lib/utils/seo";
+import type { Product } from "@/types/product";
 
 type ProductPageProps = {
   params: {
@@ -13,8 +14,10 @@ type ProductPageProps = {
 
 // Define Category type to fix type errors
 type Category = {
+  id?: string;
   name: string;
-  [key: string]: any;
+  slug: string;
+  description?: string;
 };
 
 export async function generateMetadata(
@@ -27,7 +30,8 @@ export async function generateMetadata(
     const resolvedParams = params instanceof Promise ? await params : params;
     const slug = resolvedParams.slug;
 
-    const product = await getProduct(slug);
+    // Get product or book using the combined API
+    const product = await getCombinedProduct(slug);
 
     if (!product) {
       return {
@@ -53,15 +57,23 @@ export default async function ProductPage({ params }: ProductPageProps) {
     const resolvedParams = params instanceof Promise ? await params : params;
     const slug = resolvedParams.slug;
 
-    // Get product data
-    const product = await getProduct(slug);
+    // Get product or book using the combined API
+    const product = await getCombinedProduct(slug);
+
+    // Check if this is a book (based on the flag set in the API)
+    const isBook = product?.isBook === true;
 
     if (!product) {
       return notFound();
     }
 
     // Pass product data to client component
-    return <ProductDetailClient product={product} />;
+    return (
+      <ProductDetailClient
+        product={product}
+        isBook={isBook}
+      />
+    );
   } catch (error) {
     console.error("Error fetching product:", error);
     return notFound();

@@ -8,13 +8,14 @@ export const metadata = {
   description: "Comanda dvs. a fost plasată cu succes",
 };
 
-export default function OrderConfirmationPage({
+export default async function OrderConfirmationPage({
   searchParams,
 }: {
   searchParams: { orderId?: string };
 }) {
-  // No need to await here, just access the value directly
-  const orderId = searchParams.orderId || "123456789"; // Fallback for demo
+  // Need to await searchParams when using it
+  const params = await searchParams;
+  const orderId = params.orderId || "123456789"; // Fallback for demo
 
   return (
     <div className="container max-w-4xl py-12">

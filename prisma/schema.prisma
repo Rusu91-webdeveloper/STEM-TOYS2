@@ -294,6 +294,20 @@ model Review {
   @@index([orderItemId])
 }
 
+model Newsletter {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  firstName  String?
+  lastName   String?
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  categories String[] @default([])
+  
+  @@index([email])
+  @@index([isActive])
+}
+
 enum OrderItemReturnStatus {
   NONE
   REQUESTED
