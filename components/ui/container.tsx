@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { ReactNode } from "react";
 
+// Container component for consistent layout spacing
 interface ContainerProps {
   children: ReactNode;
   className?: string;
