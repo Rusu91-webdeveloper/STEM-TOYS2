@@ -48,6 +48,7 @@ interface Order {
   tax: number;
   total: number;
   createdAt: string;
+  deliveredAt?: string;
   items: OrderItem[];
   shippingAddress: ShippingAddress;
 }
@@ -96,6 +97,25 @@ export function OrderDetailsClient({ order }: OrderDetailsClientProps) {
   const orderDate = new Date(order.createdAt);
   const estimatedDelivery = new Date(orderDate);
   estimatedDelivery.setDate(orderDate.getDate() + 7); // 7 days for delivery estimate
+
+  // Helper function to check if order is within 14-day return window
+  const isWithinReturnWindow = () => {
+    if (order.status !== "DELIVERED") {
+      return false;
+    }
+
+    // Use deliveredAt if available, otherwise fall back to order creation date
+    const referenceDate = order.deliveredAt
+      ? new Date(order.deliveredAt)
+      : new Date(order.createdAt);
+
+    const today = new Date();
+    const diffTime = today.getTime() - referenceDate.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    // Allow returns within 14 days of delivery (or order creation if deliveredAt is not set)
+    return diffDays <= 14;
+  };
 
   // Safe translation function that handles dynamic keys
   const safeT = (key: string, defaultValue?: string) => {
@@ -250,17 +270,19 @@ export function OrderDetailsClient({ order }: OrderDetailsClientProps) {
                               </Button>
                             )}
                             {/* Return Item Button */}
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              asChild
-                              className="mt-2">
-                              <Link
-                                href={`/account/orders/${order.id}/return?itemId=${item.id}`}>
-                                <Package className="h-4 w-4 mr-1" />
-                                {t("returnItem")}
-                              </Link>
-                            </Button>
+                            {isWithinReturnWindow() && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                asChild
+                                className="mt-2">
+                                <Link
+                                  href={`/account/orders/${order.id}/return?itemId=${item.id}`}>
+                                  <Package className="h-4 w-4 mr-1" />
+                                  {t("returnItem")}
+                                </Link>
+                              </Button>
+                            )}
                           </>
                         )}
                       </div>

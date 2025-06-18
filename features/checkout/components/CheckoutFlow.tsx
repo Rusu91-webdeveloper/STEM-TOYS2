@@ -66,9 +66,46 @@ export function CheckoutFlow() {
     try {
       // Calculate amounts
       const subtotal = getCartTotal();
-      const vatRate = 0.19; // 19% VAT for Romania
-      const tax = subtotal * vatRate;
-      const shippingCost = checkoutData.shippingMethod?.price || 0;
+
+      // Get tax settings from the store
+      let taxRate = 0.1; // Default to 10%
+      try {
+        const taxSettings = await fetch("/api/checkout/tax-settings");
+        if (taxSettings.ok) {
+          const taxData = await taxSettings.json();
+          if (taxData.taxSettings && taxData.taxSettings.active) {
+            taxRate = parseFloat(taxData.taxSettings.rate) / 100;
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching tax settings:", error);
+        // Continue with default tax rate
+      }
+
+      // Get initial shipping cost
+      let shippingCost = checkoutData.shippingMethod?.price || 0;
+
+      // Check for free shipping threshold
+      try {
+        const shippingSettings = await fetch("/api/checkout/shipping-settings");
+        if (shippingSettings.ok) {
+          const shippingData = await shippingSettings.json();
+          if (shippingData.freeThreshold && shippingData.freeThreshold.active) {
+            const freeShippingThreshold = parseFloat(
+              shippingData.freeThreshold.price
+            );
+            // Apply free shipping if subtotal meets threshold
+            if (subtotal >= freeShippingThreshold) {
+              shippingCost = 0;
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching shipping settings:", error);
+        // Continue with original shipping cost
+      }
+
+      const tax = subtotal * taxRate;
       const total = subtotal + tax + shippingCost;
 
       // Create order data with financial information

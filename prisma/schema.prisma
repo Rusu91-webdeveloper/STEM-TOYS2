@@ -204,6 +204,7 @@ model Order {
   notes             String?
   shippingAddressId String
   billingAddressId  String?
+  deliveredAt       DateTime?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
   shippingAddress   Address       @relation(fields: [shippingAddressId], references: [id])

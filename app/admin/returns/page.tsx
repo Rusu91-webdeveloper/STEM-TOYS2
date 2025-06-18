@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Loader2,
   MoreHorizontal,
@@ -36,6 +37,8 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
+  CheckSquare,
+  Package,
 } from "lucide-react";
 import { formatDistance, format } from "date-fns";
 import Image from "next/image";
@@ -123,6 +126,8 @@ export default function AdminReturnsPage() {
   const [filterStatus, setFilterStatus] = useState<ReturnStatus | undefined>(
     undefined
   );
+  const [selectedReturns, setSelectedReturns] = useState<string[]>([]);
+  const [bulkProcessing, setBulkProcessing] = useState(false);
   const { toast } = useToast();
 
   const fetchReturns = async (page = 1, status?: ReturnStatus) => {
@@ -197,6 +202,73 @@ export default function AdminReturnsPage() {
     }
   };
 
+  const handleBulkApproval = async () => {
+    if (selectedReturns.length === 0) {
+      toast({
+        title: "No Returns Selected",
+        description: "Please select returns to approve.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setBulkProcessing(true);
+
+      const response = await fetch("/api/returns/bulk-approve", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ returnIds: selectedReturns }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to approve returns");
+      }
+
+      const data = await response.json();
+
+      toast({
+        title: "Bulk Approval Successful",
+        description: `Successfully approved ${selectedReturns.length} returns. Customers will receive consolidated emails with single shipping labels per order.`,
+      });
+
+      // Clear selection and refresh data
+      setSelectedReturns([]);
+      fetchReturns(pagination.page, filterStatus);
+    } catch (error) {
+      console.error("Error in bulk approval:", error);
+      toast({
+        title: "Bulk Approval Failed",
+        description: "Failed to approve selected returns. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setBulkProcessing(false);
+    }
+  };
+
+  const handleSelectReturn = (returnId: string) => {
+    setSelectedReturns((prev) =>
+      prev.includes(returnId)
+        ? prev.filter((id) => id !== returnId)
+        : [...prev, returnId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    const pendingReturns = returns
+      .filter((ret) => ret.status === "PENDING")
+      .map((ret) => ret.id);
+
+    if (selectedReturns.length === pendingReturns.length) {
+      setSelectedReturns([]);
+    } else {
+      setSelectedReturns(pendingReturns);
+    }
+  };
+
   const filteredReturns = searchTerm
     ? returns.filter(
         (ret) =>
@@ -257,6 +329,75 @@ export default function AdminReturnsPage() {
         </div>
       </div>
 
+      {/* Bulk Actions Section */}
+      {filteredReturns.filter((ret) => ret.status === "PENDING").length > 0 && (
+        <Card className="bg-blue-50 border-blue-200">
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    checked={
+                      selectedReturns.length > 0 &&
+                      selectedReturns.length ===
+                        filteredReturns.filter(
+                          (ret) => ret.status === "PENDING"
+                        ).length
+                    }
+                    onCheckedChange={handleSelectAll}
+                  />
+                  <span className="text-sm font-medium">
+                    {selectedReturns.length > 0
+                      ? `${selectedReturns.length} returns selected`
+                      : "Select all pending returns"}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {selectedReturns.length > 0 && (
+                  <>
+                    <Button
+                      onClick={handleBulkApproval}
+                      disabled={bulkProcessing}
+                      className="bg-green-600 hover:bg-green-700">
+                      {bulkProcessing ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <CheckSquare className="h-4 w-4 mr-2" />
+                          Approve Selected ({selectedReturns.length})
+                        </>
+                      )}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => setSelectedReturns([])}
+                      disabled={bulkProcessing}>
+                      Clear Selection
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+            {selectedReturns.length > 0 && (
+              <div className="mt-3 p-3 bg-blue-100 rounded-md">
+                <div className="flex items-center gap-2 text-sm text-blue-800">
+                  <Package className="h-4 w-4" />
+                  <span>
+                    <strong>Bulk Processing:</strong> Returns from the same
+                    order will be grouped together. Customers will receive one
+                    email with one shipping label per order.
+                  </span>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>Return Requests</CardTitle>
@@ -276,6 +417,20 @@ export default function AdminReturnsPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
+                      <TableHead className="w-[50px]">
+                        <Checkbox
+                          checked={
+                            filteredReturns.filter(
+                              (ret) => ret.status === "PENDING"
+                            ).length > 0 &&
+                            selectedReturns.length ===
+                              filteredReturns.filter(
+                                (ret) => ret.status === "PENDING"
+                              ).length
+                          }
+                          onCheckedChange={handleSelectAll}
+                        />
+                      </TableHead>
                       <TableHead>Return ID</TableHead>
                       <TableHead>Customer</TableHead>
                       <TableHead>Product</TableHead>
@@ -288,6 +443,16 @@ export default function AdminReturnsPage() {
                   <TableBody>
                     {filteredReturns.map((returnItem) => (
                       <TableRow key={returnItem.id}>
+                        <TableCell>
+                          {returnItem.status === "PENDING" ? (
+                            <Checkbox
+                              checked={selectedReturns.includes(returnItem.id)}
+                              onCheckedChange={() =>
+                                handleSelectReturn(returnItem.id)
+                              }
+                            />
+                          ) : null}
+                        </TableCell>
                         <TableCell className="font-medium">
                           {returnItem.id.slice(-6)}
                         </TableCell>

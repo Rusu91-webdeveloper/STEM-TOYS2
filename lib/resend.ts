@@ -90,6 +90,11 @@ export const emailTemplates = {
         price: number;
       }>;
       total: number;
+      shippingCost: number;
+      tax: number;
+      taxRatePercentage?: string;
+      isFreeShippingActive?: boolean;
+      freeShippingThreshold?: number;
     };
   }) {
     const { to, order } = data;
@@ -154,6 +159,14 @@ export const emailTemplates = {
                   <td colspan="3" style="padding: 16px 8px; text-align: right; color: #ffffff; font-weight: 600; font-size: 16px;">Total Comandă:</td>
                   <td style="padding: 16px 8px; text-align: right; color: #ffffff; font-weight: 700; font-size: 18px;">${order.total.toFixed(2)} Lei</td>
                 </tr>
+                <tr>
+                  <td colspan="3" style="text-align: right; padding: 12px 16px; font-weight: 600;">Transport:</td>
+                  <td style="text-align: right; padding: 12px 16px; font-weight: 600;">${order.shippingCost > 0 ? `${order.shippingCost.toFixed(2)} Lei` : `<span style="color: #10b981;">Gratuit</span>`}</td>
+                </tr>
+                <tr>
+                  <td colspan="3" style="text-align: right; padding: 12px 16px; font-weight: 600;">TVA (${order.taxRatePercentage || "19"}%):</td>
+                  <td style="text-align: right; padding: 12px 16px; font-weight: 600;">${order.tax.toFixed(2)} Lei</td>
+                </tr>
               </tfoot>
             </table>
             
@@ -179,7 +192,7 @@ export const emailTemplates = {
             </div>
             <p style="margin: 0 0 8px 0; font-weight: 600; color: #ffffff;">TechTots - Jucării Educaționale STEM</p>
             <p style="margin: 0 0 16px 0;">Mehedinti 54-56,Bl D5,APT 70, Cluj-Napoca,Cluj</p>
-            <p style="margin: 0 0 16px 0;">📧 webira.rem.srl@gmail.com | 📞 +40 123 456 789</p>
+            <p style="margin: 0 0 16px 0;">📧 webira.rem.srl@gmail.com | 📞 +40 771 248 029</p>
             <div style="border-top: 1px solid #374151; padding-top: 16px; margin-top: 16px;">
               <p style="margin: 0; font-size: 12px;">
                 © ${new Date().getFullYear()} TechTots. Toate drepturile rezervate. | 
@@ -210,28 +223,112 @@ export const emailTemplates = {
     };
   }) {
     const { to, order, trackingInfo } = data;
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const logoUrl = `${baseUrl}/TechTots_LOGO.png`;
+    const faviconUrl = `${baseUrl}/favicon.ico`;
 
     const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #333;">Your Order Has Shipped!</h1>
-        <p>Great news! Your order #${order.id} is on its way to you.</p>
-        
-        <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3>Shipping Details</h3>
-          <p><strong>Carrier:</strong> ${trackingInfo.carrier}</p>
-          <p><strong>Tracking Number:</strong> ${trackingInfo.trackingNumber}</p>
-          <p><a href="${trackingInfo.trackingUrl}" style="color: #0066cc; text-decoration: none;">Track Your Package</a></p>
+      <!DOCTYPE html>
+      <html lang="ro">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Comanda Expediată - TechTots</title>
+      </head>
+      <body style="margin: 0; padding: 20px; background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
+          
+          <!-- Header with Logo -->
+          <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 40px 30px; text-align: center;">
+            <img src="${logoUrl}" alt="TechTots Logo" style="max-width: 200px; height: auto; margin-bottom: 16px;" onerror="this.src='${faviconUrl}'; this.style.width='48px'; this.style.height='48px';">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">🚚 Comanda Expediată!</h1>
+            <p style="margin: 8px 0 0 0; font-size: 16px; opacity: 0.9; color: #ffffff;">Comanda ta este în drum către tine!</p>
+          </div>
+          
+          <!-- Main Content -->
+          <div style="padding: 40px 30px;">
+            <p style="font-size: 18px; color: #374151; margin-bottom: 20px; line-height: 1.6;">Vești excelente! Comanda ta #${order.id} a fost expediată și este pe drum către tine.</p>
+            
+            <!-- Shipping Details Box -->
+            <div style="background-color: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px; margin: 24px 0;">
+              <h2 style="color: #1e40af; margin: 0 0 16px 0; font-size: 20px;">📦 Detalii Expediere</h2>
+              <div style="background-color: #ffffff; border-radius: 8px; padding: 16px; margin-top: 12px;">
+                <p style="margin: 0 0 8px 0; color: #374151;"><strong>🚛 Curier:</strong> ${trackingInfo.carrier}</p>
+                <p style="margin: 0 0 8px 0; color: #374151;"><strong>📋 Număr Urmărire:</strong> <span style="font-family: monospace; background-color: #f3f4f6; padding: 4px 8px; border-radius: 4px;">${trackingInfo.trackingNumber}</span></p>
+                <p style="margin: 8px 0 0 0; color: #374151;"><strong>🔗 Link Urmărire:</strong></p>
+                <div style="text-align: center; margin: 16px 0;">
+                  <a href="${trackingInfo.trackingUrl}" 
+                     style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 14px; display: inline-block; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                    📱 Urmărește Coletul
+                  </a>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Delivery Info -->
+            <div style="background-color: #ecfdf5; border: 1px solid #bbf7d0; padding: 20px; border-radius: 8px; margin: 32px 0;">
+              <h3 style="color: #059669; margin: 0 0 12px 0; font-size: 16px;">⏱️ Informații Livrare</h3>
+              <ul style="margin: 0; padding-left: 20px; color: #047857; line-height: 1.5;">
+                <li style="margin-bottom: 8px;">Livrarea se face de obicei în <strong>3-5 zile lucrătoare</strong></li>
+                <li style="margin-bottom: 8px;">Vei fi contactat telefonic înainte de livrare</li>
+                <li style="margin-bottom: 8px;">Poți urmări coletul în timp real folosind linkul de mai sus</li>
+                <li style="margin-bottom: 8px;">Asigură-te că cineva este prezent la adresa de livrare</li>
+              </ul>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="${trackingInfo.trackingUrl}" 
+                 style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); margin: 0 8px 8px 0;">
+                📱 Urmărește Coletul
+              </a>
+              <a href="${baseUrl}/account/orders" 
+                 style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); margin: 0 8px 8px 0;">
+                📋 Toate Comenzile
+              </a>
+            </div>
+            
+            <!-- Important Info -->
+            <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 24px 0;">
+              <p style="margin: 0 0 12px 0; color: #92400e; font-weight: 600;">📋 Informații Importante:</p>
+              <p style="margin: 0 0 8px 0; color: #92400e;">Dacă ai întrebări despre expediere, menționează codul comenzii <strong>#${order.id}</strong></p>
+              <p style="margin: 0; color: #92400e;">Contactează-ne la <a href="mailto:webira.rem.srl@gmail.com" style="color: #92400e; text-decoration: none; font-weight: 600;">webira.rem.srl@gmail.com</a> sau la <strong>+40 771 248 029</strong></p>
+            </div>
+            
+            <p style="font-size: 16px; color: #374151; text-align: center; margin-top: 32px; line-height: 1.6;">Cu respect,<br><strong>Echipa TechTots</strong></p>
+          </div>
+          
+          <!-- Professional Footer -->
+          <div style="background-color: #1f2937; color: #9ca3af; padding: 30px; text-align: center; font-size: 14px; line-height: 1.5;">
+            <div style="margin-bottom: 16px;">
+              <img src="${logoUrl}" alt="TechTots" style="max-width: 120px; height: auto; opacity: 0.8;" onerror="this.src='${faviconUrl}'; this.style.width='32px'; this.style.height='32px';">
+            </div>
+            
+            <p style="margin: 0 0 8px 0; font-weight: 600; color: #ffffff;">TechTots - Jucării Educaționale STEM</p>
+            
+            <div style="margin-bottom: 20px;">
+              <p style="margin: 0 0 8px 0;">📍 Mehedinti 54-56, Bl D5, sc 2, apt 70</p>
+              <p style="margin: 0 0 8px 0;">Cluj-Napoca, Cluj, România</p>
+              <p style="margin: 0 0 8px 0;">📧 webira.rem.srl@gmail.com</p>
+              <p style="margin: 0 0 16px 0;">📞 +40 771 248 029</p>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+              <a href="${baseUrl}/privacy" style="color: #60a5fa; text-decoration: none; margin: 0 12px;">Politica de Confidențialitate</a>
+              <a href="${baseUrl}/terms" style="color: #60a5fa; text-decoration: none; margin: 0 12px;">Termeni și Condiții</a>
+              <a href="${baseUrl}/contact" style="color: #60a5fa; text-decoration: none; margin: 0 12px;">Contact</a>
+            </div>
+            
+            <p style="margin: 0; font-size: 12px; color: #6b7280;">© ${new Date().getFullYear()} TechTots. Toate drepturile rezervate.</p>
+          </div>
         </div>
-        
-        <p>You can track your package using the link above. Delivery typically takes 3-5 business days.</p>
-        
-        <p>Best regards,<br>The TechTots Team</p>
-      </div>
+      </body>
+      </html>
     `;
 
     return await sendTransactionalEmail({
       to,
-      subject: `Order Shipped - #${order.id}`,
+      subject: `Comandă Expediată TechTots #${order.id}`,
       html,
     });
   },
@@ -296,7 +393,7 @@ export const emailTemplates = {
             </div>
             <p style="margin: 0 0 8px 0; font-weight: 600; color: #ffffff;">TechTots - Jucării Educaționale STEM</p>
             <p style="margin: 0 0 16px 0;">Mehedinti 54-56,Bl D5,APT 70, Cluj-Napoca,Cluj</p>
-            <p style="margin: 0 0 16px 0;">📧 webira.rem.srl@gmail.com | 📞 +40 123 456 789</p>
+            <p style="margin: 0 0 16px 0;">📧 webira.rem.srl@gmail.com | 📞 +40 771 248 029</p>
             <div style="border-top: 1px solid #374151; padding-top: 16px; margin-top: 16px;">
               <p style="margin: 0; font-size: 12px;">
                 © ${new Date().getFullYear()} TechTots. Toate drepturile rezervate. | 

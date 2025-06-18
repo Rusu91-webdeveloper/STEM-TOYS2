@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { CheckoutData, CheckoutStep } from "../types";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/features/cart";
@@ -27,11 +27,58 @@ export function OrderReview({
 }: OrderReviewProps) {
   const { getCartTotal } = useCart();
   const { formatPrice } = useCurrency();
+  const [taxRate, setTaxRate] = useState(0.1); // Default 10%
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState<
+    number | null
+  >(null);
+  const [isFreeShippingActive, setIsFreeShippingActive] = useState(false);
+
+  // Fetch tax and shipping settings
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        // Load tax settings
+        const taxResponse = await fetch("/api/checkout/tax-settings");
+        if (taxResponse.ok) {
+          const taxData = await taxResponse.json();
+          if (taxData.taxSettings && taxData.taxSettings.active) {
+            setTaxRate(parseFloat(taxData.taxSettings.rate) / 100);
+          }
+        }
+
+        // Load shipping settings for free shipping
+        const shippingResponse = await fetch("/api/checkout/shipping-settings");
+        if (shippingResponse.ok) {
+          const shippingData = await shippingResponse.json();
+          if (shippingData.freeThreshold && shippingData.freeThreshold.active) {
+            setFreeShippingThreshold(
+              parseFloat(shippingData.freeThreshold.price)
+            );
+            setIsFreeShippingActive(true);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading settings:", error);
+      }
+    }
+
+    loadSettings();
+  }, []);
 
   // Calculate totals
   const subtotal = getCartTotal();
-  const shippingCost = checkoutData.shippingMethod?.price || 0;
-  const tax = subtotal * 0.1; // 10% tax for example
+  let shippingCost = checkoutData.shippingMethod?.price || 0;
+
+  // Apply free shipping if threshold is met
+  if (
+    isFreeShippingActive &&
+    freeShippingThreshold !== null &&
+    subtotal >= freeShippingThreshold
+  ) {
+    shippingCost = 0;
+  }
+
+  const tax = subtotal * taxRate;
   const total = subtotal + tax + shippingCost;
 
   // Format a credit card number for display

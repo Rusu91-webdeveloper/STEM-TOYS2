@@ -39,6 +39,7 @@ export interface Order {
   id: string;
   orderNumber: string;
   date: string;
+  deliveredAt?: string;
   status: OrderStatus;
   total: number;
   items: OrderItem[];
@@ -66,6 +67,25 @@ const getStatusBadgeVariant = (status: OrderStatus) => {
     default:
       return "";
   }
+};
+
+// Helper function to check if order is within 14-day return window
+const isWithinReturnWindow = (order: Order) => {
+  if (order.status !== "delivered") {
+    return false;
+  }
+
+  // Use deliveredAt if available, otherwise fall back to order creation date
+  const referenceDate = order.deliveredAt
+    ? new Date(order.deliveredAt)
+    : new Date(order.date);
+
+  const today = new Date();
+  const diffTime = today.getTime() - referenceDate.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  // Allow returns within 14 days of delivery (or order creation if deliveredAt is not set)
+  return diffDays <= 14;
 };
 
 export function OrderHistory() {
@@ -293,16 +313,19 @@ export function OrderHistory() {
                       {t("viewDetails", "View Details")}
                     </Link>
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    asChild
-                    className="w-full sm:w-auto">
-                    <Link href={`/account/orders/${order.id}/return`}>
-                      <ArrowRight className="h-4 w-4 mr-2" />
-                      {t("returnItem", "Return Items")}
-                    </Link>
-                  </Button>
+                  {order.status === "delivered" &&
+                    isWithinReturnWindow(order) && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        asChild
+                        className="w-full sm:w-auto">
+                        <Link href={`/account/orders/${order.id}/return`}>
+                          <ArrowRight className="h-4 w-4 mr-2" />
+                          {t("returnItem", "Return Items")}
+                        </Link>
+                      </Button>
+                    )}
                 </CardFooter>
               </Card>
             ))

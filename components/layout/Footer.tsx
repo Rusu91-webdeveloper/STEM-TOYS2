@@ -20,8 +20,8 @@ const footerLinks = {
   ],
   customerService: [
     { name: "contactUsLink", href: "/contact" },
-    { name: "returnPolicyLink", href: "/account/returns" },
-    { name: "shippingInfoLink", href: "/about" }, // Until you create a dedicated shipping page
+    { name: "returnPolicyLink", href: "/returns" },
+    { name: "warrantyLink", href: "/warranty" },
   ],
   company: [
     { name: "about", href: "/about" },
@@ -321,7 +321,7 @@ export default function Footer() {
                       {item.name === "contactUsLink" && "Informații Livrare"}
                       {item.name === "returnPolicyLink" &&
                         "Politica de Returnare"}
-                      {item.name === "shippingInfoLink" && "Garanție"}
+                      {item.name === "warrantyLink" && "Garanție"}
                     </Link>
                   </li>
                 ))}

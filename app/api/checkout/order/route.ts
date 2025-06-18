@@ -195,38 +195,70 @@ export async function POST(request: Request) {
       orderData.subtotal ||
       items.reduce((total, item) => total + item.price * item.quantity, 0);
 
-    // Get shipping method cost (default to 0 if not provided)
-    const shippingCost =
+    // Get initial shipping method cost (default to 0 if not provided)
+    let baseShippingCost =
       orderData.shippingCost ||
       (orderData.shippingMethod?.price
         ? parseFloat(orderData.shippingMethod.price.toString())
         : 0);
 
-    // Get tax settings from the database
-    let taxRate = 0.19; // Default tax rate (19%)
+    // Get tax and shipping settings from the database
+    let taxRate = 0.1; // Default tax rate (10%)
     let applyTax = true; // Default to applying tax
+    let taxRatePercentage = "10"; // For display purposes
+    let freeShippingThreshold = null;
+    let isFreeShippingActive = false;
 
     try {
       const storeSettings = await db.storeSettings.findFirst();
+
+      // Get tax settings
       if (storeSettings?.taxSettings) {
         const taxSettings = storeSettings.taxSettings as any;
         if (taxSettings.rate) {
-          // Convert percentage to decimal (e.g., 19% -> 0.19)
+          // Convert percentage to decimal (e.g., 10% -> 0.10)
+          taxRatePercentage = taxSettings.rate; // Keep the percentage for display
           taxRate = parseFloat(taxSettings.rate) / 100;
         }
         // Only apply tax if it's active
         applyTax = taxSettings.active !== false;
       }
+
+      // Get shipping settings for free shipping threshold
+      if (storeSettings?.shippingSettings) {
+        const shippingSettings = storeSettings.shippingSettings as any;
+        if (
+          shippingSettings.freeThreshold &&
+          shippingSettings.freeThreshold.active
+        ) {
+          freeShippingThreshold = parseFloat(
+            shippingSettings.freeThreshold.price
+          );
+          isFreeShippingActive = true;
+        }
+      }
     } catch (error) {
-      console.error("Error fetching tax settings:", error);
-      // Continue with default tax rate
+      console.error("Error fetching store settings:", error);
+      // Continue with default settings
+    }
+
+    // Apply free shipping logic
+    let finalShippingCost = baseShippingCost;
+    if (
+      isFreeShippingActive &&
+      freeShippingThreshold !== null &&
+      subtotal >= freeShippingThreshold
+    ) {
+      finalShippingCost = 0;
     }
 
     // Calculate tax based on settings
     const tax = orderData.tax || (applyTax ? subtotal * taxRate : 0);
 
-    // Calculate total including shipping and tax if not provided
-    const orderTotal = orderData.total || subtotal + tax + shippingCost;
+    // Calculate total including shipping and tax
+    const orderTotal = orderData.total || subtotal + tax + finalShippingCost;
+
+    // Prepare order details for email (includes all calculated values)
 
     // Save shipping address to database or get existing address
     let shippingAddressId;
@@ -284,7 +316,7 @@ export async function POST(request: Request) {
           total: orderTotal,
           subtotal,
           tax,
-          shippingCost,
+          shippingCost: finalShippingCost,
           paymentMethod: "card", // Default payment method
           status: "PROCESSING",
           paymentStatus: "PAID", // In a real app, this would depend on payment processing
@@ -374,11 +406,14 @@ export async function POST(request: Request) {
         })),
         subtotal: subtotal,
         tax: tax,
-        shippingCost: shippingCost,
+        shippingCost: finalShippingCost,
         total: orderTotal,
         shippingAddress: orderData.shippingAddress,
         shippingMethod: orderData.shippingMethod,
         orderDate: orderData.orderDate || new Date().toISOString(),
+        taxRatePercentage: taxRatePercentage,
+        isFreeShippingActive: isFreeShippingActive,
+        freeShippingThreshold: freeShippingThreshold,
       };
 
       await sendEmail({

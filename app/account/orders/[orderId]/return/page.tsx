@@ -57,11 +57,14 @@ interface Order {
   status: string;
   createdAt: string;
   items: OrderItem[];
+  deliveredAt?: string;
 }
 
 // Create the return form schema
 const returnSchema = z.object({
-  orderItemId: z.string().min(1, "Please select an item to return"),
+  orderItemIds: z
+    .array(z.string())
+    .min(1, "Please select at least one item to return"),
   reason: z.enum(
     [
       "DOES_NOT_MEET_EXPECTATIONS",
@@ -121,7 +124,7 @@ export default function InitiateReturn({
   const form = useForm<ReturnFormValues>({
     resolver: zodResolver(returnSchema),
     defaultValues: {
-      orderItemId: "",
+      orderItemIds: [],
       reason: undefined,
       details: "",
     },
@@ -130,13 +133,23 @@ export default function InitiateReturn({
   // Add state for already returned item IDs
   const [returnedItemIds, setReturnedItemIds] = useState<string[]>([]);
 
-  // Calculate if order is within 30-day return window
-  const isWithin30Days = (date: string) => {
-    const orderDate = new Date(date);
+  // Calculate if order is within 14-day return window (changed from 30 days)
+  const isWithin14Days = (order: Order) => {
+    if (order.status !== "DELIVERED") {
+      return false;
+    }
+
+    // Use deliveredAt if available, otherwise fall back to order creation date
+    const referenceDate = order.deliveredAt
+      ? new Date(order.deliveredAt)
+      : new Date(order.createdAt);
+
     const today = new Date();
-    const diffTime = Math.abs(today.getTime() - orderDate.getTime());
+    const diffTime = today.getTime() - referenceDate.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays <= 30;
+
+    // Allow returns within 14 days of delivery (or order creation if deliveredAt is not set)
+    return diffDays <= 14;
   };
 
   // Fetch order details
@@ -155,11 +168,11 @@ export default function InitiateReturn({
         setOrder(data.order);
 
         // Check if order is within return window
-        if (data.order && !isWithin30Days(data.order.createdAt)) {
+        if (data.order && !isWithin14Days(data.order)) {
           toast({
             title: "Return period expired",
             description:
-              "Items can only be returned within 30 days of purchase.",
+              "Items can only be returned within 14 days of delivery.",
             variant: "destructive",
           });
           router.push(`/account/orders/${orderId}`);
@@ -203,12 +216,17 @@ export default function InitiateReturn({
     try {
       setSubmitting(true);
 
-      const response = await fetch("/api/returns/create", {
+      // Use the new bulk return endpoint
+      const response = await fetch("/api/returns/create-bulk", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          orderItemIds: values.orderItemIds,
+          reason: values.reason,
+          details: values.details,
+        }),
       });
 
       const data = await response.json();
@@ -219,8 +237,8 @@ export default function InitiateReturn({
 
       setSubmitted(true);
       toast({
-        title: "Return initiated",
-        description: "Your return request has been submitted successfully.",
+        title: "Returns initiated",
+        description: `Successfully submitted return request for ${values.orderItemIds.length} item(s). You will receive one confirmation email for all items.`,
       });
 
       // Redirect after a short delay
@@ -228,7 +246,7 @@ export default function InitiateReturn({
         router.push("/account/returns");
       }, 2000);
     } catch (error) {
-      console.error("Error submitting return:", error);
+      console.error("Error submitting returns:", error);
       toast({
         title: "Error",
         description:
@@ -278,8 +296,10 @@ export default function InitiateReturn({
             </div>
             <h2 className="text-2xl font-bold mb-2">Return Initiated</h2>
             <p className="text-gray-500 mb-4">
-              Your return request has been submitted successfully. You'll
-              receive an email with further instructions.
+              Your return request has been submitted successfully for all
+              selected items. Please note that items must be returned within 14
+              days of delivery. You'll receive one confirmation email with
+              details for all items in this return request.
             </p>
             <div className="mt-6">
               <Link href="/account/returns">
@@ -335,7 +355,7 @@ export default function InitiateReturn({
                   <div className="space-y-4">
                     <FormField
                       control={form.control}
-                      name="orderItemId"
+                      name="orderItemIds"
                       render={({ field }) => (
                         <FormItem>
                           <div className="space-y-3">
@@ -352,20 +372,46 @@ export default function InitiateReturn({
                                 return (
                                   <div
                                     key={item.id}
-                                    className={`flex p-4 border rounded-lg ${field.value === item.id ? "border-primary bg-primary/5" : "border-gray-200"} ${disabled ? "opacity-50 pointer-events-none" : ""}`}>
+                                    className={`flex p-4 border rounded-lg ${field.value.includes(item.id) ? "border-primary bg-primary/5" : "border-gray-200"} ${disabled ? "opacity-50 pointer-events-none" : ""}`}>
                                     <FormControl>
                                       <input
-                                        type="radio"
+                                        type="checkbox"
                                         className="hidden"
-                                        checked={field.value === item.id}
-                                        onChange={() => field.onChange(item.id)}
+                                        checked={field.value.includes(item.id)}
+                                        onChange={(e) => {
+                                          if (e.target.checked) {
+                                            field.onChange([
+                                              ...field.value,
+                                              item.id,
+                                            ]);
+                                          } else {
+                                            field.onChange(
+                                              field.value.filter(
+                                                (id) => id !== item.id
+                                              )
+                                            );
+                                          }
+                                        }}
                                         disabled={disabled}
                                       />
                                     </FormControl>
 
                                     <div
                                       className="flex flex-1 items-center space-x-4 cursor-pointer"
-                                      onClick={() => field.onChange(item.id)}>
+                                      onClick={() => {
+                                        if (field.value.includes(item.id)) {
+                                          field.onChange(
+                                            field.value.filter(
+                                              (id) => id !== item.id
+                                            )
+                                          );
+                                        } else {
+                                          field.onChange([
+                                            ...field.value,
+                                            item.id,
+                                          ]);
+                                        }
+                                      }}>
                                       {item.product.images?.[0] && (
                                         <div className="relative h-16 w-16 rounded overflow-hidden">
                                           <Image
@@ -388,8 +434,8 @@ export default function InitiateReturn({
                                       </div>
 
                                       <div
-                                        className={`w-5 h-5 rounded-full border flex items-center justify-center ${field.value === item.id ? "border-primary bg-primary" : "border-gray-300"}`}>
-                                        {field.value === item.id && (
+                                        className={`w-5 h-5 rounded-full border flex items-center justify-center ${field.value.includes(item.id) ? "border-primary bg-primary" : "border-gray-300"}`}>
+                                        {field.value.includes(item.id) && (
                                           <Check className="h-3 w-3 text-white" />
                                         )}
                                       </div>

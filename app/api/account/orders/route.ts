@@ -64,6 +64,7 @@ export async function GET() {
         id: order.id,
         orderNumber: order.orderNumber,
         date: order.createdAt.toISOString(),
+        deliveredAt: order.deliveredAt?.toISOString(),
         status: order.status.toLowerCase(),
         total: order.total,
         items: order.items.map((item) => ({

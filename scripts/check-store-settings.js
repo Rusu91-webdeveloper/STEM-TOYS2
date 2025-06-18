@@ -1,4 +1,4 @@
-const { PrismaClient } = require("../app/generated/prisma");
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function checkStoreSettings() {
@@ -29,6 +29,12 @@ async function checkStoreSettings() {
       if (storeSettings.shippingSettings) {
         console.log("\nShipping Settings:");
         console.log(JSON.stringify(storeSettings.shippingSettings, null, 2));
+      }
+
+      // Display tax settings if available
+      if (storeSettings.taxSettings) {
+        console.log("\nTax Settings:");
+        console.log(JSON.stringify(storeSettings.taxSettings, null, 2));
       }
 
       // Display payment settings if available

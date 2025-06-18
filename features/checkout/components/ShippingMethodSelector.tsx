@@ -7,8 +7,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useCurrency } from "@/lib/currency";
 import { useTranslation } from "@/lib/i18n";
+import { useCart } from "@/features/cart";
 import { fetchShippingSettings } from "../lib/checkoutApi";
-import { Loader2 } from "lucide-react";
+import { Loader2, Truck, Gift } from "lucide-react";
 
 interface ShippingMethodSelectorProps {
   initialMethod?: ShippingMethod;
@@ -26,14 +27,32 @@ export function ShippingMethodSelector({
   );
   const [shippingMethods, setShippingMethods] = useState<ShippingMethod[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [freeShippingApplied, setFreeShippingApplied] = useState(false);
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState<
+    number | null
+  >(null);
   const { formatPrice } = useCurrency();
   const { t } = useTranslation();
+  const { getCartTotal } = useCart();
 
   // Fetch shipping settings from the database
   useEffect(() => {
     async function loadShippingSettings() {
       try {
         const settings = await fetchShippingSettings();
+        const cartTotal = getCartTotal();
+
+        // Check if free shipping applies
+        let isFreeShipping = false;
+        let threshold = null;
+
+        if (settings.freeThreshold && settings.freeThreshold.active) {
+          threshold = parseFloat(settings.freeThreshold.price);
+          isFreeShipping = cartTotal >= threshold;
+          setFreeShippingThreshold(threshold);
+        }
+
+        setFreeShippingApplied(isFreeShipping);
 
         // Create shipping methods array from settings
         const methods: ShippingMethod[] = [];
@@ -71,8 +90,18 @@ export function ShippingMethodSelector({
 
         setShippingMethods(methods);
 
-        // If the previously selected method is no longer available, select the first available method
-        if (
+        // If free shipping applies, auto-select the fastest method (priority)
+        if (isFreeShipping && methods.length > 0) {
+          const priorityMethod = methods.find((m) => m.id === "priority");
+          const expressMethod = methods.find((m) => m.id === "express");
+          const standardMethod = methods.find((m) => m.id === "standard");
+
+          // Auto-select the best available method
+          const bestMethod = priorityMethod || expressMethod || standardMethod;
+          if (bestMethod) {
+            setSelectedMethodId(bestMethod.id);
+          }
+        } else if (
           methods.length > 0 &&
           !methods.some((m) => m.id === selectedMethodId)
         ) {
@@ -110,7 +139,7 @@ export function ShippingMethodSelector({
     }
 
     loadShippingSettings();
-  }, [t, selectedMethodId]);
+  }, [t, selectedMethodId, getCartTotal]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -137,10 +166,36 @@ export function ShippingMethodSelector({
     <form
       onSubmit={handleSubmit}
       className="space-y-6">
+      {/* Free Shipping Banner */}
+      {freeShippingApplied && (
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center space-x-3">
+            <div className="flex-shrink-0">
+              <Gift className="h-6 w-6 text-green-600" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-green-800">
+                🎉 Transport Gratuit Aplicat!
+              </h3>
+              <p className="text-green-700 text-sm">
+                Comanda ta depășește pragul de{" "}
+                {formatPrice(freeShippingThreshold || 100)} - toate opțiunile de
+                livrare sunt gratuite! Alege viteza de livrare preferată.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-lg border p-6">
-        <h2 className="text-xl font-semibold mb-4">
-          {t("shippingMethod", "Shipping Method")}
-        </h2>
+        <div className="flex items-center space-x-2 mb-4">
+          <Truck className="h-5 w-5 text-indigo-600" />
+          <h2 className="text-xl font-semibold">
+            {freeShippingApplied
+              ? "Alege Viteza de Livrare (Gratuit)"
+              : t("shippingMethod", "Shipping Method")}
+          </h2>
+        </div>
 
         {shippingMethods.length > 0 ? (
           <RadioGroup
@@ -150,7 +205,15 @@ export function ShippingMethodSelector({
             {shippingMethods.map((method) => (
               <div
                 key={method.id}
-                className="flex items-center space-x-2 border p-4 rounded-lg">
+                className={`flex items-center space-x-2 border p-4 rounded-lg transition-all ${
+                  selectedMethodId === method.id
+                    ? "border-indigo-500 bg-indigo-50"
+                    : "border-gray-200 hover:border-gray-300"
+                } ${
+                  freeShippingApplied
+                    ? "bg-gradient-to-r from-green-50 to-emerald-50"
+                    : ""
+                }`}>
                 <RadioGroupItem
                   value={method.id}
                   id={method.id}
@@ -159,11 +222,28 @@ export function ShippingMethodSelector({
                   <div className="flex justify-between items-center">
                     <Label
                       htmlFor={method.id}
-                      className="font-medium">
-                      {method.name}
+                      className="font-medium flex items-center space-x-2">
+                      <span>{method.name}</span>
+                      {freeShippingApplied && method.id === "priority" && (
+                        <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
+                          Recomandat
+                        </span>
+                      )}
                     </Label>
-                    <span className="font-medium text-indigo-700">
-                      {formatPrice(method.price)}
+                    <span
+                      className={`font-medium ${
+                        freeShippingApplied
+                          ? "text-green-600 text-lg"
+                          : "text-indigo-700"
+                      }`}>
+                      {freeShippingApplied ? (
+                        <span className="flex items-center space-x-1">
+                          <Gift className="h-4 w-4" />
+                          <span>GRATUIT</span>
+                        </span>
+                      ) : (
+                        formatPrice(method.price)
+                      )}
                     </span>
                   </div>
                   <p className="text-sm text-gray-500">{method.description}</p>
@@ -171,6 +251,12 @@ export function ShippingMethodSelector({
                     {t("estimatedDelivery", "Estimated delivery")}:{" "}
                     {method.estimatedDelivery}
                   </p>
+                  {freeShippingApplied && (
+                    <p className="text-xs text-green-600 mt-1">
+                      Preț normal: {formatPrice(method.price)} - Economisești{" "}
+                      {formatPrice(method.price)}!
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
@@ -194,8 +280,13 @@ export function ShippingMethodSelector({
         </Button>
         <Button
           type="submit"
-          disabled={shippingMethods.length === 0}>
-          {t("continueToPayment", "Continue to Payment")}
+          disabled={shippingMethods.length === 0}
+          className={
+            freeShippingApplied ? "bg-green-600 hover:bg-green-700" : ""
+          }>
+          {freeShippingApplied
+            ? "Continuă cu Livrare Gratuită"
+            : t("continueToPayment", "Continue to Payment")}
         </Button>
       </div>
     </form>
