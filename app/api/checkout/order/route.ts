@@ -305,94 +305,161 @@ export async function POST(request: Request) {
       }
     }
 
-    // Create order in the database
+    // Create order and items in a single database transaction
     let dbOrder;
     try {
-      // First, create the order without items
-      dbOrder = await db.order.create({
-        data: {
-          orderNumber,
-          userId: user.id,
-          total: orderTotal,
-          subtotal,
-          tax,
-          shippingCost: finalShippingCost,
-          paymentMethod: "card", // Default payment method
-          status: "PROCESSING",
-          paymentStatus: "PAID", // In a real app, this would depend on payment processing
-          shippingAddressId: shippingAddressId,
-        },
-      });
+      console.log(
+        `Creating order with ${items.length} items:`,
+        items.map((item) => ({
+          name: item.name,
+          productId: item.productId,
+          isBook: item.isBook,
+        }))
+      );
 
-      // Then, add items one by one, handling both products and books
-      for (const item of items) {
-        const isBook = item.isBook === true;
+      dbOrder = await db.$transaction(async (tx) => {
+        // First, create the order
+        const newOrder = await tx.order.create({
+          data: {
+            orderNumber,
+            userId: user.id,
+            total: orderTotal,
+            subtotal,
+            tax,
+            shippingCost: finalShippingCost,
+            paymentMethod: "card", // Default payment method
+            status: "PROCESSING",
+            paymentStatus: "PAID", // In a real app, this would depend on payment processing
+            shippingAddressId: shippingAddressId,
+          },
+        });
 
-        if (isBook) {
-          // For books, we need to find a valid product ID to use
-          // First, check if we have a product with this name already
+        // Then, add items - validate and create each item
+        for (const item of items) {
+          console.log(
+            `Processing item: ${item.name} (ID: ${item.productId}, isBook: ${item.isBook})`
+          );
+
+          const isBook = item.isBook === true;
           let productId = item.productId;
 
-          // Try to find an existing product for this book
-          const existingProduct = await db.product.findFirst({
-            where: {
-              name: item.name,
-            },
-          });
+          if (isBook) {
+            // For books, we need to find or create a valid product ID
+            console.log(`Processing book item: ${item.name}`);
 
-          if (existingProduct) {
-            productId = existingProduct.id;
-          } else {
-            // Create a placeholder product for this book
-            const placeholderProduct = await db.product.create({
-              data: {
+            // Try to find an existing product for this book
+            const existingProduct = await tx.product.findFirst({
+              where: {
                 name: item.name,
-                slug: `book-${item.productId}`,
-                description: `Book: ${item.name}`,
-                price: item.price,
-                categoryId:
-                  (
-                    await db.category.findFirst({
-                      where: { slug: "educational-books" },
-                    })
-                  )?.id || "", // Use educational books category
-                images: [],
-                tags: ["book"],
-                isActive: true,
               },
             });
-            productId = placeholderProduct.id;
+
+            if (existingProduct) {
+              productId = existingProduct.id;
+              console.log(`Found existing product for book: ${productId}`);
+            } else {
+              // Find or create educational books category
+              let categoryId;
+              const booksCategory = await tx.category.findFirst({
+                where: { slug: "educational-books" },
+              });
+
+              if (booksCategory) {
+                categoryId = booksCategory.id;
+              } else {
+                // Create a default category if educational-books doesn't exist
+                const defaultCategory = await tx.category.findFirst();
+                if (defaultCategory) {
+                  categoryId = defaultCategory.id;
+                } else {
+                  throw new Error(
+                    "No categories found in database - cannot create book product"
+                  );
+                }
+              }
+
+              // Create a placeholder product for this book
+              const placeholderProduct = await tx.product.create({
+                data: {
+                  name: item.name,
+                  slug: `book-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`,
+                  description: `Book: ${item.name}`,
+                  price: item.price,
+                  categoryId,
+                  images: [],
+                  tags: ["book"],
+                  isActive: true,
+                },
+              });
+              productId = placeholderProduct.id;
+              console.log(`Created placeholder product for book: ${productId}`);
+            }
+          } else {
+            // For regular products, validate the product exists
+            const product = await tx.product.findUnique({
+              where: { id: item.productId },
+              select: { id: true, name: true, isActive: true },
+            });
+
+            if (!product) {
+              throw new Error(
+                `Product with ID ${item.productId} not found in database`
+              );
+            }
+
+            if (!product.isActive) {
+              throw new Error(
+                `Product ${product.name} (ID: ${item.productId}) is not active`
+              );
+            }
+
+            console.log(
+              `Validated product: ${product.name} (ID: ${productId})`
+            );
           }
 
-          // Create the order item with the valid product ID
-          await db.orderItem.create({
+          // Create the order item
+          const orderItem = await tx.orderItem.create({
             data: {
-              orderId: dbOrder.id,
+              orderId: newOrder.id,
               productId: productId,
               name: item.name,
               price: item.price,
               quantity: item.quantity,
             },
           });
-        } else {
-          // Regular product, create order item directly
-          await db.orderItem.create({
-            data: {
-              orderId: dbOrder.id,
-              productId: item.productId,
-              name: item.name,
-              price: item.price,
-              quantity: item.quantity,
-            },
-          });
+
+          console.log(
+            `Created order item: ${orderItem.id} for product ${productId}`
+          );
         }
-      }
+
+        return newOrder;
+      });
+
+      console.log(
+        `Successfully created order ${dbOrder.id} with ${items.length} items`
+      );
     } catch (dbError) {
       console.error("Failed to create order in database:", dbError);
-      // In development, continue without throwing
-      if (process.env.NODE_ENV !== "development") {
-        throw dbError;
-      }
+      console.error("Error details:", {
+        message: dbError instanceof Error ? dbError.message : "Unknown error",
+        orderData: {
+          userId: user.id,
+          orderNumber,
+          itemCount: items.length,
+          items: items.map((item) => ({
+            name: item.name,
+            productId: item.productId,
+            isBook: item.isBook,
+          })),
+        },
+      });
+
+      // Always throw the error - don't swallow it in development
+      throw new Error(
+        `Order creation failed: ${dbError instanceof Error ? dbError.message : "Unknown database error"}`
+      );
     }
 
     // Send order confirmation email
