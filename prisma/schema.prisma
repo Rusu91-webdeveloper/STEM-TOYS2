@@ -249,6 +249,7 @@ model StoreSettings {
   metaDescription  String   @default("Discover the best STEM toys for curious minds at TechTots. Educational toys that make learning fun for children of all ages.")
   metaKeywords     String   @default("STEM toys, educational toys, science toys, technology toys, engineering toys, math toys")
   shippingSettings Json?
+  taxSettings      Json?
   paymentSettings  Json?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

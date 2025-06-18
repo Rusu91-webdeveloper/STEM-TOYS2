@@ -53,6 +53,11 @@ interface StoreSettings {
       active: boolean;
     };
   } | null;
+  taxSettings: {
+    rate: string;
+    active: boolean;
+    includeInPrice: boolean;
+  } | null;
   paymentSettings?: any;
 }
 
@@ -86,6 +91,11 @@ const defaultSettings: StoreSettings = {
       active: true,
     },
   },
+  taxSettings: {
+    rate: "19",
+    active: true,
+    includeInPrice: false,
+  },
 };
 
 export default function SettingsPage() {
@@ -95,6 +105,7 @@ export default function SettingsPage() {
     seo: false,
     shipping: false,
     payments: false,
+    tax: false,
   });
 
   const [isLoading, setIsLoading] = useState(true);
@@ -119,6 +130,15 @@ export default function SettingsPage() {
             standard: { price: "5.99", active: true },
             express: { price: "12.99", active: true },
             freeThreshold: { price: "75.00", active: true },
+          };
+        }
+
+        // Ensure taxSettings exists
+        if (!data.taxSettings) {
+          data.taxSettings = {
+            rate: "19",
+            active: true,
+            includeInPrice: false,
           };
         }
 
@@ -175,6 +195,11 @@ export default function SettingsPage() {
         case "shipping":
           sectionData = {
             shippingSettings: settings.shippingSettings,
+          };
+          break;
+        case "tax":
+          sectionData = {
+            taxSettings: settings.taxSettings,
           };
           break;
         // Add other sections as needed
@@ -291,6 +316,66 @@ export default function SettingsPage() {
             }),
             active: checked,
           },
+        },
+      };
+    });
+  };
+
+  // Handle tax rate change
+  const handleTaxRateChange = (value: string) => {
+    setSettings((prev) => {
+      // Initialize taxSettings if it doesn't exist
+      const currentSettings = prev.taxSettings || {
+        rate: "19",
+        active: true,
+        includeInPrice: false,
+      };
+
+      return {
+        ...prev,
+        taxSettings: {
+          ...currentSettings,
+          rate: value,
+        },
+      };
+    });
+  };
+
+  // Handle tax active change
+  const handleTaxActiveChange = (checked: boolean) => {
+    setSettings((prev) => {
+      // Initialize taxSettings if it doesn't exist
+      const currentSettings = prev.taxSettings || {
+        rate: "19",
+        active: true,
+        includeInPrice: false,
+      };
+
+      return {
+        ...prev,
+        taxSettings: {
+          ...currentSettings,
+          active: checked,
+        },
+      };
+    });
+  };
+
+  // Handle tax includeInPrice change
+  const handleTaxIncludeInPriceChange = (checked: boolean) => {
+    setSettings((prev) => {
+      // Initialize taxSettings if it doesn't exist
+      const currentSettings = prev.taxSettings || {
+        rate: "19",
+        active: true,
+        includeInPrice: false,
+      };
+
+      return {
+        ...prev,
+        taxSettings: {
+          ...currentSettings,
+          includeInPrice: checked,
         },
       };
     });
@@ -755,7 +840,7 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
-        {/* Other tabs would be implemented in a similar way */}
+        {/* Tax Settings */}
         <TabsContent
           value="tax"
           className="space-y-4">
@@ -768,11 +853,58 @@ export default function SettingsPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <p className="text-muted-foreground">
-                  Tax settings content would go here
-                </p>
+                <div className="flex items-center justify-between space-x-2">
+                  <div className="flex flex-col space-y-1">
+                    <Label htmlFor="tax-rate">Tax Rate (%)</Label>
+                    <span className="text-sm text-muted-foreground">
+                      The percentage tax rate to apply to orders
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-[100px]">
+                      <Input
+                        id="tax-rate"
+                        value={settings.taxSettings?.rate || "19"}
+                        onChange={(e) => handleTaxRateChange(e.target.value)}
+                        type="number"
+                        min="0"
+                        max="100"
+                        step="0.01"
+                      />
+                    </div>
+                    <Switch
+                      checked={settings.taxSettings?.active || false}
+                      onCheckedChange={handleTaxActiveChange}
+                      id="tax-active"
+                    />
+                  </div>
+                </div>
+                <Separator />
+                <div className="flex items-center justify-between space-x-2">
+                  <div className="flex flex-col space-y-1">
+                    <Label htmlFor="tax-included">
+                      Include Tax in Product Prices
+                    </Label>
+                    <span className="text-sm text-muted-foreground">
+                      If enabled, product prices will be displayed with tax
+                      included
+                    </span>
+                  </div>
+                  <Switch
+                    checked={settings.taxSettings?.includeInPrice || false}
+                    onCheckedChange={handleTaxIncludeInPriceChange}
+                    id="tax-included"
+                  />
+                </div>
               </div>
             </CardContent>
+            <CardFooter className="flex justify-end">
+              <Button
+                onClick={() => handleSave("tax")}
+                disabled={isSaving.tax}>
+                {isSaving.tax ? "Saving..." : "Save Changes"}
+              </Button>
+            </CardFooter>
           </Card>
         </TabsContent>
 

@@ -202,11 +202,30 @@ export async function POST(request: Request) {
         ? parseFloat(orderData.shippingMethod.price.toString())
         : 0);
 
-    // Calculate VAT (19% for Romania) if not provided
-    const taxRate = 0.19;
-    const tax = orderData.tax || subtotal * taxRate;
+    // Get tax settings from the database
+    let taxRate = 0.19; // Default tax rate (19%)
+    let applyTax = true; // Default to applying tax
 
-    // Calculate total including shipping and VAT if not provided
+    try {
+      const storeSettings = await db.storeSettings.findFirst();
+      if (storeSettings?.taxSettings) {
+        const taxSettings = storeSettings.taxSettings as any;
+        if (taxSettings.rate) {
+          // Convert percentage to decimal (e.g., 19% -> 0.19)
+          taxRate = parseFloat(taxSettings.rate) / 100;
+        }
+        // Only apply tax if it's active
+        applyTax = taxSettings.active !== false;
+      }
+    } catch (error) {
+      console.error("Error fetching tax settings:", error);
+      // Continue with default tax rate
+    }
+
+    // Calculate tax based on settings
+    const tax = orderData.tax || (applyTax ? subtotal * taxRate : 0);
+
+    // Calculate total including shipping and tax if not provided
     const orderTotal = orderData.total || subtotal + tax + shippingCost;
 
     // Save shipping address to database or get existing address

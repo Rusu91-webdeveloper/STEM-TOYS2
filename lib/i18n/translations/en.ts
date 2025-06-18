@@ -1,5 +1,6 @@
 // English translations
 export const en = {
+  // General UI translations
   home: "Home",
   products: "Products",
   categories: "Categories",
@@ -29,6 +30,11 @@ export const en = {
   shipping: "Shipping",
   total: "Total",
   clearCart: "Clear Cart",
+  loading: "Loading...",
+  shippingNotice: "Shipping costs and taxes will be calculated at checkout.",
+  processingCheckout: "Processing...",
+  goingToCheckout: "Preparing checkout...",
+  takingToLogin: "Redirecting you to login...",
 
   // Checkout page
   shippingAddress: "Shipping Address",
@@ -39,7 +45,7 @@ export const en = {
   addressLine1: "Address Line 1",
   addressLine2: "Address Line 2 (Optional)",
   city: "City",
-  state: "County",
+  state: "State/Province",
   postalCode: "Postal Code",
   country: "Country",
   phone: "Phone Number",
@@ -53,12 +59,44 @@ export const en = {
   deliveryEstimate: "Delivery Estimate",
   billingAddress: "Billing Address",
   sameAsShipping: "Same as shipping address",
-  selectAddress: "Select address",
+  selectAddress: "Select Address",
   editShippingAddress: "Edit Shipping Address",
   editShippingMethod: "Edit Shipping Method",
   editPayment: "Edit Payment",
   paymentMethod: "Payment Method",
   deliveryOnlyRomania: "Delivery is only available in Romania",
+  preparingCheckout: "Preparing Checkout...",
+  gettingOrderReady:
+    "We're getting your order ready for checkout. Please wait a moment...",
+  pleaseLogIn:
+    "Please log in to continue with checkout. Redirecting you now...",
+  qty: "Qty",
+  expires: "Expires",
+  default: "Default",
+  useNewCard: "Use a new card",
+  proceedToReview: "You can proceed to review your order",
+  paymentError: "There was an error processing your payment",
+  continueToReview: "Continue to Review",
+  selectPaymentMethod: "Select Payment Method",
+  failedToCreateOrder: "Failed to create order",
+  orderProcessingError: "An error occurred while placing your order",
+  standardShipping: "Standard Shipping",
+  expressShipping: "Express Shipping",
+  priorityShipping: "Priority Shipping",
+  deliveryIn35Days: "Delivery in 3-5 business days",
+  deliveryIn12Days: "Delivery in 1-2 business days",
+  deliveryIn24Hours: "Delivery in 24 hours",
+  businessDays35: "3-5 business days",
+  businessDays12: "1-2 business days",
+  hours24: "24 hours",
+  estimatedDelivery: "Estimated delivery",
+  backToShippingAddress: "Back to Shipping Address",
+  continueToPayment: "Continue to Payment",
+  freeShippingApplied: "Free shipping applied!",
+  addMoreForFreeShipping: "Add",
+  moreForFreeShipping: "more for free shipping",
+  loadingShippingOptions: "Loading shipping options...",
+  noShippingMethodsAvailable: "No shipping methods are currently available.",
 
   // Account page
   profile: "Profile",
@@ -80,14 +118,14 @@ export const en = {
   confirmNewPassword: "Confirm New Password",
   leaveBlankPassword: "Leave blank to keep current password",
   confirmNewPasswordPlaceholder: "Confirm new password",
-  passwordsDontMatch: "Passwords do not match",
+  passwordsDontMatch: "Passwords don't match",
   passwordsMatchError: "Please make sure your passwords match",
-  passwordUpdated: "Password updated",
-  passwordUpdateSuccess: "Your password has been changed successfully.",
-  profileUpdated: "Profile updated",
+  passwordUpdated: "Password Updated",
+  passwordUpdateSuccess: "Your password has been successfully changed.",
+  profileUpdated: "Profile Updated",
   profileUpdateSuccess:
-    "Your profile information has been updated successfully.",
-  passwordUpdateFailed: "Password update failed",
+    "Your profile information has been successfully updated.",
+  passwordUpdateFailed: "Password Update Failed",
   tryAgain: "Please try again.",
   error: "Error",
   profileUpdateError: "There was an error updating your profile",
@@ -97,6 +135,7 @@ export const en = {
 
   // Account navigation
   orders: "Orders",
+  returns: "Returns",
   addresses: "Addresses",
   paymentMethods: "Payment Methods",
   wishlist: "Wishlist",
@@ -320,7 +359,6 @@ export const en = {
   relatedArticles: "Related Articles",
   viewAllArticles: "View All Articles",
   blogPostNotFound: "Blog post not found",
-  loading: "Loading article",
   tags: "Tags",
 
   // About Page
@@ -471,7 +509,7 @@ export const en = {
   orderPlaced: "Order Placed",
   orderShipped: "Order Shipped",
   orderDelivered: "Order Delivered",
-  estimatedDelivery: "Estimated Delivery: {date}",
+  estimatedDeliveryDate: "Estimated Delivery: {date}",
   items: "Items",
   shippingInformation: "Shipping Information",
   paymentDetails: "Payment Details",
@@ -514,18 +552,13 @@ export const en = {
     "Visionary entrepreneur with extensive expertise in development, design, and marketing. Passionate about creating educational technology that empowers children to explore, learn, and grow. Founded TechTots with the mission to revolutionize how children interact with STEM subjects through thoughtfully designed educational toys.",
   linkedin: "LinkedIn",
 
-  // Engineering Learning
-  engineeringLearningTitle: "Engineering Learning Concepts",
-  engineeringLearningDescription:
-    "These toys help children develop engineering skills through engaging, hands-on projects and experiments.",
-
   // Mathematics Learning
   mathematicsLearning: "Mathematics Learning",
   mathematicsLearningDesc:
     "Discover the beauty of numbers and patterns with our math toys.",
 
   // Engineering Learning
-  engineeringLearning: "Engineering Learning",
+  engineeringLearningMain: "Engineering Learning",
   engineeringLearningDesc:
     "Develop problem-solving skills with hands-on engineering projects.",
 

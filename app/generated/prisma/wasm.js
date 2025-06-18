@@ -297,6 +297,7 @@ exports.Prisma.StoreSettingsScalarFieldEnum = {
   metaDescription: 'metaDescription',
   metaKeywords: 'metaKeywords',
   shippingSettings: 'shippingSettings',
+  taxSettings: 'taxSettings',
   paymentSettings: 'paymentSettings',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',

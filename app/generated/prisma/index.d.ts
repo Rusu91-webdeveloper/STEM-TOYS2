@@ -17041,6 +17041,7 @@ export namespace Prisma {
     metaDescription: number
     metaKeywords: number
     shippingSettings: number
+    taxSettings: number
     paymentSettings: number
     createdAt: number
     updatedAt: number
@@ -17100,6 +17101,7 @@ export namespace Prisma {
     metaDescription?: true
     metaKeywords?: true
     shippingSettings?: true
+    taxSettings?: true
     paymentSettings?: true
     createdAt?: true
     updatedAt?: true
@@ -17194,6 +17196,7 @@ export namespace Prisma {
     metaDescription: string
     metaKeywords: string
     shippingSettings: JsonValue | null
+    taxSettings: JsonValue | null
     paymentSettings: JsonValue | null
     createdAt: Date
     updatedAt: Date
@@ -17232,6 +17235,7 @@ export namespace Prisma {
     metaDescription?: boolean
     metaKeywords?: boolean
     shippingSettings?: boolean
+    taxSettings?: boolean
     paymentSettings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -17253,6 +17257,7 @@ export namespace Prisma {
     metaDescription?: boolean
     metaKeywords?: boolean
     shippingSettings?: boolean
+    taxSettings?: boolean
     paymentSettings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -17274,6 +17279,7 @@ export namespace Prisma {
     metaDescription?: boolean
     metaKeywords?: boolean
     shippingSettings?: boolean
+    taxSettings?: boolean
     paymentSettings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -17295,13 +17301,14 @@ export namespace Prisma {
     metaDescription?: boolean
     metaKeywords?: boolean
     shippingSettings?: boolean
+    taxSettings?: boolean
     paymentSettings?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     metadata?: boolean
   }
 
-  export type StoreSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "storeName" | "storeUrl" | "storeDescription" | "contactEmail" | "contactPhone" | "currency" | "timezone" | "dateFormat" | "weightUnit" | "metaTitle" | "metaDescription" | "metaKeywords" | "shippingSettings" | "paymentSettings" | "createdAt" | "updatedAt" | "metadata", ExtArgs["result"]["storeSettings"]>
+  export type StoreSettingsOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "storeName" | "storeUrl" | "storeDescription" | "contactEmail" | "contactPhone" | "currency" | "timezone" | "dateFormat" | "weightUnit" | "metaTitle" | "metaDescription" | "metaKeywords" | "shippingSettings" | "taxSettings" | "paymentSettings" | "createdAt" | "updatedAt" | "metadata", ExtArgs["result"]["storeSettings"]>
 
   export type $StoreSettingsPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "StoreSettings"
@@ -17321,6 +17328,7 @@ export namespace Prisma {
       metaDescription: string
       metaKeywords: string
       shippingSettings: Prisma.JsonValue | null
+      taxSettings: Prisma.JsonValue | null
       paymentSettings: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
@@ -17762,6 +17770,7 @@ export namespace Prisma {
     readonly metaDescription: FieldRef<"StoreSettings", 'String'>
     readonly metaKeywords: FieldRef<"StoreSettings", 'String'>
     readonly shippingSettings: FieldRef<"StoreSettings", 'Json'>
+    readonly taxSettings: FieldRef<"StoreSettings", 'Json'>
     readonly paymentSettings: FieldRef<"StoreSettings", 'Json'>
     readonly createdAt: FieldRef<"StoreSettings", 'DateTime'>
     readonly updatedAt: FieldRef<"StoreSettings", 'DateTime'>
@@ -21675,6 +21684,7 @@ export namespace Prisma {
     metaDescription: 'metaDescription',
     metaKeywords: 'metaKeywords',
     shippingSettings: 'shippingSettings',
+    taxSettings: 'taxSettings',
     paymentSettings: 'paymentSettings',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -23037,6 +23047,7 @@ export namespace Prisma {
     metaDescription?: StringFilter<"StoreSettings"> | string
     metaKeywords?: StringFilter<"StoreSettings"> | string
     shippingSettings?: JsonNullableFilter<"StoreSettings">
+    taxSettings?: JsonNullableFilter<"StoreSettings">
     paymentSettings?: JsonNullableFilter<"StoreSettings">
     createdAt?: DateTimeFilter<"StoreSettings"> | Date | string
     updatedAt?: DateTimeFilter<"StoreSettings"> | Date | string
@@ -23058,6 +23069,7 @@ export namespace Prisma {
     metaDescription?: SortOrder
     metaKeywords?: SortOrder
     shippingSettings?: SortOrderInput | SortOrder
+    taxSettings?: SortOrderInput | SortOrder
     paymentSettings?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -23082,6 +23094,7 @@ export namespace Prisma {
     metaDescription?: StringFilter<"StoreSettings"> | string
     metaKeywords?: StringFilter<"StoreSettings"> | string
     shippingSettings?: JsonNullableFilter<"StoreSettings">
+    taxSettings?: JsonNullableFilter<"StoreSettings">
     paymentSettings?: JsonNullableFilter<"StoreSettings">
     createdAt?: DateTimeFilter<"StoreSettings"> | Date | string
     updatedAt?: DateTimeFilter<"StoreSettings"> | Date | string
@@ -23103,6 +23116,7 @@ export namespace Prisma {
     metaDescription?: SortOrder
     metaKeywords?: SortOrder
     shippingSettings?: SortOrderInput | SortOrder
+    taxSettings?: SortOrderInput | SortOrder
     paymentSettings?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -23130,6 +23144,7 @@ export namespace Prisma {
     metaDescription?: StringWithAggregatesFilter<"StoreSettings"> | string
     metaKeywords?: StringWithAggregatesFilter<"StoreSettings"> | string
     shippingSettings?: JsonNullableWithAggregatesFilter<"StoreSettings">
+    taxSettings?: JsonNullableWithAggregatesFilter<"StoreSettings">
     paymentSettings?: JsonNullableWithAggregatesFilter<"StoreSettings">
     createdAt?: DateTimeWithAggregatesFilter<"StoreSettings"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"StoreSettings"> | Date | string
@@ -24583,6 +24598,7 @@ export namespace Prisma {
     metaDescription?: string
     metaKeywords?: string
     shippingSettings?: NullableJsonNullValueInput | InputJsonValue
+    taxSettings?: NullableJsonNullValueInput | InputJsonValue
     paymentSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -24604,6 +24620,7 @@ export namespace Prisma {
     metaDescription?: string
     metaKeywords?: string
     shippingSettings?: NullableJsonNullValueInput | InputJsonValue
+    taxSettings?: NullableJsonNullValueInput | InputJsonValue
     paymentSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -24625,6 +24642,7 @@ export namespace Prisma {
     metaDescription?: StringFieldUpdateOperationsInput | string
     metaKeywords?: StringFieldUpdateOperationsInput | string
     shippingSettings?: NullableJsonNullValueInput | InputJsonValue
+    taxSettings?: NullableJsonNullValueInput | InputJsonValue
     paymentSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24646,6 +24664,7 @@ export namespace Prisma {
     metaDescription?: StringFieldUpdateOperationsInput | string
     metaKeywords?: StringFieldUpdateOperationsInput | string
     shippingSettings?: NullableJsonNullValueInput | InputJsonValue
+    taxSettings?: NullableJsonNullValueInput | InputJsonValue
     paymentSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24667,6 +24686,7 @@ export namespace Prisma {
     metaDescription?: string
     metaKeywords?: string
     shippingSettings?: NullableJsonNullValueInput | InputJsonValue
+    taxSettings?: NullableJsonNullValueInput | InputJsonValue
     paymentSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -24688,6 +24708,7 @@ export namespace Prisma {
     metaDescription?: StringFieldUpdateOperationsInput | string
     metaKeywords?: StringFieldUpdateOperationsInput | string
     shippingSettings?: NullableJsonNullValueInput | InputJsonValue
+    taxSettings?: NullableJsonNullValueInput | InputJsonValue
     paymentSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -24709,6 +24730,7 @@ export namespace Prisma {
     metaDescription?: StringFieldUpdateOperationsInput | string
     metaKeywords?: StringFieldUpdateOperationsInput | string
     shippingSettings?: NullableJsonNullValueInput | InputJsonValue
+    taxSettings?: NullableJsonNullValueInput | InputJsonValue
     paymentSettings?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26035,6 +26057,7 @@ export namespace Prisma {
     metaDescription?: SortOrder
     metaKeywords?: SortOrder
     shippingSettings?: SortOrder
+    taxSettings?: SortOrder
     paymentSettings?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder

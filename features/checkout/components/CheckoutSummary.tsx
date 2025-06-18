@@ -1,23 +1,90 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useCart } from "@/features/cart";
 import { useCurrency } from "@/lib/currency";
 import { useTranslation } from "@/lib/i18n";
+import { fetchShippingSettings, fetchTaxSettings } from "../lib/checkoutApi";
 
 interface CheckoutSummaryProps {
   shippingCost?: number;
+}
+
+interface TaxSettings {
+  rate: string;
+  active: boolean;
+  includeInPrice: boolean;
 }
 
 export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
   const { cartItems, getCartTotal, isLoading } = useCart();
   const { formatPrice } = useCurrency();
   const { t } = useTranslation();
+  const [freeShippingThreshold, setFreeShippingThreshold] = useState<
+    number | null
+  >(null);
+  const [isFreeShippingActive, setIsFreeShippingActive] = useState(false);
+  const [taxSettings, setTaxSettings] = useState<TaxSettings>({
+    rate: "19",
+    active: true,
+    includeInPrice: false,
+  });
+
+  // Fetch free shipping threshold and tax settings
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        // Load shipping settings
+        const shippingSettings = await fetchShippingSettings();
+        if (
+          shippingSettings.freeThreshold &&
+          shippingSettings.freeThreshold.active
+        ) {
+          setFreeShippingThreshold(
+            parseFloat(shippingSettings.freeThreshold.price)
+          );
+          setIsFreeShippingActive(true);
+        } else {
+          setFreeShippingThreshold(null);
+          setIsFreeShippingActive(false);
+        }
+
+        // Load tax settings
+        try {
+          const taxSettings = await fetchTaxSettings();
+          setTaxSettings(taxSettings);
+        } catch (taxError) {
+          console.error("Error loading tax settings:", taxError);
+          // Keep default tax settings
+        }
+      } catch (error) {
+        console.error("Error loading settings:", error);
+        // Don't enable free shipping by default if there's an error
+        setFreeShippingThreshold(null);
+        setIsFreeShippingActive(false);
+      }
+    }
+
+    loadSettings();
+  }, []);
 
   const subtotal = getCartTotal();
-  const vatRate = 0.19; // 19% VAT for Romania
-  const vat = subtotal * vatRate;
-  const total = subtotal + vat + shippingCost;
+
+  // Calculate tax based on settings
+  const taxRate = parseFloat(taxSettings.rate) / 100; // Convert percentage to decimal
+  const tax = taxSettings.active ? subtotal * taxRate : 0;
+
+  // Apply free shipping if threshold is met
+  let finalShippingCost = shippingCost;
+  if (
+    isFreeShippingActive &&
+    freeShippingThreshold !== null &&
+    subtotal >= freeShippingThreshold
+  ) {
+    finalShippingCost = 0;
+  }
+
+  const total = subtotal + tax + finalShippingCost;
 
   if (isLoading) {
     return (
@@ -65,6 +132,27 @@ export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
     );
   }
 
+  // Calculate how much more needed for free shipping
+  const renderFreeShippingMessage = () => {
+    if (!isFreeShippingActive || freeShippingThreshold === null) return null;
+
+    if (subtotal >= freeShippingThreshold) {
+      return (
+        <div className="mt-2 p-2 bg-green-50 text-green-700 rounded-md text-sm">
+          {t("freeShippingApplied", "Free shipping applied!")}
+        </div>
+      );
+    } else {
+      const amountNeeded = freeShippingThreshold - subtotal;
+      return (
+        <div className="mt-2 p-2 bg-blue-50 text-blue-700 rounded-md text-sm">
+          {t("addMoreForFreeShipping", "Add")} {formatPrice(amountNeeded)}{" "}
+          {t("moreForFreeShipping", "more for free shipping")}
+        </div>
+      );
+    }
+  };
+
   return (
     <div className="border rounded-lg p-6 space-y-4 sticky top-4">
       <h2 className="text-xl font-semibold">
@@ -101,14 +189,28 @@ export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
           <span className="text-gray-600">{t("subtotal", "Subtotal")}</span>
           <span>{formatPrice(subtotal)}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-gray-600">{t("tax", "TVA")} (19%)</span>
-          <span>{formatPrice(vat)}</span>
-        </div>
+        {taxSettings.active && (
+          <div className="flex justify-between">
+            <span className="text-gray-600">
+              {t("tax", "TVA")} ({taxSettings.rate}%)
+            </span>
+            <span>{formatPrice(tax)}</span>
+          </div>
+        )}
         <div className="flex justify-between">
           <span className="text-gray-600">{t("shipping", "Shipping")}</span>
-          <span>{formatPrice(shippingCost)}</span>
+          <span>
+            {finalShippingCost === 0 && shippingCost > 0 ? (
+              <span className="line-through text-gray-400 mr-2">
+                {formatPrice(shippingCost)}
+              </span>
+            ) : null}
+            {formatPrice(finalShippingCost)}
+          </span>
         </div>
+
+        {renderFreeShippingMessage()}
+
         <div className="flex justify-between font-semibold text-lg pt-2 border-t">
           <span>{t("total", "Total")}</span>
           <span>{formatPrice(total)}</span>

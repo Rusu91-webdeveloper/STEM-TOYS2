@@ -39,9 +39,7 @@ export async function createPaymentIntent(
 /**
  * Create an order
  */
-export async function createOrder(
-  orderData: any
-): Promise<{ orderId: string } | null> {
+export async function createOrder(orderData: any) {
   try {
     const response = await fetch("/api/checkout/order", {
       method: "POST",
@@ -52,13 +50,53 @@ export async function createOrder(
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to create order: ${response.statusText}`);
+      throw new Error(`Error: ${response.status}`);
     }
 
-    const data = await response.json();
-    return { orderId: data.orderId };
+    return await response.json();
   } catch (error) {
     console.error("Error creating order:", error);
-    return null;
+    throw error;
+  }
+}
+
+/**
+ * Fetch shipping settings from the database
+ */
+export async function fetchShippingSettings() {
+  try {
+    const response = await fetch("/api/checkout/shipping-settings");
+    if (!response.ok) {
+      throw new Error(
+        `Error fetching shipping settings: ${response.statusText}`
+      );
+    }
+    return await response.json();
+  } catch (error) {
+    console.error("Failed to fetch shipping settings:", error);
+    // Return default settings if fetch fails
+    return {
+      standard: { price: "5.99", active: true },
+      express: { price: "12.99", active: true },
+      freeThreshold: { price: "75.00", active: false },
+    };
+  }
+}
+
+export async function fetchTaxSettings() {
+  try {
+    const response = await fetch("/api/checkout/tax-settings");
+    if (!response.ok) {
+      throw new Error(`Error fetching tax settings: ${response.statusText}`);
+    }
+    return await response.json().then((data) => data.taxSettings);
+  } catch (error) {
+    console.error("Failed to fetch tax settings:", error);
+    // Return default settings if fetch fails
+    return {
+      rate: "19",
+      active: true,
+      includeInPrice: false,
+    };
   }
 }

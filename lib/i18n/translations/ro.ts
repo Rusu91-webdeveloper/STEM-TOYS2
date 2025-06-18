@@ -93,6 +93,12 @@ export const ro = {
   estimatedDelivery: "Livrare estimată",
   backToShippingAddress: "Înapoi la adresa de livrare",
   continueToPayment: "Continuă la plată",
+  freeShippingApplied: "Transport gratuit aplicat!",
+  addMoreForFreeShipping: "Adaugă",
+  moreForFreeShipping: "pentru transport gratuit",
+  loadingShippingOptions: "Se încarcă opțiunile de livrare...",
+  noShippingMethodsAvailable:
+    "Nu există metode de livrare disponibile momentan.",
 
   // Account page
   profile: "Profil",
