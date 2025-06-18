@@ -1,4 +1,4 @@
-import { PrismaClient } from "../app/generated/prisma";
+import { PrismaClient } from "@prisma/client";
 import { hash } from "bcrypt";
 import * as dotenv from "dotenv";
 import * as path from "path";

@@ -212,6 +212,57 @@ export const en = {
   authRequiredWishlist: "You need to be logged in to use the wishlist feature",
   loginToContinue: "Login to continue",
 
+  // Auth pages
+  welcomeBack: "Welcome Back",
+  signInCredentials: "Enter your credentials to sign in to your account",
+  signInFailed: "Sign In Failed",
+  signInWith: "Sign in with",
+  signIn: "Sign In",
+  signingIn: "Signing in...",
+  orContinueWith: "or continue with",
+  dontHaveAccount: "Don't have an account?",
+  createAccount: "Create an account",
+  forgotPassword: "Forgot password?",
+  invalidCredentials: "Invalid email or password",
+  accountNotVerified:
+    "Your account has not been verified. Please check your email for the verification link.",
+  authServiceUnavailable:
+    "Authentication service unavailable. Please try again.",
+  createAnAccount: "Create an Account",
+  signUpDescription: "Sign up to start shopping and track your orders",
+  registrationFailed: "Registration Failed",
+  registrationSuccessful: "Registration Successful!",
+  confirmPassword: "Confirm Password",
+  agreeToTerms: "I agree to the terms and conditions",
+  creatingAccount: "Creating account...",
+  alreadyHaveAccount: "Already have an account?",
+  registrationSuccess:
+    "Registration successful. Please check your email for verification.",
+  checkEmail: "Check Your Email",
+  verificationEmailSent:
+    "We've sent a verification email to your inbox. Please check your email and click the verification link to activate your account.",
+  importantNote: "Important:",
+  checkSpamFolder:
+    "If you don't see the email, please check your spam or junk folder.",
+  developmentMode: "Development Mode:",
+  useVerificationLink: "Use the link below to verify your account:",
+  openVerificationLink: "Open Verification Link",
+  goToLoginPage: "Go to Login Page",
+  userDeleted:
+    "Your account has been deleted or no longer exists. Please create a new account or contact support.",
+  loginSuccessful: "Login successful! Redirecting...",
+  emailExists: "An account with this email already exists.",
+  checkInfoAndTryAgain: "Please check your information and try again.",
+  registrationError: "An error occurred during registration. Please try again.",
+  authSuccess: "Success",
+  johnDoe: "John Doe",
+  passwordPlaceholder: "••••••••",
+  newPasswordPlaceholder: "New password",
+  confirmPasswordPlaceholder: "Confirm new password",
+  emailPlaceholderExample: "example@email.com",
+  termsMustAgree: "You must agree to the terms and conditions",
+  passwordsNoMatch: "Passwords do not match",
+
   // Order history
   all: "All",
   processing: "Processing",
@@ -566,4 +617,104 @@ export const en = {
   technologyLearning: "Technology Learning",
   technologyLearningDesc:
     "Discover how technology works through interactive projects and educational toys.",
+
+  // Footer specific translations (expanded)
+  // Newsletter section
+  joinEducatorsParents: "🚀 Join 50,000+ STEM Educators & Parents",
+  newsletterSubtitle:
+    "Get exclusive access to new products, educational resources, and special discounts. Plus, receive our weekly STEM activity guide!",
+  emailAddressPlaceholder: "Enter your email address",
+  getFreeResources: "Get Free Resources",
+  subscribing: "Subscribing...",
+  subscriptionSuccessMessage:
+    "✓ Welcome aboard! Check your email for your first STEM resource pack.",
+  subscriptionErrorMessage:
+    "✗ Something went wrong. Please try again or contact support.",
+
+  // Company description
+  companyDescription:
+    "Empowering the next generation through hands-on STEM learning. Discover our curated collection of educational toys and resources designed by educators, for educators.",
+
+  // Trust signals
+  freeShippingOver50: "FREE shipping on orders over €50",
+  thirtyDayReturns: "30-day hassle-free returns",
+  bankLevelSecurity: "Bank-level security & encryption",
+  trustedEducators: "Trusted by 50,000+ educators worldwide",
+
+  // Navigation sections
+  stemCategoriesNav: "STEM Categories",
+  customerServiceNav: "Customer Service",
+  orderSupport: "Order Support",
+  programs: "Programs",
+  contactSupport: "Contact & Support",
+  paymentSecurity: "Payment & Security",
+
+  // Customer Service links
+  helpCenter: "Help Center",
+  contactUsLink: "Contact Us",
+  liveChat: "Live Chat",
+  orderTracking: "Order Tracking",
+  sizeGuide: "Size Guide",
+  productCare: "Product Care",
+
+  // Order Support links
+  shippingInfoLink: "Shipping Info",
+  returnPolicyLink: "Return Policy",
+  warrantyLink: "Warranty",
+  faqLink: "FAQ",
+  productReviews: "Product Reviews",
+  safetyInformation: "Safety Information",
+
+  // Programs links
+  affiliateProgram: "Affiliate Program",
+  educatorDiscounts: "Educator Discounts",
+  studentDiscounts: "Student Discounts",
+  bulkOrders: "Bulk Orders",
+  schoolsProgram: "Schools Program",
+  rewardsProgram: "Rewards Program",
+
+  // Company links
+  ourStoryLink: "Our Story",
+  careersLink: "Careers",
+  pressLink: "Press",
+  sustainabilityLink: "Sustainability",
+  partnerships: "Partnerships",
+
+  // Legal links
+  accessibilityLink: "Accessibility",
+  sitemapLink: "Sitemap",
+  gdprComplianceLink: "GDPR Compliance",
+
+  // Contact information
+  businessHours: "Business Hours",
+  mondayToFriday: "Mon-Fri: 9:00 AM - 6:00 PM CET",
+  mondayToSunday: "Mon-Sun: 9:00 AM - 6:00 PM CET",
+  saturday: "Sat: 10:00 AM - 4:00 PM CET",
+  sunday: "Sun: Closed",
+  headquarters: "Headquarters",
+  companyFullName: "TechTots Educational Solutions",
+  addressLine: "Mehedinti 54-56",
+  cityState: "Cluj-Napoca, Cluj 400000",
+  countryEU: "Romania, EU",
+
+  // Payment & Security
+  weAccept: "We Accept:",
+  visa: "VISA",
+  mastercard: "Mastercard",
+  paypal: "PayPal",
+  stripe: "Stripe",
+  securityCompliance: "Security & Compliance:",
+  sslEncryption: "🔒 256-bit SSL Encryption",
+  gdprCompliant: "🛡️ GDPR Compliant",
+  iso27001: "✅ ISO 27001 Certified",
+  pciDss: "🌟 PCI DSS Compliant",
+
+  // Footer bottom
+  inspiringMinds: "Inspiring young minds through STEM education since 2025.",
+
+  // Social media
+  followFacebook: "Follow us on Facebook",
+  followInstagram: "Follow us on Instagram",
+  followTwitter: "Follow us on Twitter",
+  subscribeYoutube: "Subscribe to our YouTube channel",
 };

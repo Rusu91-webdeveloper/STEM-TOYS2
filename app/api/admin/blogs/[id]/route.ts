@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import { blogService } from "@/lib/services/blog-service";
 
 // Schema for updating a blog post
 const updateBlogSchema = z.object({
@@ -104,25 +105,25 @@ export async function PUT(
 
     const data = validationResult.data;
 
-    // If blog is being published for the first time, set publishedAt to now
-    let publishedAt = undefined;
-    if (data.isPublished === true && !existingBlog.isPublished) {
-      publishedAt = new Date();
-    }
+    // Update blog post using blog service (includes automatic notifications)
+    const updatedBlog = await blogService.updateBlog({
+      id,
+      ...data,
+    });
 
-    // Update blog post
-    const updatedBlog = await db.blog.update({
+    // Get the updated blog with category information for response
+    const blogWithCategory = await db.blog.findUnique({
       where: { id },
-      data: {
-        ...data,
-        publishedAt,
-      },
       include: {
         category: true,
       },
     });
 
-    return NextResponse.json(updatedBlog);
+    console.log(
+      `📝 Blog "${updatedBlog.title}" updated successfully${data.isPublished && !existingBlog.isPublished ? " and published with notifications" : ""}`
+    );
+
+    return NextResponse.json(blogWithCategory || updatedBlog);
   } catch (error) {
     console.error("Error updating blog:", error);
     return NextResponse.json(

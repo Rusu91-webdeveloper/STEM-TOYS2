@@ -38,8 +38,10 @@ export default async function UnsubscribePage({
               const emailToUse = email || (formData.get("email") as string);
 
               if (!emailToUse) {
-                return;
+                redirect("/unsubscribe/error");
               }
+
+              let success = false;
 
               try {
                 const response = await fetch(
@@ -49,13 +51,16 @@ export default async function UnsubscribePage({
                   }
                 );
 
-                if (response.ok) {
-                  redirect("/unsubscribe/success");
-                } else {
-                  redirect("/unsubscribe/error");
-                }
+                success = response.ok;
               } catch (error) {
                 console.error("Error unsubscribing:", error);
+                success = false;
+              }
+
+              // Handle redirects outside of try-catch to avoid redirect errors
+              if (success) {
+                redirect("/unsubscribe/success");
+              } else {
                 redirect("/unsubscribe/error");
               }
             }}>

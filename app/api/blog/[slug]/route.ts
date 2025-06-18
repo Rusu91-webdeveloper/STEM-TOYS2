@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { PrismaClient } from "@/app/generated/prisma";
+import { PrismaClient } from "@prisma/client";
+import { blogService } from "@/lib/services/blog-service";
 
 const prisma = new PrismaClient();
 
@@ -172,28 +173,31 @@ export async function PUT(
       );
     }
 
-    // Set published date if the blog is being published for the first time
-    let publishedAt = existingBlog.publishedAt;
-    if (data.isPublished && !existingBlog.isPublished) {
-      publishedAt = new Date();
-    }
+    // Update blog post using blog service (includes automatic notifications)
+    const updatedBlog = await blogService.updateBlog({
+      id: existingBlog.id,
+      title: data.title,
+      excerpt: data.excerpt,
+      content: data.content,
+      coverImage: data.coverImage,
+      categoryId: data.categoryId,
+      stemCategory: data.stemCategory,
+      tags,
+      isPublished: data.isPublished,
+    });
 
-    const updatedBlog = await prisma.blog.update({
-      where: { slug },
+    // Update additional fields using direct database update
+    await prisma.blog.update({
+      where: { id: existingBlog.id },
       data: {
-        title: data.title,
-        excerpt: data.excerpt,
-        content: data.content,
-        coverImage: data.coverImage,
-        categoryId: data.categoryId,
-        stemCategory: data.stemCategory,
-        tags,
-        isPublished: data.isPublished,
-        publishedAt,
         readingTime: Math.ceil(data.content.split(" ").length / 200), // Rough estimate: 200 words per minute
         updatedAt: new Date(),
       },
     });
+
+    console.log(
+      `📝 Blog "${updatedBlog.title}" updated via slug endpoint${data.isPublished && !existingBlog.isPublished ? " and published with notifications" : ""}`
+    );
 
     return NextResponse.json(updatedBlog);
   } catch (error: any) {

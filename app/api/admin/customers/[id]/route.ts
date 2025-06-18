@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { OrderStatus, PaymentStatus } from "@/app/generated/prisma";
+import { OrderStatus, PaymentStatus } from "@prisma/client";
 
 type OrderWithItems = {
   id: string;

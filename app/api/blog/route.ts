@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { blogService } from "@/lib/services/blog-service";
 
 // GET all blogs with optional filters
 export async function GET(request: NextRequest) {
@@ -161,19 +162,25 @@ export async function POST(request: NextRequest) {
       language: data.language || "en",
     });
 
-    const blog = await db.blog.create({
+    // Create blog post using blog service (includes automatic notifications)
+    const blog = await blogService.createBlog({
+      title: data.title,
+      slug: data.slug,
+      excerpt: data.excerpt,
+      content: data.content,
+      coverImage: data.coverImage || undefined,
+      categoryId: data.categoryId,
+      authorId: authorId,
+      stemCategory: data.stemCategory || "GENERAL",
+      tags,
+      isPublished: data.isPublished || false,
+      publishedAt: publishedAt || undefined,
+    });
+
+    // Add metadata and reading time using direct database update
+    await db.blog.update({
+      where: { id: blog.id },
       data: {
-        title: data.title,
-        slug: data.slug,
-        excerpt: data.excerpt,
-        content: data.content,
-        coverImage: data.coverImage || null,
-        categoryId: data.categoryId,
-        authorId: authorId,
-        stemCategory: data.stemCategory || "GENERAL",
-        tags,
-        isPublished: data.isPublished || false,
-        publishedAt,
         readingTime: Math.ceil(data.content.split(" ").length / 200), // Rough estimate: 200 words per minute
         metadata,
       },

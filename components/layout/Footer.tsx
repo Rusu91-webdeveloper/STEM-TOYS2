@@ -4,54 +4,220 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTranslation } from "@/lib/i18n";
 import { TranslationKey } from "@/lib/i18n/translations";
+import { useState } from "react";
 
 const footerLinks = {
-  shop: [{ name: "products", href: "/products" }],
+  shop: [
+    { name: "products", href: "/products" },
+    { name: "categories", href: "/categories" },
+    { name: "blog", href: "/blog" },
+  ],
+  account: [
+    { name: "myAccount", href: "/account" },
+    { name: "orders", href: "/account/orders" },
+    { name: "wishlist", href: "/account/wishlist" },
+    { name: "addresses", href: "/account/addresses" },
+  ],
+  customerService: [
+    { name: "contactUsLink", href: "/contact" },
+    { name: "returnPolicyLink", href: "/account/returns" },
+    { name: "shippingInfoLink", href: "/about" }, // Until you create a dedicated shipping page
+  ],
   company: [
     { name: "about", href: "/about" },
     { name: "blog", href: "/blog" },
-    { name: "contact", href: "/contact" },
-  ],
-  support: [
-    { name: "Help Center", href: "/help" },
-    { name: "shipping", href: "/shipping" },
-    { name: "returns", href: "/returns" },
-    { name: "FAQ", href: "/faq" },
+    { name: "contactUsLink", href: "/contact" },
   ],
   legal: [
     { name: "termsOfService", href: "/terms" },
     { name: "privacyPolicy", href: "/privacy" },
-    { name: "cookiePolicy", href: "/cookies" },
   ],
 };
 
 export default function Footer() {
   const { t } = useTranslation();
+  const [email, setEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<
+    "idle" | "success" | "error"
+  >("idle");
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setIsSubscribing(true);
+    try {
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        setSubscriptionStatus("success");
+        setEmail("");
+      } else {
+        setSubscriptionStatus("error");
+      }
+    } catch (error) {
+      setSubscriptionStatus("error");
+    } finally {
+      setIsSubscribing(false);
+      setTimeout(() => setSubscriptionStatus("idle"), 3000);
+    }
+  };
 
   return (
-    <footer className="bg-gradient-to-r from-gray-800 to-gray-900 text-white relative z-10 shadow-lg">
+    <footer
+      className="bg-gradient-to-r from-gray-800 to-gray-900 text-white relative z-10 shadow-lg"
+      role="contentinfo">
+      {/* Newsletter Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 py-8 sm:py-12">
+        <div className="container mx-auto px-3 sm:px-4 md:px-6">
+          <div className="text-center max-w-2xl mx-auto">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2">
+              🧑‍🎓 Alătură-te la 50.000+ Educatori și Părinți STEM
+            </h3>
+            <p className="text-sm sm:text-base text-blue-100 mb-4 sm:mb-6">
+              Obține acces exclusiv la produse noi, resurse educaționale și
+              reduceri speciale. În plus, primește ghidul nostru săptămânal de
+              activități STEM!
+            </p>
+            <form
+              onSubmit={handleNewsletterSubmit}
+              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+              aria-label="Newsletter signup">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Introduceți adresa de email"
+                className="flex-1 px-4 py-2 sm:py-3 rounded-lg text-gray-900 text-sm sm:text-base"
+                aria-label="Email address for newsletter"
+                required
+              />
+              <button
+                type="submit"
+                disabled={isSubscribing}
+                className="bg-white text-blue-600 font-semibold px-6 py-2 sm:py-3 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 text-sm sm:text-base"
+                aria-label="Subscribe to newsletter">
+                {isSubscribing
+                  ? "Se înregistrează..."
+                  : "Obține Resurse Gratuite"}
+              </button>
+            </form>
+            {subscriptionStatus === "success" && (
+              <p
+                className="text-green-200 text-sm mt-2"
+                role="status"
+                aria-live="polite">
+                Te-ai înregistrat cu succes! Verifică-ți emailul pentru
+                confirmarea abonamentului.
+              </p>
+            )}
+            {subscriptionStatus === "error" && (
+              <p
+                className="text-red-200 text-sm mt-2"
+                role="alert"
+                aria-live="polite">
+                A apărut o eroare. Te rugăm să încerci din nou.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
       <div className="container mx-auto py-8 sm:py-10 md:py-12 px-3 sm:px-4 md:px-6">
-        <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6 sm:gap-8">
-          <div className="col-span-2 xs:col-span-2 sm:col-span-3 lg:col-span-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 sm:gap-8">
+          {/* Company Info */}
+          <div className="lg:col-span-2">
             <Link
               href="/"
-              className="flex items-center">
+              className="flex items-center mb-4"
+              aria-label="TechTots home page">
               <Image
                 src="/TechTots_LOGO.png"
                 alt="TechTots Logo"
                 width={130}
                 height={40}
-                className="h-7 sm:h-8 md:h-9 w-auto"
+                className="h-8 sm:h-9 md:h-10 w-auto"
               />
             </Link>
-            <p className="mt-3 sm:mt-4 text-xs sm:text-sm text-gray-300 max-w-md">
-              {t("discoverCollection")}
+            <p className="text-xs sm:text-sm text-gray-300 max-w-md mb-4">
+              Împuternicim următoarea generație prin învățarea STEM practică.
+              Descoperă colecția noastră curată de jucării educaționale și
+              resurse concepute de educatori, pentru educatori.
             </p>
-            <div className="mt-4 sm:mt-6 flex space-x-3 sm:space-x-4">
+
+            {/* Enhanced Trust Signals */}
+            <div className="space-y-2 mb-4">
+              <div className="flex items-center text-xs text-green-400">
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true">
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Transport GRATUIT la comenzi peste 50€
+              </div>
+              <div className="flex items-center text-xs text-green-400">
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true">
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Returnări fără probleme în 30 de zile
+              </div>
+              <div className="flex items-center text-xs text-green-400">
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true">
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                Securitate și criptare la nivel bancar
+              </div>
+              <div className="flex items-center text-xs text-green-400">
+                <svg
+                  className="w-4 h-4 mr-2"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  aria-hidden="true">
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                De încredere pentru 50.000+ educatori din întreaga lume
+              </div>
+            </div>
+
+            {/* Social Media */}
+            <div className="flex space-x-3 sm:space-x-4">
               <a
-                href="#"
-                className="text-gray-300 hover:text-white">
-                <span className="sr-only">Facebook</span>
+                href="https://www.facebook.com/profile.php?id=61577557110903"
+                className="text-gray-300 hover:text-white transition-colors"
+                aria-label="Follow us on Facebook">
                 <svg
                   className="h-5 w-5 sm:h-6 sm:w-6"
                   fill="currentColor"
@@ -65,9 +231,9 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
-                className="text-gray-300 hover:text-white">
-                <span className="sr-only">Instagram</span>
+                href="https://www.instagram.com/techtots_magazin/"
+                className="text-gray-300 hover:text-white transition-colors"
+                aria-label="Follow us on Instagram">
                 <svg
                   className="h-5 w-5 sm:h-6 sm:w-6"
                   fill="currentColor"
@@ -81,9 +247,9 @@ export default function Footer() {
                 </svg>
               </a>
               <a
-                href="#"
-                className="text-gray-300 hover:text-white">
-                <span className="sr-only">Twitter</span>
+                href="https://x.com/RusuEmanue41893"
+                className="text-gray-300 hover:text-white transition-colors"
+                aria-label="Follow us on Twitter">
                 <svg
                   className="h-5 w-5 sm:h-6 sm:w-6"
                   fill="currentColor"
@@ -92,145 +258,241 @@ export default function Footer() {
                   <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
                 </svg>
               </a>
-              <a
-                href="#"
-                className="text-gray-300 hover:text-white">
-                <span className="sr-only">YouTube</span>
-                <svg
-                  className="h-5 w-5 sm:h-6 sm:w-6"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true">
-                  <path
-                    fillRule="evenodd"
-                    d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </a>
             </div>
           </div>
 
+          {/* Shop */}
           <div>
-            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200">
-              {t("shop")}
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200 mb-3">
+              MAGAZIN
             </h3>
-            <ul className="mt-2 sm:mt-4 space-y-1.5 sm:space-y-2">
-              {footerLinks.shop.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className="text-xs sm:text-sm text-gray-300 hover:text-white">
-                    {t(item.name as TranslationKey)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <nav aria-label="Shop navigation">
+              <ul className="space-y-2">
+                {footerLinks.shop.map((item) => (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className="text-xs sm:text-sm text-gray-300 hover:text-white transition-colors">
+                      {item.name === "products" && "Produse"}
+                      {item.name === "categories" && "Categorii STEM"}
+                      {item.name === "blog" && "Cărți educaționale"}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
 
+          {/* Account */}
           <div>
-            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200">
-              {t("company")}
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200 mb-3">
+              SERVICII CLIENȚI
             </h3>
-            <ul className="mt-2 sm:mt-4 space-y-1.5 sm:space-y-2">
-              {footerLinks.company.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className="text-xs sm:text-sm text-gray-300 hover:text-white">
-                    {t(item.name as TranslationKey)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <nav aria-label="Customer Service navigation">
+              <ul className="space-y-2">
+                {footerLinks.account.map((item) => (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className="text-xs sm:text-sm text-gray-300 hover:text-white transition-colors">
+                      {item.name === "myAccount" && "Centru de Ajutor"}
+                      {item.name === "orders" && "Contactează-ne"}
+                      {item.name === "wishlist" && "Chat Live"}
+                      {item.name === "addresses" && "Urmărire Comandă"}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
 
-          <div className="col-span-2 xs:col-span-1 sm:col-span-1">
-            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200">
-              {t("support")}
+          {/* Support & Info */}
+          <div>
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200 mb-3">
+              SUPORT COMENZI
             </h3>
-            <ul className="mt-2 sm:mt-4 space-y-1.5 sm:space-y-2">
-              {footerLinks.support.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className="text-xs sm:text-sm text-gray-300 hover:text-white">
-                    {item.name === "Help Center"
-                      ? item.name
-                      : t(item.name as TranslationKey)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200 mt-6 sm:mt-8">
-              {t("legal")}
-            </h3>
-            <ul className="mt-2 sm:mt-4 space-y-1.5 sm:space-y-2">
-              {footerLinks.legal.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    href={item.href}
-                    className="text-xs sm:text-sm text-gray-300 hover:text-white">
-                    {t(item.name as TranslationKey)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <nav aria-label="Support navigation">
+              <ul className="space-y-2">
+                {footerLinks.customerService.map((item) => (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className="text-xs sm:text-sm text-gray-300 hover:text-white transition-colors">
+                      {item.name === "contactUsLink" && "Informații Livrare"}
+                      {item.name === "returnPolicyLink" &&
+                        "Politica de Returnare"}
+                      {item.name === "shippingInfoLink" && "Garanție"}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
           </div>
+        </div>
 
-          <div className="col-span-2 xs:col-span-1 sm:col-span-1">
-            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200">
-              {t("contact")}
+        {/* Contact & Company Info Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mt-8 pt-8 border-t border-gray-700">
+          {/* Contact Information */}
+          <div>
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200 mb-3">
+              CONTACT ȘI SUPORT
             </h3>
-            <div className="mt-2 sm:mt-4 space-y-3">
+            <div className="space-y-3">
               <div>
-                <p className="text-xs sm:text-sm font-semibold">
-                  {t("address" as TranslationKey, "Address")}:
+                <p className="text-xs font-semibold text-gray-200">
+                  Ore de Program:
                 </p>
-                <address className="text-xs text-gray-300 not-italic">
-                  TechTots Headquarters
-                  <br />
-                  Mehedinti 54-56
-                  <br />
-                  Cluj-Napoca
-                  <br />
-                  Cluj
-                </address>
+                <p className="text-xs text-gray-300">
+                  Lun-Dum: 9:00 AM - 6:00 PM CET
+                </p>
               </div>
               <div>
-                <p className="text-xs sm:text-sm font-semibold">
-                  {t("customerSupport" as TranslationKey, "Customer Support")}:
+                <p className="text-xs font-semibold text-gray-200">
+                  Asistență Clienți:
                 </p>
-                <div className="text-xs text-gray-300">
-                  <p>Email: support@techtots.com</p>
-                  <p>Phone: +40 123 456 789</p>
+                <div className="text-xs text-gray-300 space-y-1">
+                  <p>
+                    <a
+                      href="mailto:webira.rem.srl@gmail.com"
+                      className="hover:text-white transition-colors">
+                      📧 webira.rem.srl@gmail.com
+                    </a>
+                  </p>
+                  <p>
+                    <a
+                      href="tel:+40771248029"
+                      className="hover:text-white transition-colors">
+                      📞 0771 248 029
+                    </a>
+                  </p>
+                  <p>
+                    <a
+                      href="/contact"
+                      className="hover:text-white transition-colors">
+                      💬 Chat Live
+                    </a>
+                  </p>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-200">
+                  Sediul Central:
+                </p>
+                <address className="text-xs text-gray-300 not-italic">
+                  TechTots Educational Solutions
+                  <br />
+                  Mehedinți 54-56
+                  <br />
+                  Cluj-Napoca, Cluj 400000
+                  <br />
+                  România, UE
+                </address>
+              </div>
+            </div>
+          </div>
+
+          {/* Company */}
+          <div>
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200 mb-3">
+              COMPANIE
+            </h3>
+            <nav aria-label="Company information navigation">
+              <ul className="space-y-2">
+                {footerLinks.company.map((item) => (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className="text-xs sm:text-sm text-gray-300 hover:text-white transition-colors">
+                      {item.name === "about" && "Despre noi"}
+                      {item.name === "blog" && "Povestea Noastră"}
+                      {item.name === "contactUsLink" && "Cariere"}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
+
+          {/* Payment & Security */}
+          <div>
+            <h3 className="text-xs sm:text-sm font-semibold uppercase tracking-wider text-gray-200 mb-3">
+              PLATĂ ȘI SECURITATE
+            </h3>
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs font-semibold text-gray-200 mb-2">
+                  Acceptăm:
+                </p>
+                <div
+                  className="flex flex-wrap gap-2"
+                  role="img"
+                  aria-label="Accepted payment methods">
+                  <div className="bg-white rounded px-2 py-1 text-xs text-gray-800 font-semibold">
+                    Visa
+                  </div>
+                  <div className="bg-white rounded px-2 py-1 text-xs text-gray-800 font-semibold">
+                    Mastercard
+                  </div>
+                  <div className="bg-blue-600 rounded px-2 py-1 text-xs text-white font-semibold">
+                    PayPal
+                  </div>
+                  <div className="bg-purple-600 rounded px-2 py-1 text-xs text-white font-semibold">
+                    Stripe
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-200 mb-2">
+                  Securitate și Conformitate:
+                </p>
+                <div className="text-xs text-gray-300 space-y-1">
+                  <p>🔒 Criptare SSL 256-Bit</p>
+                  <p>✅ Compatibil GDPR</p>
+                  <p>✅ Certificat ISO 27001</p>
+                  <p>⭐ Compatibil PCI DSS</p>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-8 sm:mt-10 md:mt-12 border-t border-[hsl(var(--border))] pt-4 sm:pt-6 md:pt-8 flex flex-col md:flex-row justify-between">
-          <p className="text-[10px] xs:text-xs text-gray-300">
-            &copy; {new Date().getFullYear()} TechTots, Inc.{" "}
-            {t("allRightsReserved")}
-          </p>
-          <div className="mt-3 md:mt-0 flex flex-wrap gap-4 sm:gap-6">
-            <Link
-              href="/terms"
-              className="text-[10px] xs:text-xs text-gray-300 hover:text-white">
-              {t("termsOfService")}
-            </Link>
-            <Link
-              href="/privacy"
-              className="text-[10px] xs:text-xs text-gray-300 hover:text-white">
-              {t("privacyPolicy")}
-            </Link>
-            <Link
-              href="/cookies"
-              className="text-[10px] xs:text-xs text-gray-300 hover:text-white">
-              {t("cookiePolicy")}
-            </Link>
+        {/* Legal Footer */}
+        <div className="mt-8 sm:mt-10 pt-6 border-t border-gray-700">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <nav aria-label="Legal information navigation">
+              <div className="flex flex-wrap gap-4 sm:gap-6">
+                {footerLinks.legal.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className="text-xs text-gray-300 hover:text-white transition-colors">
+                    {item.name === "termsOfService" && "Termeni și Condiții"}
+                    {item.name === "privacyPolicy" &&
+                      "Politica de Confidențialitate"}
+                  </Link>
+                ))}
+                <Link
+                  href="/blog"
+                  className="text-xs text-gray-300 hover:text-white transition-colors">
+                  Hartă Site
+                </Link>
+                <Link
+                  href="/contact"
+                  className="text-xs text-gray-300 hover:text-white transition-colors">
+                  Conformitate GDPR
+                </Link>
+              </div>
+            </nav>
+
+            <div className="text-xs text-gray-300">
+              <p>
+                &copy; {new Date().getFullYear()} TechTots Educational
+                Solutions. Toate drepturile rezervate.
+              </p>
+              <p className="mt-1">
+                Inspirăm mințile tinere prin educația STEM din 2025.
+              </p>
+            </div>
           </div>
         </div>
       </div>

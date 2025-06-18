@@ -1,5 +1,8 @@
 import nodemailer from "nodemailer";
 import { logger } from "./logger";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 // Load environment variables
 const EMAIL_HOST = process.env.EMAIL_HOST || "smtp.gmail.com";
@@ -123,37 +126,92 @@ export async function sendMail({
 // Email templates
 export const emailTemplates = {
   /**
-   * Welcome email
+   * Welcome email with professional Romanian styling
    */
   welcome: async ({ to, name }: { to: string; name: string }) => {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const logoUrl = `${baseUrl}/TechTots_LOGO.png`;
+    const faviconUrl = `${baseUrl}/favicon.ico`;
+
     const html = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #333;">Welcome to TeechTots!</h1>
-        <p>Hello ${name},</p>
-        <p>Thank you for creating an account with TeechTots. We're excited to have you join our community of curious minds!</p>
-        <p>With your new account, you can:</p>
-        <ul>
-          <li>Shop our exclusive collection of STEM toys and educational products</li>
-          <li>Track your orders and shipping status</li>
-          <li>Save your favorite items for future purchases</li>
-          <li>Get personalized recommendations based on age and interests</li>
-        </ul>
-        <p>Start exploring our collection today!</p>
-        <div style="text-align: center; margin: 24px 0;">
-          <a href="${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}" 
-              style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
-            Explore TeechTots
-          </a>
+      <!DOCTYPE html>
+      <html lang="ro">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bun venit la TechTots!</title>
+      </head>
+      <body style="margin: 0; padding: 20px; background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
+          
+          <!-- Header with Logo -->
+          <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 40px 30px; text-align: center;">
+            <img src="${logoUrl}" alt="TechTots Logo" style="max-width: 200px; height: auto; margin-bottom: 16px;" onerror="this.src='${faviconUrl}'; this.style.width='48px'; this.style.height='48px';">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">🎉 Bun venit la TechTots!</h1>
+          </div>
+          
+          <!-- Main Content -->
+          <div style="padding: 40px 30px;">
+            <p style="font-size: 18px; color: #374151; margin-bottom: 20px; line-height: 1.6;">Salut <strong>${name}</strong>,</p>
+            
+            <p style="font-size: 16px; color: #374151; margin-bottom: 24px; line-height: 1.6;">Îți mulțumim că ți-ai creat un cont la <strong>TechTots</strong>! Suntem încântați să te primim în comunitatea noastră de minți curioase!</p>
+            
+            <div style="background-color: #f0fdf4; border: 1px solid #22c55e; border-radius: 8px; padding: 24px; margin: 24px 0;">
+              <h3 style="color: #15803d; margin: 0 0 16px 0; font-size: 18px;">🚀 Cu noul tău cont poți:</h3>
+              <ul style="margin: 0; padding-left: 20px; color: #374151; line-height: 1.6;">
+                <li style="margin-bottom: 8px;"><strong>Să comanzi</strong> din colecția noastră exclusivă de jucării STEM și produse educaționale</li>
+                <li style="margin-bottom: 8px;"><strong>Să urmărești</strong> comenzile și statusul livrării</li>
+                <li style="margin-bottom: 8px;"><strong>Să salvezi</strong> produsele preferate pentru achiziții viitoare</li>
+                <li style="margin-bottom: 8px;"><strong>Să primești</strong> recomandări personalizate pe baza vârstei și intereselor</li>
+              </ul>
+            </div>
+            
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="${baseUrl}" 
+                 style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+                🛒 Începe să Explorezi Colecția
+              </a>
+            </div>
+            
+            <!-- Featured Categories -->
+            <div style="background-color: #fef7ff; border: 1px solid #d946ef; border-radius: 8px; padding: 20px; margin: 32px 0;">
+              <h3 style="color: #a21caf; margin: 0 0 16px 0; font-size: 16px;">🎯 Categorii Populare:</h3>
+              <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                <a href="${baseUrl}/categories" style="background-color: #f3e8ff; color: #7c3aed; padding: 8px 16px; text-decoration: none; border-radius: 20px; font-size: 14px; font-weight: 600;">🔬 Kit-uri Științifice</a>
+                <a href="${baseUrl}/categories" style="background-color: #f3e8ff; color: #7c3aed; padding: 8px 16px; text-decoration: none; border-radius: 20px; font-size: 14px; font-weight: 600;">🤖 Robotică</a>
+                <a href="${baseUrl}/categories" style="background-color: #f3e8ff; color: #7c3aed; padding: 8px 16px; text-decoration: none; border-radius: 20px; font-size: 14px; font-weight: 600;">🧮 Matematică</a>
+              </div>
+            </div>
+            
+            <p style="font-size: 16px; color: #374151; text-align: center; margin-top: 32px; line-height: 1.6;">Învățare fericită!<br><strong>Echipa TechTots</strong></p>
+          </div>
+          
+          <!-- Professional Footer -->
+          <div style="background-color: #1f2937; color: #9ca3af; padding: 30px; text-align: center; font-size: 14px; line-height: 1.5;">
+            <div style="margin-bottom: 16px;">
+              <img src="${logoUrl}" alt="TechTots" style="max-width: 120px; height: auto; opacity: 0.8;" onerror="this.src='${faviconUrl}'; this.style.width='32px'; this.style.height='32px';">
+            </div>
+            <p style="margin: 0 0 8px 0; font-weight: 600; color: #ffffff;">TechTots - Jucării Educaționale STEM</p>
+            <p style="margin: 0 0 16px 0;">Mehedinti 54-56,Bl D5,APT 70, Cluj-Napoca,Cluj</p>
+            <p style="margin: 0 0 16px 0;">📧 webira.rem.srl@gmail.com | 📞 +40 123 456 789</p>
+            <div style="border-top: 1px solid #374151; padding-top: 16px; margin-top: 16px;">
+              <p style="margin: 0; font-size: 12px;">
+                © ${new Date().getFullYear()} TechTots. Toate drepturile rezervate. | 
+                <a href="${baseUrl}/privacy" style="color: #60a5fa; text-decoration: none;">Politica de Confidențialitate</a> | 
+                <a href="${baseUrl}/terms" style="color: #60a5fa; text-decoration: none;">Termeni și Condiții</a>
+              </p>
+            </div>
+          </div>
         </div>
-        <p>Happy learning!</p>
-        <p>The TeechTots Team</p>
-      </div>
+      </body>
+      </html>
     `;
 
     return sendMail({
       to,
-      subject: "Welcome to TeechTots!",
-      html,
+      subject: "Bun venit la TechTots! 🎉",
+      html: html.replace("+40 123 456 789", "+40 771 248 029"),
+      from: `"TechTots" <webira.rem.srl@gmail.com>`,
     });
   },
 
@@ -218,43 +276,142 @@ export const emailTemplates = {
   },
 
   /**
-   * Verification email
+   * Verification email with professional Romanian styling
    */
   verification: async ({
     to,
     name,
     verificationLink,
-    expiresIn = "24 hours",
+    expiresIn = "24 ore",
   }: {
     to: string;
     name: string;
     verificationLink: string;
     expiresIn?: string;
   }) => {
-    const html = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #333;">Verify Your Email Address</h1>
-        <p>Hello ${name},</p>
-        <p>Thank you for creating an account with TeechTots. To complete your registration and start exploring our collection of educational STEM toys, please verify your email address by clicking the button below:</p>
-        
-        <div style="text-align: center; margin: 24px 0;">
-          <a href="${verificationLink}" 
-             style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">
-            Verify Email Address
-          </a>
+    const logoUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/TechTots_LOGO.png`;
+    const faviconUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/favicon.ico`;
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+    // Fetch the latest 2 published blog posts
+    const latestBlogs = await prisma.blog.findMany({
+      where: { isPublished: true },
+      orderBy: { publishedAt: "desc" },
+      take: 2,
+      include: {
+        author: { select: { name: true } },
+        category: { select: { name: true, slug: true } },
+      },
+    });
+
+    // Generate blog section HTML based on available blogs
+    let blogSectionHtml = "";
+    if (latestBlogs.length > 0) {
+      blogSectionHtml = `
+        <div style="background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 8px; padding: 20px; margin: 32px 0;">
+          <h3 style="color: #1e40af; margin: 0 0 16px 0; font-size: 16px;">📚 În timp ce aștepți...</h3>
+          <p style="color: #1e40af; margin: 0 0 12px 0;">Consultă articolele noastre populare despre educația STEM:</p>
+          <ul style="margin: 0; padding-left: 20px; color: #1f2937; line-height: 1.5;">
+            ${latestBlogs
+              .map(
+                (blog) =>
+                  `<li style="margin-bottom: 8px;"><a href="${baseUrl}/blog/${blog.slug}" style="color: #3b82f6; text-decoration: none;">${blog.title}</a></li>`
+              )
+              .join("")}
+          </ul>
         </div>
-        
-        <p>Or copy and paste this link into your browser:</p>
-        <p style="word-break: break-all; color: #6b7280;">${verificationLink}</p>
-        
-        <p><strong>Important:</strong> This link will expire in ${expiresIn}.</p>
-        <p>If you did not create an account with TeechTots, you can safely ignore this email.</p>
-      </div>
+      `;
+    } else {
+      blogSectionHtml = `
+        <div style="background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 8px; padding: 20px; margin: 32px 0;">
+          <h3 style="color: #1e40af; margin: 0 0 16px 0; font-size: 16px;">📚 În timp ce aștepți...</h3>
+          <p style="color: #1e40af; margin: 0 0 12px 0;">Consultă articolele noastre despre educația STEM:</p>
+          <p style="margin: 0; color: #1f2937;">
+            <a href="${baseUrl}/blog" style="color: #3b82f6; text-decoration: none;">Vizitează blogul nostru pentru articole educaționale</a>
+          </p>
+        </div>
+      `;
+    }
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="ro">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Verifică adresa de email - TechTots</title>
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+          
+          <!-- Header with Logo -->
+          <div style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%); text-align: center; padding: 30px; color: white;">
+            <img src="${logoUrl}" alt="TechTots" style="max-width: 180px; height: auto; margin-bottom: 16px;" onerror="this.src='${faviconUrl}'; this.style.width='40px'; this.style.height='40px';">
+            <h1 style="margin: 0; font-size: 28px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">🔐 Verifică-ți Adresa de Email</h1>
+            <p style="margin: 8px 0 0 0; font-size: 16px; opacity: 0.9;">Finalizează înregistrarea ta</p>
+          </div>
+          
+          <!-- Main Content -->
+          <div style="padding: 40px 30px; color: #374151; line-height: 1.6;">
+            <p style="font-size: 16px; margin-bottom: 16px;">Salut <strong style="color: #1f2937;">${name}</strong>,</p>
+            
+            <p style="font-size: 16px; margin-bottom: 24px;">Îți mulțumim că ți-ai creat un cont la TechTots. Pentru a finaliza înregistrarea și a începe să explorezi colecția noastră de jucării educaționale STEM, te rugăm să îți verifici adresa de email.</p>
+            
+            <!-- Verification Button -->
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="${verificationLink}" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.3s ease;">
+                ✅ Verifică Adresa de Email
+              </a>
+            </div>
+            
+            <!-- Warning Box -->
+            <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 24px 0;">
+              <p style="margin: 0 0 12px 0; color: #92400e; font-weight: 600;">⚠️ Important:</p>
+              <p style="margin: 0; color: #92400e;">Acest link va expira în <strong>${expiresIn}</strong>. Dacă nu ți-ai creat un cont la TechTots, te rugăm să ignori acest email.</p>
+            </div>
+            
+            <!-- Manual Link -->
+            <div style="background-color: #f8fafc; border-radius: 8px; padding: 20px; margin: 24px 0;">
+              <p style="margin: 0 0 12px 0; font-size: 14px; color: #6b7280;">Sau copiază și lipește acest link în browserul tău:</p>
+              <p style="word-break: break-all; color: #3b82f6; margin: 0; font-family: monospace; font-size: 13px; background-color: #ffffff; padding: 8px; border-radius: 4px; border: 1px solid #e5e7eb;">${verificationLink}</p>
+            </div>
+            
+            ${blogSectionHtml}
+            
+            <p style="font-size: 16px; color: #374151; text-align: center; margin-top: 32px; line-height: 1.6;">Cu respect,<br><strong>Echipa TechTots</strong></p>
+          </div>
+          
+          <!-- Professional Footer -->
+          <div style="background-color: #1f2937; color: #9ca3af; padding: 30px; text-align: center; font-size: 14px; line-height: 1.5;">
+            <div style="margin-bottom: 16px;">
+              <img src="${logoUrl}" alt="TechTots" style="max-width: 120px; height: auto; opacity: 0.8;" onerror="this.src='${faviconUrl}'; this.style.width='30px'; this.style.height='30px';">
+            </div>
+            
+            <p style="margin: 0 0 16px 0; font-weight: 600; color: #f3f4f6;">TechTots - Jucării STEM pentru Minți Curioase</p>
+            
+            <div style="margin-bottom: 20px;">
+              <p style="margin: 0 0 8px 0;">📍 Mehedinti 54-56, Bl D5, sc 2, apt 70</p>
+              <p style="margin: 0 0 8px 0;">Cluj-Napoca, Cluj, România</p>
+              <p style="margin: 0 0 8px 0;">📧 webira.rem.srl@gmail.com</p>
+              <p style="margin: 0 0 16px 0;">📞 +40 771 248 029</p>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+              <a href="${baseUrl}/privacy" style="color: #60a5fa; text-decoration: none; margin: 0 12px;">Politica de Confidențialitate</a>
+              <a href="${baseUrl}/terms" style="color: #60a5fa; text-decoration: none; margin: 0 12px;">Termeni și Condiții</a>
+              <a href="${baseUrl}/unsubscribe" style="color: #9ca3af; text-decoration: none; margin: 0 12px;">Dezabonare</a>
+            </div>
+            
+            <p style="margin: 0; font-size: 12px; color: #6b7280;">© ${new Date().getFullYear()} TechTots. Toate drepturile rezervate.</p>
+          </div>
+        </div>
+      </body>
+      </html>
     `;
 
     return sendMail({
       to,
-      subject: "Verify Your TeechTots Account",
+      subject: "Verifică-ți adresa de email - TechTots",
       html,
     });
   },
@@ -407,7 +564,7 @@ export const emailTemplates = {
   },
 
   /**
-   * Password reset email
+   * Password reset email with professional Romanian styling
    */
   passwordReset: async ({
     to,
@@ -416,27 +573,92 @@ export const emailTemplates = {
     to: string;
     resetLink: string;
   }) => {
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+    const logoUrl = `${baseUrl}/TechTots_LOGO.png`;
+    const faviconUrl = `${baseUrl}/favicon.ico`;
+
     const html = `
-      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #333;">Reset Your Password</h1>
-        <p>We received a request to reset your password. Click the button below to create a new password:</p>
-        
-        <div style="text-align: center; margin: 24px 0;">
-          <a href="${resetLink}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block;">Reset Password</a>
+      <!DOCTYPE html>
+      <html lang="ro">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Resetare Parolă - TechTots</title>
+      </head>
+      <body style="margin: 0; padding: 20px; background-color: #f3f4f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);">
+          
+          <!-- Header with Logo -->
+          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
+            <img src="${logoUrl}" alt="TechTots Logo" style="max-width: 200px; height: auto; margin-bottom: 16px;" onerror="this.src='${faviconUrl}'; this.style.width='48px'; this.style.height='48px';">
+            <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">🔑 Resetare Parolă</h1>
+          </div>
+          
+          <!-- Main Content -->
+          <div style="padding: 40px 30px;">
+            <p style="font-size: 16px; color: #374151; margin-bottom: 20px; line-height: 1.6;">Am primit o solicitare de resetare a parolei pentru contul tău <strong>TechTots</strong>.</p>
+            
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="${resetLink}" 
+                 style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); transition: all 0.3s ease;">
+                🔐 Resetează Parola
+              </a>
+            </div>
+            
+            <!-- Security Warning -->
+            <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 24px 0;">
+              <p style="margin: 0 0 12px 0; color: #92400e; font-weight: 600;">⚠️ Important:</p>
+              <p style="margin: 0; color: #92400e;">Acest link va expira în <strong>1 oră</strong> din motive de securitate. Dacă nu ai solicitat resetarea parolei, poți ignora în siguranță acest email.</p>
+            </div>
+            
+            <!-- Alternative Link -->
+            <div style="background-color: #f8fafc; border-radius: 8px; padding: 20px; margin: 24px 0;">
+              <p style="margin: 0 0 12px 0; font-size: 14px; color: #6b7280;">Sau copiază și lipește acest link în browserul tău:</p>
+              <p style="word-break: break-all; color: #3b82f6; margin: 0; font-family: 'Courier New', monospace; font-size: 13px; background-color: #ffffff; padding: 8px; border-radius: 4px; border: 1px solid #e5e7eb;">${resetLink}</p>
+            </div>
+            
+            <!-- Security Tips -->
+            <div style="background-color: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px; padding: 20px; margin: 32px 0;">
+              <h3 style="color: #0369a1; margin: 0 0 12px 0; font-size: 16px;">🛡️ Sfaturi pentru securitatea contului:</h3>
+              <ul style="margin: 0; padding-left: 20px; color: #0369a1; line-height: 1.5;">
+                <li style="margin-bottom: 8px;">Folosește o parolă unică și puternică, pe care nu o folosești în altă parte</li>
+                <li style="margin-bottom: 8px;">Nu-ți împărtăși niciodată parola cu alții</li>
+                <li style="margin-bottom: 8px;">Fii prudent cu emailurile suspecte care îți cer informațiile de autentificare</li>
+              </ul>
+              <p style="margin: 16px 0 0 0;">
+                <a href="${baseUrl}/contact" style="color: #0369a1; text-decoration: none; font-weight: 600;">📞 Contactează-ne dacă ai întrebări despre securitate</a>
+              </p>
+            </div>
+            
+            <p style="font-size: 16px; color: #374151; text-align: center; margin-top: 32px; line-height: 1.6;">Cu respect,<br><strong>Echipa TechTots</strong></p>
+          </div>
+          
+          <!-- Professional Footer -->
+          <div style="background-color: #1f2937; color: #9ca3af; padding: 30px; text-align: center; font-size: 14px; line-height: 1.5;">
+            <div style="margin-bottom: 16px;">
+              <img src="${logoUrl}" alt="TechTots" style="max-width: 120px; height: auto; opacity: 0.8;" onerror="this.src='${faviconUrl}'; this.style.width='32px'; this.style.height='32px';">
+            </div>
+            <p style="margin: 0 0 8px 0; font-weight: 600; color: #ffffff;">TechTots - Jucării Educaționale STEM</p>
+            <p style="margin: 0 0 16px 0;">Mehedinti 54-56,Bl D5,APT 70, Cluj-Napoca,Cluj</p>
+            <p style="margin: 0 0 16px 0;">📧 webira.rem.srl@gmail.com | 📞 +40 123 456 789</p>
+            <div style="border-top: 1px solid #374151; padding-top: 16px; margin-top: 16px;">
+              <p style="margin: 0; font-size: 12px;">
+                © ${new Date().getFullYear()} TechTots. Toate drepturile rezervate. | 
+                <a href="${baseUrl}/privacy" style="color: #60a5fa; text-decoration: none;">Politica de Confidențialitate</a> | 
+                <a href="${baseUrl}/terms" style="color: #60a5fa; text-decoration: none;">Termeni și Condiții</a>
+              </p>
+            </div>
+          </div>
         </div>
-        
-        <p>Or copy and paste this link into your browser:</p>
-        <p style="word-break: break-all; color: #6b7280;">${resetLink}</p>
-        
-        <p>If you didn't request a password reset, you can safely ignore this email.</p>
-        <p>This link will expire in 1 hour for security reasons.</p>
-      </div>
+      </body>
+      </html>
     `;
 
     return sendMail({
       to,
-      subject: "Reset Your Password",
-      html,
+      subject: "Resetare Parolă - TechTots",
+      html: html.replace("+40 123 456 789", "+40 771 248 029"),
+      from: `"TechTots" <webira.rem.srl@gmail.com>`,
     });
   },
 };

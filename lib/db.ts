@@ -1,4 +1,4 @@
-import { PrismaClient } from "@/app/generated/prisma";
+import { PrismaClient } from "@prisma/client";
 import { Pool } from "@neondatabase/serverless";
 
 // Configure connection pool if we're using Neon

@@ -4,8 +4,8 @@ import type { CartItem } from "../context/CartContext";
  * API functions for interacting with the cart backend
  */
 
-// Default timeout for API requests (3 seconds)
-const API_TIMEOUT_MS = 3000;
+// Default timeout for API requests (10 seconds)
+const API_TIMEOUT_MS = 10000;
 
 /**
  * Fetch the user's cart from the server

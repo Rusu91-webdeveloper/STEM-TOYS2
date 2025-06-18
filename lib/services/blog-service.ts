@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
-import { StemCategory } from "@/app/generated/prisma/index";
+import { StemCategory } from "@prisma/client";
+import { emailTemplates } from "@/lib/brevoTemplates";
 
 export interface CreateBlogInput {
   title: string;
@@ -15,9 +16,100 @@ export interface CreateBlogInput {
   publishedAt?: Date;
 }
 
-export interface UpdateBlogInput
-  extends Partial<Omit<CreateBlogInput, "authorId">> {
+export interface UpdateBlogInput {
   id: string;
+  title?: string;
+  slug?: string;
+  excerpt?: string;
+  content?: string;
+  coverImage?: string;
+  categoryId?: string;
+  stemCategory?: StemCategory;
+  tags?: string[];
+  isPublished?: boolean;
+  publishedAt?: Date;
+}
+
+/**
+ * Helper function to send blog notifications to newsletter subscribers
+ * This is called automatically when a blog is published
+ */
+async function sendBlogNotification(blogId: string): Promise<void> {
+  try {
+    console.log(`🔔 Sending blog notification for blog ID: ${blogId}`);
+
+    // Get the blog post with author and category information
+    const blog = await db.blog.findUnique({
+      where: { id: blogId },
+      include: {
+        author: {
+          select: {
+            name: true,
+          },
+        },
+        category: {
+          select: {
+            name: true,
+            slug: true,
+          },
+        },
+      },
+    });
+
+    if (!blog) {
+      console.error(`❌ Blog with ID ${blogId} not found for notification`);
+      return;
+    }
+
+    if (!blog.isPublished) {
+      console.log(
+        `⏸️ Blog "${blog.title}" is not published, skipping notification`
+      );
+      return;
+    }
+
+    // Get all active newsletter subscribers
+    const subscribers = await db.newsletter.findMany({
+      where: {
+        isActive: true,
+      },
+    });
+
+    if (subscribers.length === 0) {
+      console.log(`📭 No active newsletter subscribers found`);
+      return;
+    }
+
+    console.log(
+      `📧 Sending notifications to ${subscribers.length} subscribers for blog: "${blog.title}"`
+    );
+
+    // Send notification emails to all subscribers
+    const emailPromises = subscribers.map((subscriber) =>
+      emailTemplates.blogNotification({
+        to: subscriber.email,
+        name: subscriber.firstName || subscriber.email.split("@")[0],
+        blog: {
+          ...blog,
+          author: {
+            name: blog.author.name || "TechTots Team",
+          },
+        },
+      })
+    );
+
+    await Promise.all(emailPromises);
+
+    console.log(
+      `✅ Successfully sent blog notifications to ${subscribers.length} subscribers for: "${blog.title}"`
+    );
+  } catch (error) {
+    console.error(
+      `❌ Error sending blog notification for blog ID ${blogId}:`,
+      error
+    );
+    // Don't throw the error so blog creation/update isn't affected
+  }
 }
 
 export const blogService = {
@@ -25,7 +117,7 @@ export const blogService = {
    * Create a new blog post
    */
   async createBlog(data: CreateBlogInput) {
-    return db.blog.create({
+    const blog = await db.blog.create({
       data: {
         title: data.title,
         slug: data.slug,
@@ -40,6 +132,14 @@ export const blogService = {
         publishedAt: data.isPublished ? data.publishedAt || new Date() : null,
       },
     });
+
+    // Send automatic notification if blog is published
+    if (data.isPublished) {
+      // Don't await this so blog creation isn't delayed
+      sendBlogNotification(blog.id).catch(console.error);
+    }
+
+    return blog;
   },
 
   /**
@@ -48,18 +148,42 @@ export const blogService = {
   async updateBlog(data: UpdateBlogInput) {
     const { id, ...updateData } = data;
 
-    // If publishing for the first time, set publishedAt to now
+    // Check if blog is being published for the first time
+    let wasAlreadyPublished = false;
+    let shouldSendNotification = false;
+
     if (updateData.isPublished) {
-      const blog = await db.blog.findUnique({ where: { id } });
-      if (!blog?.publishedAt) {
-        updateData.publishedAt = new Date();
+      const existingBlog = await db.blog.findUnique({
+        where: { id },
+        select: { isPublished: true, publishedAt: true },
+      });
+
+      if (existingBlog) {
+        wasAlreadyPublished = existingBlog.isPublished;
+        shouldSendNotification = !wasAlreadyPublished && updateData.isPublished;
+
+        // If publishing for the first time, set publishedAt to now
+        if (!existingBlog.publishedAt) {
+          updateData.publishedAt = new Date();
+        }
       }
     }
 
-    return db.blog.update({
+    const updatedBlog = await db.blog.update({
       where: { id },
       data: updateData,
     });
+
+    // Send automatic notification if blog is being published for the first time
+    if (shouldSendNotification) {
+      console.log(
+        `📰 Blog "${updatedBlog.title}" is being published for the first time, sending notifications...`
+      );
+      // Don't await this so blog update isn't delayed
+      sendBlogNotification(updatedBlog.id).catch(console.error);
+    }
+
+    return updatedBlog;
   },
 
   /**
@@ -166,5 +290,12 @@ export const blogService = {
     ]);
 
     return { blogs, count };
+  },
+
+  /**
+   * Manually send blog notification (for admin use)
+   */
+  async sendNotification(blogId: string, categories?: string[]) {
+    await sendBlogNotification(blogId);
   },
 };

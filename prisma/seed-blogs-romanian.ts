@@ -1,4 +1,4 @@
-import { PrismaClient, StemCategory } from "../app/generated/prisma";
+import { PrismaClient, StemCategory } from "@prisma/client";
 
 const prisma = new PrismaClient();
 

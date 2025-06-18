@@ -220,6 +220,62 @@ export const ro = {
     "Trebuie să fii autentificat pentru a folosi lista de dorințe",
   loginToContinue: "Autentifică-te pentru a continua",
 
+  // Auth pages
+  welcomeBack: "Bine ai revenit",
+  signInCredentials:
+    "Introdu datele de autentificare pentru a te conecta la contul tău",
+  signInFailed: "Autentificare eșuată",
+  signInWith: "Autentifică-te cu",
+  signIn: "Autentificare",
+  signingIn: "Se autentifică...",
+  orContinueWith: "sau continuă cu",
+  dontHaveAccount: "Nu ai cont?",
+  createAccount: "Creează un cont",
+  forgotPassword: "Ai uitat parola?",
+  invalidCredentials: "Email sau parolă invalidă",
+  accountNotVerified:
+    "Contul tău nu a fost verificat. Te rugăm să verifici emailul pentru linkul de verificare.",
+  authServiceUnavailable:
+    "Serviciul de autentificare nu este disponibil. Te rugăm să încerci din nou.",
+  createAnAccount: "Creează un Cont",
+  signUpDescription:
+    "Înregistrează-te pentru a începe cumpărăturile și a-ți urmări comenzile",
+  registrationFailed: "Înregistrare eșuată",
+  registrationSuccessful: "Înregistrare reușită!",
+  confirmPassword: "Confirmă parola",
+  agreeToTerms: "Sunt de acord cu termenii și condițiile",
+  creatingAccount: "Se creează contul...",
+  alreadyHaveAccount: "Ai deja un cont?",
+  registrationSuccess:
+    "Înregistrarea a fost realizată cu succes. Te rugăm să verifici emailul pentru verificare.",
+  checkEmail: "Verifică-ți emailul",
+  verificationEmailSent:
+    "Am trimis un email de verificare în căsuța ta poștală. Te rugăm să verifici emailul și să apeși linkul de verificare pentru a-ți activa contul.",
+  importantNote: "Important:",
+  checkSpamFolder:
+    "Dacă nu vezi emailul, te rugăm să verifici dosarul spam sau junk.",
+  developmentMode: "Mod dezvoltare:",
+  useVerificationLink:
+    "Folosește linkul de mai jos pentru a-ți verifica contul:",
+  openVerificationLink: "Deschide linkul de verificare",
+  goToLoginPage: "Mergi la pagina de autentificare",
+  userDeleted:
+    "Contul tău a fost șters sau nu mai există. Te rugăm să creezi un cont nou sau să contactezi asistența.",
+  loginSuccessful: "Autentificare reușită! Se redirecționează...",
+  emailExists: "Există deja un cont cu acest email",
+  checkInfoAndTryAgain:
+    "Te rugăm să verifici informațiile și să încerci din nou",
+  registrationError:
+    "S-a produs o eroare în timpul înregistrării. Te rugăm să încerci din nou.",
+  authSuccess: "Succes",
+  johnDoe: "Ion Popescu",
+  passwordPlaceholder: "••••••••",
+  newPasswordPlaceholder: "Parolă nouă",
+  confirmPasswordPlaceholder: "Confirmă parola nouă",
+  emailPlaceholderExample: "exemplu@email.com",
+  termsMustAgree: "Trebuie să fii de acord cu termenii și condițiile",
+  passwordsNoMatch: "Parolele nu se potrivesc",
+
   // Order history
   all: "Toate",
   shipped: "Expediat",
@@ -661,4 +717,104 @@ export const ro = {
   technologyLearning: "Învățare prin Tehnologie",
   technologyLearningDesc:
     "Descoperă cum funcționează tehnologia prin proiecte interactive și jucării educaționale.",
+
+  // Footer specific translations (expanded)
+  // Newsletter section
+  joinEducatorsParents: "🚀 Alătură-te la 50.000+ Educatori și Părinți STEM",
+  newsletterSubtitle:
+    "Obține acces exclusiv la produse noi, resurse educaționale și reduceri speciale. În plus, primește ghidul nostru săptămânal de activități STEM!",
+  emailAddressPlaceholder: "Introduceți adresa de email",
+  getFreeResources: "Obține Resurse Gratuite",
+  subscribing: "Se abonează...",
+  subscriptionSuccessMessage:
+    "✓ Bine ai venit! Verifică-ți emailul pentru primul pachet de resurse STEM.",
+  subscriptionErrorMessage:
+    "✗ Ceva nu a mers bine. Te rugăm să încerci din nou sau să contactezi asistența.",
+
+  // Company description
+  companyDescription:
+    "Împuterniciți următoarea generație prin învățarea STEM practică. Descoperă colecția noastră curată de jucării educaționale și resurse concepute de educatori, pentru educatori.",
+
+  // Trust signals
+  freeShippingOver50: "Transport GRATUIT la comenzi peste 50€",
+  thirtyDayReturns: "Returnări fără probleme în 30 de zile",
+  bankLevelSecurity: "Securitate și criptare la nivel bancar",
+  trustedEducators: "De încredere pentru 50.000+ educatori din întreaga lume",
+
+  // Navigation sections
+  stemCategoriesNav: "Categorii STEM",
+  customerServiceNav: "Servicii Clienți",
+  orderSupport: "Suport Comenzi",
+  programs: "Programe",
+  contactSupport: "Contact și Suport",
+  paymentSecurity: "Plată și Securitate",
+
+  // Customer Service links
+  helpCenter: "Centru de Ajutor",
+  contactUsLink: "Contactează-ne",
+  liveChat: "Chat Live",
+  orderTracking: "Urmărire Comandă",
+  sizeGuide: "Ghid Dimensiuni",
+  productCare: "Îngrijirea Produselor",
+
+  // Order Support links
+  shippingInfoLink: "Informații Livrare",
+  returnPolicyLink: "Politica de Returnare",
+  warrantyLink: "Garanție",
+  faqLink: "Întrebări Frecvente",
+  productReviews: "Recenzii Produse",
+  safetyInformation: "Informații de Siguranță",
+
+  // Programs links
+  affiliateProgram: "Program de Afiliere",
+  educatorDiscounts: "Reduceri pentru Educatori",
+  studentDiscounts: "Reduceri pentru Studenți",
+  bulkOrders: "Comenzi în Volum",
+  schoolsProgram: "Programul Școlilor",
+  rewardsProgram: "Program de Recompense",
+
+  // Company links
+  ourStoryLink: "Povestea Noastră",
+  careersLink: "Cariere",
+  pressLink: "Presă",
+  sustainabilityLink: "Sustenabilitate",
+  partnerships: "Parteneriate",
+
+  // Legal links
+  accessibilityLink: "Accesibilitate",
+  sitemapLink: "Hartă Site",
+  gdprComplianceLink: "Conformitate GDPR",
+
+  // Contact information
+  businessHours: "Ore de Program",
+  mondayToFriday: "Lun-Vin: 9:00 AM - 6:00 PM CET",
+  mondayToSunday: "Lun-Dum: 9:00 AM - 6:00 PM CET",
+  saturday: "Sâm: 10:00 AM - 4:00 PM CET",
+  sunday: "Dum: Închis",
+  headquarters: "Sediu Central",
+  companyFullName: "TechTots Educational Solutions",
+  addressLine: "Mehedinti 54-56",
+  cityState: "Cluj-Napoca, Cluj 400000",
+  countryEU: "România, UE",
+
+  // Payment & Security
+  weAccept: "Acceptăm:",
+  visa: "VISA",
+  mastercard: "Mastercard",
+  paypal: "PayPal",
+  stripe: "Stripe",
+  securityCompliance: "Securitate și Conformitate:",
+  sslEncryption: "🔒 Criptare SSL 256-bit",
+  gdprCompliantBadge: "🛡️ Compatibil GDPR",
+  iso27001: "✅ Certificat ISO 27001",
+  pciDss: "🌟 Compatibil PCI DSS",
+
+  // Footer bottom
+  inspiringMinds: "Inspirăm mințile tinere prin educația STEM din 2025.",
+
+  // Social media
+  followFacebook: "Urmărește-ne pe Facebook",
+  followInstagram: "Urmărește-ne pe Instagram",
+  followTwitter: "Urmărește-ne pe Twitter",
+  subscribeYoutube: "Abonează-te la canalul nostru YouTube",
 };

@@ -19,6 +19,37 @@ interface RateLimitConfig {
   identifierFn?: (req: NextRequest) => string;
 }
 
+// Timeout for Redis operations (2 seconds)
+const REDIS_TIMEOUT = 2000;
+
+/**
+ * Execute a Redis operation with a timeout to prevent hanging
+ */
+async function withRedisTimeout<T>(
+  operation: Promise<T>,
+  fallbackFn: () => T
+): Promise<T> {
+  try {
+    // Create a promise that rejects after the timeout
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(
+          new Error(
+            `Redis rate limit operation timed out after ${REDIS_TIMEOUT}ms`
+          )
+        );
+      }, REDIS_TIMEOUT);
+    });
+
+    // Race the operation against the timeout
+    return await Promise.race([operation, timeoutPromise]);
+  } catch (error) {
+    console.error("Redis rate limit operation failed or timed out:", error);
+    // Execute fallback function if operation fails or times out
+    return fallbackFn();
+  }
+}
+
 /**
  * Redis-based rate limiting middleware for Next.js API routes
  * @param config Rate limiting configuration
@@ -51,29 +82,61 @@ export function rateLimit(config: RateLimitConfig) {
       );
 
       if (isRedisConfigured) {
-        // Use Redis for distributed rate limiting
-        // First, get the current count
-        const result = await redis.get(rateLimitKey);
+        console.log("Using Redis for rate limiting");
+        // Use Redis for distributed rate limiting with timeout protection
+
+        // First, get the current count with timeout
+        const result = await withRedisTimeout(redis.get(rateLimitKey), () => {
+          console.log("Redis get timeout in rate limiting, using fallback");
+          return null;
+        });
+
+        if (result === null) {
+          // If Redis timed out or failed, fall back to in-memory
+          return fallbackInMemoryRateLimit(req, identifier, limit, windowMs);
+        }
+
         currentCount = result ? parseInt(result as string, 10) : 0;
 
-        // Get TTL to calculate reset time
-        const ttl = await redis.ttl(rateLimitKey);
+        // Get TTL to calculate reset time with timeout
+        const ttl = await withRedisTimeout(redis.ttl(rateLimitKey), () => {
+          console.log("Redis TTL timeout in rate limiting, using fallback");
+          return -1;
+        });
+
+        if (ttl === -1) {
+          // If TTL operation failed, fall back to in-memory
+          return fallbackInMemoryRateLimit(req, identifier, limit, windowMs);
+        }
+
         resetTime = Date.now() + (ttl > 0 ? ttl * 1000 : windowMs);
 
         // Increment the counter
         currentCount++;
 
-        // Update Redis with new count and set/reset expiry
-        await redis.set(rateLimitKey, currentCount.toString(), {
-          ex: windowSeconds,
-        });
+        // Update Redis with new count and set/reset expiry with timeout
+        const setResult = await withRedisTimeout(
+          redis.set(rateLimitKey, currentCount.toString(), {
+            ex: windowSeconds,
+          }),
+          () => {
+            console.log("Redis set timeout in rate limiting, using fallback");
+            return "OK"; // Redis set returns "OK" on success
+          }
+        );
+
+        if (setResult !== "OK") {
+          // If set operation failed, fall back to in-memory for this request
+          return fallbackInMemoryRateLimit(req, identifier, limit, windowMs);
+        }
       } else {
+        console.log("Redis not configured, using in-memory rate limiting");
         // Fallback to in-memory rate limiting if Redis is not available
         return fallbackInMemoryRateLimit(req, identifier, limit, windowMs);
       }
     } catch (error) {
       // If Redis fails, fall back to in-memory rate limiting
-      console.error("Redis rate limiting error:", error);
+      console.error("Redis rate limiting error, using fallback:", error);
       return fallbackInMemoryRateLimit(req, identifier, limit, windowMs);
     }
 

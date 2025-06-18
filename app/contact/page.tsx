@@ -15,6 +15,7 @@ export default function ContactPage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -23,18 +24,43 @@ export default function ContactPage() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear error when user starts typing
+    if (error) setError(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setError(null);
 
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to send message");
+      }
+
+      // Success
       setSubmitted(true);
       setFormData({ name: "", email: "", subject: "", message: "" });
-    }, 1500);
+    } catch (err) {
+      console.error("Contact form error:", err);
+      setError(
+        err instanceof Error
+          ? err.message
+          : "A apărut o eroare la trimiterea mesajului. Te rugăm să încerci din nou."
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -63,15 +89,26 @@ export default function ContactPage() {
 
           {submitted ? (
             <div className="bg-green-50 border border-green-200 text-green-700 p-6 rounded-lg">
-              <h3 className="text-xl font-semibold mb-2">
-                {t("messageSent" as any, "Message Sent!")}
-              </h3>
-              <p>
+              <div className="flex items-center mb-4">
+                <div className="text-2xl mr-3">✅</div>
+                <h3 className="text-xl font-semibold">
+                  {t("messageSent" as any, "Message Sent!")}
+                </h3>
+              </div>
+              <p className="mb-4">
                 {t(
                   "thankYouMessage" as any,
                   "Thank you for contacting us. We'll get back to you as soon as possible."
                 )}
               </p>
+              <div className="bg-green-100 border border-green-300 rounded-lg p-4 mb-4">
+                <p className="text-sm text-green-800">
+                  <strong>📧 Ai primit și un email de confirmare!</strong>
+                  <br />
+                  Verifică căsuța de email (inclusiv spam/junk) pentru
+                  confirmarea că am primit mesajul tău.
+                </p>
+              </div>
               <Button
                 className="mt-4"
                 onClick={() => setSubmitted(false)}>
@@ -79,99 +116,132 @@ export default function ContactPage() {
               </Button>
             </div>
           ) : (
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-4">
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium mb-1">
-                  {t("name" as any, "Name")}*
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
+            <>
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">
+                  <div className="flex items-center">
+                    <div className="text-xl mr-2">⚠️</div>
+                    <p className="font-medium">{error}</p>
+                  </div>
+                </div>
+              )}
 
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium mb-1">
-                  {t("email" as any, "Email")}*
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                />
-              </div>
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium mb-1">
+                    {t("name" as any, "Name")}*
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    required
+                    disabled={isSubmitting}
+                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
 
-              <div>
-                <label
-                  htmlFor="subject"
-                  className="block text-sm font-medium mb-1">
-                  {t("subject" as any, "Subject")}*
-                </label>
-                <select
-                  id="subject"
-                  name="subject"
-                  value={formData.subject}
-                  onChange={handleChange}
-                  required
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
-                  <option value="">
-                    {t("selectSubject" as any, "Select a subject")}
-                  </option>
-                  <option value="general">
-                    {t("generalInquiry" as any, "General Inquiry")}
-                  </option>
-                  <option value="order">
-                    {t("orderQuestion" as any, "Order Question")}
-                  </option>
-                  <option value="return">
-                    {t("returnQuestion" as any, "Return or Refund")}
-                  </option>
-                  <option value="product">
-                    {t("productInfo" as any, "Product Information")}
-                  </option>
-                </select>
-              </div>
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium mb-1">
+                    {t("email" as any, "Email")}*
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    disabled={isSubmitting}
+                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
 
-              <div>
-                <label
-                  htmlFor="message"
-                  className="block text-sm font-medium mb-1">
-                  {t("message" as any, "Message")}*
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                  rows={5}
-                  className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
-              </div>
+                <div>
+                  <label
+                    htmlFor="subject"
+                    className="block text-sm font-medium mb-1">
+                    {t("subject" as any, "Subject")}*
+                  </label>
+                  <select
+                    id="subject"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    required
+                    disabled={isSubmitting}
+                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <option value="">
+                      {t("selectSubject" as any, "Select a subject")}
+                    </option>
+                    <option value="general">
+                      {t("generalInquiry" as any, "General Inquiry")}
+                    </option>
+                    <option value="order">
+                      {t("orderQuestion" as any, "Order Question")}
+                    </option>
+                    <option value="return">
+                      {t("returnQuestion" as any, "Return or Refund")}
+                    </option>
+                    <option value="product">
+                      {t("productInfo" as any, "Product Information")}
+                    </option>
+                  </select>
+                </div>
 
-              <Button
-                type="submit"
-                className="w-full py-3"
-                disabled={isSubmitting}>
-                {isSubmitting
-                  ? t("sending" as any, "Sending...")
-                  : t("sendMessage" as any, "Send Message")}
-              </Button>
-            </form>
+                <div>
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-medium mb-1">
+                    {t("message" as any, "Message")}*
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    required
+                    rows={5}
+                    disabled={isSubmitting}
+                    minLength={10}
+                    maxLength={2000}
+                    className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                    placeholder="Te rugăm să descrii mesajul tău (minim 10 caractere)..."
+                  />
+                  <div className="text-sm text-gray-500 mt-1">
+                    {formData.message.length}/2000 caractere
+                    {formData.message.length < 10 &&
+                      formData.message.length > 0 && (
+                        <span className="text-red-500 ml-2">
+                          (minim 10 caractere necesare)
+                        </span>
+                      )}
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full py-3"
+                  disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <div className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      {t("sending" as any, "Sending...")}
+                    </div>
+                  ) : (
+                    t("sendMessage" as any, "Send Message")
+                  )}
+                </Button>
+              </form>
+            </>
           )}
         </div>
 

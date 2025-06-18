@@ -180,12 +180,8 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     }
 
     try {
-      // Add timeout to prevent long-running requests
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000); // 5-second timeout
-
+      // fetchCart already has its own timeout handling
       const serverCart = await fetchCart();
-      clearTimeout(timeoutId);
 
       // If server has items, use them
       if (serverCart.length > 0) {

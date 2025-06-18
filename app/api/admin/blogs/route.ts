@@ -3,6 +3,7 @@ import { z } from "zod";
 import { db } from "@/lib/db";
 import { Session } from "next-auth";
 import { withAdminAuth } from "@/lib/authorization";
+import { blogService } from "@/lib/services/blog-service";
 
 // Schema for creating a blog post
 const createBlogSchema = z.object({
@@ -103,14 +104,15 @@ export async function POST(request: NextRequest) {
 
       const data = validationResult.data;
 
-      // Create blog post
-      const blog = await db.blog.create({
-        data: {
-          ...data,
-          authorId: session.user.id,
-          publishedAt: data.isPublished ? new Date() : null,
-        },
+      // Create blog post using blog service (includes automatic notifications)
+      const blog = await blogService.createBlog({
+        ...data,
+        authorId: session.user.id,
       });
+
+      console.log(
+        `📝 Blog "${blog.title}" created successfully${blog.isPublished ? " and published with notifications" : " as draft"}`
+      );
 
       return NextResponse.json(blog, { status: 201 });
     }

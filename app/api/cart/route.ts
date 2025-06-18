@@ -78,6 +78,7 @@ export const GET = withRateLimit(
 
       // Try to get cart from Redis cache first
       try {
+        console.log(`Fetching cart for ${cartId} from cache...`);
         const cachedCart = await getCartFromCache(cartId);
 
         if (cachedCart) {
@@ -91,6 +92,9 @@ export const GET = withRateLimit(
 
             // Validate the parsed cart data
             if (isValidCartData(parsedCart)) {
+              console.log(
+                `Returning cached cart for ${cartId} with ${parsedCart.length} items`
+              );
               return NextResponse.json({
                 success: true,
                 message: "Cart fetched from cache",
@@ -110,10 +114,12 @@ export const GET = withRateLimit(
             // If parsing fails, invalidate the bad cache entry
             await invalidateCartCache(cartId);
           }
+        } else {
+          console.log(`No cached cart found for ${cartId}`);
         }
       } catch (cacheError) {
         // Log cache error but continue with database fetch
-        console.error("Cache error:", cacheError);
+        console.error("Cache error (continuing with fallback):", cacheError);
       }
 
       // Get cart from storage (or return empty array if not found)

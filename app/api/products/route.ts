@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { Prisma } from "@/app/generated/prisma";
+import { Prisma } from "@prisma/client";
 
 // Type definitions to help with type safety
 type StemCategoryMap = {

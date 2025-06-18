@@ -14,6 +14,7 @@ import { loginSchema } from "@/lib/validations";
 import { CheckCircle, Info } from "lucide-react";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
 import { Separator } from "@/components/ui/separator";
+import { useTranslation } from "@/lib/i18n";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
@@ -49,6 +50,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status } = useSession();
+  const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -64,11 +66,9 @@ function LoginForm() {
   // Check for verification success parameter or registration redirect
   useEffect(() => {
     if (searchParams.get("verified") === "true") {
-      setSuccess("Your email has been verified! You can now sign in.");
+      setSuccess(t("email_verification_greeting"));
     } else if (searchParams.get("from") === "register") {
-      setSuccess(
-        "Your account has been created! Please check your email to verify your account before logging in."
-      );
+      setSuccess(t("registrationSuccess"));
     } else if (searchParams.get("error") === "UserDeleted") {
       // Check if we're in an active Google auth flow first
       const isGoogleAuthInProgress = localStorage.getItem(
@@ -93,9 +93,7 @@ function LoginForm() {
       }
 
       // If we get here, it's not a temporary error, so show it
-      setError(
-        "Your account has been deleted or no longer exists. Please create a new account or contact support."
-      );
+      setError(t("userDeleted"));
 
       // Force clear all authentication data
       const clearAuthData = async () => {
@@ -145,7 +143,7 @@ function LoginForm() {
 
       clearAuthData();
     }
-  }, [searchParams]);
+  }, [searchParams, t]);
 
   // If user is already authenticated and there's a callbackUrl, redirect there
   useEffect(() => {
@@ -203,7 +201,7 @@ function LoginForm() {
       console.log("Sign in result:", result);
 
       if (!result) {
-        setError("Authentication service unavailable. Please try again.");
+        setError(t("authServiceUnavailable"));
         setIsLoading(false);
         return;
       }
@@ -213,14 +211,12 @@ function LoginForm() {
           result.error === "CredentialsSignin" ||
           result.error.includes("credentials")
         ) {
-          setError("Invalid email or password");
+          setError(t("invalidCredentials"));
         } else if (
           result.error.includes("not verified") ||
           result.error.includes("inactive")
         ) {
-          setError(
-            "Your account has not been verified. Please check your email for the verification link."
-          );
+          setError(t("accountNotVerified"));
         } else {
           setError(result.error);
         }
@@ -229,7 +225,7 @@ function LoginForm() {
       }
 
       // Authentication successful
-      setSuccess("Login successful! Redirecting...");
+      setSuccess(t("loginSuccessful"));
 
       // Get the redirect URL
       const callbackUrl = searchParams.get("callbackUrl") || "/";
@@ -239,7 +235,7 @@ function LoginForm() {
       window.location.href = callbackUrl;
     } catch (error) {
       console.error("Login error:", error);
-      setError("An unexpected error occurred. Please try again.");
+      setError(t("registrationError"));
       setIsLoading(false);
     }
   };
@@ -253,10 +249,8 @@ function LoginForm() {
   return (
     <div className="flex flex-col items-center justify-center space-y-6 max-w-md mx-auto">
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold">Welcome Back</h1>
-        <p className="text-muted-foreground">
-          Enter your credentials to sign in to your account
-        </p>
+        <h1 className="text-3xl font-bold">{t("welcomeBack")}</h1>
+        <p className="text-muted-foreground">{t("signInCredentials")}</p>
       </div>
 
       <div className="w-full p-6 space-y-6 bg-card rounded-lg border shadow-sm">
@@ -297,7 +291,7 @@ function LoginForm() {
 
         {error && (
           <div className="p-4 rounded-md bg-destructive/15 text-destructive border border-destructive/30 flex flex-col space-y-1">
-            <p className="font-medium">Sign In Failed</p>
+            <p className="font-medium">{t("signInFailed")}</p>
             <p className="text-sm">{error}</p>
             {error.includes("not verified") && (
               <div className="mt-2 text-sm">
@@ -318,7 +312,7 @@ function LoginForm() {
           <div className="p-4 rounded-md bg-green-100 text-green-800 border border-green-200 flex items-start gap-3">
             <CheckCircle className="h-5 w-5 mt-0.5 flex-shrink-0" />
             <div>
-              <p className="font-medium">Success</p>
+              <p className="font-medium">{t("authSuccess")}</p>
               <p className="text-sm">{success}</p>
             </div>
           </div>
@@ -328,11 +322,11 @@ function LoginForm() {
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("email")}</Label>
             <Input
               id="email"
               type="email"
-              placeholder="example@email.com"
+              placeholder={t("emailPlaceholderExample")}
               autoComplete="email"
               {...register("email")}
               className={errors.email ? "border-destructive" : ""}
@@ -344,17 +338,17 @@ function LoginForm() {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{t("password")}</Label>
               <Link
                 href="/auth/forgot-password"
                 className="text-sm text-primary hover:underline">
-                Forgot password?
+                {t("forgotPassword")}
               </Link>
             </div>
             <Input
               id="password"
               type="password"
-              placeholder="••••••••"
+              placeholder={t("passwordPlaceholder")}
               autoComplete="current-password"
               {...register("password")}
               className={errors.password ? "border-destructive" : ""}
@@ -370,7 +364,7 @@ function LoginForm() {
             type="submit"
             className="w-full"
             disabled={isLoading}>
-            {isLoading ? "Signing in..." : "Sign In"}
+            {isLoading ? t("signingIn") : t("signIn")}
           </Button>
         </form>
 
@@ -380,7 +374,7 @@ function LoginForm() {
           </div>
           <div className="relative flex justify-center">
             <span className="bg-card px-2 text-muted-foreground text-sm">
-              or continue with
+              {t("orContinueWith")}
             </span>
           </div>
         </div>
@@ -388,11 +382,11 @@ function LoginForm() {
         <GoogleSignInButton />
 
         <div className="mt-4 text-center text-sm">
-          Don't have an account?{" "}
+          {t("dontHaveAccount")}{" "}
           <Link
             href="/auth/register"
             className="font-medium text-primary hover:underline">
-            Create an account
+            {t("createAccount")}
           </Link>
         </div>
       </div>
@@ -402,13 +396,13 @@ function LoginForm() {
 
 // Fallback component to show while the main content is loading
 function LoginFormFallback() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col items-center justify-center space-y-6 max-w-md mx-auto">
       <div className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold">Welcome Back</h1>
-        <p className="text-muted-foreground">
-          Enter your credentials to sign in to your account
-        </p>
+        <h1 className="text-3xl font-bold">{t("welcomeBack")}</h1>
+        <p className="text-muted-foreground">{t("signInCredentials")}</p>
       </div>
 
       <div className="w-full p-6 space-y-6 bg-card rounded-lg border shadow-sm">
