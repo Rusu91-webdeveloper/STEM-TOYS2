@@ -622,15 +622,15 @@ export const ro = {
     "Cererea ta de retur a fost aprobată - Comanda #{orderNumber}",
   email_return_approved_greeting: "Stimate {name},",
   email_return_approved_body:
-    "Cererea ta de retur pentru <strong>{productName}</strong> a fost aprobată. Te rugăm să urmezi pașii de mai jos pentru a finaliza returul:",
+    "Cererea ta de retur pentru <strong>{productName}</strong> a fost aprobată. Am atașat o etichetă de retur la acest email. Te rugăm să urmezi instrucțiunile de mai jos pentru a finaliza procesul de returnare:",
   email_return_approved_steps:
-    "1. Printează eticheta de retur atașată.\n2. Ambalează produsul în ambalajul original, dacă este posibil.\n3. Atașează eticheta de retur pe colet.\n4. Predă coletul la orice oficiu poștal sau curier.\n\n<b>Costul returului este suportat de tine și se achită direct la poștă sau curier.</b>",
+    "1. Printează eticheta de retur atașată acestui email.\n2. Ambalează produsul în ambalajul original, dacă este posibil.\n3. Atașează eticheta de retur pe colet.\n4. Predă coletul la orice oficiu poștal sau punct de curierat.\n5. Păstrează dovada de expediere până la procesarea returului.",
   email_return_approved_legal:
-    "Conform legislației din România, ai dreptul să returnezi produsele în termen de 14 zile de la primire, fără a oferi un motiv. Rambursarea se va face în contul folosit la plată, după recepționarea și verificarea produsului. Pentru detalii complete, consultă politica noastră de retur.",
+    "Conform legislației din România, ai dreptul să returnezi produsele în termen de 14 zile de la primire, fără a oferi un motiv. Rambursarea se va face în contul folosit la plată, în termen de 14 zile de la recepționarea și verificarea produsului returnat. Pentru detalii complete, consultă politica noastră de retur.",
   email_return_approved_tracking:
-    "Poți urmări statusul returului din contul tău.",
+    "Poți urmări statusul returului în orice moment din contul tău TechTots, în secțiunea 'Returnări'.",
   email_return_approved_footer:
-    "Îți mulțumim că ai ales TechTots! Pentru întrebări, contactează-ne la {contactEmail}.",
+    "Îți mulțumim că ai ales TechTots! Pentru orice întrebări legate de procesul de retur, te rugăm să contactezi echipa noastră de asistență la {contactEmail}.",
 
   book1TitleRo: "Născut pentru viitor",
   book1TitleEn: "Born for the Future",
