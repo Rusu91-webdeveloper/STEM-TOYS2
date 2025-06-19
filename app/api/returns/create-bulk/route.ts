@@ -27,91 +27,37 @@ export async function POST(request: Request) {
       );
     }
 
-    // Find all order items with proper relationships
+    // Find all order items that belong to the user
     const orderItems = await db.orderItem.findMany({
       where: {
         id: { in: orderItemIds },
+        order: {
+          userId: session.user.id,
+        },
       },
       include: {
         order: true,
         product: {
           select: {
-            name: true,
             sku: true,
-            images: true,
-          },
-        },
-        book: {
-          select: {
             name: true,
-            author: true,
           },
         },
       },
     });
 
-    if (orderItems.length !== orderItemIds.length) {
+    if (orderItems.length === 0) {
       return NextResponse.json(
-        { error: "Some items were not found" },
+        { error: "No valid order items found for return" },
         { status: 404 }
       );
     }
 
-    // Check if any items are digital books (not returnable)
-    // Use type assertion to access isDigital property
-    const digitalItems = orderItems.filter((item) => (item as any).isDigital);
-    if (digitalItems.length > 0) {
+    // Verify all items belong to the same order
+    const orderIds = [...new Set(orderItems.map((item) => item.orderId))];
+    if (orderIds.length > 1) {
       return NextResponse.json(
-        {
-          error:
-            "Digital books cannot be returned as they are instantly delivered products",
-        },
-        { status: 400 }
-      );
-    }
-
-    // Verify all items belong to the same order and user owns them
-    const orderId = orderItems[0].orderId;
-    const userId = orderItems[0].order.userId;
-
-    if (userId !== session.user.id && session.user.role !== "ADMIN") {
-      return NextResponse.json(
-        { error: "Unauthorized to initiate this return" },
-        { status: 403 }
-      );
-    }
-
-    // Check if all items belong to the same order
-    const allSameOrder = orderItems.every((item) => item.orderId === orderId);
-    if (!allSameOrder) {
-      return NextResponse.json(
-        { error: "All items must be from the same order" },
-        { status: 400 }
-      );
-    }
-
-    // Check if any return already exists for these order items
-    const existingReturns = await db.return.findMany({
-      where: {
-        orderItemId: { in: orderItemIds },
-        userId: session.user.id,
-      },
-    });
-
-    if (existingReturns.length > 0) {
-      return NextResponse.json(
-        {
-          error:
-            "You have already requested a return for one or more of these items.",
-        },
-        { status: 400 }
-      );
-    }
-
-    // Only allow returns for delivered items
-    if (orderItems[0].order.status !== "DELIVERED") {
-      return NextResponse.json(
-        { error: "You can only return items from delivered orders." },
+        { error: "All items must belong to the same order" },
         { status: 400 }
       );
     }
@@ -121,59 +67,83 @@ export async function POST(request: Request) {
 
     // Use deliveredAt if available, otherwise fall back to order creation date
     // This matches the frontend logic for return eligibility
-    const referenceDate = order.deliveredAt
-      ? order.deliveredAt
+    const referenceDate = (order as any).deliveredAt
+      ? (order as any).deliveredAt
       : order.createdAt;
 
     const daysSinceReference = differenceInDays(new Date(), referenceDate);
     if (daysSinceReference > 14) {
-      const dateType = order.deliveredAt ? "delivery" : "order placement";
+      const dateType = (order as any).deliveredAt
+        ? "delivery"
+        : "order placement";
       return NextResponse.json(
         { error: `Returns are only allowed within 14 days of ${dateType}` },
         { status: 400 }
       );
     }
 
-    // Create return records for all items in a transaction
-    const returnRecords = await db.$transaction(async (tx) => {
-      // Create return records
-      const returns = await Promise.all(
-        orderItems.map((item) =>
-          tx.return.create({
-            data: {
-              userId: session.user.id,
-              orderId: item.orderId,
-              orderItemId: item.id,
-              reason,
-              details: reason === "OTHER" ? details : null,
-              status: "PENDING",
-            },
-          })
-        )
-      );
+    // Check if any items are already returned
+    const alreadyReturnedItems = orderItems.filter(
+      (item) => item.returnStatus !== "NONE"
+    );
 
-      // Update order item statuses
-      await Promise.all(
-        orderItems.map((item) =>
-          tx.orderItem.update({
-            where: { id: item.id },
-            data: { returnStatus: "REQUESTED" },
-          })
-        )
+    if (alreadyReturnedItems.length > 0) {
+      const returnedNames = alreadyReturnedItems.map((item) => item.name);
+      return NextResponse.json(
+        {
+          error: `Some items have already been returned: ${returnedNames.join(
+            ", "
+          )}`,
+        },
+        { status: 400 }
       );
+    }
 
-      return returns;
+    // Create return records for all items
+    const returnData = orderItems.map((item) => ({
+      orderItemId: item.id,
+      orderId: item.orderId,
+      userId: session.user.id,
+      reason: reason as any,
+      status: "PENDING" as const,
+      details: details || null,
+    }));
+
+    const returnRecords = await db.return.createMany({
+      data: returnData,
     });
 
-    // Get user details for email
+    // Update order items return status
+    await db.orderItem.updateMany({
+      where: {
+        id: { in: orderItemIds },
+      },
+      data: {
+        returnStatus: "REQUESTED",
+      },
+    });
+
+    // Get the created return records for email
+    const createdReturns = await db.return.findMany({
+      where: {
+        orderItemId: { in: orderItemIds },
+        userId: session.user.id,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      take: orderItems.length,
+    });
+
+    // Get user info for emails
     const user = await db.user.findUnique({
       where: { id: session.user.id },
       select: { name: true, email: true },
     });
 
-    // Get store settings for admin email
-    const storeSettings = await db.storeSettings.findFirst();
-    const adminEmail = storeSettings?.contactEmail || "info@techtots.com";
+    // Admin email from environment or fallback
+    const adminEmail =
+      process.env.ADMIN_EMAIL || process.env.EMAIL_FROM || "admin@techtots.com";
 
     // Map reason code to human-readable text
     const reasonLabels = {
@@ -187,71 +157,54 @@ export async function POST(request: Request) {
 
     // Send consolidated emails
     try {
-      // Send admin notification for bulk return
+      // Send admin notification for bulk return using professional template
       console.log(
         "Sending bulk return admin notification email to:",
         adminEmail
       );
-      await import("@/lib/nodemailer").then(async ({ sendMail }) => {
-        const itemsList = orderItems
-          .map(
-            (item) =>
-              `• ${item.name} (SKU: ${item.product?.sku || "N/A"}) - Qty: ${item.quantity}`
-          )
-          .join("<br>");
 
-        await sendMail({
+      await import("@/lib/brevoTemplates").then(async ({ emailTemplates }) => {
+        await emailTemplates.bulkReturnAdminNotification({
           to: adminEmail,
-          subject: `Bulk Return Request - Order #${order.orderNumber}`,
-          html: `<div style='font-family: sans-serif; max-width: 600px; margin: 0 auto;'>
-            <h1 style='color: #e74c3c;'>Bulk Return Request</h1>
-            <p><strong>Order Number:</strong> ${order.orderNumber}</p>
-            <p><strong>Customer:</strong> ${user?.name || user?.email}</p>
-            <p><strong>Email:</strong> ${user?.email}</p>
-            <p><strong>Items to Return:</strong></p>
-            <div style='background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;'>
-              ${itemsList}
-            </div>
-            <p><strong>Reason:</strong> ${reasonLabels[reason as keyof typeof reasonLabels] || reason}</p>
-            ${details ? `<p><strong>Details:</strong> ${details}</p>` : ""}
-            <p><strong>Number of Items:</strong> ${orderItems.length}</p>
-            <p><strong>Return IDs:</strong> ${returnRecords.map((r) => r.id).join(", ")}</p>
-            <p>Please process this bulk return request.</p>
-          </div>`,
+          customerName: user?.name || "Unknown Customer",
+          customerEmail: user?.email || "unknown@email.com",
+          orderNumber: order.orderNumber,
+          returnItems: orderItems.map((item) => ({
+            name: item.name,
+            quantity: item.quantity,
+            sku: item.product?.sku || undefined,
+          })),
+          reason,
+          details,
+          returnIds: createdReturns.map((r) => r.id),
         });
       });
 
-      // Send customer confirmation email
+      // Send customer confirmation email using professional template
       const userEmail = session.user.email;
       if (typeof userEmail === "string" && userEmail) {
         console.log(
           "Sending bulk return customer confirmation email to:",
           userEmail
         );
-        await import("@/lib/nodemailer").then(async ({ sendMail }) => {
-          const itemsList = orderItems
-            .map((item) => `• ${item.name} - Qty: ${item.quantity}`)
-            .join("<br>");
 
-          await sendMail({
-            to: userEmail,
-            subject: `Bulk Return Request Received - Order #${order.orderNumber}`,
-            html: `<div style='font-family: sans-serif; max-width: 600px; margin: 0 auto;'>
-              <h1 style='color: #333;'>Return Request Received</h1>
-              <p>Hello,</p>
-              <p>We have received your return request for ${orderItems.length} item(s) from order <strong>#${order.orderNumber}</strong>.</p>
-              <p><strong>Items to Return:</strong></p>
-              <div style='background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 10px 0;'>
-                ${itemsList}
-              </div>
-              <p><strong>Reason:</strong> ${reasonLabels[reason as keyof typeof reasonLabels] || reason}</p>
-              ${details ? `<p><strong>Additional Details:</strong> ${details}</p>` : ""}
-              <p>Our team will review your request and send you further instructions soon.</p>
-              <p>You can track your return status in your account.</p>
-              <p>Thank you for shopping with us!</p>
-            </div>`,
-          });
-        });
+        await import("@/lib/brevoTemplates").then(
+          async ({ emailTemplates }) => {
+            await emailTemplates.bulkReturnConfirmation({
+              to: userEmail,
+              customerName: user?.name || "Valued Customer",
+              orderNumber: order.orderNumber,
+              returnItems: orderItems.map((item) => ({
+                name: item.name,
+                quantity: item.quantity,
+                sku: item.product?.sku || undefined,
+              })),
+              reason,
+              details,
+              returnIds: createdReturns.map((r) => r.id),
+            });
+          }
+        );
       } else {
         console.warn(
           "User email is missing or invalid, skipping return confirmation email."
@@ -266,7 +219,7 @@ export async function POST(request: Request) {
       success: true,
       message: `Successfully initiated return for ${orderItems.length} item(s)`,
       data: {
-        returnIds: returnRecords.map((r) => r.id),
+        returnIds: createdReturns.map((r) => r.id),
         orderNumber: order.orderNumber,
         itemCount: orderItems.length,
       },

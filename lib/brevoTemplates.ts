@@ -1077,14 +1077,14 @@ export const emailTemplates = {
                 .map((product) => {
                   // Safely get the first image URL or use placeholder
                   let imageUrl = `${baseUrl}/images/placeholder.png`;
-                  const productImages = product.images as unknown;
+                  const productImages = product.images as string[] | null;
                   if (
                     productImages &&
                     Array.isArray(productImages) &&
                     productImages.length > 0
                   ) {
                     // Type guard to ensure we have string array
-                    const images = (productImages as any[]).filter(
+                    const images = productImages.filter(
                       (img): img is string => typeof img === "string"
                     );
                     if (images.length > 0) {
@@ -1463,6 +1463,276 @@ export const emailTemplates = {
     return sendMail({
       to,
       subject: `${statusInfo.title} - Comandă #${order.orderNumber} - ${storeSettings.storeName}`,
+      html,
+      params: { email: to },
+    });
+  },
+
+  /**
+   * Bulk return confirmation email for customers
+   */
+  bulkReturnConfirmation: async ({
+    to,
+    customerName,
+    orderNumber,
+    returnItems,
+    reason,
+    details,
+    returnIds,
+  }: {
+    to: string;
+    customerName: string;
+    orderNumber: string;
+    returnItems: Array<{
+      name: string;
+      quantity: number;
+      sku?: string;
+    }>;
+    reason: string;
+    details?: string;
+    returnIds: string[];
+  }) => {
+    const storeSettings = await getStoreSettings();
+    const baseUrl = getBaseUrl();
+
+    // Map reason codes to user-friendly labels
+    const reasonLabels: { [key: string]: string } = {
+      DOES_NOT_MEET_EXPECTATIONS: "Nu corespunde așteptărilor",
+      DAMAGED_OR_DEFECTIVE: "Produs deteriorat sau defect",
+      WRONG_ITEM_SHIPPED: "Produs greșit livrat",
+      CHANGED_MIND: "Mi-am schimbat părerea",
+      ORDERED_WRONG_PRODUCT: "Am comandat produsul greșit",
+      OTHER: "Alte motive",
+    };
+
+    const reasonLabel = reasonLabels[reason] || reason;
+
+    const content = `
+      ${generateEmailHeader(storeSettings)}
+      
+      <h1 style="color: #1f2937; margin-bottom: 24px; text-align: center; font-size: 28px; font-weight: 700;">📦 Cererea de Retur Confirmată</h1>
+      
+      <p style="font-size: 16px; margin-bottom: 16px;">Salut <strong>${customerName}</strong>,</p>
+      
+      <p style="font-size: 16px; margin-bottom: 20px;">Am primit cererea ta de retur pentru comanda <strong>#${orderNumber}</strong>. Îți mulțumim pentru încrederea acordată și ne cerem scuze pentru orice neplăcere.</p>
+      
+      <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <h3 style="color: #1e40af; margin: 0 0 16px 0; text-align: center;">📋 Detalii Retur</h3>
+        
+        <div style="background-color: #ffffff; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+          <p style="margin: 0 0 8px 0; color: #374151;"><strong>Comandă:</strong> #${orderNumber}</p>
+          <p style="margin: 0 0 8px 0; color: #374151;"><strong>Numărul de produse returnate:</strong> ${returnItems.length}</p>
+          <p style="margin: 0 0 8px 0; color: #374151;"><strong>Motive:</strong> ${reasonLabel}</p>
+          ${details ? `<p style="margin: 0; color: #374151;"><strong>Detalii suplimentare:</strong> ${details}</p>` : ""}
+        </div>
+        
+        <div style="background-color: #f8fafc; border-radius: 6px; padding: 16px;">
+          <h4 style="color: #1f2937; margin: 0 0 12px 0; font-size: 16px;">🛍️ Produse pentru retur:</h4>
+          ${returnItems
+            .map(
+              (item) => `
+            <div style="border-bottom: 1px solid #e5e7eb; padding: 8px 0; margin-bottom: 8px;">
+              <p style="margin: 0; color: #1f2937; font-weight: 500;">• ${item.name}</p>
+              <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">Cantitate: ${item.quantity} ${item.sku ? `• SKU: ${item.sku}` : ""}</p>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+      </div>
+      
+      <div style="background-color: #ecfdf5; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <h3 style="color: #047857; margin: 0 0 12px 0; font-size: 16px;">✅ Ce urmează?</h3>
+        <ul style="margin: 0; padding-left: 20px; color: #047857;">
+          <li style="margin-bottom: 8px;">Echipa noastră va procesa cererea ta în următoarele <strong>24-48 de ore</strong></li>
+          <li style="margin-bottom: 8px;">Vei primi un email cu instrucțiunile de returnare și eticheta de expediere</li>
+          <li style="margin-bottom: 8px;">După primirea produselor, returul va fi processat în <strong>5-7 zile lucrătoare</strong></li>
+          <li style="margin-bottom: 8px;">Vei fi notificat prin email despre statusul returului</li>
+        </ul>
+      </div>
+      
+      <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <h3 style="color: #92400e; margin: 0 0 12px 0; font-size: 16px;">⚠️ Informații importante despre retur:</h3>
+        <ul style="margin: 0; padding-left: 20px; color: #92400e;">
+          <li style="margin-bottom: 8px;">Produsele trebuie returnate în starea originală, cu ambalajul intact</li>
+          <li style="margin-bottom: 8px;">Retururile sunt procesate în ordinea primirii</li>
+          <li style="margin-bottom: 8px;">Rambursarea se va efectua prin aceeași metodă de plată folosită la cumpărare</li>
+          <li style="margin-bottom: 8px;">Pentru întrebări despre retur, contactează echipa noastră de suport</li>
+        </ul>
+      </div>
+      
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="${baseUrl}/account/returns" 
+           style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+          📊 Urmărește Statusul Returului
+        </a>
+      </div>
+      
+      <div style="background-color: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px; text-align: center; margin: 32px 0;">
+        <h3 style="color: #1e40af; margin: 0 0 12px 0; font-size: 16px;">💬 Ai întrebări despre returul tău?</h3>
+        <p style="margin: 0; color: #1e40af;">
+          Echipa noastră de relații cu clienții este aici pentru tine! 
+          <a href="mailto:webira.rem.srl@gmail.com" style="color: #1e40af; text-decoration: none; font-weight: 600;">webira.rem.srl@gmail.com</a> 
+          sau sună-ne la <strong>+40 771 248 029</strong>
+        </p>
+      </div>
+      
+      <div style="margin: 32px 0; text-align: center;">
+        <p style="color: #6b7280; margin: 0 0 12px 0; font-size: 14px;">Cod(uri) de referință retur:</p>
+        <p style="color: #3b82f6; font-family: monospace; font-size: 12px; background-color: #f8fafc; padding: 8px; border-radius: 4px; border: 1px solid #e5e7eb; margin: 0;">${returnIds.join(", ")}</p>
+      </div>
+      
+      <p style="font-size: 16px; text-align: center; margin-top: 32px;">Îți mulțumim pentru înțelegere!<br><strong>Echipa ${storeSettings.storeName}</strong></p>
+    `;
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="ro">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cererea de Retur Confirmată - Comandă #${orderNumber} - ${storeSettings.storeName}</title>
+      </head>
+      <body style="margin: 0; padding: 20px; background-color: #f3f4f6;">
+        ${generateEmailContainer(content)}
+        ${generateEmailFooter(storeSettings)}
+      </body>
+      </html>
+    `;
+
+    return sendMail({
+      to,
+      subject: `📦 Cererea de Retur Confirmată - Comandă #${orderNumber} - ${storeSettings.storeName}`,
+      html,
+      params: { email: to },
+    });
+  },
+
+  /**
+   * Bulk return admin notification email
+   */
+  bulkReturnAdminNotification: async ({
+    to,
+    customerName,
+    customerEmail,
+    orderNumber,
+    returnItems,
+    reason,
+    details,
+    returnIds,
+  }: {
+    to: string;
+    customerName: string;
+    customerEmail: string;
+    orderNumber: string;
+    returnItems: Array<{
+      name: string;
+      quantity: number;
+      sku?: string;
+    }>;
+    reason: string;
+    details?: string;
+    returnIds: string[];
+  }) => {
+    const storeSettings = await getStoreSettings();
+    const baseUrl = getBaseUrl();
+
+    // Map reason codes to user-friendly labels
+    const reasonLabels: { [key: string]: string } = {
+      DOES_NOT_MEET_EXPECTATIONS: "Nu corespunde așteptărilor",
+      DAMAGED_OR_DEFECTIVE: "Produs deteriorat sau defect",
+      WRONG_ITEM_SHIPPED: "Produs greșit livrat",
+      CHANGED_MIND: "Mi-am schimbat părerea",
+      ORDERED_WRONG_PRODUCT: "Am comandat produsul greșit",
+      OTHER: "Alte motive",
+    };
+
+    const reasonLabel = reasonLabels[reason] || reason;
+
+    const content = `
+      ${generateEmailHeader(storeSettings)}
+      
+      <h1 style="color: #dc2626; margin-bottom: 24px; text-align: center; font-size: 28px; font-weight: 700;">🚨 Cerere de Retur Nouă</h1>
+      
+      <p style="font-size: 16px; margin-bottom: 20px;">Un client a inițiat o cerere de retur pentru mai multe produse.</p>
+      
+      <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <h3 style="color: #dc2626; margin: 0 0 16px 0; text-align: center;">📋 Informații Client</h3>
+        
+        <div style="background-color: #ffffff; border-radius: 6px; padding: 16px;">
+          <p style="margin: 0 0 8px 0; color: #374151;"><strong>Nume:</strong> ${customerName}</p>
+          <p style="margin: 0 0 8px 0; color: #374151;"><strong>Email:</strong> <a href="mailto:${customerEmail}" style="color: #dc2626; text-decoration: none;">${customerEmail}</a></p>
+          <p style="margin: 0; color: #374151;"><strong>Comandă:</strong> #${orderNumber}</p>
+        </div>
+      </div>
+      
+      <div style="background-color: #fffbeb; border: 1px solid #fed7aa; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <h3 style="color: #92400e; margin: 0 0 16px 0; text-align: center;">📦 Detalii Retur</h3>
+        
+        <div style="background-color: #ffffff; border-radius: 6px; padding: 16px; margin-bottom: 16px;">
+          <p style="margin: 0 0 8px 0; color: #374151;"><strong>Numărul de produse:</strong> ${returnItems.length}</p>
+          <p style="margin: 0 0 8px 0; color: #374151;"><strong>Motiv:</strong> ${reasonLabel}</p>
+          ${details ? `<p style="margin: 0; color: #374151;"><strong>Detalii suplimentare:</strong> ${details}</p>` : ""}
+        </div>
+        
+        <div style="background-color: #f8fafc; border-radius: 6px; padding: 16px;">
+          <h4 style="color: #1f2937; margin: 0 0 12px 0; font-size: 16px;">🛍️ Produse pentru retur:</h4>
+          ${returnItems
+            .map(
+              (item) => `
+            <div style="border-bottom: 1px solid #e5e7eb; padding: 8px 0; margin-bottom: 8px;">
+              <p style="margin: 0; color: #1f2937; font-weight: 500;">• ${item.name}</p>
+              <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">Cantitate: ${item.quantity} ${item.sku ? `• SKU: ${item.sku}` : ""}</p>
+            </div>
+          `
+            )
+            .join("")}
+        </div>
+      </div>
+      
+      <div style="background-color: #ecfdf5; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <h3 style="color: #047857; margin: 0 0 12px 0; font-size: 16px;">✅ Acțiuni necesare:</h3>
+        <ul style="margin: 0; padding-left: 20px; color: #047857;">
+          <li style="margin-bottom: 8px;">Revizuiește cererea de retur în panoul de administrare</li>
+          <li style="margin-bottom: 8px;">Contactează clientul dacă ai nevoie de clarificări suplimentare</li>
+          <li style="margin-bottom: 8px;">Aprobă sau respinge cererea în funcție de politica companiei</li>
+          <li style="margin-bottom: 8px;">Trimite instrucțiunile de returnare clientului</li>
+        </ul>
+      </div>
+      
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="${baseUrl}/admin/returns" 
+           style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);">
+          🔧 Gestionează Returul în Admin
+        </a>
+      </div>
+      
+      <div style="margin: 32px 0; text-align: center;">
+        <p style="color: #6b7280; margin: 0 0 12px 0; font-size: 14px;">Coduri de referință retur:</p>
+        <p style="color: #dc2626; font-family: monospace; font-size: 12px; background-color: #f8fafc; padding: 8px; border-radius: 4px; border: 1px solid #e5e7eb; margin: 0;">${returnIds.join(", ")}</p>
+      </div>
+      
+      <p style="font-size: 16px; text-align: center; margin-top: 32px;">Echipa ${storeSettings.storeName}</p>
+    `;
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="ro">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>🚨 Cerere de Retur Nouă - Comandă #${orderNumber} - ${storeSettings.storeName}</title>
+      </head>
+      <body style="margin: 0; padding: 20px; background-color: #f3f4f6;">
+        ${generateEmailContainer(content)}
+        ${generateEmailFooter(storeSettings)}
+      </body>
+      </html>
+    `;
+
+    return sendMail({
+      to,
+      subject: `🚨 Cerere de Retur Nouă - Comandă #${orderNumber} - ${storeSettings.storeName}`,
       html,
       params: { email: to },
     });
