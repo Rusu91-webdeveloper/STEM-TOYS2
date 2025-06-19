@@ -27,6 +27,7 @@ export interface CartItem {
   quantity: number;
   image?: string;
   isBook?: boolean;
+  selectedLanguage?: string; // Language code for books (e.g., 'en', 'ro')
 }
 
 interface CartContextType {
@@ -56,8 +57,19 @@ interface CartProviderProps {
 }
 
 // Helper function to create a unique ID for cart items
-const getCartItemId = (productId: string, variantId?: string) => {
-  return `${productId}${variantId ? `_${variantId}` : ""}`;
+const getCartItemId = (
+  productId: string,
+  variantId?: string,
+  selectedLanguage?: string
+) => {
+  let id = productId;
+  if (variantId) {
+    id += `_${variantId}`;
+  }
+  if (selectedLanguage) {
+    id += `_${selectedLanguage}`;
+  }
+  return id;
 };
 
 export const CartProvider = ({ children }: CartProviderProps) => {
@@ -233,7 +245,11 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     itemToAdd: Omit<CartItem, "id">,
     quantity: number = 1
   ) => {
-    const cartItemId = getCartItemId(itemToAdd.productId, itemToAdd.variantId);
+    const cartItemId = getCartItemId(
+      itemToAdd.productId,
+      itemToAdd.variantId,
+      itemToAdd.selectedLanguage
+    );
 
     setCartItems((prevItems) => {
       const existingItem = prevItems.find((item) => item.id === cartItemId);

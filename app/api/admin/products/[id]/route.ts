@@ -21,7 +21,7 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const productId = context.params.id;
+    const { id: productId } = await context.params;
 
     const product = await db.product.findUnique({
       where: { id: productId },
@@ -53,7 +53,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const productId = context.params.id;
+    const { id: productId } = await context.params;
 
     // Check if product exists
     const product = await db.product.findUnique({
@@ -131,7 +131,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const productId = context.params.id;
+    const { id: productId } = await context.params;
 
     let updatedData;
 

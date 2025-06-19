@@ -71,8 +71,17 @@ export default async function ProductsPage({
       console.error("Error fetching books:", error);
     }
 
-    // Convert books to product format
-    const booksAsProducts = booksData.map((book) => {
+    // Convert books to product format, but only include books that don't already exist as products
+    const productSlugs = productsData.map((p) => p.slug);
+    const uniqueBooksOnly = booksData.filter(
+      (book) => !productSlugs.includes(book.slug)
+    );
+
+    console.log(
+      `Filtered out ${booksData.length - uniqueBooksOnly.length} duplicate books that already exist as products`
+    );
+
+    const booksAsProducts = uniqueBooksOnly.map((book) => {
       return {
         id: book.id,
         name: book.name,
@@ -96,6 +105,7 @@ export default async function ProductsPage({
         updatedAt: book.updatedAt,
         stockQuantity: 10, // Default stock for books
         featured: true, // Feature all books
+        isBook: true, // Mark as book for proper cart handling
       } as unknown as ProductData; // Cast to unknown first to avoid type issues
     });
 

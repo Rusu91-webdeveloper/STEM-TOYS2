@@ -30,8 +30,13 @@ function generateDownloadToken(): string {
 
 /**
  * Process digital book order - create download links and send email
+ * @param orderId - The order ID to process
+ * @param languagePreferences - Optional mapping of orderItemId to selected language
  */
-export async function processDigitalBookOrder(orderId: string): Promise<void> {
+export async function processDigitalBookOrder(
+  orderId: string,
+  languagePreferences?: Map<string, string>
+): Promise<void> {
   try {
     console.log(`Processing digital book order: ${orderId}`);
 
@@ -118,8 +123,31 @@ export async function processDigitalBookOrder(orderId: string): Promise<void> {
         },
       });
 
+      // Filter digital files by selected language if specified
+      let digitalFilesToProcess = book.digitalFiles;
+
+      // Check if there's a language preference for this order item
+      const selectedLanguage = languagePreferences?.get(orderItem.id);
+
+      if (selectedLanguage) {
+        digitalFilesToProcess = book.digitalFiles.filter(
+          (file) => file.language === selectedLanguage
+        );
+        console.log(
+          `Filtering digital files for language: ${selectedLanguage} for book: ${book.name}`
+        );
+      }
+
+      // If no files match the selected language, fall back to all files
+      if (digitalFilesToProcess.length === 0) {
+        console.warn(
+          `No digital files found for language ${selectedLanguage} for book ${book.name}. Using all available files.`
+        );
+        digitalFilesToProcess = book.digitalFiles;
+      }
+
       // Create download records for each digital file
-      for (const digitalFile of book.digitalFiles) {
+      for (const digitalFile of digitalFilesToProcess) {
         const downloadToken = generateDownloadToken();
 
         // Create download record
@@ -186,6 +214,22 @@ export async function processDigitalBookOrder(orderId: string): Promise<void> {
     console.error(`Error processing digital book order ${orderId}:`, error);
     throw error;
   }
+}
+
+/**
+ * Helper function to get selected language for an order item
+ * This will be enhanced once we store language selection in the database
+ */
+async function getSelectedLanguageForOrderItem(
+  orderItemId: string
+): Promise<string | null> {
+  // For now, we'll implement a basic approach
+  // In a full implementation, we'd store the selected language in the order item
+  // or in a separate table linked to the order item
+
+  // This is a placeholder - we'll need to modify the order creation process
+  // to store the selected language information
+  return null;
 }
 
 /**

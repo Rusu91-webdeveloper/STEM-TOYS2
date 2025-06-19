@@ -105,7 +105,13 @@ export async function GET(request: NextRequest) {
           // Get full product details
           if (topItems.length === 0) return [];
 
-          const productIds = topItems.map((item) => item.productId);
+          // Filter out null productIds and ensure we only have valid IDs
+          const productIds = topItems
+            .map((item) => item.productId)
+            .filter((id): id is string => id !== null && id !== undefined);
+
+          if (productIds.length === 0) return [];
+
           const products = await db.product.findMany({
             where: {
               id: {

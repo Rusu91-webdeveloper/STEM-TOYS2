@@ -28,7 +28,8 @@ function serializeOrder(order: any) {
 
 export async function generateMetadata({ params }: PageProps) {
   const t = await getTranslations();
-  const orderId = await params.orderId;
+  const resolvedParams = await params;
+  const orderId = resolvedParams.orderId;
   return {
     title: `${t("orderNumber" as TranslationKey)} ${orderId} | ${t("siteTitle" as TranslationKey)}`,
   };
@@ -37,7 +38,8 @@ export async function generateMetadata({ params }: PageProps) {
 export default async function OrderDetailsPage({ params }: PageProps) {
   const t = await getTranslations();
   const session = await auth();
-  const orderId = await params.orderId;
+  const resolvedParams = await params;
+  const orderId = resolvedParams.orderId;
 
   if (!session?.user) {
     return notFound();
@@ -55,6 +57,15 @@ export default async function OrderDetailsPage({ params }: PageProps) {
             select: {
               slug: true,
               images: true,
+              name: true,
+            },
+          },
+          book: {
+            select: {
+              slug: true,
+              coverImage: true,
+              name: true,
+              author: true,
             },
           },
           reviews: {

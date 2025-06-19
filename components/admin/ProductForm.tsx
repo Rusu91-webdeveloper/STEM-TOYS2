@@ -276,7 +276,7 @@ export default function ProductForm({
         ? `/api/admin/products/${initialData.id}`
         : "/api/admin/products";
 
-      const method = isEditing ? "PUT" : "POST";
+      const method = isEditing ? "PATCH" : "POST";
 
       // Prepare the attributes object with STEM-specific fields
       const attributes = {

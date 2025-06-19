@@ -122,6 +122,7 @@ export function CheckoutFlow() {
           name: item.name,
           price: item.price,
           quantity: item.quantity,
+          isBook: item.isBook,
         })),
       };
 

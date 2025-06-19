@@ -15,7 +15,8 @@ export async function GET(
         { status: 401 }
       );
     }
-    const { orderId } = params;
+    const resolvedParams = await params;
+    const { orderId } = resolvedParams;
     // Fetch the order for the user
     const order = await db.order.findFirst({
       where: {

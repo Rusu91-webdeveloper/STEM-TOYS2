@@ -77,6 +77,15 @@ export function ProductCard({
     );
   };
 
+  // Detect if this is a book by checking for book-specific attributes or explicit flag
+  const isBook = Boolean(
+    product.isBook ||
+      product.attributes?.author ||
+      product.tags?.includes("book") ||
+      (product.category as any)?.slug === "educational-books" ||
+      (product.category as any)?.name === "Educational Books"
+  );
+
   // Prepare product data for ProductAddToCartButton
   const productData = {
     id: product.id,
@@ -84,6 +93,7 @@ export function ProductCard({
     price: product.price,
     image: product.images[0],
     variants: product.variants,
+    slug: product.slug,
   };
 
   // Use placeholder image if product image is missing
@@ -164,6 +174,7 @@ export function ProductCard({
             <ProductAddToCartButton
               product={productData}
               showQuantity={false}
+              isBook={isBook}
               className="scale-90 sm:scale-100 hover:scale-95 transition-transform duration-300"
             />
           </div>
@@ -240,6 +251,7 @@ export function ProductCard({
           <ProductAddToCartButton
             product={productData}
             showQuantity={false}
+            isBook={isBook}
             className="scale-90 sm:scale-100 hover:scale-95 transition-transform duration-300"
           />
         </div>

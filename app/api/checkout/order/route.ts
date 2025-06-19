@@ -45,6 +45,7 @@ const orderItemSchema = z.object({
   price: z.number(),
   quantity: z.number().int().positive(),
   isBook: z.boolean().optional(), // Add isBook flag to identify book items
+  selectedLanguage: z.string().optional(),
 });
 
 // Updated order schema
@@ -363,25 +364,41 @@ export async function POST(request: Request) {
             // For books, we need to create a corresponding order item with isDigital flag
             console.log(`Processing book item: ${item.name}`);
 
-            // Verify the book exists and is active
-            const book = await tx.book.findUnique({
+            // First, get the product to find its slug
+            const product = await tx.product.findUnique({
               where: { id: item.productId },
+              select: { id: true, slug: true, name: true },
+            });
+
+            if (!product) {
+              throw new Error(
+                `Product with ID ${item.productId} not found in database`
+              );
+            }
+
+            // Find the corresponding book using the product's slug
+            const book = await tx.book.findUnique({
+              where: { slug: product.slug },
               select: { id: true, name: true, isActive: true },
             });
 
             if (!book) {
               throw new Error(
-                `Book with ID ${item.productId} not found in database`
+                `Book with slug '${product.slug}' not found in database`
               );
             }
 
             if (!book.isActive) {
               throw new Error(
-                `Book ${book.name} (ID: ${item.productId}) is not active`
+                `Book ${book.name} (slug: ${product.slug}) is not active`
               );
             }
 
-            console.log(`Validated book: ${book.name} (ID: ${productId})`);
+            // Update productId to use the actual book ID
+            productId = book.id;
+            console.log(
+              `Mapped product ${product.slug} to book: ${book.name} (ID: ${productId})`
+            );
           } else {
             // For regular products, validate the product exists
             const product = await tx.product.findUnique({
@@ -407,31 +424,36 @@ export async function POST(request: Request) {
           }
 
           // Create the order item with book-specific fields if it's a book
-          const orderItemData = {
-            orderId: newOrder.id,
-            // For books, use bookId field; for products, use productId field
-            ...(isBook
-              ? { bookId: productId, productId: null }
-              : { productId: productId, bookId: null }),
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            // Add book-specific fields if it's a digital book
-            ...(isBook && {
+          let orderItemData;
+          if (isBook) {
+            orderItemData = {
+              orderId: newOrder.id,
+              bookId: productId,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
               isDigital: true,
-              maxDownloads: 5, // Default max downloads for digital books
+              maxDownloads: 5,
               downloadExpiresAt: new Date(
                 Date.now() + 30 * 24 * 60 * 60 * 1000
-              ), // 30 days from now
-            }),
-          };
+              ),
+            };
+          } else {
+            orderItemData = {
+              orderId: newOrder.id,
+              productId: productId,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+            };
+          }
 
           const orderItem = await tx.orderItem.create({
             data: orderItemData,
           });
 
           console.log(
-            `Created order item: ${orderItem.id} for ${isBook ? "book" : "product"} ${productId}${isBook ? " (digital)" : ""}`
+            `Created order item: ${orderItem.id} for ${isBook ? "book" : "product"} ${productId}${isBook ? " (digital)" : ""}${item.selectedLanguage ? ` in ${item.selectedLanguage}` : ""}`
           );
         }
 
@@ -442,28 +464,21 @@ export async function POST(request: Request) {
         `Successfully created order ${dbOrder.id} with ${items.length} items`
       );
 
-      // Check if this order contains digital books by checking if any books exist in our items
-      // Simple approach: look for book IDs in the items
-      let hasDigitalBooks = false;
-      for (const item of items) {
-        try {
-          const bookExists = await db.book.findUnique({
-            where: { id: item.productId },
-            select: { id: true },
-          });
-          if (bookExists) {
-            hasDigitalBooks = true;
-            break;
-          }
-        } catch (e) {
-          // Continue checking other items
-          continue;
-        }
-      }
+      // Check if this order contains digital books by checking the actual order items created
+      const orderWithItems = await db.order.findUnique({
+        where: { id: dbOrder.id },
+        include: {
+          items: true,
+        },
+      });
+
+      const digitalBooks =
+        orderWithItems?.items.filter((item) => item.bookId !== null) || [];
+      const hasDigitalBooks = digitalBooks.length > 0;
 
       if (hasDigitalBooks) {
         console.log(
-          "Order contains digital books, triggering digital processing..."
+          `Order contains ${digitalBooks.length} digital book(s), triggering digital processing...`
         );
         try {
           // Process digital order directly
@@ -480,6 +495,8 @@ export async function POST(request: Request) {
           // Log error but don't fail the order - digital processing can be retried later
           console.error("Failed to process digital books:", digitalError);
         }
+      } else {
+        console.log("No digital books found in order");
       }
     } catch (dbError) {
       console.error("Failed to create order in database:", dbError);

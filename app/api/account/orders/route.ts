@@ -42,6 +42,15 @@ export async function GET() {
                   slug: true,
                 },
               },
+              // @ts-ignore - TypeScript doesn't recognize book relationship
+              book: {
+                select: {
+                  name: true,
+                  author: true,
+                  slug: true,
+                  coverImage: true,
+                },
+              },
               reviews: {
                 where: {
                   userId: session.user.id,
@@ -60,23 +69,45 @@ export async function GET() {
       });
 
       // Format data for frontend consumption
-      const formattedOrders = orders.map((order) => ({
+      // @ts-ignore - TypeScript doesn't recognize include relationships properly
+      const formattedOrders = orders.map((order: any) => ({
         id: order.id,
         orderNumber: order.orderNumber,
         date: order.createdAt.toISOString(),
         deliveredAt: order.deliveredAt?.toISOString(),
         status: order.status.toLowerCase(),
         total: order.total,
-        items: order.items.map((item) => ({
-          id: item.id,
-          productId: item.productId,
-          productName: item.product.name,
-          productSlug: item.product.slug,
-          price: item.price,
-          quantity: item.quantity,
-          image: item.product.images?.[0] || "/images/product-placeholder.jpg",
-          hasReviewed: item.reviews.length > 0,
-        })),
+        items: order.items.map((item: any) => {
+          // Handle both products and books
+          const isBook = !!item.book;
+          const name = isBook
+            ? item.book!.name
+            : item.product?.name || item.name;
+          const slug = isBook ? item.book!.slug : item.product?.slug || "";
+          const image = isBook
+            ? item.book!.coverImage || "/images/book-placeholder.jpg"
+            : item.product?.images?.[0] || "/images/product-placeholder.jpg";
+
+          return {
+            id: item.id,
+            productId: item.productId,
+            bookId: item.bookId,
+            productName: name,
+            productSlug: slug,
+            price: item.price,
+            quantity: item.quantity,
+            image,
+            hasReviewed: item.reviews.length > 0,
+            isDigital: item.isDigital,
+            type: isBook ? "book" : "product",
+            ...(isBook && {
+              author: item.book!.author,
+              downloadCount: item.downloadCount,
+              maxDownloads: item.maxDownloads,
+              downloadExpiresAt: item.downloadExpiresAt?.toISOString(),
+            }),
+          };
+        }),
         shippingAddress: {
           name: order.shippingAddress.fullName,
           street: order.shippingAddress.addressLine1,

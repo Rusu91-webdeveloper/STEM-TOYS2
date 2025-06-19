@@ -6,6 +6,7 @@ import { useShoppingCart } from "@/features/cart/hooks/useShoppingCart";
 import type { CartItem } from "@/features/cart/context/CartContext";
 import { useProductVariant } from "../context/ProductVariantContext";
 import { ProductVariantSelector } from "./ProductVariantSelector";
+import { BookLanguageSelector } from "./BookLanguageSelector";
 import type { Variant } from "@/components/products/VariantSelector";
 import { useTranslation } from "@/lib/i18n";
 
@@ -16,6 +17,7 @@ interface ProductAddToCartButtonProps {
     price: number;
     image?: string;
     variants?: Variant[];
+    slug?: string; // Add slug for language fetching
   };
   className?: string;
   showQuantity?: boolean;
@@ -30,6 +32,9 @@ export function ProductAddToCartButton({
 }: ProductAddToCartButtonProps) {
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<
+    string | undefined
+  >();
   const { addItem } = useShoppingCart();
   const { selectedVariants, getSelectedVariant } = useProductVariant();
   const { t } = useTranslation();
@@ -44,7 +49,8 @@ export function ProductAddToCartButton({
 
   const isDisabled =
     isAdded ||
-    (hasVariants && product.variants!.length > 1 && !selectedVariantId);
+    (hasVariants && product.variants!.length > 1 && !selectedVariantId) ||
+    (isBook && !selectedLanguage); // Disable if book and no language selected
 
   const handleAddToCart = () => {
     const item: Omit<CartItem, "id"> = {
@@ -56,6 +62,7 @@ export function ProductAddToCartButton({
       quantity,
       image: product.image,
       isBook,
+      selectedLanguage: isBook ? selectedLanguage : undefined,
     };
 
     addItem(item, quantity);
@@ -67,8 +74,21 @@ export function ProductAddToCartButton({
     }, 2000);
   };
 
+  const handleLanguageSelect = (language: string) => {
+    setSelectedLanguage(language);
+  };
+
   return (
     <div className={`space-y-4 ${className}`}>
+      {/* Show language selector for books */}
+      {isBook && product.slug && (
+        <BookLanguageSelector
+          productSlug={product.slug}
+          selectedLanguage={selectedLanguage}
+          onLanguageSelect={handleLanguageSelect}
+        />
+      )}
+
       {/* Show variant selector if product has multiple variants */}
       {hasVariants && product.variants!.length > 1 && (
         <ProductVariantSelector
@@ -119,7 +139,9 @@ export function ProductAddToCartButton({
               <ShoppingCart className="h-5 w-5" />
               {hasVariants && !selectedVariantId
                 ? t("selectOptions", "Select Options")
-                : t("addToCart", "Add to Cart")}
+                : isBook && !selectedLanguage
+                  ? t("selectLanguage", "Select Language")
+                  : t("addToCart", "Add to Cart")}
             </>
           )}
         </button>
