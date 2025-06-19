@@ -36,6 +36,7 @@ import { z } from "zod";
 import Image from "next/image";
 import Link from "next/link";
 import { formatDistance } from "date-fns";
+import { useCurrency } from "@/lib/currency";
 
 // Define return types
 interface OrderItem {
@@ -120,6 +121,7 @@ export default function InitiateReturn({
   const [submitted, setSubmitted] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+  const { formatPrice } = useCurrency();
 
   // Set up form with validation
   const form = useForm<ReturnFormValues>({
@@ -432,8 +434,8 @@ export default function InitiateReturn({
                                           {item.name}
                                         </h4>
                                         <div className="text-sm text-gray-500 mt-1">
-                                          Quantity: {item.quantity} · $
-                                          {item.price.toFixed(2)}
+                                          Quantity: {item.quantity} ·{" "}
+                                          {formatPrice(item.price)}
                                         </div>
                                       </div>
 
