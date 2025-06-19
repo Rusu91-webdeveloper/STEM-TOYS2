@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Find all order items
+    // Find all order items with proper relationships
     const orderItems = await db.orderItem.findMany({
       where: {
         id: { in: orderItemIds },
@@ -58,7 +58,8 @@ export async function POST(request: Request) {
     }
 
     // Check if any items are digital books (not returnable)
-    const digitalItems = orderItems.filter((item) => item.isDigital);
+    // Use type assertion to access isDigital property
+    const digitalItems = orderItems.filter((item) => (item as any).isDigital);
     if (digitalItems.length > 0) {
       return NextResponse.json(
         {
@@ -117,17 +118,18 @@ export async function POST(request: Request) {
 
     // Check if the return is within 14 days of delivery
     const order = orderItems[0].order;
-    if (!order.deliveredAt) {
-      return NextResponse.json(
-        { error: "Cannot determine delivery date for this order." },
-        { status: 400 }
-      );
-    }
 
-    const daysSinceDelivery = differenceInDays(new Date(), order.deliveredAt);
-    if (daysSinceDelivery > 14) {
+    // Use deliveredAt if available, otherwise fall back to order creation date
+    // This matches the frontend logic for return eligibility
+    const referenceDate = order.deliveredAt
+      ? order.deliveredAt
+      : order.createdAt;
+
+    const daysSinceReference = differenceInDays(new Date(), referenceDate);
+    if (daysSinceReference > 14) {
+      const dateType = order.deliveredAt ? "delivery" : "order placement";
       return NextResponse.json(
-        { error: "Returns are only allowed within 14 days of delivery" },
+        { error: `Returns are only allowed within 14 days of ${dateType}` },
         { status: 400 }
       );
     }
@@ -194,7 +196,7 @@ export async function POST(request: Request) {
         const itemsList = orderItems
           .map(
             (item) =>
-              `• ${item.name} (SKU: ${item.product.sku || "N/A"}) - Qty: ${item.quantity}`
+              `• ${item.name} (SKU: ${item.product?.sku || "N/A"}) - Qty: ${item.quantity}`
           )
           .join("<br>");
 
