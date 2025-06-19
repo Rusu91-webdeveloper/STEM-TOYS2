@@ -3,10 +3,10 @@ import { db } from "@/lib/db";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
+  const { slug } = await params;
   try {
-    const slug = await params.slug;
     console.log(`Looking for combined product/book with slug: ${slug}`);
 
     // First, try to find a product with this slug
@@ -77,7 +77,7 @@ export async function GET(
     return new NextResponse(null, { status: 404 });
   } catch (error) {
     console.error(
-      `Error fetching combined product/book with slug ${await params.slug}:`,
+      `Error fetching combined product/book with slug ${slug}:`,
       error
     );
     return new NextResponse(

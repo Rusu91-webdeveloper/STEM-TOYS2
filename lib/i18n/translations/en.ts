@@ -400,11 +400,7 @@ export const en = {
   articles: "Articles",
   noArticlesInCategory: "No articles found in this category yet.",
   readMore: "Read More",
-  stayUpdated: "Stay Updated",
-  newsletterDescription:
-    "Subscribe to our newsletter for the latest STEM education tips and updates.",
-  emailPlaceholder: "Enter your email",
-  subscribe: "Subscribe",
+
   // Blog Post Page
   backToBlog: "Back to Blog",
   relatedArticles: "Related Articles",

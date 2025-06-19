@@ -79,12 +79,10 @@ export default function Footer() {
         <div className="container mx-auto px-3 sm:px-4 md:px-6">
           <div className="text-center max-w-2xl mx-auto">
             <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-2">
-              🧑‍🎓 Alătură-te la 50.000+ Educatori și Părinți STEM
+              {t("joinEducatorsParents")}
             </h3>
             <p className="text-sm sm:text-base text-blue-100 mb-4 sm:mb-6">
-              Obține acces exclusiv la produse noi, resurse educaționale și
-              reduceri speciale. În plus, primește ghidul nostru săptămânal de
-              activități STEM!
+              {t("newsletterSubtitle")}
             </p>
             <form
               onSubmit={handleNewsletterSubmit}
@@ -94,7 +92,7 @@ export default function Footer() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Introduceți adresa de email"
+                placeholder={t("emailAddressPlaceholder")}
                 className="flex-1 px-4 py-2 sm:py-3 rounded-lg text-gray-900 text-sm sm:text-base"
                 aria-label="Email address for newsletter"
                 required
@@ -104,9 +102,7 @@ export default function Footer() {
                 disabled={isSubscribing}
                 className="bg-white text-blue-600 font-semibold px-6 py-2 sm:py-3 rounded-lg hover:bg-gray-100 transition-colors disabled:opacity-50 text-sm sm:text-base"
                 aria-label="Subscribe to newsletter">
-                {isSubscribing
-                  ? "Se înregistrează..."
-                  : "Obține Resurse Gratuite"}
+                {isSubscribing ? t("subscribing") : t("getFreeResources")}
               </button>
             </form>
             {subscriptionStatus === "success" && (
@@ -114,8 +110,7 @@ export default function Footer() {
                 className="text-green-200 text-sm mt-2"
                 role="status"
                 aria-live="polite">
-                Te-ai înregistrat cu succes! Verifică-ți emailul pentru
-                confirmarea abonamentului.
+                {t("subscriptionSuccessMessage")}
               </p>
             )}
             {subscriptionStatus === "error" && (
@@ -123,7 +118,7 @@ export default function Footer() {
                 className="text-red-200 text-sm mt-2"
                 role="alert"
                 aria-live="polite">
-                A apărut o eroare. Te rugăm să încerci din nou.
+                {t("subscriptionErrorMessage")}
               </p>
             )}
           </div>

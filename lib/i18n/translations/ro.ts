@@ -414,11 +414,7 @@ export const ro = {
   articles: "Articole",
   noArticlesInCategory: "Nu există încă articole în această categorie.",
   readMore: "Citește mai mult",
-  stayUpdated: "Rămâi la curent",
-  newsletterDescription:
-    "Abonează-te la newsletter-ul nostru pentru cele mai recente sfaturi și actualizări despre educația STEM.",
-  emailPlaceholder: "Introduceți email-ul",
-  subscribe: "Abonează-te",
+
   // Blog Post Page
   backToBlog: "Înapoi la Blog",
   relatedArticles: "Articole conexe",
