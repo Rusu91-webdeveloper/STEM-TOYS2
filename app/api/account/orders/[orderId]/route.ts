@@ -46,21 +46,35 @@ export async function GET(
       id: order.id,
       orderNumber: order.orderNumber,
       status: order.status,
+      paymentStatus: order.paymentStatus,
       createdAt: order.createdAt,
-      deliveredAt: order.deliveredAt,
+      deliveredAt: (order as any).deliveredAt || null,
       items: order.items.map((item) => ({
         id: item.id,
-        name: item.product.name,
+        name: item.product?.name || item.name || "Product no longer available",
         price: item.price,
         quantity: item.quantity,
-        product: {
-          id: item.productId,
-          name: item.product.name,
-          slug: item.product.slug,
-          images: item.product.images,
-        },
+        isDigital: (item as any).isDigital || false,
+        returnStatus: item.returnStatus,
+        product: item.product
+          ? {
+              id: item.productId,
+              name: item.product.name,
+              slug: item.product.slug,
+              images: item.product.images,
+            }
+          : {
+              id: item.productId,
+              name: item.name || "Product no longer available",
+              slug: null,
+              images: [],
+            },
       })),
       shippingAddress: order.shippingAddress,
+      subtotal: order.subtotal,
+      tax: order.tax,
+      shippingCost: order.shippingCost,
+      total: order.total,
     };
     return NextResponse.json({ order: formattedOrder });
   } catch (error) {
