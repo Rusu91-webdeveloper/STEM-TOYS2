@@ -10,15 +10,22 @@ interface Props {
 
 export default async function DigitalFilesPage({ params }: Props) {
   const { id } = await params;
-  const book = await db.book.findUnique({
-    where: { id },
-    include: {
-      digitalFiles: {
-        orderBy: { createdAt: "desc" },
+
+  // Fetch book and available languages separately
+  const [book, availableLanguages] = await Promise.all([
+    db.book.findUnique({
+      where: { id },
+      include: {
+        digitalFiles: {
+          orderBy: { createdAt: "desc" },
+        },
       },
-      languages: true,
-    },
-  });
+    }),
+    db.language.findMany({
+      where: { isAvailable: true },
+      orderBy: { name: "asc" },
+    }),
+  ]);
 
   if (!book) {
     notFound();
@@ -36,8 +43,8 @@ export default async function DigitalFilesPage({ params }: Props) {
       </div>
 
       <DigitalFilesManager
-        bookId={book.id}
         book={book}
+        availableLanguages={availableLanguages}
       />
     </div>
   );

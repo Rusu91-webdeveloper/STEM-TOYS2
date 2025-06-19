@@ -14,6 +14,9 @@ import {
 import { db } from "@/lib/db";
 import { CurrencyProvider } from "@/lib/currency";
 import { ProductTable } from "./components/ProductTable";
+import { CardHeader, CardDescription, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ProductDeleteButton } from "./components/ProductDeleteButton";
 
 // Add this interface at the top of the file with the imports
 interface Category {
@@ -31,12 +34,18 @@ interface Product {
   name: string;
   slug: string;
   price: number;
+  description: string;
   category: {
     name: string;
   };
   stockQuantity?: number;
   isActive: boolean;
   images: string[];
+  tags?: string[];
+  createdAt: Date;
+  _count: {
+    orderItems: number;
+  };
 }
 
 // And update the getCategories function return type
@@ -64,8 +73,21 @@ async function getProducts(): Promise<Product[]> {
   try {
     // Use db client directly in server component
     const products = await db.product.findMany({
+      where: {
+        isActive: true,
+        category: {
+          slug: {
+            not: "educational-books",
+          },
+        },
+      },
       include: {
         category: true,
+        _count: {
+          select: {
+            orderItems: true,
+          },
+        },
       },
       orderBy: {
         createdAt: "desc",
@@ -80,79 +102,212 @@ async function getProducts(): Promise<Product[]> {
 }
 
 // Main component now returns a server component that wraps the client component with CurrencyProvider
-export default async function ProductsPage() {
+export default async function AdminProductsPage() {
   const categories = await getCategories();
   const products = await getProducts();
 
+  // Get STEM categories for info display
+  const stemCategories = await db.category.findMany({
+    where: {
+      slug: {
+        in: [
+          "science-kits",
+          "engineering-robotics",
+          "technology-programming",
+          "mathematics",
+          "general-stem",
+        ],
+      },
+      isActive: true,
+    },
+  });
+
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("ro-RO", {
+      style: "currency",
+      currency: "RON",
+    }).format(price);
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Products</h1>
-        <Button
-          className="flex items-center gap-2"
-          asChild>
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Produse STEM</h1>
+          <p className="text-muted-foreground">
+            Gestionează produsele fizice STEM (jucării educaționale, kituri,
+            materiale)
+          </p>
+        </div>
+        <Button asChild>
           <Link href="/admin/products/create">
-            <Plus className="h-4 w-4" />
-            <span>Add Product</span>
+            <Plus className="h-4 w-4 mr-2" />
+            Adaugă Produs Nou
           </Link>
         </Button>
       </div>
 
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex w-full max-w-sm items-center space-x-2">
-              <Input
-                type="search"
-                placeholder="Search products..."
-                className="w-full"
-              />
-              <Button
-                variant="outline"
-                size="icon">
-                <Search className="h-4 w-4" />
-              </Button>
+      {/* STEM Categories Info */}
+      {stemCategories.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">
+              Categorii STEM Disponibile
+            </CardTitle>
+            <CardDescription>
+              Produsele sunt organizate în aceste categorii STEM
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-2 flex-wrap">
+              {stemCategories.map((category) => (
+                <Badge
+                  key={category.id}
+                  variant="outline">
+                  {category.name}
+                </Badge>
+              ))}
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Select defaultValue="all">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem
-                      key={category.id}
-                      value={category.slug}>
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select defaultValue="all">
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="in-stock">In Stock</SelectItem>
-                  <SelectItem value="low-stock">Low Stock</SelectItem>
-                  <SelectItem value="out-of-stock">Out of Stock</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button
-                variant="outline"
-                size="icon">
-                <Filter className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
-      <CurrencyProvider>
-        <ProductTable products={products} />
-      </CurrencyProvider>
+      {/* Products Grid */}
+      {products.length === 0 ? (
+        <Card>
+          <CardContent className="py-12">
+            <div className="text-center">
+              <div className="h-12 w-12 mx-auto mb-4 bg-muted rounded-lg flex items-center justify-center">
+                <Plus className="h-6 w-6 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">
+                Nu există produse STEM
+              </h3>
+              <p className="text-muted-foreground mb-4">
+                Nu ai încă niciun produs STEM în sistem. Creează primul tău
+                produs educațional.
+              </p>
+              <Button asChild>
+                <Link href="/admin/products/create">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Creează Primul Produs
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {products.map((product) => (
+            <Card
+              key={product.id}
+              className="overflow-hidden">
+              <CardHeader className="pb-3">
+                <div className="flex items-start gap-3">
+                  {product.images && product.images.length > 0 ? (
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="w-16 h-20 object-cover rounded-md border"
+                    />
+                  ) : (
+                    <div className="w-16 h-20 bg-muted rounded-md border flex items-center justify-center">
+                      <Plus className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  )}
+
+                  <div className="flex-1 min-w-0">
+                    <CardTitle className="text-lg line-clamp-2">
+                      {product.name}
+                    </CardTitle>
+                    <CardDescription className="mt-1">
+                      {product.category.name}
+                    </CardDescription>
+                    <div className="flex items-center gap-2 mt-2">
+                      <Badge
+                        variant="default"
+                        className="bg-purple-600">
+                        STEM
+                      </Badge>
+                      <Badge
+                        variant={product.isActive ? "default" : "secondary"}>
+                        {product.isActive ? "Activ" : "Inactiv"}
+                      </Badge>
+                      <span className="text-sm font-medium text-green-600">
+                        {formatPrice(product.price)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </CardHeader>
+
+              <CardContent className="pt-0">
+                <div className="space-y-3">
+                  {/* Product Info */}
+                  <div className="bg-muted/50 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        Detalii Produs
+                      </span>
+                      <Badge variant="outline">
+                        {product.stockQuantity} în stoc
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2">
+                      {product.description}
+                    </p>
+                  </div>
+
+                  {/* Sales Info */}
+                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <span>📦 {product._count.orderItems} vânzări</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span>🏷️ {product.tags?.length || 0} etichete</span>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2">
+                    <Button
+                      asChild
+                      variant="default"
+                      size="sm"
+                      className="flex-1">
+                      <Link href={`/admin/products/${product.id}`}>
+                        Editează
+                      </Link>
+                    </Button>
+
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="sm">
+                      <Link href={`/products/${product.slug}`}>
+                        Vizualizează
+                      </Link>
+                    </Button>
+                  </div>
+
+                  {/* Delete Button - Need client component for functionality */}
+                  <div className="pt-2">
+                    <ProductDeleteButton
+                      productId={product.id}
+                      productName={product.name}
+                    />
+                  </div>
+
+                  <p className="text-xs text-muted-foreground">
+                    Creat la{" "}
+                    {new Date(product.createdAt).toLocaleDateString("ro-RO")}
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

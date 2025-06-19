@@ -37,80 +37,62 @@ export default async function ProductsPage({
   console.log("SITE URL:", process.env.NEXT_PUBLIC_SITE_URL || "Not set");
   console.log("NEXTAUTH URL:", process.env.NEXTAUTH_URL || "Not set");
 
-  // Debug database connection
+  const requestedCategory =
+    typeof params.category === "string" ? params.category : undefined;
+
   try {
     console.log("Fetching products from API...");
+    console.log("Requested category:", requestedCategory);
 
-    // Fetch products server-side for initial render
+    let products: ProductData[] = [];
+
+    // Always fetch both books and STEM products to enable proper client-side filtering
+    console.log("📚 Fetching digital books...");
+    const booksData = await getBooks();
+    console.log(`Found ${booksData.length} digital books`);
+
+    console.log("📦 Fetching STEM products...");
     const productsData = await getProducts({
       category:
-        typeof params.category === "string" ? params.category : undefined,
+        requestedCategory !== "educational-books"
+          ? requestedCategory
+          : undefined,
     });
+    console.log(`Found ${productsData.length} STEM products from API`);
 
-    console.log(
-      `Found ${productsData.length} products from API with category filter:`,
-      params.category
-    );
+    // Transform books to look like products
+    const bookProducts = booksData.map((book) => ({
+      id: book.id,
+      name: book.name,
+      slug: book.slug,
+      description: book.description,
+      price: book.price,
+      compareAtPrice: undefined,
+      images: book.coverImage ? [book.coverImage] : [],
+      category: {
+        id: "educational-books",
+        name: "Educational Books",
+        slug: "educational-books",
+        description: "Digital educational books for download",
+      },
+      tags: ["book", "educational", "digital"],
+      attributes: {
+        author: book.author,
+        isDigital: "true",
+        type: "digital-book",
+        languages: book.languages?.map((lang) => lang.name).join(", ") || "",
+      },
+      isActive: book.isActive,
+      createdAt: book.createdAt,
+      updatedAt: book.updatedAt,
+      stockQuantity: 999, // Digital books don't have stock limits
+      featured: true,
+      isBook: true, // Mark as book for proper cart handling
+      stemCategory: "educational-books",
+    })) as ProductData[];
 
-    // Log the actual data structure for debugging
-    if (productsData.length === 0) {
-      console.log(
-        "No products returned from API. Raw response:",
-        JSON.stringify(productsData)
-      );
-    } else {
-      console.log("First product sample:", JSON.stringify(productsData[0]));
-    }
-
-    // Fetch books as well
-    let booksData: Book[] = [];
-    try {
-      booksData = await getBooks();
-      console.log(`Found ${booksData.length} books`);
-    } catch (error) {
-      console.error("Error fetching books:", error);
-    }
-
-    // Convert books to product format, but only include books that don't already exist as products
-    const productSlugs = productsData.map((p) => p.slug);
-    const uniqueBooksOnly = booksData.filter(
-      (book) => !productSlugs.includes(book.slug)
-    );
-
-    console.log(
-      `Filtered out ${booksData.length - uniqueBooksOnly.length} duplicate books that already exist as products`
-    );
-
-    const booksAsProducts = uniqueBooksOnly.map((book) => {
-      return {
-        id: book.id,
-        name: book.name,
-        slug: book.slug,
-        description: book.description,
-        price: book.price,
-        compareAtPrice: undefined, // Use undefined instead of null to match type
-        images: book.coverImage ? [book.coverImage] : [],
-        category: {
-          id: "educational-books",
-          name: "Educational Books",
-          slug: "educational-books",
-        },
-        tags: ["book", "educational"],
-        attributes: {
-          author: book.author,
-          languages: book.languages.map((lang) => lang.name),
-        },
-        isActive: book.isActive,
-        createdAt: book.createdAt,
-        updatedAt: book.updatedAt,
-        stockQuantity: 10, // Default stock for books
-        featured: true, // Feature all books
-        isBook: true, // Mark as book for proper cart handling
-      } as unknown as ProductData; // Cast to unknown first to avoid type issues
-    });
-
-    // Transform the products to match the expected type
-    const products = [...productsData, ...booksAsProducts].map((product) => {
+    // Transform STEM products to match the expected type
+    const stemProducts = productsData.map((product) => {
       // Handle the category property conversion
       let categoryData: CategoryData | undefined = undefined;
 
@@ -137,14 +119,6 @@ export default async function ProductsPage({
         stemCategory = attrs.stemCategory || null;
       }
 
-      // Debug the product's stemCategory and category information
-      console.log(`Product ${product.name} mapping:`, {
-        categoryId: product.categoryId,
-        categoryName: categoryData?.name,
-        categorySlug: categoryData?.slug,
-        stemCategory: stemCategory,
-      });
-
       return {
         ...product,
         category: categoryData,
@@ -152,9 +126,13 @@ export default async function ProductsPage({
       } as ProductData;
     });
 
+    // Combine both books and STEM products
+    products = [...bookProducts, ...stemProducts];
     console.log(
-      `Total products after combining with books: ${products.length}`
+      `Total combined products: ${products.length} (${bookProducts.length} books + ${stemProducts.length} STEM products)`
     );
+
+    console.log(`Total products to display: ${products.length}`);
 
     return (
       <Suspense fallback={<ProductsPageSkeleton />}>

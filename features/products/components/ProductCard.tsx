@@ -6,7 +6,6 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Product } from "@/types/product";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ProductAddToCartButton } from "./ProductAddToCartButton";
 import { StarIcon } from "lucide-react";
 import { useCurrency } from "@/lib/currency";
@@ -106,19 +105,19 @@ export function ProductCard({
     return (
       <div
         className={cn(
-          "flex flex-col xs:flex-row border rounded-lg overflow-hidden",
+          "flex flex-col xs:flex-row border rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-shadow duration-300",
           className
         )}>
         <div className="relative w-full xs:w-1/3 h-48 xs:h-auto xs:max-w-[240px]">
           <Link href={`/products/${product.slug}`}>
             <div
-              className="relative h-full w-full"
+              className="relative h-full w-full group"
               style={{ position: "relative" }}>
               <Image
                 src={imageUrl}
                 alt={product.name}
                 fill
-                className="object-cover"
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
                 sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 240px"
                 priority={priority}
                 loading="eager"
@@ -128,54 +127,56 @@ export function ProductCard({
               />
             </div>
             {isOnSale && (
-              <Badge className="absolute top-2 left-2 bg-red-500 text-xs px-1.5 py-0.5 sm:px-2 sm:py-0.5">
+              <Badge className="absolute top-3 left-3 bg-red-500 text-xs px-2 py-1">
                 Sale
               </Badge>
             )}
             {product.stemCategory && (
               <Badge
-                className="absolute top-2 right-2 capitalize text-xs px-1.5 py-0.5 sm:px-2 sm:py-0.5"
+                className="absolute top-3 right-3 capitalize text-xs px-2 py-1"
                 variant="outline">
                 {product.stemCategory}
               </Badge>
             )}
           </Link>
         </div>
-        <div className="flex flex-col flex-1 p-3 sm:p-4 justify-between">
-          <div className="space-y-1 sm:space-y-2">
+        <div className="flex flex-col flex-1 p-4 justify-between">
+          <div className="space-y-2">
             <Link
               href={`/products/${product.slug}`}
               className="block">
-              <h3 className="font-medium text-sm sm:text-base line-clamp-2 hover:underline">
+              <h3 className="font-semibold text-base line-clamp-2 hover:text-primary transition-colors">
                 {product.name}
               </h3>
             </Link>
             {product.ageRange && (
-              <p className="text-xs sm:text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Ages: {product.ageRange}
               </p>
             )}
             {renderRating()}
-            <p className="text-xs line-clamp-2 sm:line-clamp-3 text-muted-foreground">
+            <p className="text-sm line-clamp-2 text-muted-foreground">
               {product.description}
             </p>
           </div>
-          <div className="flex items-end justify-between mt-3 sm:mt-4">
-            <div className="flex items-baseline space-x-1 sm:space-x-2">
-              <div className="text-lg font-bold text-indigo-700">
-                {formatPrice(product.price)}
-              </div>
-              {isOnSale && product.compareAtPrice && (
-                <div className="text-sm text-muted-foreground line-through">
-                  {formatPrice(product.compareAtPrice)}
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-baseline space-x-2">
+                <div className="text-xl font-bold text-primary">
+                  {formatPrice(product.price)}
                 </div>
-              )}
+                {isOnSale && product.compareAtPrice && (
+                  <div className="text-sm text-muted-foreground line-through">
+                    {formatPrice(product.compareAtPrice)}
+                  </div>
+                )}
+              </div>
             </div>
             <ProductAddToCartButton
               product={productData}
               showQuantity={false}
               isBook={isBook}
-              className="scale-90 sm:scale-100 hover:scale-95 transition-transform duration-300"
+              size="sm"
             />
           </div>
         </div>
@@ -187,7 +188,7 @@ export function ProductCard({
   return (
     <div
       className={cn(
-        "group border rounded-lg overflow-hidden h-full flex flex-col shadow-lg hover:shadow-xl transition-shadow duration-300",
+        "group border rounded-xl overflow-hidden h-full flex flex-col bg-white shadow-sm hover:shadow-lg transition-all duration-300",
         className
       )}>
       <div
@@ -201,7 +202,7 @@ export function ProductCard({
             src={imageUrl}
             alt={product.name}
             fill
-            className="object-cover transition-transform group-hover:scale-105"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             priority={priority}
             loading="eager"
@@ -210,49 +211,57 @@ export function ProductCard({
             blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=="
           />
           {isOnSale && (
-            <Badge className="absolute top-2 left-2 bg-red-500 text-xs px-1.5 py-0.5 sm:px-2 sm:py-0.5">
+            <Badge className="absolute top-3 left-3 bg-red-500 text-xs px-2 py-1 shadow-md">
               Sale
             </Badge>
           )}
           {product.stemCategory && (
             <Badge
-              className="absolute top-2 right-2 capitalize text-xs px-1.5 py-0.5 sm:px-2 sm:py-0.5"
+              className="absolute top-3 right-3 capitalize text-xs px-2 py-1 bg-white/90 text-gray-700 border-0"
               variant="outline">
               {product.stemCategory}
             </Badge>
           )}
         </Link>
       </div>
-      <div className="flex flex-col flex-1 p-3 sm:p-4 space-y-1 sm:space-y-2">
-        <Link
-          href={`/products/${product.slug}`}
-          className="block flex-grow">
-          <h3 className="font-medium text-sm sm:text-base line-clamp-2 group-hover:underline">
-            {product.name}
-          </h3>
-        </Link>
-        {product.ageRange && (
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Ages: {product.ageRange}
-          </p>
-        )}
-        {renderRating()}
-        <div className="flex items-end justify-between mt-auto pt-2">
-          <div className="flex items-baseline space-x-1 sm:space-x-2">
-            <div className="text-lg font-bold text-indigo-700">
-              {formatPrice(product.price)}
-            </div>
-            {isOnSale && product.compareAtPrice && (
-              <div className="text-sm text-muted-foreground line-through">
-                {formatPrice(product.compareAtPrice)}
-              </div>
-            )}
+
+      <div className="flex flex-col flex-1 p-4 space-y-3">
+        <div className="space-y-2">
+          <Link
+            href={`/products/${product.slug}`}
+            className="block">
+            <h3 className="font-semibold text-base line-clamp-2 group-hover:text-primary transition-colors">
+              {product.name}
+            </h3>
+          </Link>
+
+          {product.ageRange && (
+            <p className="text-sm text-muted-foreground">
+              Ages: {product.ageRange}
+            </p>
+          )}
+
+          {renderRating()}
+        </div>
+
+        <div className="flex items-center space-x-2 mt-auto pt-2">
+          <div className="text-xl font-bold text-primary">
+            {formatPrice(product.price)}
           </div>
+          {isOnSale && product.compareAtPrice && (
+            <div className="text-sm text-muted-foreground line-through">
+              {formatPrice(product.compareAtPrice)}
+            </div>
+          )}
+        </div>
+
+        <div className="mt-auto">
           <ProductAddToCartButton
             product={productData}
             showQuantity={false}
             isBook={isBook}
-            className="scale-90 sm:scale-100 hover:scale-95 transition-transform duration-300"
+            size="sm"
+            className="w-full"
           />
         </div>
       </div>

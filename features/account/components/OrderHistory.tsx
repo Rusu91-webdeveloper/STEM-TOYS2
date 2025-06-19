@@ -32,6 +32,7 @@ export interface OrderItem {
   quantity: number;
   image: string;
   hasReviewed: boolean;
+  isDigital: boolean;
 }
 
 // Define order type
@@ -86,6 +87,11 @@ const isWithinReturnWindow = (order: Order) => {
 
   // Allow returns within 14 days of delivery (or order creation if deliveredAt is not set)
   return diffDays <= 14;
+};
+
+// Helper function to check if order has returnable items (non-digital items)
+const hasReturnableItems = (order: Order) => {
+  return order.items.some((item) => !item.isDigital);
 };
 
 export function OrderHistory() {
@@ -314,7 +320,8 @@ export function OrderHistory() {
                     </Link>
                   </Button>
                   {order.status === "delivered" &&
-                    isWithinReturnWindow(order) && (
+                    isWithinReturnWindow(order) &&
+                    hasReturnableItems(order) && (
                       <Button
                         variant="outline"
                         size="sm"

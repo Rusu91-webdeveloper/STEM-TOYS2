@@ -66,24 +66,27 @@ const formSchema = z.object({
   price: z.coerce.number().positive({
     message: "Price must be a positive number.",
   }),
-  compareAtPrice: z.coerce.number().positive().optional(),
+  compareAtPrice: z.coerce.number().positive().nullable().optional(),
+  stock: z.coerce.number().int().nonnegative({
+    message: "Stock must be zero or positive.",
+  }),
   images: z.array(z.string()).min(1, {
     message: "At least one image is required.",
   }),
   categoryId: z.string().min(1, {
     message: "Category is required.",
   }),
-  tags: z.array(z.string()).default([]),
-  isActive: z.boolean().default(true),
+  tags: z.array(z.string()),
+  isActive: z.boolean(),
   // SEO fields
   metaTitle: z.string().optional(),
   metaDescription: z.string().optional(),
-  metaKeywords: z.array(z.string()).default([]),
+  metaKeywords: z.array(z.string()),
   // STEM specific fields
   ageRange: z.string().optional(),
   stemCategory: z.string().optional(),
   difficultyLevel: z.string().optional(),
-  learningObjectives: z.array(z.string()).default([]),
+  learningObjectives: z.array(z.string()),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -119,7 +122,8 @@ export default function ProductForm({
       slug: "",
       description: "",
       price: 0,
-      compareAtPrice: undefined,
+      compareAtPrice: null,
+      stock: 0,
       images: [],
       categoryId: "",
       tags: [],
@@ -472,7 +476,7 @@ export default function ProductForm({
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-3 gap-4">
                     <FormField
                       control={form.control}
                       name="price"
@@ -522,7 +526,50 @@ export default function ProductForm({
                         </FormItem>
                       )}
                     />
+
+                    <FormField
+                      control={form.control}
+                      name="stock"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Stock</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="0"
+                              step="1"
+                              placeholder="0"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Available quantity in inventory.
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
+
+                  <FormField
+                    control={form.control}
+                    name="stock"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Stock</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="0"
+                            step="1"
+                            placeholder="0"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <FormField
                     control={form.control}

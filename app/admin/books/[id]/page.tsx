@@ -47,7 +47,7 @@ export default async function AdminBookDetailsPage({ params }: Props) {
           },
         },
         orderBy: {
-          createdAt: "desc",
+          id: "desc",
         },
         take: 10, // Show latest 10 sales
       },

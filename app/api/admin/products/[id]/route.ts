@@ -5,10 +5,28 @@ import { revalidateTag } from "next/cache";
 import { slugify } from "@/lib/utils";
 import { handleFormData } from "@/lib/api-helpers";
 import { isAdmin } from "@/lib/auth/admin";
+import { auth } from "@/lib/auth";
+import { z } from "zod";
 
 // In a production application, you would properly implement auth checks
 // For this demo, we'll add a fallback for development mode
 const isDevelopment = process.env.NODE_ENV === "development";
+
+// Validation schema for product updates
+const productUpdateSchema = z.object({
+  name: z.string().min(1, "Product name is required").optional(),
+  description: z.string().min(1, "Description is required").optional(),
+  price: z.number().min(0, "Price must be non-negative").optional(),
+  stockQuantity: z
+    .number()
+    .min(0, "Stock quantity must be non-negative")
+    .optional(),
+  isActive: z.boolean().optional(),
+  categoryId: z.string().optional(),
+  tags: z.array(z.string()).optional(),
+  images: z.array(z.string()).optional(),
+  attributes: z.record(z.any()).optional(),
+});
 
 // GET handler to retrieve a specific product
 export async function GET(
@@ -16,8 +34,9 @@ export async function GET(
   context: { params: { id: string } }
 ) {
   try {
-    // Check if user is admin
-    if (!(await isAdmin(request)) && !isDevelopment) {
+    // Check authentication
+    const session = await auth();
+    if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -36,7 +55,7 @@ export async function GET(
   } catch (error) {
     console.error("Error fetching product:", error);
     return NextResponse.json(
-      { error: "Failed to fetch product" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -48,8 +67,9 @@ export async function DELETE(
   context: { params: { id: string } }
 ) {
   try {
-    // Check if user is admin
-    if (!(await isAdmin(request)) && !isDevelopment) {
+    // Check authentication
+    const session = await auth();
+    if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -58,17 +78,34 @@ export async function DELETE(
     // Check if product exists
     const product = await db.product.findUnique({
       where: { id: productId },
+      include: {
+        orderItems: true,
+      },
     });
 
     if (!product) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
-    // Store product info for cache revalidation
-    const productSlug = product.slug;
-    const categoryId = product.categoryId;
+    // Check if product has any orders
+    if (product.orderItems.length > 0) {
+      // Instead of hard delete, mark as inactive if it has orders
+      const updatedProduct = await db.product.update({
+        where: { id: productId },
+        data: {
+          isActive: false,
+          name: `${product.name} (Deleted)`,
+        },
+      });
 
-    // Delete product from database
+      return NextResponse.json({
+        success: true,
+        message: "Product marked as inactive due to existing orders",
+        product: updatedProduct,
+      });
+    }
+
+    // Safe to hard delete if no orders exist
     await db.product.delete({
       where: { id: productId },
     });
@@ -100,11 +137,11 @@ export async function DELETE(
     revalidateTag("products");
 
     // Revalidate specific product
-    revalidateTag(`product-${productSlug}`);
+    revalidateTag(`product-${product.slug}`);
 
     // Revalidate category if it exists
-    if (categoryId) {
-      revalidateTag(`category-${categoryId}`);
+    if (product.categoryId) {
+      revalidateTag(`category-${product.categoryId}`);
     }
 
     return NextResponse.json({
@@ -114,7 +151,7 @@ export async function DELETE(
   } catch (error) {
     console.error("Error deleting product:", error);
     return NextResponse.json(
-      { error: "Failed to delete product" },
+      { error: "Internal server error" },
       { status: 500 }
     );
   }
@@ -126,8 +163,9 @@ export async function PATCH(
   context: { params: { id: string } }
 ) {
   try {
-    // Check if user is admin
-    if (!(await isAdmin(request)) && !isDevelopment) {
+    // Check authentication
+    const session = await auth();
+    if (!session?.user || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -252,7 +290,49 @@ export async function PATCH(
   } catch (error) {
     console.error("Error updating product:", error);
     return NextResponse.json(
-      { error: "Failed to update product" },
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    // Check authentication
+    const session = await auth();
+    if (!session?.user || session.user.role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { id } = await params;
+    const body = await request.json();
+
+    // Validate the request body
+    const validatedData = productUpdateSchema.parse(body);
+
+    const product = await db.product.update({
+      where: { id },
+      data: validatedData,
+      include: {
+        category: true,
+      },
+    });
+
+    return NextResponse.json(product);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: "Validation failed", details: error.errors },
+        { status: 400 }
+      );
+    }
+
+    console.error("Error updating product:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
       { status: 500 }
     );
   }

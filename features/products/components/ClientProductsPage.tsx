@@ -187,31 +187,31 @@ function ClientProductsPageContent({
   const [isLoading, setIsLoading] = useState(false);
 
   // State for filters
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Handle hydration and URL parameters
+  useEffect(() => {
     const categoryParam = urlSearchParams.get("category");
+    console.log("URL category param:", categoryParam);
 
-    // Debug the initial category parameter
-    console.log("Initial category param:", categoryParam);
+    if (categoryParam) {
+      const normalizedCategory = normalizeCategory(categoryParam);
+      console.log("Setting selected categories:", [normalizedCategory]);
+      setSelectedCategories([normalizedCategory]);
+    }
 
-    // Use normalizeCategory for consistent category handling
-    return categoryParam ? [normalizeCategory(categoryParam)] : [];
-  });
+    setIsHydrated(true);
+  }, [urlSearchParams]);
 
   const [selectedFilters, setSelectedFilters] = useState<
     Record<string, string[]>
   >({});
-  const [priceRangeFilter, setPriceRangeFilter] = useState<PriceRange>(() => {
-    // Calculate initial price range from products with wider boundaries
-    if (initialProducts.length > 0) {
-      const prices = initialProducts.map((p) => p.price);
-      // Set a reasonable minimum and maximum with wider boundaries
-      const minPrice = Math.max(1, Math.floor(Math.min(...prices)));
-      const maxPrice = Math.min(5000, Math.ceil(Math.max(...prices) * 1.5)); // Add 50% to highest price with max cap
-      return { min: minPrice, max: maxPrice };
-    }
-    // Default wider range if no products available
-    return { min: 1, max: 5000 };
+  const [priceRangeFilter, setPriceRangeFilter] = useState<PriceRange>({
+    min: 0,
+    max: 500,
   });
+  const [noPriceFilter, setNoPriceFilter] = useState<boolean>(true); // Default to no price filter
 
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
@@ -264,56 +264,47 @@ function ClientProductsPageContent({
       });
     });
 
-    // Then add any additional categories from products, normalizing them first
+    // Count products for each category (avoid double counting)
     products.forEach((product) => {
-      if (product.category?.name) {
-        const normalizedCat = normalizeCategory(product.category.name);
-        const existingCategory = categoryMap.get(normalizedCat);
+      // Determine the primary category for this product to avoid double counting
+      let primaryCategory = "";
+      let categoryLabel = "";
+      let originalName = "";
 
-        if (existingCategory) {
-          existingCategory.count += 1;
-        } else {
-          // Only add if it's not already in the map
-          categoryMap.set(normalizedCat, {
-            id: normalizedCat,
-            label: categoryTranslations[normalizedCat] || product.category.name,
-            count: 1,
-            originalName: product.category.name,
-          });
-        }
-      }
-
-      // Also check stemCategory in attributes
+      // Priority order: stemCategory > category.name > attributes.stemCategory
       if (product.stemCategory) {
-        const normalizedCat = normalizeCategory(product.stemCategory);
-        const existingCategory = categoryMap.get(normalizedCat);
-
-        if (existingCategory) {
-          existingCategory.count += 1;
-        } else {
-          categoryMap.set(normalizedCat, {
-            id: normalizedCat,
-            label: categoryTranslations[normalizedCat] || product.stemCategory,
-            count: 1,
-            originalName: product.stemCategory,
-          });
-        }
+        primaryCategory = normalizeCategory(product.stemCategory);
+        categoryLabel =
+          categoryTranslations[primaryCategory] || product.stemCategory;
+        originalName = product.stemCategory;
+      } else if (product.category?.name) {
+        primaryCategory = normalizeCategory(product.category.name);
+        categoryLabel =
+          categoryTranslations[primaryCategory] || product.category.name;
+        originalName = product.category.name;
       } else if (product.attributes && typeof product.attributes === "object") {
         const attrs = product.attributes as Record<string, any>;
         if (attrs.stemCategory) {
-          const normalizedCat = normalizeCategory(attrs.stemCategory);
-          const existingCategory = categoryMap.get(normalizedCat);
+          primaryCategory = normalizeCategory(attrs.stemCategory);
+          categoryLabel =
+            categoryTranslations[primaryCategory] || attrs.stemCategory;
+          originalName = attrs.stemCategory;
+        }
+      }
 
-          if (existingCategory) {
-            existingCategory.count += 1;
-          } else {
-            categoryMap.set(normalizedCat, {
-              id: normalizedCat,
-              label: categoryTranslations[normalizedCat] || attrs.stemCategory,
-              count: 1,
-              originalName: attrs.stemCategory,
-            });
-          }
+      // Only count if we found a valid category
+      if (primaryCategory) {
+        const existingCategory = categoryMap.get(primaryCategory);
+
+        if (existingCategory) {
+          existingCategory.count += 1;
+        } else {
+          categoryMap.set(primaryCategory, {
+            id: primaryCategory,
+            label: categoryLabel,
+            count: 1,
+            originalName: originalName,
+          });
         }
       }
     });
@@ -380,9 +371,11 @@ function ClientProductsPageContent({
 
     console.log("All products:", products.length);
     console.log("Selected categories:", selectedCategories);
+    console.log("Is hydrated:", isHydrated);
 
-    // Filter by category - using category.name or slug or stemCategory
-    if (selectedCategories.length > 0) {
+    // Only apply category filtering if we have selected categories AND we're hydrated
+    // This prevents hydration mismatches and ensures all products show initially
+    if (selectedCategories.length > 0 && isHydrated) {
       filtered = filtered.filter((product) => {
         // Get category info from the product
         const prodCategoryName = (product.category?.name || "").toLowerCase();
@@ -434,9 +427,12 @@ function ClientProductsPageContent({
               prodCategorySlug.includes("book") ||
               prodCategorySlug === "educational-books" ||
               prodCategorySlug === "carti" ||
-              prodCategoryName.includes("carti");
+              prodCategoryName.includes("carti") ||
+              stemCategoryValue === "educational-books";
 
-            console.log(`  Book match for ${product.name}: ${isBook}`);
+            console.log(
+              `  Book match for ${product.name}: ${isBook} (name:${prodCategoryName}, slug:${prodCategorySlug}, stem:${stemCategoryValue})`
+            );
             return isBook;
           }
 
@@ -497,15 +493,24 @@ function ClientProductsPageContent({
       }
     });
 
-    // Filter by price range
-    filtered = filtered.filter(
-      (product) =>
-        product.price >= priceRangeFilter.min &&
-        product.price <= priceRangeFilter.max
-    );
+    // Filter by price range (only if price filter is enabled)
+    if (!noPriceFilter) {
+      filtered = filtered.filter(
+        (product) =>
+          product.price >= priceRangeFilter.min &&
+          product.price <= priceRangeFilter.max
+      );
+    }
 
     return filtered;
-  }, [products, selectedCategories, selectedFilters, priceRangeFilter]);
+  }, [
+    products,
+    selectedCategories,
+    selectedFilters,
+    priceRangeFilter,
+    noPriceFilter,
+    isHydrated,
+  ]);
 
   // Update the URL when filters change
   useEffect(() => {
@@ -572,14 +577,20 @@ function ClientProductsPageContent({
     setPriceRangeFilter(range);
   };
 
+  // Handler for no price filter checkbox
+  const handleNoPriceFilterChange = (checked: boolean) => {
+    setNoPriceFilter(checked);
+  };
+
   // Handler to clear all filters
   const handleClearFilters = () => {
     setSelectedCategories([]);
     setSelectedFilters({});
     setPriceRangeFilter({
-      min: Math.floor(Math.min(...products.map((p) => p.price))),
-      max: Math.ceil(Math.max(...products.map((p) => p.price))),
+      min: 0,
+      max: 500,
     });
+    setNoPriceFilter(true); // Reset to no price filter
   };
 
   // Get the active category for the header
@@ -932,15 +943,17 @@ function ClientProductsPageContent({
                 categories={categoryFilter}
                 filters={mockFilters}
                 priceRange={{
-                  min: priceRangeFilter.min,
-                  max: priceRangeFilter.max,
+                  min: 0,
+                  max: 500,
                   current: priceRangeFilter,
                 }}
                 selectedCategories={selectedCategories}
                 selectedFilters={selectedFilters}
+                noPriceFilter={noPriceFilter}
                 onCategoryChange={handleCategoryChange}
                 onFilterChange={handleFilterChange}
                 onPriceChange={handlePriceChange}
+                onNoPriceFilterChange={handleNoPriceFilterChange}
                 onClearFilters={handleClearFilters}
               />
             </div>

@@ -129,6 +129,31 @@ export const ourFileRouter = {
       return { fileUrl: res.file.ufsUrl }; // Use ufsUrl instead of url
     }),
 
+  // Book cover image endpoint for book covers
+  bookCoverImage: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
+    .middleware(async () => {
+      console.log("UploadThing middleware running for bookCoverImage");
+
+      // Get the authenticated user from the session
+      const session = await auth();
+
+      // Check if the user is authenticated and is an admin
+      if (!session || !session.user) {
+        throw new Error("Unauthorized: You must be logged in to upload files");
+      }
+
+      // Only admins can upload book covers
+      if (session.user.role !== "ADMIN") {
+        throw new Error("Forbidden: Only admins can upload book covers");
+      }
+
+      return { userId: session.user.id };
+    })
+    .onUploadComplete((res) => {
+      console.log("Book cover upload complete:", res);
+      return { fileUrl: res.file.ufsUrl }; // Use ufsUrl instead of url
+    }),
+
   // Category image endpoint
   categoryImage: f({ image: { maxFileSize: "2MB", maxFileCount: 1 } })
     .middleware(async () => {

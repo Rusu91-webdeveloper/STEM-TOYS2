@@ -41,6 +41,12 @@ export async function POST(request: Request) {
             images: true,
           },
         },
+        book: {
+          select: {
+            name: true,
+            author: true,
+          },
+        },
       },
     });
 
@@ -48,6 +54,18 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { error: "Some items were not found" },
         { status: 404 }
+      );
+    }
+
+    // Check if any items are digital books (not returnable)
+    const digitalItems = orderItems.filter((item) => item.isDigital);
+    if (digitalItems.length > 0) {
+      return NextResponse.json(
+        {
+          error:
+            "Digital books cannot be returned as they are instantly delivered products",
+        },
+        { status: 400 }
       );
     }
 

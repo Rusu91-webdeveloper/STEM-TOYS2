@@ -512,6 +512,25 @@ export async function POST(request: Request) {
               languagePreferences
             );
             console.log("Digital book processing completed successfully");
+
+            // Check if this order contains ONLY digital books
+            const allItemsAreDigital = orderWithItems?.items.every(
+              (item) => item.isDigital === true
+            );
+
+            if (allItemsAreDigital) {
+              // Automatically mark digital-only orders as delivered
+              await db.order.update({
+                where: { id: dbOrder.id },
+                data: {
+                  status: "DELIVERED",
+                  deliveredAt: new Date(),
+                },
+              });
+              console.log(
+                `✅ Digital-only order ${dbOrder.orderNumber} automatically marked as DELIVERED`
+              );
+            }
           } else {
             console.log("Digital order processing not available");
           }

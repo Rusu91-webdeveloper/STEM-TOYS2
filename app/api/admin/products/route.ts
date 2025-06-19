@@ -10,25 +10,37 @@ import { utapi } from "@/lib/uploadthing";
 import { productSchema as baseProductSchema } from "@/lib/validations";
 
 // Extend the base product schema with additional fields specific to this API
-const productSchema = baseProductSchema.extend({
-  compareAtPrice: z
-    .number()
-    .positive("Compare at price must be positive")
-    .nullable()
-    .optional(),
-  categoryId: z.string().min(1, "Category is required"),
-  images: z.array(z.string()).default([]),
-  isActive: z.boolean().default(true),
-  // Optional meta fields
-  metaTitle: z.string().optional(),
-  metaDescription: z.string().optional(),
-  metaKeywords: z.array(z.string()).optional(),
-  // Optional product attributes
-  stemCategory: z.string().optional(),
-  difficultyLevel: z.string().optional(),
-  learningObjectives: z.array(z.string()).optional(),
-  attributes: z.record(z.any()).optional(),
-});
+const productSchema = baseProductSchema
+  .omit({
+    category: true, // Remove the base 'category' requirement
+    ageRange: true, // Remove the base 'ageRange' object requirement
+  })
+  .extend({
+    slug: z.string().min(1, "Slug is required"),
+    compareAtPrice: z
+      .number()
+      .positive("Compare at price must be positive")
+      .nullable()
+      .optional(),
+    categoryId: z.string().min(1, "Category is required"),
+    images: z.array(z.string()).default([]),
+    isActive: z.boolean().default(true),
+    stock: z
+      .number()
+      .int()
+      .nonnegative("Stock must be zero or positive")
+      .default(0),
+    // Optional meta fields
+    metaTitle: z.string().optional(),
+    metaDescription: z.string().optional(),
+    metaKeywords: z.array(z.string()).optional(),
+    // Optional product attributes - redefine ageRange as string
+    ageRange: z.string().optional(),
+    stemCategory: z.string().optional(),
+    difficultyLevel: z.string().optional(),
+    learningObjectives: z.array(z.string()).optional(),
+    attributes: z.record(z.any()).optional(),
+  });
 
 // Schema for product update validation (similar to create but all fields optional)
 const productUpdateSchema = productSchema.partial().extend({
@@ -151,6 +163,7 @@ export async function POST(request: NextRequest) {
           images: data.images,
           categoryId: data.categoryId,
           tags: data.tags || [],
+          stockQuantity: data.stock || 0,
           attributes: {
             // Include SEO metadata in attributes
             metaTitle: data.metaTitle || data.name,
@@ -265,6 +278,7 @@ export async function PUT(request: NextRequest) {
     if (data.categoryId !== undefined) updateData.categoryId = data.categoryId;
     if (data.tags !== undefined) updateData.tags = data.tags;
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
+    if (data.stock !== undefined) updateData.stockQuantity = data.stock;
 
     // Handle attributes update
     if (existingProduct.attributes) {

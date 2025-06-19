@@ -39,18 +39,22 @@ interface Book {
   name: string;
   author: string;
   digitalFiles: DigitalFile[];
-  languages: Array<{
-    id: string;
-    name: string;
-    code: string;
-  }>;
+}
+
+interface Language {
+  id: string;
+  name: string;
+  code: string;
+  nativeName?: string;
+  isAvailable: boolean;
 }
 
 interface Props {
   book: Book;
+  availableLanguages: Language[];
 }
 
-export function DigitalFilesManager({ book }: Props) {
+export function DigitalFilesManager({ book, availableLanguages }: Props) {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [selectedFormat, setSelectedFormat] = useState<string>("");
   const [selectedLanguage, setSelectedLanguage] = useState<string>("");
@@ -200,11 +204,11 @@ export function DigitalFilesManager({ book }: Props) {
                   <SelectValue placeholder="Selectează limba" />
                 </SelectTrigger>
                 <SelectContent>
-                  {book.languages.map((lang) => (
+                  {availableLanguages.map((lang) => (
                     <SelectItem
                       key={lang.id}
                       value={lang.code}>
-                      {lang.name}
+                      {lang.nativeName || lang.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

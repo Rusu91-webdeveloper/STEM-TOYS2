@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { useCurrency } from "@/lib/currency";
 import {
   Edit,
   ArrowLeft,
@@ -38,6 +37,11 @@ interface ProductPageProps {
     id: string;
   };
 }
+
+// Server-side price formatting function
+const formatPrice = (price: number) => {
+  return `${price.toFixed(2)} lei`;
+};
 
 async function getProduct(id: string) {
   try {
@@ -103,7 +107,8 @@ async function getProduct(id: string) {
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const product = await getProduct(params.id);
+  const { id } = await params;
+  const product = await getProduct(id);
 
   if (!product) {
     notFound();
@@ -111,8 +116,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   // Extract attributes
   const attributes = (product.attributes as Record<string, any>) || {};
-
-  const { formatPrice } = useCurrency();
 
   return (
     <div className="space-y-6">

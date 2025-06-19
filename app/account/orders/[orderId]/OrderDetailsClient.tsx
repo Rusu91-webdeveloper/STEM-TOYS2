@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
-import { ArrowLeft, Package, Star, Truck, Check } from "lucide-react";
+import { ArrowLeft, Package, Star, Truck, Check, FileText } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -20,10 +20,12 @@ interface OrderItem {
   product: {
     images?: string[];
     slug?: string;
+    isDigital?: boolean;
   } | null;
   reviews: {
     id: string;
   }[];
+  isDigital?: boolean;
 }
 
 interface ShippingAddress {
@@ -269,8 +271,8 @@ export function OrderDetailsClient({ order }: OrderDetailsClientProps) {
                                 </Link>
                               </Button>
                             )}
-                            {/* Return Item Button */}
-                            {isWithinReturnWindow() && (
+                            {/* Return Item Button - Only show for non-digital items */}
+                            {isWithinReturnWindow() && !item.isDigital && (
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -282,6 +284,13 @@ export function OrderDetailsClient({ order }: OrderDetailsClientProps) {
                                   {t("returnItem")}
                                 </Link>
                               </Button>
+                            )}
+                            {/* Info message for digital items */}
+                            {item.isDigital && (
+                              <div className="flex items-center text-sm text-muted-foreground mt-2">
+                                <FileText className="h-4 w-4 mr-1" />
+                                Digital item - non-returnable
+                              </div>
                             )}
                           </>
                         )}

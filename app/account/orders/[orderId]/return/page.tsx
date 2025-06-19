@@ -49,6 +49,7 @@ interface OrderItem {
     slug: string;
     images: string[];
   };
+  isDigital: boolean;
 }
 
 interface Order {
@@ -346,7 +347,8 @@ export default function InitiateReturn({
                 {order.items.filter(
                   (item) =>
                     order.status === "DELIVERED" &&
-                    !returnedItemIds.includes(item.id)
+                    !returnedItemIds.includes(item.id) &&
+                    !item.isDigital
                 ).length === 0 ? (
                   <div className="text-sm text-muted-foreground">
                     No items eligible for return.
@@ -363,12 +365,14 @@ export default function InitiateReturn({
                               .filter(
                                 (item) =>
                                   order.status === "DELIVERED" &&
-                                  !returnedItemIds.includes(item.id)
+                                  !returnedItemIds.includes(item.id) &&
+                                  !item.isDigital
                               )
                               .map((item) => {
                                 const disabled =
                                   order.status !== "DELIVERED" ||
-                                  returnedItemIds.includes(item.id);
+                                  returnedItemIds.includes(item.id) ||
+                                  item.isDigital;
                                 return (
                                   <div
                                     key={item.id}

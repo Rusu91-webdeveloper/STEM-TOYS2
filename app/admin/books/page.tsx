@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { BooksList } from "./BooksList";
 
 export default async function AdminBooksPage() {
-  // Get all books with their digital files count
+  // Get all digital books only
   const books = await db.book.findMany({
     include: {
       digitalFiles: {
@@ -11,12 +11,7 @@ export default async function AdminBooksPage() {
         },
       },
       languages: true,
-      _count: {
-        select: {
-          digitalFiles: true,
-          orderItems: true,
-        },
-      },
+      orderItems: true,
     },
     orderBy: {
       createdAt: "desc",
@@ -28,7 +23,8 @@ export default async function AdminBooksPage() {
       <div>
         <h1 className="text-3xl font-bold tracking-tight">Cărți Digitale</h1>
         <p className="text-muted-foreground">
-          Gestionează cărțile digitale și fișierele lor EPUB/KBP
+          Gestionează cărțile digitale și fișierele lor descărcabile (PDF, EPUB,
+          etc.)
         </p>
       </div>
 
