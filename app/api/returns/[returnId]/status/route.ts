@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { sendMail } from "@/lib/brevo";
 import { generateReturnLabel } from "@/lib/return-label";
@@ -45,6 +45,8 @@ export async function PATCH(
     const returnId = params.returnId;
     const { status } = await request.json();
 
+    console.log(`🔄 Processing return ${returnId} status change to: ${status}`);
+
     // Validate status
     const validStatuses = [
       "PENDING",
@@ -61,7 +63,7 @@ export async function PATCH(
     }
 
     // Get return data with order and product details
-    const returnData = await prisma.return.findUnique({
+    const returnData = await db.return.findUnique({
       where: { id: returnId },
       include: {
         order: true,
@@ -86,7 +88,7 @@ export async function PATCH(
     }
 
     // Update return status
-    const updatedReturn = await prisma.return.update({
+    const updatedReturn = await db.return.update({
       where: { id: returnId },
       data: { status },
       include: {
@@ -110,14 +112,23 @@ export async function PATCH(
       },
     });
 
+    console.log(`✅ Return ${returnId} status updated to: ${status}`);
+
     // If status is changed to APPROVED, send email with return label
     if (status === "APPROVED") {
+      console.log(
+        `📧 Attempting to send return approval email for return ${returnId}`
+      );
+      console.log(`📧 Customer email: ${updatedReturn.user.email}`);
+
       try {
         // Get customer address from default address if available
         const defaultAddress = updatedReturn.user.addresses[0];
         const customerAddress = defaultAddress
           ? `${defaultAddress.addressLine1}, ${defaultAddress.city}, ${defaultAddress.state}, ${defaultAddress.postalCode}, ${defaultAddress.country}`
           : undefined;
+
+        console.log(`📄 Generating PDF label...`);
 
         // Generate return label PDF
         const pdfBuffer = await generateReturnLabel({
@@ -136,6 +147,10 @@ export async function PATCH(
           customerAddress: customerAddress,
           language: "ro", // Set Romanian language for the label
         });
+
+        console.log(
+          `✅ PDF generated successfully, size: ${pdfBuffer.length} bytes`
+        );
 
         // Format order date
         const orderDate = new Date(
@@ -221,6 +236,8 @@ export async function PATCH(
           </div>
         `;
 
+        console.log(`📧 Sending email to ${updatedReturn.user.email}...`);
+
         // Convert PDF to Base64 for email attachment
         const pdfBase64 = pdfBuffer.toString("base64");
 
@@ -240,10 +257,17 @@ export async function PATCH(
         });
 
         console.log(
-          `✅ Return label email sent to ${updatedReturn.user.email}`
+          `✅ Return label email sent successfully to ${updatedReturn.user.email}`
         );
       } catch (emailError) {
         console.error("❌ Error sending return label email:", emailError);
+        console.error("❌ Email error details:", {
+          errorMessage:
+            emailError instanceof Error ? emailError.message : "Unknown error",
+          returnId: updatedReturn.id,
+          customerEmail: updatedReturn.user.email,
+          orderNumber: updatedReturn.order.orderNumber,
+        });
         // We don't want to fail the status update if email fails
         // But we log the error for troubleshooting
       }
