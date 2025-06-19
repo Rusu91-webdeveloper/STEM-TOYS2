@@ -361,44 +361,38 @@ export async function POST(request: Request) {
           }
 
           if (isBook) {
-            // For books, we need to create a corresponding order item with isDigital flag
+            // For books, the item.productId is actually the book ID
             console.log(`Processing book item: ${item.name}`);
 
-            // First, get the product to find its slug
-            const product = await tx.product.findUnique({
-              where: { id: item.productId },
-              select: { id: true, slug: true, name: true },
-            });
-
-            if (!product) {
-              throw new Error(
-                `Product with ID ${item.productId} not found in database`
-              );
+            // Check if this is a deleted book (contains "Deleted" in name)
+            if (item.name.includes("(Deleted)")) {
+              console.log(`Skipping deleted book: ${item.name}`);
+              continue; // Skip this item, don't create an order item for it
             }
 
-            // Find the corresponding book using the product's slug
+            // Validate the book exists and is active (item.productId is the book ID)
             const book = await tx.book.findUnique({
-              where: { slug: product.slug },
+              where: { id: item.productId },
               select: { id: true, name: true, isActive: true },
             });
 
             if (!book) {
-              throw new Error(
-                `Book with slug '${product.slug}' not found in database`
+              console.log(
+                `Book ${item.productId} not found, skipping item: ${item.name}`
               );
+              continue; // Skip this item instead of throwing error
             }
 
             if (!book.isActive) {
-              throw new Error(
-                `Book ${book.name} (slug: ${product.slug}) is not active`
+              console.log(
+                `Book ${book.name} is inactive, skipping item: ${item.name}`
               );
+              continue; // Skip this item instead of throwing error
             }
 
-            // Update productId to use the actual book ID
+            // For books, productId is already the book ID
             productId = book.id;
-            console.log(
-              `Mapped product ${product.slug} to book: ${book.name} (ID: ${productId})`
-            );
+            console.log(`Validated book: ${book.name} (Book ID: ${productId})`);
           } else {
             // For regular products, validate the product exists
             const product = await tx.product.findUnique({
@@ -407,15 +401,17 @@ export async function POST(request: Request) {
             });
 
             if (!product) {
-              throw new Error(
-                `Product with ID ${item.productId} not found in database`
+              console.log(
+                `Product ${item.productId} not found, skipping item: ${item.name}`
               );
+              continue; // Skip this item instead of throwing error
             }
 
             if (!product.isActive) {
-              throw new Error(
-                `Product ${product.name} (ID: ${item.productId}) is not active`
+              console.log(
+                `Product ${product.name} is inactive, skipping item: ${item.name}`
               );
+              continue; // Skip this item instead of throwing error
             }
 
             console.log(

@@ -34,6 +34,7 @@ export function ProductAddToCartButton({
 }: ProductAddToCartButtonProps) {
   const [quantity, setQuantity] = useState(1);
   const [isAdded, setIsAdded] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState<
     string | undefined
   >();
@@ -50,29 +51,42 @@ export function ProductAddToCartButton({
 
   const isDisabled =
     isAdded ||
+    isLoading ||
     (hasVariants && product.variants!.length > 1 && !selectedVariantId) ||
     (isBook && !selectedLanguage); // Disable if book and no language selected
 
-  const handleAddToCart = () => {
-    const item: Omit<CartItem, "id"> = {
-      productId: product.id,
-      variantId: selectedVariantId,
-      name:
-        product.name + (selectedVariant ? ` - ${selectedVariant.name}` : ""),
-      price: selectedVariant?.price ?? product.price,
-      quantity,
-      image: product.image,
-      isBook,
-      selectedLanguage: isBook ? selectedLanguage : undefined,
-    };
+  const handleAddToCart = async () => {
+    // Prevent double-clicking
+    if (isLoading || isAdded) return;
 
-    addItem(item, quantity);
+    setIsLoading(true);
 
-    // Show success state briefly
-    setIsAdded(true);
-    setTimeout(() => {
-      setIsAdded(false);
-    }, 2000);
+    try {
+      const item: Omit<CartItem, "id"> = {
+        productId: product.id,
+        variantId: selectedVariantId,
+        name:
+          product.name + (selectedVariant ? ` - ${selectedVariant.name}` : ""),
+        price: selectedVariant?.price ?? product.price,
+        quantity,
+        image: product.image,
+        isBook,
+        selectedLanguage: isBook ? selectedLanguage : undefined,
+      };
+
+      console.log(`Adding item to cart:`, item);
+      addItem(item, quantity);
+
+      // Show success state briefly
+      setIsAdded(true);
+      setTimeout(() => {
+        setIsAdded(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Error adding item to cart:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleLanguageSelect = (language: string) => {
@@ -170,6 +184,16 @@ export function ProductAddToCartButton({
               <Check className={config.icon} />
               {size === "sm" ? "Added!" : "Added to Cart"}
             </>
+          ) : isLoading ? (
+            <>
+              <div
+                className={cn(
+                  config.icon,
+                  "animate-spin border-2 border-current border-t-transparent rounded-full"
+                )}
+              />
+              {size === "sm" ? "Adding..." : "Adding to Cart..."}
+            </>
           ) : (
             <>
               <ShoppingCart className={config.icon} />
@@ -190,7 +214,7 @@ export function ProductAddToCartButton({
       </div>
 
       {/* Helper text for disabled states */}
-      {isDisabled && !isAdded && (
+      {isDisabled && !isAdded && !isLoading && (
         <div className="text-xs text-muted-foreground text-center">
           {hasVariants && !selectedVariantId
             ? "Please select product options above"

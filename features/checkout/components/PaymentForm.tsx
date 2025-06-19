@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { PaymentDetails, ShippingAddress } from "../types";
+import { PaymentDetails, ShippingAddress, ShippingMethod } from "../types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ import { useCart } from "@/features/cart";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Loader2, CreditCard } from "lucide-react";
 import { useTranslation } from "@/lib/i18n";
+import { fetchShippingSettings, fetchTaxSettings } from "../lib/checkoutApi";
 
 interface PaymentCard {
   id: string;
@@ -30,6 +31,7 @@ interface PaymentFormProps {
   billingAddressSameAsShipping?: boolean;
   shippingAddress?: ShippingAddress;
   billingAddress?: ShippingAddress;
+  shippingMethod?: ShippingMethod;
   onSubmit: (data: {
     paymentDetails: PaymentDetails;
     billingAddressSameAsShipping: boolean;
@@ -43,6 +45,7 @@ export function PaymentForm({
   billingAddressSameAsShipping = true,
   shippingAddress,
   billingAddress,
+  shippingMethod,
   onSubmit,
   onBack,
 }: PaymentFormProps) {
@@ -60,6 +63,51 @@ export function PaymentForm({
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<string>("new");
   const [useNewCard, setUseNewCard] = useState(true);
+  const [totalAmount, setTotalAmount] = useState(0);
+  const [isCalculatingTotal, setIsCalculatingTotal] = useState(true);
+
+  // Calculate the total amount including tax and shipping
+  useEffect(() => {
+    async function calculateTotal() {
+      setIsCalculatingTotal(true);
+      try {
+        const subtotal = getCartTotal();
+        let shippingCost = shippingMethod?.price || 0;
+
+        // Get tax settings
+        const taxSettings = await fetchTaxSettings();
+        const taxRate = taxSettings.active
+          ? parseFloat(taxSettings.rate) / 100
+          : 0;
+
+        // Get shipping settings for free shipping threshold
+        const shippingSettings = await fetchShippingSettings();
+        if (
+          shippingSettings.freeThreshold &&
+          shippingSettings.freeThreshold.active
+        ) {
+          const freeShippingThreshold = parseFloat(
+            shippingSettings.freeThreshold.price
+          );
+          if (subtotal >= freeShippingThreshold) {
+            shippingCost = 0;
+          }
+        }
+
+        const tax = subtotal * taxRate;
+        const total = subtotal + tax + shippingCost;
+        setTotalAmount(total);
+      } catch (error) {
+        console.error("Error calculating total:", error);
+        // Fall back to subtotal if calculation fails
+        setTotalAmount(getCartTotal());
+      } finally {
+        setIsCalculatingTotal(false);
+      }
+    }
+
+    calculateTotal();
+  }, [getCartTotal, shippingMethod]);
 
   // Fetch saved payment cards
   useEffect(() => {
@@ -281,7 +329,10 @@ export function PaymentForm({
               onSuccess={handlePaymentSuccess}
               onError={handlePaymentError}
               billingDetails={getBillingDetails()}
-              amount={getCartTotal() * 100} // Convert to cents for Stripe
+              amount={
+                isCalculatingTotal ? getCartTotal() * 100 : totalAmount * 100
+              } // Convert to cents for Stripe
+              isCalculatingTotal={isCalculatingTotal}
             />
           </StripeProvider>
         )}

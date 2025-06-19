@@ -12,6 +12,7 @@ import { createOrder } from "../lib/checkoutApi";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/features/cart";
 import { useTranslation } from "@/lib/i18n";
+import { Shield, Award, ShieldCheck } from "lucide-react";
 
 export function CheckoutFlow() {
   const router = useRouter();
@@ -183,22 +184,21 @@ export function CheckoutFlow() {
 
         {currentStep === "payment" && (
           <div>
-            <div className="trust-badges flex justify-center space-x-4 mb-4">
-              <img
-                src="/images/secure-payment.png"
-                alt="Secure Payment"
-                className="h-8"
-              />
-              <img
-                src="/images/money-back-guarantee.png"
-                alt="Money-Back Guarantee"
-                className="h-8"
-              />
-              <img
-                src="/images/trusted-seller.png"
-                alt="Trusted Seller"
-                className="h-8"
-              />
+            <div className="trust-badges flex justify-center space-x-6 mb-6 py-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border">
+              <div className="flex items-center space-x-2 text-green-700">
+                <Shield className="h-6 w-6" />
+                <span className="text-sm font-medium">Secure Payment</span>
+              </div>
+              <div className="flex items-center space-x-2 text-blue-700">
+                <Award className="h-6 w-6" />
+                <span className="text-sm font-medium">
+                  Money-Back Guarantee
+                </span>
+              </div>
+              <div className="flex items-center space-x-2 text-indigo-700">
+                <ShieldCheck className="h-6 w-6" />
+                <span className="text-sm font-medium">Trusted Seller</span>
+              </div>
             </div>
             <PaymentForm
               initialData={checkoutData.paymentDetails}
@@ -207,6 +207,7 @@ export function CheckoutFlow() {
               }
               shippingAddress={checkoutData.shippingAddress}
               billingAddress={checkoutData.billingAddress}
+              shippingMethod={checkoutData.shippingMethod}
               onSubmit={(paymentData) => {
                 updateCheckoutData(paymentData);
                 goToNextStep();

@@ -5,11 +5,13 @@ import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { Button } from "@/components/ui/button";
 import { PaymentDetails } from "../types";
 import { useCurrency } from "@/lib/currency";
+import { Loader2 } from "lucide-react";
 
 interface StripePaymentFormProps {
   onSuccess: (paymentDetails: PaymentDetails) => void;
   onError: (error: string) => void;
   amount: number; // In cents
+  isCalculatingTotal?: boolean;
   billingDetails?: {
     name: string;
     email: string;
@@ -28,6 +30,7 @@ export function StripePaymentForm({
   onSuccess,
   onError,
   amount,
+  isCalculatingTotal = false,
   billingDetails,
 }: StripePaymentFormProps) {
   const stripe = useStripe();
@@ -176,11 +179,21 @@ export function StripePaymentForm({
       <div className="flex justify-end">
         <Button
           type="submit"
-          disabled={!stripe || isProcessing}
+          disabled={!stripe || isProcessing || isCalculatingTotal}
           className="px-8">
-          {isProcessing
-            ? "Se procesează..."
-            : `Plătește ${formatPrice(displayAmount)}`}
+          {isProcessing ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Se procesează...
+            </>
+          ) : isCalculatingTotal ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              Calculez totalul...
+            </>
+          ) : (
+            `Plătește ${formatPrice(displayAmount)}`
+          )}
         </Button>
       </div>
     </form>

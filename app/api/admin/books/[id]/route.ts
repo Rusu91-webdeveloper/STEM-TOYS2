@@ -98,24 +98,39 @@ export async function DELETE(
     const { id } = await params;
 
     // Check if book exists and has any orders
+    // Note: Books are referenced through Product model in orders
     const book = await db.book.findUnique({
       where: { id },
-      include: {
-        orderItems: true,
-      },
     });
 
     if (!book) {
       return NextResponse.json({ error: "Book not found" }, { status: 404 });
     }
 
-    // Check if book has any orders - prevent deletion if it does
-    if (book.orderItems.length > 0) {
+    // Check if book has any orders by looking for products that reference this book
+    const relatedProducts = await db.product.findMany({
+      where: {
+        name: book.name, // Books typically have matching product names
+      },
+      include: {
+        orderItems: true,
+      },
+    });
+
+    const hasOrders = relatedProducts.some(
+      (product) => product.orderItems.length > 0
+    );
+
+    if (hasOrders) {
+      const totalOrders = relatedProducts.reduce(
+        (total, product) => total + product.orderItems.length,
+        0
+      );
       return NextResponse.json(
         {
           error:
             "Cannot delete book with existing orders. This book has been purchased and must be preserved for order history.",
-          orderCount: book.orderItems.length,
+          orderCount: totalOrders,
         },
         { status: 400 }
       );

@@ -10,6 +10,7 @@ import {
   setCartInCache,
   invalidateCartCache,
 } from "@/lib/redis";
+import { db } from "@/lib/db";
 
 // Mock database for cart storage - replace with Prisma in production
 const CART_STORAGE = new Map<string, CartItem[]>();
@@ -60,6 +61,64 @@ function isValidCartData(data: any): data is CartItem[] {
   );
 }
 
+async function cleanupInvalidCartItems(items: CartItem[]): Promise<CartItem[]> {
+  const validItems: CartItem[] = [];
+
+  for (const item of items) {
+    // Skip items with "(Deleted)" in the name
+    if (item.name.includes("(Deleted)")) {
+      console.log(`Removing deleted item from cart: ${item.name}`);
+      continue;
+    }
+
+    // Check if it's marked as a book
+    if (item.isBook) {
+      // For books, item.productId is the book ID
+      const book = await db.book.findUnique({
+        where: { id: item.productId },
+        select: { id: true, name: true, isActive: true },
+      });
+
+      if (book && book.isActive) {
+        validItems.push(item);
+      } else {
+        console.log(`Removing invalid/inactive book from cart: ${item.name}`);
+      }
+    } else {
+      // Check if it's a book by trying to find it in the books table (fallback detection)
+      const book = await db.book.findUnique({
+        where: { id: item.productId },
+        select: { id: true, name: true, isActive: true },
+      });
+
+      if (book) {
+        // It's a book - check if it's still active
+        if (book.isActive) {
+          validItems.push(item);
+        } else {
+          console.log(`Removing inactive book from cart: ${book.name}`);
+        }
+      } else {
+        // It's a regular product - check if it exists and is active
+        const product = await db.product.findUnique({
+          where: { id: item.productId },
+          select: { id: true, name: true, isActive: true },
+        });
+
+        if (product && product.isActive) {
+          validItems.push(item);
+        } else {
+          console.log(
+            `Removing invalid/inactive product from cart: ${item.name}`
+          );
+        }
+      }
+    }
+  }
+
+  return validItems;
+}
+
 // GET /api/cart - Retrieve the user's cart
 export const GET = withRateLimit(
   async (request) => {
@@ -95,10 +154,21 @@ export const GET = withRateLimit(
               console.log(
                 `Returning cached cart for ${cartId} with ${parsedCart.length} items`
               );
+              // Clean up invalid items
+              const cleanedCart = await cleanupInvalidCartItems(parsedCart);
+
+              // If items were removed, update the cache
+              if (cleanedCart.length !== parsedCart.length) {
+                console.log(
+                  `Cleaned cart: removed ${parsedCart.length - cleanedCart.length} invalid items`
+                );
+                await setCartInCache(cartId, cleanedCart);
+              }
+
               return NextResponse.json({
                 success: true,
                 message: "Cart fetched from cache",
-                data: parsedCart,
+                data: cleanedCart,
                 user: session?.user?.email || null,
                 fromCache: true,
               });

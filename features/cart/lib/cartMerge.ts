@@ -23,10 +23,11 @@ export function mergeCarts(
     const localItem = localCartMap.get(serverItem.id);
 
     if (localItem) {
-      // Item exists in both carts - merge them by combining quantities
+      // Item exists in both carts - use the higher quantity (avoid doubling)
+      // This prevents duplication when syncing between local and server
       mergedCart.push({
         ...serverItem,
-        quantity: serverItem.quantity + localItem.quantity,
+        quantity: Math.max(serverItem.quantity, localItem.quantity),
       });
 
       // Remove from local map to mark as processed
