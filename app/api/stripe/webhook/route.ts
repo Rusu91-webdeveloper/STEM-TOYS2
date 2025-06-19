@@ -20,7 +20,7 @@ const webhookSecret = getRequiredEnvVar(
 
 export async function POST(request: Request) {
   const body = await request.text();
-  const headersList = headers();
+  const headersList = await headers();
   const signature = headersList.get("stripe-signature") || "";
 
   // In development, simulate a successful webhook response
@@ -72,49 +72,97 @@ async function handleSuccessfulPayment(paymentIntent: Stripe.PaymentIntent) {
   const userEmail = paymentIntent.metadata.userEmail;
 
   if (orderId) {
-    // Update order status to "paid" in database
-    // In a real implementation, you would update the order in your database
-    console.log(`Updating order ${orderId} to paid status`);
+    try {
+      // Import the database and digital order service
+      const { db } = await import("@/lib/db");
+      const { processDigitalBookOrder } = await import(
+        "@/lib/services/digital-order-service"
+      );
 
-    // Send confirmation email to customer if we have their email
-    if (userEmail) {
-      try {
-        // Get order details from database (mocked here)
-        const orderDetails = {
-          id: orderId,
-          items: [
-            {
-              name: "Example Product",
-              quantity: 1,
-              price: paymentIntent.amount / 100, // Convert from cents to dollars
-            },
-          ],
-          total: paymentIntent.amount / 100, // Convert from cents to dollars
-        };
+      // Update order payment status in database
+      await db.order.update({
+        where: { id: orderId },
+        data: {
+          paymentStatus: "PAID",
+          status: "COMPLETED", // For digital products, complete immediately
+        },
+      });
 
-        // Send email using our email API
-        await fetch("/api/email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            type: "orderConfirmation",
-            data: {
-              to: userEmail,
-              order: orderDetails,
-            },
-          }),
-        });
+      // Get order with includes for processing
+      const updatedOrder = (await db.order.findUnique({
+        where: { id: orderId },
+        include: {
+          items: true,
+          user: true,
+        },
+      })) as any;
+
+      if (!updatedOrder) {
+        throw new Error(`Order not found after update: ${orderId}`);
+      }
+
+      console.log(`Updated order ${updatedOrder.orderNumber} to paid status`);
+
+      // Check if order contains digital books
+      const digitalItems = await db.orderItem.findMany({
+        where: {
+          orderId: orderId,
+          isDigital: true,
+        },
+      });
+
+      const hasDigitalBooks = digitalItems.length > 0;
+
+      if (hasDigitalBooks) {
+        console.log(
+          `Order ${updatedOrder.orderNumber} contains digital books, processing delivery...`
+        );
+
+        // Process digital book delivery
+        await processDigitalBookOrder(orderId);
 
         console.log(
-          `Confirmation email sent to ${userEmail} for order ${orderId}`
+          `Digital book delivery processed for order ${updatedOrder.orderNumber}`
         );
-      } catch (error) {
-        console.error(
-          `Failed to send confirmation email: ${(error as Error).message}`
-        );
+      } else {
+        // For physical products, send regular order confirmation
+        if (userEmail) {
+          try {
+            // Send regular order confirmation email via Brevo
+            await fetch(
+              `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/email/brevo`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  type: "orderConfirmation",
+                  data: {
+                    to: userEmail,
+                    order: updatedOrder,
+                    user: updatedOrder.user,
+                  },
+                }),
+              }
+            );
+
+            console.log(
+              `Order confirmation email sent to ${userEmail} for order ${updatedOrder.orderNumber}`
+            );
+          } catch (emailError) {
+            console.error(
+              `Failed to send order confirmation email:`,
+              emailError
+            );
+          }
+        }
       }
+    } catch (error) {
+      console.error(
+        `Error processing successful payment for order ${orderId}:`,
+        error
+      );
     }
   }
 }

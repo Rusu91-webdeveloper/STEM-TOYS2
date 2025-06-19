@@ -11,6 +11,7 @@ import {
   BarChart,
   LucideIcon,
   FileText,
+  BookOpen,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -64,6 +65,11 @@ export const adminNavItems = [
     title: "Products",
     href: "/admin/products",
     icon: Package,
+  },
+  {
+    title: "Books",
+    href: "/admin/books",
+    icon: BookOpen,
   },
   {
     title: "Blog",

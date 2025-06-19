@@ -128,6 +128,160 @@ function generateEmailContainer(content: string): string {
 // Email templates with Brevo integration
 export const emailTemplates = {
   /**
+   * Digital book delivery email with download links
+   */
+  digitalBookDelivery: async ({
+    to,
+    customerName,
+    orderId,
+    books,
+    downloadLinks,
+  }: {
+    to: string;
+    customerName: string;
+    orderId: string;
+    books: Array<{
+      name: string;
+      author: string;
+      price: number;
+      coverImage?: string;
+    }>;
+    downloadLinks: Array<{
+      bookName: string;
+      format: string;
+      language: string;
+      downloadUrl: string;
+      expiresAt: Date;
+    }>;
+  }) => {
+    const storeSettings = await getStoreSettings();
+    const baseUrl = getBaseUrl();
+
+    // Group download links by book
+    const bookDownloads = downloadLinks.reduce(
+      (acc, link) => {
+        const key = link.bookName;
+        if (!acc[key]) {
+          acc[key] = [];
+        }
+        acc[key].push(link);
+        return acc;
+      },
+      {} as Record<string, typeof downloadLinks>
+    );
+
+    // Calculate total value
+    const totalValue = books.reduce((sum, book) => sum + book.price, 0);
+
+    const content = `
+      ${generateEmailHeader(storeSettings)}
+      
+      <h1 style="color: #1f2937; margin-bottom: 24px; text-align: center; font-size: 28px; font-weight: 700;">📚 Cărțile tale digitale sunt gata!</h1>
+      
+      <p style="font-size: 16px; margin-bottom: 16px;">Salut <strong>${customerName}</strong>,</p>
+      
+      <p style="font-size: 16px; margin-bottom: 20px;">Îți mulțumim pentru comanda <strong>#${orderId}</strong>! Cărțile tale digitale sunt acum disponibile pentru descărcare. Toate fișierele sunt în format <strong>EPUB</strong> și <strong>KBP</strong>, perfecte pentru orice dispozitiv de citire.</p>
+      
+      <div style="background-color: #ecfdf5; border: 1px solid #bbf7d0; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <h3 style="color: #047857; margin: 0 0 16px 0; text-align: center;">📖 Cărțile tale achiziționate (${formatPrice(totalValue)})</h3>
+        
+        ${books
+          .map((book, index) => {
+            const bookLinks = bookDownloads[book.name] || [];
+            return `
+            <div style="border: 1px solid #d1fae5; border-radius: 8px; padding: 16px; margin-bottom: ${index < books.length - 1 ? "16px" : "0"}; background-color: #ffffff;">
+              <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                ${book.coverImage ? `<img src="${book.coverImage}" alt="${book.name}" style="width: 60px; height: 80px; object-fit: cover; border-radius: 4px; margin-right: 16px;">` : ""}
+                <div>
+                  <h4 style="margin: 0 0 4px 0; color: #1f2937; font-size: 18px;">${book.name}</h4>
+                  <p style="margin: 0 0 4px 0; color: #6b7280; font-size: 14px;">de ${book.author}</p>
+                  <p style="margin: 0; color: #047857; font-weight: 600;">${formatPrice(book.price)}</p>
+                </div>
+              </div>
+              
+              <div style="background-color: #f8fafc; border-radius: 6px; padding: 12px;">
+                <p style="margin: 0 0 8px 0; color: #374151; font-weight: 600; font-size: 14px;">📥 Link-uri de descărcare:</p>
+                ${bookLinks
+                  .map(
+                    (link) => `
+                  <div style="margin-bottom: 8px;">
+                    <a href="${link.downloadUrl}" 
+                       style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: white; padding: 8px 16px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 14px; display: inline-block; margin-right: 8px;">
+                      📄 ${link.format.toUpperCase()} - ${link.language === "en" ? "English" : "Română"}
+                    </a>
+                  </div>
+                `
+                  )
+                  .join("")}
+              </div>
+            </div>
+          `;
+          })
+          .join("")}
+      </div>
+      
+      <div style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <h3 style="color: #92400e; margin: 0 0 12px 0;">⚠️ Informații importante despre descărcarea fișierelor:</h3>
+        <ul style="margin: 0; padding-left: 20px; color: #92400e;">
+          <li style="margin-bottom: 8px;"><strong>Link-urile vor expira în 30 de zile</strong> de la data acestui email</li>
+          <li style="margin-bottom: 8px;">Poți descărca fiecare fișier de <strong>maksimum 5 ori</strong></li>
+          <li style="margin-bottom: 8px;">Fișierele sunt compatibile cu majoritatea dispozitivelor și aplicațiilor de citire</li>
+          <li style="margin-bottom: 8px;">Păstrează o copie de rezervă a fișierelor după descărcare</li>
+        </ul>
+      </div>
+      
+      <div style="background-color: #eff6ff; border-radius: 8px; padding: 20px; margin: 24px 0;">
+        <h3 style="color: #1e40af; margin: 0 0 12px 0;">💡 Cum să citești cărțile tale digitale:</h3>
+        <ul style="margin: 0; padding-left: 20px; color: #1f2937;">
+          <li style="margin-bottom: 8px;"><strong>EPUB:</strong> Perfect pentru telefoane, tablete și e-readere (Kindle, Kobo, etc.)</li>
+          <li style="margin-bottom: 8px;"><strong>KBP:</strong> Format optimizat pentru o experiență de citire superioară</li>
+          <li style="margin-bottom: 8px;">Poți folosi aplicații gratuite ca Adobe Digital Editions, Apple Books sau Google Play Books</li>
+        </ul>
+      </div>
+      
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="${baseUrl}/account/orders" 
+           style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; display: inline-block; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+          📋 Vezi Istoric Comenzi
+        </a>
+      </div>
+      
+      <div style="background-color: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 20px; text-align: center; margin: 32px 0;">
+        <p style="margin: 0 0 12px 0; color: #1e40af; font-weight: 600;">🔍 Ai nevoie de ajutor?</p>
+        <p style="margin: 0; color: #1e40af;">
+          Echipa noastră de suport este aici pentru tine! 
+          <a href="${baseUrl}/contact" style="color: #3b82f6; text-decoration: none; font-weight: 600;">Contactează-ne</a> 
+          dacă întâmpini probleme cu descărcarea.
+        </p>
+      </div>
+      
+      <p style="font-size: 16px; text-align: center; margin-top: 32px;">Îți mulțumim că ai ales ${storeSettings.storeName}!<br><strong>Echipa ${storeSettings.storeName}</strong></p>
+    `;
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="ro">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cărțile tale digitale sunt gata! - ${storeSettings.storeName}</title>
+      </head>
+      <body style="margin: 0; padding: 20px; background-color: #f3f4f6;">
+        ${generateEmailContainer(content)}
+        ${generateEmailFooter(storeSettings)}
+      </body>
+      </html>
+    `;
+
+    return sendMail({
+      to,
+      subject: `📚 Cărțile tale digitale sunt gata pentru descărcare! - Comanda #${orderId}`,
+      html,
+      params: { email: to },
+    });
+  },
+
+  /**
    * Welcome email with SEO optimized links and content
    */
   welcome: async ({ to, name }: { to: string; name: string }) => {
@@ -923,14 +1077,14 @@ export const emailTemplates = {
                 .map((product) => {
                   // Safely get the first image URL or use placeholder
                   let imageUrl = `${baseUrl}/images/placeholder.png`;
-                  const productImages = product.images as string[] | null;
+                  const productImages = product.images as unknown;
                   if (
                     productImages &&
                     Array.isArray(productImages) &&
                     productImages.length > 0
                   ) {
                     // Type guard to ensure we have string array
-                    const images = productImages.filter(
+                    const images = (productImages as any[]).filter(
                       (img): img is string => typeof img === "string"
                     );
                     if (images.length > 0) {

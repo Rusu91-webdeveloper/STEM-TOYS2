@@ -7,8 +7,6 @@ export async function GET(
 ) {
   const { slug } = await params;
   try {
-    console.log(`Looking for combined product/book with slug: ${slug}`);
-
     // First, try to find a product with this slug
     const product = await db.product.findFirst({
       where: {
@@ -21,12 +19,10 @@ export async function GET(
     });
 
     if (product) {
-      console.log(`Found product with slug: ${slug}`);
       return NextResponse.json(product);
     }
 
     // If no product found, try to find a book
-    console.log(`No product found, looking for book with slug: ${slug}`);
     const book = await db.book.findFirst({
       where: {
         slug: slug,
@@ -38,9 +34,7 @@ export async function GET(
     });
 
     if (book) {
-      console.log(`Found book with slug: ${slug}`);
-
-      // Convert book to product format
+      // Transform book to product-like structure
       const bookAsProduct = {
         id: book.id,
         name: book.name,
@@ -57,37 +51,30 @@ export async function GET(
         tags: ["book", "educational"],
         attributes: {
           author: book.author,
-          languages: book.languages.map((lang) => lang.name).join(", "),
-          type: "Book",
-          isBook: "true",
+          languages:
+            (book as any).languages?.map((lang: any) => lang.name) || [],
         },
         isActive: book.isActive,
         createdAt: book.createdAt,
         updatedAt: book.updatedAt,
-        stockQuantity: 10, // Default stock for books
-        featured: true, // Feature all books
-        isBook: true, // Add a flag to indicate this is a book
+        stockQuantity: 10,
+        featured: true,
+        isBook: true, // Flag to identify this as a book
       };
 
       return NextResponse.json(bookAsProduct);
     }
 
-    // If neither product nor book found, return 404
-    console.log(`No product or book found with slug: ${slug}`);
-    return new NextResponse(null, { status: 404 });
-  } catch (error) {
-    console.error(
-      `Error fetching combined product/book with slug ${slug}:`,
-      error
+    // If neither product nor book found
+    return NextResponse.json(
+      { error: `No product or book found with slug: ${slug}` },
+      { status: 404 }
     );
-    return new NextResponse(
-      JSON.stringify({ error: "Failed to fetch product" }),
-      {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
+  } catch (error) {
+    console.error("Error fetching combined product/book:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
     );
   }
 }

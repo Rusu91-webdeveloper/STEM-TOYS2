@@ -409,20 +409,20 @@ export default function Home() {
                     <Button
                       asChild
                       className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-800 px-1 text-xs sm:text-sm md:text-base h-auto py-2 sm:py-2.5">
-                      <Link href="/products/stem-play-neurodiverse-minds-english">
+                      <Link href="/products/stem-play-for-neurodiverse-minds">
                         <span className="mr-2">🇬🇧</span>{" "}
                         {language === "ro"
-                          ? ""
+                          ? "Cumpără"
                           : t("buyInEnglish" as any, "Buy")}
                       </Link>
                     </Button>
                     <Button
                       asChild
                       className="flex items-center justify-center bg-gradient-to-r from-yellow-600 to-red-600 px-1 text-xs sm:text-sm md:text-base h-auto py-2 sm:py-2.5">
-                      <Link href="/products/stem-play-neurodiverse-minds-romanian">
+                      <Link href="/products/stem-play-for-neurodiverse-minds">
                         <span className="mr-2">🇷🇴</span>{" "}
                         {language === "ro"
-                          ? ""
+                          ? "Cumpără"
                           : t("buyInRomanian" as any, "Buy")}
                       </Link>
                     </Button>
@@ -469,20 +469,20 @@ export default function Home() {
                     <Button
                       asChild
                       className="flex items-center justify-center bg-gradient-to-r from-blue-600 to-blue-800 px-1 text-xs sm:text-sm md:text-base h-auto py-2 sm:py-2.5">
-                      <Link href="/products/born-for-the-future-english">
+                      <Link href="/products/born-for-the-future">
                         <span className="mr-2">🇬🇧</span>{" "}
                         {language === "ro"
-                          ? ""
+                          ? "Cumpără"
                           : t("buyInEnglish" as any, "Buy")}
                       </Link>
                     </Button>
                     <Button
                       asChild
                       className="flex items-center justify-center bg-gradient-to-r from-yellow-600 to-red-600 px-1 text-xs sm:text-sm md:text-base h-auto py-2 sm:py-2.5">
-                      <Link href="/products/born-for-the-future-romanian">
+                      <Link href="/products/born-for-the-future">
                         <span className="mr-2">🇷🇴</span>{" "}
                         {language === "ro"
-                          ? ""
+                          ? "Cumpără"
                           : t("buyInRomanian" as any, "Buy")}
                       </Link>
                     </Button>

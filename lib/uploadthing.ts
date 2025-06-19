@@ -173,6 +173,54 @@ export const ourFileRouter = {
       console.log("Document upload complete:", res);
       return { fileUrl: res.file.ufsUrl }; // Use ufsUrl instead of url
     }),
+
+  // Digital book files endpoint (EPUB, KBP)
+  digitalBook: f({
+    blob: {
+      maxFileSize: "32MB",
+      maxFileCount: 10,
+    },
+  })
+    .middleware(async () => {
+      console.log("UploadThing middleware running for digitalBook");
+
+      // Get the authenticated user from the session
+      const session = await auth();
+
+      // Check if the user is authenticated and is an admin
+      if (!session || !session.user) {
+        throw new Error("Unauthorized: You must be logged in to upload files");
+      }
+
+      // Only admins can upload digital book files
+      if (session.user.role !== "ADMIN") {
+        throw new Error("Forbidden: Only admins can upload digital book files");
+      }
+
+      return { userId: session.user.id };
+    })
+    .onUploadComplete((res) => {
+      console.log("Digital book upload complete:", res);
+
+      // Validate file extension
+      const allowedExtensions = [".epub", ".kbp"];
+      const fileName = res.file.name.toLowerCase();
+      const hasValidExtension = allowedExtensions.some((ext) =>
+        fileName.endsWith(ext)
+      );
+
+      if (!hasValidExtension) {
+        throw new Error(
+          "Invalid file type. Only EPUB and KBP files are allowed for digital books."
+        );
+      }
+
+      return {
+        fileUrl: res.file.ufsUrl,
+        fileName: res.file.name,
+        fileSize: res.file.size,
+      };
+    }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;

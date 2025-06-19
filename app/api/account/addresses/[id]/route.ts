@@ -13,7 +13,7 @@ const updateAddressSchema = addressSchema.extend({
 // GET - Get a specific address
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -25,7 +25,7 @@ export async function GET(
       );
     }
 
-    const addressId = params.id;
+    const { id: addressId } = await params;
 
     // Handle special case for environment-based admin accounts
     let userId = session.user.id;
@@ -68,7 +68,7 @@ export async function GET(
 // PUT - Update an address
 export async function PUT(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -80,7 +80,7 @@ export async function PUT(
       );
     }
 
-    const addressId = params.id;
+    const { id: addressId } = await params;
     const body = await req.json();
 
     // Validate request body
@@ -162,7 +162,7 @@ export async function PUT(
 // DELETE - Delete an address
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth();
@@ -174,7 +174,7 @@ export async function DELETE(
       );
     }
 
-    const addressId = params.id;
+    const { id: addressId } = await params;
 
     // Handle special case for environment-based admin accounts
     let userId = session.user.id;

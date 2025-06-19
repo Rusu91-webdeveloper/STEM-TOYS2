@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  // output   = "../app/generated/prisma"
 }
 
 datasource db {
@@ -21,6 +20,7 @@ model User {
   updatedAt           DateTime             @updatedAt
   addresses           Address[]
   blogs               Blog[]
+  digitalDownloads    DigitalDownload[]
   orders              Order[]
   passwordResetTokens PasswordResetToken[]
   paymentCards        PaymentCard[]
@@ -165,29 +165,50 @@ model Blog {
 }
 
 model Book {
-  id          String     @id @default(cuid())
-  name        String
-  slug        String     @unique
-  author      String
-  description String
-  price       Float      @default(50)
-  coverImage  String?
-  isActive    Boolean    @default(true)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  metadata    Json?
-  languages   Language[]
+  id           String        @id @default(cuid())
+  name         String
+  slug         String        @unique
+  author       String
+  description  String
+  price        Float         @default(50)
+  coverImage   String?
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  metadata     Json?
+  isDigital    Boolean       @default(true)
+  digitalFiles DigitalFile[]
+  languages    Language[]
+  orderItems   OrderItem[]
+}
+
+model DigitalFile {
+  id        String            @id @default(cuid())
+  bookId    String
+  fileName  String
+  fileUrl   String
+  fileSize  Int
+  format    String
+  language  String
+  isActive  Boolean           @default(true)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  downloads DigitalDownload[]
+  book      Book              @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, format, language])
+  @@index([bookId])
+  @@index([format])
+  @@index([language])
 }
 
 model Language {
   id          String  @id @default(cuid())
-  name        String
+  name        String  @unique
   code        String  @unique
-  bookId      String
+  nativeName  String?
   isAvailable Boolean @default(true)
-  book        Book    @relation(fields: [bookId], references: [id], onDelete: Cascade)
-
-  @@index([bookId])
+  books       Book[]
 }
 
 model Order {
@@ -204,9 +225,9 @@ model Order {
   notes             String?
   shippingAddressId String
   billingAddressId  String?
-  deliveredAt       DateTime?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
+  deliveredAt       DateTime?
   shippingAddress   Address       @relation(fields: [shippingAddressId], references: [id])
   user              User          @relation(fields: [userId], references: [id])
   items             OrderItem[]
@@ -219,20 +240,28 @@ model Order {
 }
 
 model OrderItem {
-  id           String                @id @default(cuid())
-  orderId      String
-  productId    String
-  name         String
-  price        Float
-  quantity     Int
-  returnStatus OrderItemReturnStatus @default(NONE)
-  order        Order                 @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product      Product               @relation(fields: [productId], references: [id])
-  returns      Return[]
-  reviews      Review[]
+  id                String                @id @default(cuid())
+  orderId           String
+  productId         String?
+  name              String
+  price             Float
+  quantity          Int
+  returnStatus      OrderItemReturnStatus @default(NONE)
+  bookId            String?
+  downloadCount     Int                   @default(0)
+  downloadExpiresAt DateTime?
+  isDigital         Boolean               @default(false)
+  maxDownloads      Int                   @default(5)
+  downloads         DigitalDownload[]
+  book              Book?                 @relation(fields: [bookId], references: [id])
+  order             Order                 @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product           Product?              @relation(fields: [productId], references: [id])
+  returns           Return[]
+  reviews           Review[]
 
   @@index([orderId])
   @@index([productId])
+  @@index([bookId])
 }
 
 model StoreSettings {
@@ -250,11 +279,11 @@ model StoreSettings {
   metaDescription  String   @default("Discover the best STEM toys for curious minds at TechTots. Educational toys that make learning fun for children of all ages.")
   metaKeywords     String   @default("STEM toys, educational toys, science toys, technology toys, engineering toys, math toys")
   shippingSettings Json?
-  taxSettings      Json?
   paymentSettings  Json?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   metadata         Json?
+  taxSettings      Json?
 }
 
 model Return {
@@ -305,9 +334,31 @@ model Newsletter {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   categories String[] @default([])
-  
+
   @@index([email])
   @@index([isActive])
+}
+
+model DigitalDownload {
+  id            String      @id @default(cuid())
+  orderItemId   String
+  userId        String
+  digitalFileId String
+  downloadToken String      @unique
+  expiresAt     DateTime
+  downloadedAt  DateTime?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime    @default(now())
+  digitalFile   DigitalFile @relation(fields: [digitalFileId], references: [id], onDelete: Cascade)
+  orderItem     OrderItem   @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([orderItemId])
+  @@index([userId])
+  @@index([digitalFileId])
+  @@index([downloadToken])
+  @@index([expiresAt])
 }
 
 enum OrderItemReturnStatus {
