@@ -480,13 +480,37 @@ export async function POST(request: Request) {
         console.log(
           `Order contains ${digitalBooks.length} digital book(s), triggering digital processing...`
         );
+
+        // Create language preferences map from cart items
+        const languagePreferences = new Map<string, string>();
+
+        // Match cart items with order items to extract language preferences
+        for (const orderItem of digitalBooks) {
+          // Find the corresponding cart item by matching the item name
+          const cartItem = items.find((item) => item.name === orderItem.name);
+
+          if (cartItem?.selectedLanguage) {
+            languagePreferences.set(orderItem.id, cartItem.selectedLanguage);
+            console.log(
+              `Language preference for order item ${orderItem.id}: ${cartItem.selectedLanguage}`
+            );
+          } else {
+            console.log(
+              `No language preference found for order item ${orderItem.id} (${orderItem.name})`
+            );
+          }
+        }
+
         try {
-          // Process digital order directly
+          // Process digital order with language preferences
           const digitalOrderService = await import(
             "@/lib/services/digital-order-service"
           );
           if (digitalOrderService.processDigitalBookOrder) {
-            await digitalOrderService.processDigitalBookOrder(dbOrder.id);
+            await digitalOrderService.processDigitalBookOrder(
+              dbOrder.id,
+              languagePreferences
+            );
             console.log("Digital book processing completed successfully");
           } else {
             console.log("Digital order processing not available");

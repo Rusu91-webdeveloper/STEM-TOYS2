@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
-import { emailTemplates } from "@/lib/brevoTemplates";
 import crypto from "crypto";
+import { sendMail } from "@/lib/brevo";
+import { emailTemplates } from "@/lib/brevoTemplates";
 
 interface DigitalOrderItem {
   id: string;
@@ -38,53 +39,44 @@ export async function processDigitalBookOrder(
   languagePreferences?: Map<string, string>
 ): Promise<void> {
   try {
-    console.log(`Processing digital book order: ${orderId}`);
+    console.log(`🔄 Processing digital book order: ${orderId}`);
 
-    // Get the order with all digital book items
-    const order = await db.order.findUnique({
-      where: { id: orderId },
-      include: {
-        user: true,
-        items: {
-          where: { isDigital: true },
-          include: {
-            book: {
-              include: {
-                digitalFiles: {
-                  where: { isActive: true },
-                },
-              },
-            },
-          },
-        },
-      },
-    });
+    // Use raw query to avoid TypeScript issues
+    const orderData = (await db.$queryRaw`
+      SELECT 
+        o.id as order_id,
+        o."orderNumber" as order_number,
+        o."userId" as user_id,
+        u.email as user_email,
+        u.name as user_name,
+        oi.id as item_id,
+        oi.name as item_name,
+        oi.price as item_price,
+        oi."bookId" as book_id,
+        b.name as book_name,
+        b.author as book_author,
+        b."coverImage" as book_cover
+      FROM "Order" o
+      INNER JOIN "User" u ON o."userId" = u.id
+      INNER JOIN "OrderItem" oi ON o.id = oi."orderId"
+      LEFT JOIN "Book" b ON oi."bookId" = b.id
+      WHERE o.id = ${orderId}
+      AND oi."bookId" IS NOT NULL
+    `) as any[];
 
-    if (!order) {
-      throw new Error(`Order not found: ${orderId}`);
-    }
-
-    if (order.items.length === 0) {
-      console.log(`No digital items found in order: ${orderId}`);
+    if (orderData.length === 0) {
+      console.log(`❌ No digital book items found in order: ${orderId}`);
       return;
     }
 
-    console.log(
-      `Found ${order.items.length} digital items in order ${order.orderNumber}`
-    );
+    console.log(`📚 Found ${orderData.length} digital book items in order`);
 
-    // Set download expiration (30 days from now)
-    const downloadExpiresAt = new Date();
-    downloadExpiresAt.setDate(downloadExpiresAt.getDate() + 30);
-
-    // Generate download tokens for each digital file
-    const downloadLinks: Array<{
-      bookName: string;
-      format: string;
-      language: string;
-      downloadUrl: string;
-      expiresAt: Date;
-    }> = [];
+    // Get unique books and user info
+    const userInfo = {
+      email: orderData[0].user_email,
+      name: orderData[0].user_name,
+      orderNumber: orderData[0].order_number,
+    };
 
     const books: Array<{
       name: string;
@@ -93,73 +85,81 @@ export async function processDigitalBookOrder(
       coverImage?: string;
     }> = [];
 
-    for (const orderItem of order.items) {
-      if (!orderItem.book) {
-        console.error(`Book not found for order item: ${orderItem.id}`);
-        continue;
-      }
+    const downloadLinks: Array<{
+      bookName: string;
+      format: string;
+      language: string;
+      downloadUrl: string;
+      expiresAt: Date;
+    }> = [];
 
-      const book = orderItem.book;
+    // Set download expiration (30 days from now)
+    const downloadExpiresAt = new Date();
+    downloadExpiresAt.setDate(downloadExpiresAt.getDate() + 30);
 
-      // Add book info for email
-      const bookInfo = {
-        name: book.name,
-        author: book.author,
-        price: orderItem.price,
-        coverImage: book.coverImage || undefined,
-      };
-
-      // Check if we already added this book
-      const existingBook = books.find((b) => b.name === bookInfo.name);
+    // Process each order item
+    for (const item of orderData) {
+      // Add book info (avoid duplicates)
+      const existingBook = books.find((b) => b.name === item.book_name);
       if (!existingBook) {
-        books.push(bookInfo);
+        books.push({
+          name: item.book_name,
+          author: item.book_author,
+          price: item.item_price,
+          coverImage: item.book_cover || undefined,
+        });
       }
 
-      // Update order item with download expiration
-      await db.orderItem.update({
-        where: { id: orderItem.id },
-        data: {
-          downloadExpiresAt,
-        },
-      });
+      // Get digital files for this book
+      const digitalFiles = (await db.$queryRaw`
+        SELECT id, "fileName", "fileUrl", "fileSize", format, language
+        FROM "DigitalFile"
+        WHERE "bookId" = ${item.book_id}
+        AND "isActive" = true
+      `) as any[];
 
-      // Filter digital files by selected language if specified
-      let digitalFilesToProcess = book.digitalFiles;
-
-      // Check if there's a language preference for this order item
-      const selectedLanguage = languagePreferences?.get(orderItem.id);
+      // Filter by selected language if specified
+      const selectedLanguage = languagePreferences?.get(item.item_id);
+      let filesToProcess = digitalFiles;
 
       if (selectedLanguage) {
-        digitalFilesToProcess = book.digitalFiles.filter(
-          (file) => file.language === selectedLanguage
+        filesToProcess = digitalFiles.filter(
+          (file: any) => file.language === selectedLanguage
         );
         console.log(
-          `Filtering digital files for language: ${selectedLanguage} for book: ${book.name}`
+          `🌐 Language ${selectedLanguage} selected for ${item.book_name}`
+        );
+        console.log(
+          `📁 Found ${filesToProcess.length} files for ${selectedLanguage} language`
+        );
+      } else {
+        console.log(
+          `⚠️  No language preference for ${item.book_name}, using all languages`
         );
       }
 
-      // If no files match the selected language, fall back to all files
-      if (digitalFilesToProcess.length === 0) {
+      // Fallback to all files if none match selected language
+      if (filesToProcess.length === 0 && selectedLanguage) {
         console.warn(
-          `No digital files found for language ${selectedLanguage} for book ${book.name}. Using all available files.`
+          `❌ No files for ${selectedLanguage}, falling back to all languages`
         );
-        digitalFilesToProcess = book.digitalFiles;
+        filesToProcess = digitalFiles;
       }
 
-      // Create download records for each digital file
-      for (const digitalFile of digitalFilesToProcess) {
+      // Create downloads for each file
+      for (const file of filesToProcess) {
         const downloadToken = generateDownloadToken();
 
         // Create download record
-        await db.digitalDownload.create({
-          data: {
-            orderItemId: orderItem.id,
-            userId: order.userId,
-            digitalFileId: digitalFile.id,
-            downloadToken,
-            expiresAt: downloadExpiresAt,
-          },
-        });
+        await db.$executeRaw`
+          INSERT INTO "DigitalDownload" (
+            "id", "orderItemId", "userId", "digitalFileId", 
+            "downloadToken", "expiresAt", "createdAt"
+          ) VALUES (
+            ${crypto.randomUUID()}, ${item.item_id}, ${item.user_id}, 
+            ${file.id}, ${downloadToken}, ${downloadExpiresAt}, ${new Date()}
+          )
+        `;
 
         // Build download URL
         const baseUrl =
@@ -169,49 +169,42 @@ export async function processDigitalBookOrder(
         const downloadUrl = `${baseUrl}/api/download/${downloadToken}`;
 
         downloadLinks.push({
-          bookName: book.name,
-          format: digitalFile.format,
-          language: digitalFile.language,
+          bookName: item.book_name,
+          format: file.format,
+          language: file.language,
           downloadUrl,
           expiresAt: downloadExpiresAt,
         });
 
+        const languageName = file.language === "en" ? "English" : "Română";
         console.log(
-          `Created download link for ${book.name} (${digitalFile.format}, ${digitalFile.language})`
+          `✅ Created ${languageName} download: ${item.book_name} (${file.format.toUpperCase()})`
         );
       }
     }
 
-    console.log(
-      `Generated ${downloadLinks.length} download links for order ${order.orderNumber}`
-    );
+    console.log(`🎯 Generated ${downloadLinks.length} download links`);
 
     // Send delivery email
     try {
       await emailTemplates.digitalBookDelivery({
-        to: order.user.email,
-        customerName: order.user.name || "Valued Customer",
-        orderId: order.orderNumber,
+        to: userInfo.email,
+        customerName: userInfo.name || "Valued Customer",
+        orderId: userInfo.orderNumber,
         books,
         downloadLinks,
       });
 
-      console.log(
-        `Digital book delivery email sent to ${order.user.email} for order ${order.orderNumber}`
-      );
+      console.log(`📧 Digital book delivery email sent to ${userInfo.email}`);
     } catch (emailError) {
-      console.error(
-        `Failed to send delivery email for order ${order.orderNumber}:`,
-        emailError
-      );
-      // Don't throw here - the download links are still created
+      console.error(`❌ Failed to send delivery email:`, emailError);
     }
 
     console.log(
-      `Successfully processed digital book order: ${order.orderNumber}`
+      `🎉 Successfully processed digital book order: ${userInfo.orderNumber}`
     );
   } catch (error) {
-    console.error(`Error processing digital book order ${orderId}:`, error);
+    console.error(`💥 Error processing digital book order ${orderId}:`, error);
     throw error;
   }
 }

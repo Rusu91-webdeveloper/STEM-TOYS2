@@ -123,6 +123,7 @@ export function CheckoutFlow() {
           price: item.price,
           quantity: item.quantity,
           isBook: item.isBook,
+          selectedLanguage: item.selectedLanguage,
         })),
       };
 
