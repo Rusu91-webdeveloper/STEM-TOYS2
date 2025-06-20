@@ -32,6 +32,8 @@ interface PaymentFormProps {
   shippingAddress?: ShippingAddress;
   billingAddress?: ShippingAddress;
   shippingMethod?: ShippingMethod;
+  appliedCoupon?: any;
+  discountAmount?: number;
   onSubmit: (data: {
     paymentDetails: PaymentDetails;
     billingAddressSameAsShipping: boolean;
@@ -46,6 +48,8 @@ export function PaymentForm({
   shippingAddress,
   billingAddress,
   shippingMethod,
+  appliedCoupon,
+  discountAmount = 0,
   onSubmit,
   onBack,
 }: PaymentFormProps) {
@@ -95,7 +99,8 @@ export function PaymentForm({
         }
 
         const tax = subtotal * taxRate;
-        const total = subtotal + tax + shippingCost;
+        const totalBeforeDiscount = subtotal + tax + shippingCost;
+        const total = Math.max(0, totalBeforeDiscount - discountAmount);
         setTotalAmount(total);
       } catch (error) {
         console.error("Error calculating total:", error);
@@ -107,7 +112,7 @@ export function PaymentForm({
     }
 
     calculateTotal();
-  }, [getCartTotal, shippingMethod]);
+  }, [getCartTotal, shippingMethod, discountAmount]);
 
   // Fetch saved payment cards
   useEffect(() => {
@@ -313,6 +318,28 @@ export function PaymentForm({
             {t("sameAsShipping", "Aceeași ca adresa de livrare")}
           </Label>
         </div>
+
+        {/* Discount Information Display */}
+        {appliedCoupon && discountAmount > 0 && (
+          <div className="my-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <span className="text-green-600 font-medium">
+                  🎉 Discount Applied:
+                </span>
+                <span className="font-mono text-sm bg-green-100 px-2 py-1 rounded text-green-800">
+                  {appliedCoupon.code}
+                </span>
+              </div>
+              <span className="text-green-600 font-bold">
+                -{discountAmount.toFixed(2)} LEI
+              </span>
+            </div>
+            <p className="text-sm text-green-700 mt-2">
+              You're saving {discountAmount.toFixed(2)} LEI on this order!
+            </p>
+          </div>
+        )}
 
         {/* Show the saved card or Stripe form */}
         {!useNewCard && selectedPaymentMethod !== "new" ? (

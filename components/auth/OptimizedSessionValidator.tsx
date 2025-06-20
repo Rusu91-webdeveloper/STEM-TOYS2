@@ -1,20 +1,21 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   validateSessionSmart,
   shouldAutoRedirect,
   getAuthPreferences,
+  clearAuthCookies,
 } from "@/lib/auth/smartSessionManager";
-import { useOptimizedSession } from "@/lib/auth/SessionContext";
 
 /**
- * Smart Session Validator - Uses intelligent session management
- * Dramatically reduced validation calls for better performance
+ * Optimized Session Validator - Dramatically reduces validation calls
+ * Uses smart session management to prevent performance issues
  */
-export function SessionValidator() {
-  const { data: session, status } = useOptimizedSession();
+export function OptimizedSessionValidator() {
+  const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -60,7 +61,7 @@ export function SessionValidator() {
 
         lastValidationRef.current = Date.now();
       } catch (error) {
-        console.error("Validation error in SessionValidator:", error);
+        console.error("Validation error in OptimizedSessionValidator:", error);
         setValidationError(
           error instanceof Error ? error.message : "Unknown error"
         );
@@ -97,7 +98,7 @@ export function SessionValidator() {
 
   // Log validation errors in development
   if (process.env.NODE_ENV === "development" && validationError) {
-    console.warn("SessionValidator error:", validationError);
+    console.warn("OptimizedSessionValidator error:", validationError);
   }
 
   // This component doesn't render anything

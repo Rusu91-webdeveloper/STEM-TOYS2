@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import { useEffect } from "react";
 import { SessionValidator } from "@/components/auth/SessionValidator";
 import { SessionProvider } from "next-auth/react";
+import { CentralizedSessionProvider } from "@/lib/auth/SessionContext";
 import { AccountLinkingNotice } from "@/components/auth/AccountLinkingNotice";
 import PromotionalPopup from "@/components/PromotionalPopup";
 
@@ -23,12 +24,14 @@ export default function ClientLayout({
 
   return (
     <SessionProvider>
-      <SessionValidator />
-      <AccountLinkingNotice />
-      <PromotionalPopup />
-      <Header />
-      <main className="flex-grow">{children}</main>
-      <Footer />
+      <CentralizedSessionProvider>
+        <SessionValidator />
+        <AccountLinkingNotice />
+        <PromotionalPopup />
+        <Header />
+        <main className="flex-grow">{children}</main>
+        <Footer />
+      </CentralizedSessionProvider>
     </SessionProvider>
   );
 }

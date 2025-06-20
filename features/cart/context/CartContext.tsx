@@ -31,15 +31,31 @@ export interface CartItem {
 }
 
 interface CartContextType {
-  cartItems: CartItem[];
+  items: CartItem[]; // Updated to match MiniCart usage
   addToCart: (item: Omit<CartItem, "id">, quantity?: number) => void;
-  removeFromCart: (itemId: string) => void;
-  updateQuantity: (itemId: string, quantity: number) => void;
+  removeItem: (
+    itemId: string,
+    variantId?: string,
+    selectedLanguage?: string
+  ) => void; // Updated signature
+  updateItemQuantity: (
+    itemId: string,
+    quantity: number,
+    variantId?: string,
+    selectedLanguage?: string
+  ) => void; // Updated signature
   clearCart: () => void;
-  getCartTotal: () => number;
+  getTotal: () => number; // Updated to match MiniCart usage
   getItemCount: () => number;
   isLoading: boolean;
+  isEmpty: boolean; // Added for MiniCart
   syncWithServer: () => Promise<void>;
+
+  // Legacy aliases for backward compatibility
+  cartItems: CartItem[];
+  removeFromCart: (itemId: string) => void;
+  updateQuantity: (itemId: string, quantity: number) => void;
+  getCartTotal: () => number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -51,6 +67,9 @@ export const useCart = () => {
   }
   return context;
 };
+
+// Export alias for MiniCart compatibility
+export const useShoppingCart = useCart;
 
 interface CartProviderProps {
   children: ReactNode;
@@ -317,33 +336,61 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     }
   };
 
-  const removeFromCart = async (itemId: string) => {
+  // Updated removeItem function to match MiniCart signature
+  const removeItem = async (
+    itemId: string,
+    variantId?: string,
+    selectedLanguage?: string
+  ) => {
+    // Generate the actual cart item ID if needed
+    const cartItemId =
+      variantId || selectedLanguage
+        ? getCartItemId(itemId, variantId, selectedLanguage)
+        : itemId;
+
     // First update the UI immediately
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
+    setCartItems((prevItems) =>
+      prevItems.filter((item) => item.id !== cartItemId)
+    );
 
     // Then try to sync with server in the background
     try {
-      const success = await removeCartItem(itemId);
+      const success = await removeCartItem(cartItemId);
       if (!success) {
         console.warn(
-          `Failed to remove item ${itemId} from server, but removed from UI`
+          `Failed to remove item ${cartItemId} from server, but removed from UI`
         );
       }
     } catch (error) {
       console.error("Error removing item from cart:", error);
       // Don't revert the UI, just log the error
-      // The item will be removed from the UI regardless of server success
     }
   };
 
-  const updateQuantity = async (itemId: string, quantity: number) => {
+  const removeFromCart = async (itemId: string) => {
+    return removeItem(itemId);
+  };
+
+  // Updated updateItemQuantity function to match MiniCart signature
+  const updateItemQuantity = async (
+    itemId: string,
+    quantity: number,
+    variantId?: string,
+    selectedLanguage?: string
+  ) => {
+    // Generate the actual cart item ID if needed
+    const cartItemId =
+      variantId || selectedLanguage
+        ? getCartItemId(itemId, variantId, selectedLanguage)
+        : itemId;
+
     // First update the UI immediately
     setCartItems(
       (prevItems) =>
         prevItems
           .map(
             (item) =>
-              item.id === itemId
+              item.id === cartItemId
                 ? { ...item, quantity: Math.max(0, quantity) }
                 : item // Prevent negative quantity
           )
@@ -353,30 +400,31 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     // Then try to sync with server in the background
     if (quantity > 0) {
       try {
-        const success = await updateCartItemQuantity(itemId, quantity);
+        const success = await updateCartItemQuantity(cartItemId, quantity);
         if (!success) {
           console.warn(
-            `Failed to update quantity for item ${itemId}, but UI is updated`
+            `Failed to update quantity for item ${cartItemId}, but UI is updated`
           );
         }
       } catch (error) {
         console.error("Error updating item quantity:", error);
-        // Don't revert the UI, just log the error - this prevents a poor user experience
-        // The next time the cart is loaded, it will sync with the server
       }
     } else {
       try {
-        const success = await removeCartItem(itemId);
+        const success = await removeCartItem(cartItemId);
         if (!success) {
           console.warn(
-            `Failed to remove item ${itemId} from server, but removed from UI`
+            `Failed to remove item ${cartItemId} from server, but removed from UI`
           );
         }
       } catch (error) {
         console.error("Error removing item from cart:", error);
-        // Don't revert the UI, just log the error
       }
     }
+  };
+
+  const updateQuantity = async (itemId: string, quantity: number) => {
+    return updateItemQuantity(itemId, quantity);
   };
 
   const clearCart = async () => {
@@ -393,20 +441,34 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     }
   };
 
-  const getCartTotal = () => {
+  const getTotal = () => {
     return cartItems.reduce(
       (total, item) => total + item.price * item.quantity,
       0
     );
   };
 
+  const getCartTotal = () => {
+    return getTotal();
+  };
+
   const getItemCount = () => {
     return cartItems.reduce((count, item) => count + item.quantity, 0);
   };
 
+  const isEmpty = cartItems.length === 0;
+
   return (
     <CartContext.Provider
       value={{
+        // New API for MiniCart
+        items: cartItems,
+        removeItem,
+        updateItemQuantity,
+        getTotal,
+        isEmpty,
+
+        // Legacy API for backward compatibility
         cartItems,
         addToCart,
         removeFromCart,

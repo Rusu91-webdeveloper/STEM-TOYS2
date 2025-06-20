@@ -4,7 +4,15 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Menu, X, User, Settings, ShoppingCart, LogOut } from "lucide-react";
+import {
+  Menu,
+  X,
+  User,
+  Settings,
+  ShoppingCart,
+  LogOut,
+  Shield,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { CartButton } from "@/features/cart";
@@ -12,7 +20,9 @@ import { LanguageSwitcher } from "@/components/ui/language-switcher";
 import { CurrencySwitcher } from "@/components/ui/currency-switcher";
 import { useTranslation } from "@/lib/i18n";
 import { TranslationKey } from "@/lib/i18n/translations";
-import { useSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
+import { useOptimizedSession } from "@/lib/auth/SessionContext";
+import { AuthSettings } from "@/components/auth/AuthSettings";
 
 const navigation: { name: TranslationKey; href: string }[] = [
   { name: "home", href: "/" },
@@ -24,9 +34,10 @@ const navigation: { name: TranslationKey; href: string }[] = [
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [authSettingsOpen, setAuthSettingsOpen] = useState(false);
   const pathname = usePathname();
   const { t } = useTranslation();
-  const { data: session, status } = useSession();
+  const { data: session, status } = useOptimizedSession();
 
   // Check if user is logged in
   const isLoggedIn = status === "authenticated";
@@ -136,6 +147,14 @@ export default function Header() {
                 )}
 
                 <Button
+                  onClick={() => setAuthSettingsOpen(true)}
+                  variant="ghost"
+                  className="flex items-center gap-1 lg:gap-1.5 px-2 lg:px-4 py-1.5 lg:py-2 rounded-md text-xs lg:text-sm font-medium text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer shadow-sm hover:shadow h-auto">
+                  <Shield className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+                  <span>Auth</span>
+                </Button>
+
+                <Button
                   onClick={handleSignOut}
                   variant="ghost"
                   className="flex items-center gap-1 lg:gap-1.5 px-2 lg:px-4 py-1.5 lg:py-2 rounded-md text-xs lg:text-sm font-medium text-red-600 hover:bg-red-50 transition-colors cursor-pointer shadow-sm hover:shadow h-auto">
@@ -144,7 +163,15 @@ export default function Header() {
                 </Button>
               </div>
             ) : (
-              <div className="ml-3 lg:ml-6 border-l pl-3 lg:pl-6 border-gray-200">
+              <div className="flex items-center space-x-1.5 lg:space-x-3 ml-3 lg:ml-6 border-l pl-3 lg:pl-6 border-gray-200">
+                <Button
+                  onClick={() => setAuthSettingsOpen(true)}
+                  variant="ghost"
+                  className="flex items-center gap-1 lg:gap-1.5 px-2 lg:px-4 py-1.5 lg:py-2 rounded-md text-xs lg:text-sm font-medium text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer shadow-sm hover:shadow h-auto">
+                  <Shield className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
+                  <span>Auth</span>
+                </Button>
+
                 <Link
                   href="/auth/login"
                   className="flex items-center gap-1 px-2.5 lg:px-4 py-1.5 lg:py-2 rounded-md bg-indigo-600 text-white text-xs lg:text-sm font-medium hover:bg-indigo-700 transition-colors shadow-sm hover:shadow cursor-pointer">
@@ -243,6 +270,17 @@ export default function Header() {
                         )}
                         <button
                           onClick={() => {
+                            setAuthSettingsOpen(true);
+                            setMobileMenuOpen(false);
+                          }}
+                          className="w-full block rounded-md px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium text-blue-600 hover:bg-blue-50 cursor-pointer mb-1.5 sm:mb-2">
+                          <div className="flex items-center">
+                            <Shield className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 sm:mr-2" />
+                            <span>Auth Settings</span>
+                          </div>
+                        </button>
+                        <button
+                          onClick={() => {
                             handleSignOut();
                             setMobileMenuOpen(false);
                           }}
@@ -254,17 +292,30 @@ export default function Header() {
                         </button>
                       </>
                     ) : (
-                      <Link
-                        href="/auth/login"
-                        className="flex items-center w-full justify-center gap-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-md bg-indigo-600 text-white text-sm sm:text-base font-medium hover:bg-indigo-700 transition-colors shadow-sm hover:shadow cursor-pointer"
-                        onClick={() => setMobileMenuOpen(false)}>
-                        {t("login")}
-                        <span
-                          aria-hidden="true"
-                          className="ml-1">
-                          &rarr;
-                        </span>
-                      </Link>
+                      <>
+                        <button
+                          onClick={() => {
+                            setAuthSettingsOpen(true);
+                            setMobileMenuOpen(false);
+                          }}
+                          className="w-full block rounded-md px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base font-medium text-blue-600 hover:bg-blue-50 cursor-pointer mb-3">
+                          <div className="flex items-center">
+                            <Shield className="h-4 w-4 sm:h-5 sm:w-5 mr-1.5 sm:mr-2" />
+                            <span>Auth Settings</span>
+                          </div>
+                        </button>
+                        <Link
+                          href="/auth/login"
+                          className="flex items-center w-full justify-center gap-1 px-3 sm:px-4 py-2.5 sm:py-3 rounded-md bg-indigo-600 text-white text-sm sm:text-base font-medium hover:bg-indigo-700 transition-colors shadow-sm hover:shadow cursor-pointer"
+                          onClick={() => setMobileMenuOpen(false)}>
+                          {t("login")}
+                          <span
+                            aria-hidden="true"
+                            className="ml-1">
+                            &rarr;
+                          </span>
+                        </Link>
+                      </>
                     )}
                   </div>
                 </div>
@@ -273,6 +324,12 @@ export default function Header() {
           </div>
         </div>
       )}
+
+      {/* Auth Settings Modal */}
+      <AuthSettings
+        isOpen={authSettingsOpen}
+        onClose={() => setAuthSettingsOpen(false)}
+      />
     </header>
   );
 }

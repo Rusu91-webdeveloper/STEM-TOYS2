@@ -240,6 +240,8 @@ export function CheckoutFlow() {
               shippingAddress={checkoutData.shippingAddress}
               billingAddress={checkoutData.billingAddress}
               shippingMethod={checkoutData.shippingMethod}
+              appliedCoupon={appliedCoupon}
+              discountAmount={discountAmount}
               onSubmit={(paymentData) => {
                 updateCheckoutData(paymentData);
                 goToNextStep();

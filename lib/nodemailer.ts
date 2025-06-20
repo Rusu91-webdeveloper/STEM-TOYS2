@@ -435,6 +435,8 @@ export const emailTemplates = {
       subtotal?: number;
       tax?: number;
       shippingCost?: number;
+      discountAmount?: number;
+      couponCode?: string;
       shippingAddress?: any;
       shippingMethod?: any;
       orderDate?: string;
@@ -538,6 +540,17 @@ export const emailTemplates = {
                     : ""
                 }
                 ${
+                  order.discountAmount && order.discountAmount > 0
+                    ? `
+                <tr style="color: #10b981;">
+                  <td colspan="3" style="text-align: right; padding: 12px 16px; font-weight: 600;">
+                    Reducere ${order.couponCode ? `(${order.couponCode})` : ""}:
+                  </td>
+                  <td style="text-align: right; padding: 12px 16px; font-weight: 700;">-${order.discountAmount.toFixed(2)} Lei</td>
+                </tr>`
+                    : ""
+                }
+                ${
                   order.shippingCost !== undefined && order.shippingCost > 0
                     ? `
                 <tr>
@@ -565,6 +578,16 @@ export const emailTemplates = {
                   <td colspan="3" style="text-align: right; padding: 16px; border-top: 2px solid #3b82f6;">TOTAL:</td>
                   <td style="text-align: right; padding: 16px; border-top: 2px solid #3b82f6;">${order.total.toFixed(2)} Lei</td>
                 </tr>
+                ${
+                  order.discountAmount && order.discountAmount > 0
+                    ? `
+                <tr>
+                  <td colspan="4" style="text-align: center; padding: 8px; background-color: #ecfdf5; color: #059669; font-size: 14px; font-weight: 600;">
+                    🎉 Ai economisit ${order.discountAmount.toFixed(2)} Lei cu acest cupon!
+                  </td>
+                </tr>`
+                    : ""
+                }
               </tfoot>
             </table>
 

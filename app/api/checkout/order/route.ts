@@ -665,6 +665,8 @@ export async function POST(request: Request) {
         subtotal: subtotal,
         tax: tax,
         shippingCost: finalShippingCost,
+        discountAmount: discountAmount,
+        couponCode: appliedCoupon?.code || null,
         total: orderTotal,
         shippingAddress: orderData.shippingAddress,
         shippingMethod: orderData.shippingMethod,

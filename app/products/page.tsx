@@ -44,21 +44,25 @@ export default async function ProductsPage({
     console.log("Fetching products from API...");
     console.log("Requested category:", requestedCategory);
 
-    let products: ProductData[] = [];
+    // 🚀 PERFORMANCE: Fetch books and products in parallel instead of sequentially
+    const [booksData, productsData] = await Promise.all([
+      getBooks().catch((error) => {
+        console.error("Error fetching books:", error);
+        return []; // Return empty array if books fail to load
+      }),
+      getProducts({
+        category:
+          requestedCategory !== "educational-books"
+            ? requestedCategory
+            : undefined,
+      }).catch((error) => {
+        console.error("Error fetching products:", error);
+        return []; // Return empty array if products fail to load
+      }),
+    ]);
 
-    // Always fetch both books and STEM products to enable proper client-side filtering
-    console.log("📚 Fetching digital books...");
-    const booksData = await getBooks();
-    console.log(`Found ${booksData.length} digital books`);
-
-    console.log("📦 Fetching STEM products...");
-    const productsData = await getProducts({
-      category:
-        requestedCategory !== "educational-books"
-          ? requestedCategory
-          : undefined,
-    });
-    console.log(`Found ${productsData.length} STEM products from API`);
+    console.log(`📚 Found ${booksData.length} digital books`);
+    console.log(`📦 Found ${productsData.length} STEM products`);
 
     // Transform books to look like products
     const bookProducts = booksData.map((book) => ({
@@ -127,12 +131,11 @@ export default async function ProductsPage({
     });
 
     // Combine both books and STEM products
-    products = [...bookProducts, ...stemProducts];
-    console.log(
-      `Total combined products: ${products.length} (${bookProducts.length} books + ${stemProducts.length} STEM products)`
-    );
+    const products = [...bookProducts, ...stemProducts];
 
-    console.log(`Total products to display: ${products.length}`);
+    console.log(
+      `🎯 Total combined products: ${products.length} (${bookProducts.length} books + ${stemProducts.length} STEM products)`
+    );
 
     return (
       <Suspense fallback={<ProductsPageSkeleton />}>
