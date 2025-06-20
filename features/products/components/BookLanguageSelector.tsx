@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Globe, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,10 +14,21 @@ interface Language {
 interface BookLanguageSelectorProps {
   productSlug: string;
   selectedLanguage?: string;
-  onLanguageSelect: (language: string) => void;
+  onLanguageSelect: (languageCode: string) => void;
   className?: string;
   compact?: boolean;
 }
+
+// **PERFORMANCE**: Global cache to prevent duplicate requests across component instances
+const languageCache = new Map<
+  string,
+  {
+    data: Language[];
+    timestamp: number;
+    promise?: Promise<Language[]>;
+  }
+>();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
 
 export function BookLanguageSelector({
   productSlug,
@@ -29,37 +40,144 @@ export function BookLanguageSelector({
   const [availableLanguages, setAvailableLanguages] = useState<Language[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const isMountedRef = useRef(true);
 
-  useEffect(() => {
-    const fetchLanguages = async () => {
+  // **PERFORMANCE**: Memoized fetch function to prevent unnecessary recreations
+  const fetchLanguages = useCallback(async () => {
+    if (!productSlug) return;
+
+    // **PERFORMANCE**: Check cache first
+    const cached = languageCache.get(productSlug);
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      setAvailableLanguages(cached.data);
+      setIsLoading(false);
+      setError(null);
+
+      // Auto-select first language if none selected
+      if (!selectedLanguage && cached.data.length > 0) {
+        onLanguageSelect(cached.data[0].code);
+      }
+      return;
+    }
+
+    // **PERFORMANCE**: If there's already a pending request, wait for it
+    if (cached?.promise) {
       try {
-        setIsLoading(true);
-        setError(null);
+        const data = await cached.promise;
+        if (isMountedRef.current) {
+          setAvailableLanguages(data);
+          setIsLoading(false);
+          setError(null);
 
-        const response = await fetch(`/api/books/${productSlug}/languages`);
+          if (!selectedLanguage && data.length > 0) {
+            onLanguageSelect(data[0].code);
+          }
+        }
+      } catch (error) {
+        if (isMountedRef.current) {
+          console.error("Error from cached promise:", error);
+          setError("Failed to load language options");
+          setIsLoading(false);
+        }
+      }
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Cancel previous request if exists
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      abortControllerRef.current = new AbortController();
+
+      // **PERFORMANCE**: Create and cache the promise to prevent duplicate requests
+      const fetchPromise = fetch(`/api/books/${productSlug}/languages`, {
+        signal: abortControllerRef.current.signal,
+        // **PERFORMANCE**: Use browser cache with headers from our optimized API
+        cache: "default",
+        headers: {
+          Accept: "application/json",
+        },
+      }).then(async (response) => {
         if (!response.ok) {
           throw new Error("Failed to fetch languages");
         }
-
         const data = await response.json();
-        setAvailableLanguages(data.availableLanguages || []);
+        return data.availableLanguages || [];
+      });
+
+      // Cache the promise immediately to prevent duplicate requests
+      languageCache.set(productSlug, {
+        data: [],
+        timestamp: Date.now(),
+        promise: fetchPromise,
+      });
+
+      const data = await fetchPromise;
+
+      if (isMountedRef.current) {
+        setAvailableLanguages(data);
+
+        // **PERFORMANCE**: Cache the successful result
+        languageCache.set(productSlug, {
+          data,
+          timestamp: Date.now(),
+        });
 
         // Auto-select first language if none selected
-        if (!selectedLanguage && data.availableLanguages.length > 0) {
-          onLanguageSelect(data.availableLanguages[0].code);
+        if (!selectedLanguage && data.length > 0) {
+          onLanguageSelect(data[0].code);
         }
-      } catch (error) {
-        console.error("Error fetching book languages:", error);
-        setError("Failed to load language options");
-      } finally {
+      }
+    } catch (error) {
+      if (isMountedRef.current) {
+        // Only show error if it's not an abort error
+        if (error instanceof Error && error.name !== "AbortError") {
+          console.error("Error fetching book languages:", error);
+          setError("Failed to load language options");
+        }
+      }
+      // Remove failed promise from cache
+      languageCache.delete(productSlug);
+    } finally {
+      if (isMountedRef.current) {
         setIsLoading(false);
+      }
+    }
+  }, [productSlug, selectedLanguage, onLanguageSelect]);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    fetchLanguages();
+
+    // Cleanup function
+    return () => {
+      isMountedRef.current = false;
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [fetchLanguages]);
+
+  // **PERFORMANCE**: Clean up cache periodically
+  useEffect(() => {
+    const cleanup = () => {
+      const now = Date.now();
+      for (const [key, cached] of languageCache.entries()) {
+        if (now - cached.timestamp > CACHE_DURATION) {
+          languageCache.delete(key);
+        }
       }
     };
 
-    if (productSlug) {
-      fetchLanguages();
-    }
-  }, [productSlug, selectedLanguage, onLanguageSelect]);
+    const interval = setInterval(cleanup, CACHE_DURATION);
+    return () => clearInterval(interval);
+  }, []);
 
   if (isLoading) {
     return (
@@ -111,138 +229,69 @@ export function BookLanguageSelector({
           <Globe className="h-4 w-4" />
           Choose Language:
         </div>
-        <div className="grid grid-cols-1 gap-2">
+        <div className="flex flex-wrap gap-2">
           {availableLanguages.map((language) => (
-            <label
+            <Badge
               key={language.code}
+              variant={
+                selectedLanguage === language.code ? "default" : "outline"
+              }
               className={cn(
-                "flex items-center gap-3 p-3 rounded-lg border-2 cursor-pointer transition-all duration-200",
-                selectedLanguage === language.code
-                  ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                  : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
-              )}>
-              <input
-                type="radio"
-                name={`language-${productSlug}`}
-                value={language.code}
-                checked={selectedLanguage === language.code}
-                onChange={() => onLanguageSelect(language.code)}
-                className="sr-only"
-              />
-              <div
-                className={cn(
-                  "w-4 h-4 rounded-full border-2 flex items-center justify-center transition-colors",
-                  selectedLanguage === language.code
-                    ? "border-primary bg-primary"
-                    : "border-gray-300"
-                )}>
-                {selectedLanguage === language.code && (
-                  <div className="w-2 h-2 rounded-full bg-white" />
-                )}
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-gray-900">
-                    {language.name}
-                  </span>
-                  <Badge
-                    variant={
-                      selectedLanguage === language.code
-                        ? "default"
-                        : "secondary"
-                    }
-                    className="text-xs">
-                    {language.formats.join(", ").toUpperCase()}
-                  </Badge>
-                </div>
-              </div>
-            </label>
+                "cursor-pointer transition-colors hover:bg-primary/90",
+                selectedLanguage === language.code &&
+                  "bg-primary text-primary-foreground"
+              )}
+              onClick={() => onLanguageSelect(language.code)}>
+              {language.name}
+            </Badge>
           ))}
         </div>
       </div>
     );
   }
 
-  // Full version for product detail pages
   return (
     <div className={cn("space-y-3", className)}>
-      <div className="flex items-center gap-2">
-        <Globe className="h-5 w-5 text-muted-foreground" />
-        <h3 className="text-lg font-semibold text-gray-900">
-          Choose Your Language
-        </h3>
+      <div className="text-sm font-medium text-gray-900 flex items-center gap-2">
+        <Globe className="h-4 w-4" />
+        Choose Language & Format:
       </div>
-
-      <p className="text-sm text-muted-foreground">
-        Select your preferred language for this digital book:
-      </p>
-
-      <div className="grid gap-3">
+      <div className="grid gap-2">
         {availableLanguages.map((language) => (
           <label
             key={language.code}
             className={cn(
-              "flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:shadow-md",
+              "flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-colors",
               selectedLanguage === language.code
-                ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-md"
+                ? "border-primary bg-primary/5"
                 : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
             )}>
-            <input
-              type="radio"
-              name={`language-${productSlug}`}
-              value={language.code}
-              checked={selectedLanguage === language.code}
-              onChange={() => onLanguageSelect(language.code)}
-              className="sr-only"
-            />
-            <div
-              className={cn(
-                "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors",
-                selectedLanguage === language.code
-                  ? "border-primary bg-primary"
-                  : "border-gray-300"
-              )}>
-              {selectedLanguage === language.code && (
-                <div className="w-2.5 h-2.5 rounded-full bg-white" />
-              )}
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="font-semibold text-gray-900 text-lg">
-                    {language.name}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Digital download
-                  </div>
-                </div>
+            <div className="flex items-center gap-3">
+              <input
+                type="radio"
+                name="language"
+                value={language.code}
+                checked={selectedLanguage === language.code}
+                onChange={() => onLanguageSelect(language.code)}
+                className="sr-only"
+              />
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-sm">{language.name}</span>
                 <Badge
-                  variant={
-                    selectedLanguage === language.code ? "default" : "secondary"
-                  }
-                  className="text-sm px-3 py-1">
+                  variant="secondary"
+                  className="text-xs">
                   {language.formats.join(", ").toUpperCase()}
                 </Badge>
               </div>
             </div>
+            {selectedLanguage === language.code && (
+              <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                <div className="w-2 h-2 rounded-full bg-white" />
+              </div>
+            )}
           </label>
         ))}
       </div>
-
-      {selectedLanguage && (
-        <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-          <div className="flex items-center gap-2 text-sm text-green-800">
-            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="font-medium">
-              Selected:{" "}
-              {
-                availableLanguages.find((l) => l.code === selectedLanguage)
-                  ?.name
-              }
-            </span>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

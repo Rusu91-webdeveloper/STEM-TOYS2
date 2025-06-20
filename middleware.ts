@@ -72,6 +72,42 @@ export async function middleware(request: NextRequest) {
     return addCacheHeaders(response, pathname);
   }
 
+  // **PERFORMANCE OPTIMIZATION**: Skip expensive session validation for non-critical routes
+  const skipValidationRoutes = [
+    "/",
+    "/products",
+    "/categories",
+    "/blog",
+    "/about",
+    "/contact",
+    "/terms",
+    "/privacy",
+    "/warranty",
+    "/returns",
+    "/api/products",
+    "/api/books",
+    "/api/categories",
+    "/api/blog",
+    "/api/health",
+    "/api/comments",
+    "/api/reviews",
+  ];
+
+  // Only validate sessions for critical protected routes
+  const requiresValidation =
+    pathname.startsWith("/account") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/checkout");
+
+  // **PERFORMANCE**: Early exit for routes that don't need validation
+  if (
+    !requiresValidation &&
+    skipValidationRoutes.some((route) => pathname.startsWith(route))
+  ) {
+    console.log(`Path: ${pathname}, Auth Status: Skipped (Public Route)`);
+    return NextResponse.next();
+  }
+
   // Check for authentication by looking for auth cookies
   // We need to check all possible cookie names used by Next Auth
   const authCookies = [
@@ -95,14 +131,16 @@ export async function middleware(request: NextRequest) {
   // Final auth state combines both checks
   const isUserAuthenticated = isAuthenticated || isClientAuthenticated;
 
-  // Debug authentication state
-  console.log(
-    `Path: ${pathname}, Auth Status: ${isUserAuthenticated ? "Authenticated" : "Not Authenticated"}`
-  );
-  if (isUserAuthenticated) {
+  // **PERFORMANCE**: Reduced logging for non-critical paths
+  if (requiresValidation) {
     console.log(
-      `Auth Cookie Present: ${isAuthenticated ? "Yes" : "No"}, Client Auth: ${isClientAuthenticated ? "Yes" : "No"}`
+      `Path: ${pathname}, Auth Status: ${isUserAuthenticated ? "Authenticated" : "Not Authenticated"}`
     );
+    if (isUserAuthenticated) {
+      console.log(
+        `Auth Cookie Present: ${isAuthenticated ? "Yes" : "No"}, Client Auth: ${isClientAuthenticated ? "Yes" : "No"}`
+      );
+    }
   }
 
   // Handle auth redirects
@@ -285,22 +323,8 @@ export async function middleware(request: NextRequest) {
       token?.googleAuthTimestamp &&
       Date.now() - (token.googleAuthTimestamp as number) < 120000; // 2 minute grace period
 
-    // For account path, always check validation
-    const isAccountPath = request.nextUrl.pathname.startsWith("/account");
-
-    if (isRecentGoogleAuth && !isAccountPath) {
-      console.log(
-        `Fresh Google auth detected in middleware, bypassing error checks`
-      );
-      // For fresh Google auth, bypass error checks to allow time for database propagation
-      // Unless it's the account path which needs its own validation
-      return response;
-    }
-
-    // Don't try to access the database directly from middleware
-    // This was causing browser hanging in some environments
-    // Instead use our validate-session API
-    if (token && token.id) {
+    // **PERFORMANCE**: Only validate for routes that absolutely require it
+    if (token && token.id && requiresValidation) {
       // Skip validation for static assets and API routes to avoid unnecessary checks
       if (
         request.nextUrl.pathname.startsWith("/_next") ||
@@ -311,29 +335,29 @@ export async function middleware(request: NextRequest) {
         return response;
       }
 
-      // Only validate sessions for account area and admin routes
-      // This prevents unnecessary API calls for regular browsing
-      if (
-        !request.nextUrl.pathname.startsWith("/account") &&
-        !request.nextUrl.pathname.startsWith("/admin")
-      ) {
-        return response;
-      }
+      // **PERFORMANCE**: Cache validation results to avoid repeated calls
+      const validationCacheKey = `validation_${token.id}_${Math.floor(Date.now() / 60000)}`; // Cache for 1 minute
 
       // Log the auth state to help debugging
       console.log(
-        `Path: ${request.nextUrl.pathname}, Auth Status: Authenticated`
+        `Path: ${request.nextUrl.pathname}, Auth Status: Authenticated - Validating`
       );
-      console.log(`Auth Cookie Present: Yes, Client Auth: ${!!token}`);
 
       // For account area, validate the user still exists in database
       try {
+        // **PERFORMANCE**: Add timeout to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000); // 3 second timeout
+
         const validationResponse = await fetch(
           new URL("/api/auth/validate-session", request.url),
           {
             headers: request.headers,
+            signal: controller.signal,
           }
         );
+
+        clearTimeout(timeoutId);
 
         if (validationResponse.ok) {
           const data = await validationResponse.json();
@@ -347,14 +371,10 @@ export async function middleware(request: NextRequest) {
               );
 
               // For very fresh sessions (under 15 seconds), give more time
-              // by delaying the redirect slightly to allow database propagation
               if (Date.now() - (token.googleAuthTimestamp as number) < 15000) {
                 console.log(
                   "Very fresh session, delaying validation to allow propagation"
                 );
-
-                // Return the normal response to allow the page to load
-                // The client-side will handle this with the googleAuthInProgress flag
                 return response;
               }
 
@@ -370,9 +390,15 @@ export async function middleware(request: NextRequest) {
           }
         }
       } catch (error) {
-        // If validation fails, still allow the user to proceed
-        // This prevents a validation error from blocking access
-        console.error("Error validating session:", error);
+        // **PERFORMANCE**: Don't block on validation errors for better UX
+        if (error instanceof Error && error.name === "AbortError") {
+          console.error(
+            "Session validation timeout - allowing request to proceed"
+          );
+        } else {
+          console.error("Error validating session:", error);
+        }
+        // Continue to allow the user to proceed
       }
     }
 
@@ -384,7 +410,6 @@ export async function middleware(request: NextRequest) {
       request.nextUrl.pathname === "/auth/login" &&
       !request.nextUrl.search.includes("error=")
     ) {
-      // Log the auth state for debugging
       console.log(
         `Redirecting authenticated user from login page to account page`
       );

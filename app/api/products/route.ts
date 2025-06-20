@@ -11,19 +11,50 @@ type StemCategoryMap = {
   "educational-books": string[];
 };
 
+// **PERFORMANCE**: In-memory cache for product requests
+const productCache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_DURATION = 2 * 60 * 1000; // 2 minutes cache
+
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = new URL(request.url).searchParams;
+    const searchParams = request.nextUrl.searchParams;
     const category = searchParams.get("category");
     const featured = searchParams.get("featured");
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
+    const search = searchParams.get("search");
+    const sort = searchParams.get("sort");
+    const limit = searchParams.get("limit");
 
-    console.log("API Request Params:", {
+    // **PERFORMANCE**: Create cache key from request parameters
+    const cacheKey = JSON.stringify({
       category,
       featured,
       minPrice,
       maxPrice,
+      search,
+      sort,
+      limit,
+    });
+
+    // **PERFORMANCE**: Check cache first
+    const cached = productCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      const response = NextResponse.json(cached.data);
+      response.headers.set("X-Cache", "HIT");
+      response.headers.set(
+        "Cache-Control",
+        "public, max-age=120, s-maxage=120"
+      ); // 2 minutes
+      return response;
+    }
+
+    // Log API request for debugging
+    console.log("API Request Params:", {
+      category: category || null,
+      featured: featured || null,
+      minPrice: minPrice || null,
+      maxPrice: maxPrice || null,
     });
 
     // Map STEM categories to their variations and translations
@@ -149,6 +180,14 @@ export async function GET(request: NextRequest) {
       where.featured = true;
     }
 
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+        { tags: { has: search } },
+      ];
+    }
+
     console.log("Final query where clause:", JSON.stringify(where, null, 2));
 
     try {
@@ -217,8 +256,39 @@ export async function GET(request: NextRequest) {
         format: "standard",
       });
 
+      const responseData = transformedProducts;
+
+      // **PERFORMANCE**: Cache the result
+      productCache.set(cacheKey, {
+        data: responseData,
+        timestamp: Date.now(),
+      });
+
+      // **PERFORMANCE**: Clean up old cache entries
+      if (productCache.size > 100) {
+        const entries = Array.from(productCache.entries());
+        entries.sort((a, b) => a[1].timestamp - b[1].timestamp);
+        const toRemove = entries.slice(0, 50);
+        toRemove.forEach(([key]) => productCache.delete(key));
+      }
+
+      const response = NextResponse.json(responseData);
+
+      // **PERFORMANCE**: Add comprehensive caching headers
+      response.headers.set("X-Cache", "MISS");
+      response.headers.set(
+        "Cache-Control",
+        "public, max-age=120, s-maxage=120, stale-while-revalidate=300"
+      ); // 2 min fresh, 5 min stale
+      response.headers.set("Vary", "Accept-Encoding");
+      response.headers.set("ETag", `"products-${Date.now()}"`);
+
+      console.log(
+        `API response structure: [${transformedProducts.map((_, i) => `'${i}'`)}]`
+      );
+
       // Return the products - ensure consistent format between environments
-      return NextResponse.json(transformedProducts);
+      return response;
     } catch (dbError) {
       console.error("Database error when fetching products:", dbError);
       return NextResponse.json(
@@ -228,9 +298,11 @@ export async function GET(request: NextRequest) {
     }
   } catch (error) {
     console.error("Error fetching products:", error);
-    return NextResponse.json(
+    const errorResponse = NextResponse.json(
       { error: "Failed to fetch products" },
       { status: 500 }
     );
+    errorResponse.headers.set("Cache-Control", "no-cache");
+    return errorResponse;
   }
 }

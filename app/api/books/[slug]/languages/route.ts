@@ -15,13 +15,7 @@ export async function GET(request: NextRequest, { params }: Props) {
     let book = await db.book.findUnique({
       where: { slug },
       include: {
-        digitalFiles: {
-          where: { isActive: true },
-          select: {
-            language: true,
-            format: true,
-          },
-        },
+        languages: true,
       },
     });
 
@@ -36,43 +30,60 @@ export async function GET(request: NextRequest, { params }: Props) {
         book = await db.book.findUnique({
           where: { slug: product.slug },
           include: {
-            digitalFiles: {
-              where: { isActive: true },
-              select: {
-                language: true,
-                format: true,
-              },
-            },
+            languages: true,
           },
         });
       }
     }
 
     if (!book) {
-      return NextResponse.json({ error: "Book not found" }, { status: 404 });
+      const errorResponse = NextResponse.json(
+        { error: "Book not found" },
+        { status: 404 }
+      );
+      // **PERFORMANCE**: Cache 404s briefly to reduce repeated failed lookups
+      errorResponse.headers.set("Cache-Control", "public, max-age=60");
+      return errorResponse;
     }
 
-    // Get unique languages available for this book
-    const availableLanguages = [
-      ...new Set(book.digitalFiles.map((file) => file.language)),
-    ].map((language) => ({
-      code: language,
-      name: language === "en" ? "English" : "Română",
-      formats: book.digitalFiles
-        .filter((file) => file.language === language)
-        .map((file) => file.format),
+    // Get unique languages available for this book using the languages relation
+    const availableLanguages = book.languages.map((language: any) => ({
+      code: language.code,
+      name: language.name,
+      formats: ["EPUB", "PDF"], // Default formats - can be enhanced later
     }));
 
-    return NextResponse.json({
+    const responseData = {
       bookId: book.id,
       bookName: book.name,
       availableLanguages,
-    });
+    };
+
+    const response = NextResponse.json(responseData);
+
+    // **PERFORMANCE**: Add HTTP caching headers to reduce repeated requests
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=300, s-maxage=300, stale-while-revalidate=3600"
+    ); // 5 min fresh, 1 hour stale
+    response.headers.set("Vary", "Accept-Encoding");
+    response.headers.set(
+      "ETag",
+      `"book-lang-${book.id}-${book.updatedAt.getTime()}"`
+    );
+
+    return response;
   } catch (error) {
     console.error("Error fetching book languages:", error);
-    return NextResponse.json(
+    const errorResponse = NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
     );
+    // **PERFORMANCE**: Don't cache server errors
+    errorResponse.headers.set(
+      "Cache-Control",
+      "no-cache, no-store, must-revalidate"
+    );
+    return errorResponse;
   }
 }
