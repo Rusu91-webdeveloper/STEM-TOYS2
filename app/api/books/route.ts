@@ -7,7 +7,7 @@ async function ensureBooksExist() {
     // Check if books exist
     const existingBooks = await db.book.count();
     if (existingBooks > 0) {
-      // Books already exist in database
+      // Books already exist in database, no need to seed
       return;
     }
 
@@ -112,7 +112,9 @@ async function ensureBooksExist() {
       },
     });
 
-    // Default books created successfully
+    console.log(
+      "✅ Default books created successfully (without digital files)"
+    );
   } catch (error) {
     console.error("Error seeding books:", error);
     // Continue with the request even if seeding fails

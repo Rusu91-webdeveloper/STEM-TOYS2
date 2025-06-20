@@ -1153,6 +1153,18 @@ export const emailTemplates = {
             <td colspan="3" style="text-align: right; padding: 12px 16px; font-weight: 600;">Subtotal:</td>
             <td style="text-align: right; padding: 12px 16px; font-weight: 600;">${formatPrice(order.subtotal)}</td>
           </tr>
+          ${
+            order.discountAmount && order.discountAmount > 0
+              ? `
+          <tr style="color: #10b981;">
+            <td colspan="3" style="text-align: right; padding: 12px 16px; font-weight: 600;">
+              Reducere ${order.couponCode ? `(${order.couponCode})` : ""}:
+            </td>
+            <td style="text-align: right; padding: 12px 16px; font-weight: 700;">-${formatPrice(order.discountAmount)}</td>
+          </tr>
+          `
+              : ""
+          }
           <tr>
             <td colspan="3" style="text-align: right; padding: 12px 16px; font-weight: 600;">Transport:</td>
             <td style="text-align: right; padding: 12px 16px; font-weight: 600;">${formatPrice(order.shippingCost)}</td>
@@ -1165,6 +1177,17 @@ export const emailTemplates = {
             <td colspan="3" style="text-align: right; padding: 16px; border-top: 2px solid #3b82f6;">TOTAL:</td>
             <td style="text-align: right; padding: 16px; border-top: 2px solid #3b82f6; color: #3b82f6;">${formatPrice(order.total)}</td>
           </tr>
+          ${
+            order.discountAmount && order.discountAmount > 0
+              ? `
+          <tr>
+            <td colspan="4" style="text-align: center; padding: 8px; background-color: #ecfdf5; color: #059669; font-size: 14px; font-weight: 600;">
+              🎉 Ai economisit ${formatPrice(order.discountAmount)} cu acest cupon!
+            </td>
+          </tr>
+          `
+              : ""
+          }
         </tfoot>
       </table>
       

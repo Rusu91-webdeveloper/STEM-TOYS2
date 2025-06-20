@@ -397,9 +397,9 @@ export default function CouponsPage() {
 
   const getDiscountText = (coupon: Coupon) => {
     if (coupon.type === "PERCENTAGE") {
-      return `${coupon.value}% OFF`;
+      return `${coupon.value}% REDUCERE`;
     }
-    return `${coupon.value} LEI OFF`;
+    return `${coupon.value} LEI REDUCERE`;
   };
 
   return (
@@ -829,7 +829,7 @@ export default function CouponsPage() {
                         setSelectedCoupon(coupon);
                         setEmailData({
                           ...emailData,
-                          subject: `Special Discount: ${getDiscountText(coupon)} with code ${coupon.code}`,
+                          subject: `🎉 Ofertă Specială: ${getDiscountText(coupon)} cu codul ${coupon.code}!`,
                         });
                         setShowEmailDialog(true);
                       }}>

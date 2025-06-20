@@ -15,6 +15,8 @@ interface OrderReviewProps {
   onPlaceOrder: () => void;
   isProcessingOrder?: boolean;
   orderError?: string | null;
+  appliedCoupon?: any;
+  discountAmount?: number;
 }
 
 export function OrderReview({
@@ -24,6 +26,8 @@ export function OrderReview({
   onPlaceOrder,
   isProcessingOrder = false,
   orderError = null,
+  appliedCoupon,
+  discountAmount = 0,
 }: OrderReviewProps) {
   const { getCartTotal } = useCart();
   const { formatPrice } = useCurrency();
@@ -65,7 +69,7 @@ export function OrderReview({
     loadSettings();
   }, []);
 
-  // Calculate totals
+  // Calculate totals WITH DISCOUNT
   const subtotal = getCartTotal();
   let shippingCost = checkoutData.shippingMethod?.price || 0;
 
@@ -79,7 +83,9 @@ export function OrderReview({
   }
 
   const tax = subtotal * taxRate;
-  const total = subtotal + tax + shippingCost;
+  // **UPDATED TOTAL CALCULATION WITH DISCOUNT**
+  const totalBeforeDiscount = subtotal + tax + shippingCost;
+  const total = Math.max(0, totalBeforeDiscount - discountAmount);
 
   // Format a credit card number for display
   const formatCreditCard = (cardNumber: string) => {
@@ -236,7 +242,52 @@ export function OrderReview({
       </div>
 
       {/* Order Summary - Using the CheckoutSummary component */}
-      <CheckoutSummary shippingCost={shippingCost} />
+      <div className="bg-white rounded-lg border p-6">
+        <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
+
+        <div className="space-y-3">
+          <div className="flex justify-between">
+            <span>Subtotal</span>
+            <span>{formatPrice(subtotal)}</span>
+          </div>
+
+          {/* **DISCOUNT LINE** */}
+          {discountAmount > 0 && appliedCoupon && (
+            <div className="flex justify-between text-green-600">
+              <span className="font-medium">
+                Discount ({appliedCoupon.code})
+              </span>
+              <span className="font-medium">
+                -{formatPrice(discountAmount)}
+              </span>
+            </div>
+          )}
+
+          <div className="flex justify-between">
+            <span>Tax</span>
+            <span>{formatPrice(tax)}</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span>Shipping</span>
+            <span>{formatPrice(shippingCost)}</span>
+          </div>
+
+          <div className="border-t pt-3 flex justify-between font-semibold text-lg">
+            <span>Total</span>
+            <span>{formatPrice(total)}</span>
+          </div>
+
+          {/* **SAVINGS HIGHLIGHT** */}
+          {discountAmount > 0 && (
+            <div className="text-center pt-2">
+              <p className="text-sm text-green-600 font-medium">
+                🎉 You saved {formatPrice(discountAmount)}!
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Error Message */}
       {orderError && (

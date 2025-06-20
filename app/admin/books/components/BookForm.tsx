@@ -90,6 +90,23 @@ export function BookForm({ initialData, isEditing }: Props) {
     setIsLoading(true);
 
     try {
+      // Frontend validation
+      if (!formData.name.trim()) {
+        throw new Error("Book title is required");
+      }
+      if (!formData.author.trim()) {
+        throw new Error("Author is required");
+      }
+      if (!formData.description.trim()) {
+        throw new Error("Description is required");
+      }
+      if (!formData.slug.trim()) {
+        throw new Error("Slug is required");
+      }
+      if (formData.price <= 0) {
+        throw new Error("Price must be greater than 0");
+      }
+
       const url = isEditing
         ? `/api/admin/books/${initialData?.id}`
         : "/api/admin/books";
@@ -195,7 +212,7 @@ export function BookForm({ initialData, isEditing }: Props) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">Description *</Label>
                 <Textarea
                   id="description"
                   placeholder="Enter book description"
@@ -204,7 +221,12 @@ export function BookForm({ initialData, isEditing }: Props) {
                     handleInputChange("description", e.target.value)
                   }
                   rows={4}
+                  required
                 />
+                <p className="text-sm text-muted-foreground">
+                  Provide a detailed description of the book content and target
+                  audience
+                </p>
               </div>
             </CardContent>
           </Card>

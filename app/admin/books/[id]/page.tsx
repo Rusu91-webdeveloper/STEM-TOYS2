@@ -245,7 +245,7 @@ export default async function AdminBookDetailsPage({ params }: Props) {
             <CardHeader>
               <CardTitle className="text-lg">Fișiere Digitale</CardTitle>
               <CardDescription>
-                Fișierele EPUB și KBP disponibile pentru această carte
+                Fișierele EPUB și PDF disponibile pentru această carte
               </CardDescription>
             </CardHeader>
             <CardContent>

@@ -15,7 +15,13 @@ export async function GET(request: NextRequest, { params }: Props) {
     let book = await db.book.findUnique({
       where: { slug },
       include: {
-        languages: true,
+        digitalFiles: {
+          where: { isActive: true },
+          select: {
+            format: true,
+            language: true,
+          },
+        },
       },
     });
 
@@ -30,7 +36,13 @@ export async function GET(request: NextRequest, { params }: Props) {
         book = await db.book.findUnique({
           where: { slug: product.slug },
           include: {
-            languages: true,
+            digitalFiles: {
+              where: { isActive: true },
+              select: {
+                format: true,
+                language: true,
+              },
+            },
           },
         });
       }
@@ -46,12 +58,39 @@ export async function GET(request: NextRequest, { params }: Props) {
       return errorResponse;
     }
 
-    // Get unique languages available for this book using the languages relation
-    const availableLanguages = book.languages.map((language: any) => ({
-      code: language.code,
-      name: language.name,
-      formats: ["EPUB", "PDF"], // Default formats - can be enhanced later
-    }));
+    // **FIX**: Get languages and formats from digitalFiles, not from languages relation
+    const digitalFilesGrouped = new Map<string, Set<string>>();
+
+    // Group formats by language
+    book.digitalFiles.forEach((file) => {
+      if (!digitalFilesGrouped.has(file.language)) {
+        digitalFilesGrouped.set(file.language, new Set());
+      }
+      digitalFilesGrouped.get(file.language)!.add(file.format.toUpperCase());
+    });
+
+    // Convert to the expected format
+    const availableLanguages = Array.from(digitalFilesGrouped.entries()).map(
+      ([langCode, formats]) => {
+        // Map language codes to display names
+        const languageNames: { [key: string]: string } = {
+          en: "English",
+          ro: "Română",
+          es: "Español",
+          fr: "Français",
+          de: "Deutsch",
+          it: "Italiano",
+        };
+
+        return {
+          code: langCode,
+          name:
+            languageNames[langCode] ||
+            langCode.charAt(0).toUpperCase() + langCode.slice(1),
+          formats: Array.from(formats).sort(), // Sort formats alphabetically
+        };
+      }
+    );
 
     const responseData = {
       bookId: book.id,

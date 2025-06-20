@@ -26,8 +26,25 @@ export function CheckoutFlow() {
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
   const [orderError, setOrderError] = useState<string | null>(null);
 
+  // **COUPON STATE MANAGEMENT**
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [discountAmount, setDiscountAmount] = useState(0);
+
   const updateCheckoutData = (data: Partial<CheckoutData>) => {
     setCheckoutData((prev) => ({ ...prev, ...data }));
+  };
+
+  // **COUPON HANDLERS**
+  const handleCouponApplied = (coupon: any, discountAmount: number) => {
+    setAppliedCoupon(coupon);
+    setDiscountAmount(discountAmount);
+    console.log("Coupon applied in checkout:", coupon.code, discountAmount);
+  };
+
+  const handleCouponRemoved = () => {
+    setAppliedCoupon(null);
+    setDiscountAmount(0);
+    console.log("Coupon removed from checkout");
   };
 
   const goToNextStep = () => {
@@ -107,9 +124,12 @@ export function CheckoutFlow() {
       }
 
       const tax = subtotal * taxRate;
-      const total = subtotal + tax + shippingCost;
 
-      // Create order data with financial information
+      // **INCLUDE COUPON DATA IN ORDER**
+      const totalBeforeDiscount = subtotal + tax + shippingCost;
+      const total = Math.max(0, totalBeforeDiscount - discountAmount);
+
+      // Create order data with financial information INCLUDING COUPON
       const orderData = {
         ...checkoutData,
         orderDate: new Date().toISOString(),
@@ -118,6 +138,9 @@ export function CheckoutFlow() {
         tax,
         shippingCost,
         total,
+        // **COUPON FIELDS**
+        couponCode: appliedCoupon?.code || null,
+        discountAmount: discountAmount || 0,
         items: cartItems.map((item) => ({
           productId: item.productId,
           name: item.name,
@@ -128,6 +151,13 @@ export function CheckoutFlow() {
         })),
       };
 
+      console.log("Creating order with coupon data:", {
+        couponCode: orderData.couponCode,
+        discountAmount: orderData.discountAmount,
+        subtotal: orderData.subtotal,
+        total: orderData.total,
+      });
+
       // Create order in the database
       const result = await createOrder(orderData);
 
@@ -135,8 +165,10 @@ export function CheckoutFlow() {
         throw new Error(t("failedToCreateOrder", "Failed to create order"));
       }
 
-      // Clear the cart
+      // Clear the cart and coupon
       clearCart();
+      setAppliedCoupon(null);
+      setDiscountAmount(0);
 
       // Redirect to order confirmation page
       router.push(`/checkout/confirmation?orderId=${result.orderId}`);
@@ -220,6 +252,8 @@ export function CheckoutFlow() {
         {currentStep === "review" && (
           <OrderReview
             checkoutData={checkoutData}
+            appliedCoupon={appliedCoupon}
+            discountAmount={discountAmount}
             onEditStep={goToStep}
             onBack={goToPreviousStep}
             onPlaceOrder={handlePlaceOrder}
@@ -232,6 +266,9 @@ export function CheckoutFlow() {
       <div className="md:col-span-1">
         <CheckoutSummary
           shippingCost={checkoutData.shippingMethod?.price || 0}
+          appliedCoupon={appliedCoupon}
+          onCouponApplied={handleCouponApplied}
+          onCouponRemoved={handleCouponRemoved}
         />
       </div>
     </div>

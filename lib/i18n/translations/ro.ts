@@ -813,4 +813,21 @@ export const ro = {
   followInstagram: "Urmărește-ne pe Instagram",
   followTwitter: "Urmărește-ne pe Twitter",
   subscribeYoutube: "Abonează-te la canalul nostru YouTube",
+
+  // Discount Popup translations
+  specialOffer: "Ofertă Specială",
+  limitedTimeOffer: "Ofertă cu Timp Limitat",
+  validWhileSuppliesLast: "Valabil în limita stocului disponibil",
+  useCode: "Folosește codul:",
+  copyCode: "Copiază Codul",
+  copied: "Copiat!",
+  couponCodeCopied: 'Codul cupon "{code}" a fost copiat în clipboard',
+  shopNowAndSave: "Cumpără Acum & Economisește",
+  minimumOrder: "Comandă minimum",
+  maxDiscount: "Reducere maximă",
+  lei: "LEI",
+  closePopup: "Închide popup-ul",
+  getDiscount: "Obține Reducerea",
+  dontMissOut: "Nu Rata Oferta!",
+  exclusiveDiscount: "Reducere Exclusivă",
 };

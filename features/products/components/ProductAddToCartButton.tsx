@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ShoppingCart, Check } from "lucide-react";
 import { useShoppingCart } from "@/features/cart/hooks/useShoppingCart";
 import type { CartItem } from "@/features/cart/context/CartContext";
@@ -38,6 +38,8 @@ export function ProductAddToCartButton({
   const [selectedLanguage, setSelectedLanguage] = useState<
     string | undefined
   >();
+  const [hasAvailableLanguages, setHasAvailableLanguages] = useState(false);
+  const [languagesLoading, setLanguagesLoading] = useState(isBook);
   const { addItem } = useShoppingCart();
   const { selectedVariants, getSelectedVariant } = useProductVariant();
 
@@ -49,11 +51,30 @@ export function ProductAddToCartButton({
     ? getSelectedVariant(product.id, product.variants || [])
     : undefined;
 
+  // Check if this book has digital files available
+  useEffect(() => {
+    if (isBook && product.slug) {
+      setLanguagesLoading(true);
+      fetch(`/api/books/${product.slug}/languages`)
+        .then((response) => response.json())
+        .then((data) => {
+          const languages = data.availableLanguages || [];
+          setHasAvailableLanguages(languages.length > 0);
+          setLanguagesLoading(false);
+        })
+        .catch(() => {
+          setHasAvailableLanguages(false);
+          setLanguagesLoading(false);
+        });
+    }
+  }, [isBook, product.slug]);
+
   const isDisabled =
     isAdded ||
     isLoading ||
+    languagesLoading ||
     (hasVariants && product.variants!.length > 1 && !selectedVariantId) ||
-    (isBook && !selectedLanguage); // Disable if book and no language selected
+    (isBook && hasAvailableLanguages && !selectedLanguage); // Only require language if languages are available
 
   const handleAddToCart = async () => {
     // Prevent double-clicking
@@ -71,7 +92,8 @@ export function ProductAddToCartButton({
         quantity,
         image: product.image,
         isBook,
-        selectedLanguage: isBook ? selectedLanguage : undefined,
+        selectedLanguage:
+          isBook && hasAvailableLanguages ? selectedLanguage : undefined,
       };
 
       console.log(`Adding item to cart:`, item);
@@ -117,16 +139,18 @@ export function ProductAddToCartButton({
   return (
     <div className={cn("space-y-3", className)}>
       {/* Language selector for books - positioned before variants and cart button */}
-      {isBook && product.slug && (
-        <div className="border-t border-gray-100 pt-3">
-          <BookLanguageSelector
-            productSlug={product.slug}
-            selectedLanguage={selectedLanguage}
-            onLanguageSelect={handleLanguageSelect}
-            compact={true}
-          />
-        </div>
-      )}
+      {isBook &&
+        product.slug &&
+        (languagesLoading || hasAvailableLanguages) && (
+          <div className="border-t border-gray-100 pt-3">
+            <BookLanguageSelector
+              productSlug={product.slug}
+              selectedLanguage={selectedLanguage}
+              onLanguageSelect={handleLanguageSelect}
+              compact={true}
+            />
+          </div>
+        )}
 
       {/* Show variant selector if product has multiple variants */}
       {hasVariants && product.variants!.length > 1 && (
@@ -216,11 +240,13 @@ export function ProductAddToCartButton({
       {/* Helper text for disabled states */}
       {isDisabled && !isAdded && !isLoading && (
         <div className="text-xs text-muted-foreground text-center">
-          {hasVariants && !selectedVariantId
-            ? "Please select product options above"
-            : isBook && !selectedLanguage
-              ? "Please choose your preferred language"
-              : ""}
+          {languagesLoading
+            ? "Loading book information..."
+            : hasVariants && !selectedVariantId
+              ? "Please select product options above"
+              : isBook && hasAvailableLanguages && !selectedLanguage
+                ? "Please choose your preferred language"
+                : ""}
         </div>
       )}
     </div>

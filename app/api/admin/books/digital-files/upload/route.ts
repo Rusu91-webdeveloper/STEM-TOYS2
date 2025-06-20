@@ -40,12 +40,12 @@ export async function POST(request: NextRequest) {
     // Validate file types
     const validFiles = files.filter((file) => {
       const extension = file.name.toLowerCase().split(".").pop();
-      return extension === "epub" || extension === "kbp";
+      return extension === "epub" || extension === "pdf";
     });
 
     if (validFiles.length !== files.length) {
       return NextResponse.json(
-        { error: "Only EPUB and KBP files are allowed" },
+        { error: "Only EPUB and PDF files are allowed" },
         { status: 400 }
       );
     }

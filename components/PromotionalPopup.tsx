@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Copy, Clock, ShoppingBag } from "lucide-react";
+import { X, Copy, Clock, ShoppingBag, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
+import { useTranslation } from "@/lib/i18n";
+import Image from "next/image";
 
 interface PromotionalCoupon {
   id: string;
@@ -18,16 +20,27 @@ interface PromotionalCoupon {
   expiresAt?: string;
   isInfluencer: boolean;
   influencerName?: string;
-  discountText: string;
-  expiryText?: string;
-  minOrderText?: string;
+  discountText: {
+    en: string;
+    ro: string;
+  };
+  expiryText?: {
+    en: string;
+    ro: string;
+  } | null;
+  minOrderText?: {
+    en: string;
+    ro: string;
+  } | null;
 }
 
 export default function PromotionalPopup() {
   const [isVisible, setIsVisible] = useState(false);
   const [coupon, setCoupon] = useState<PromotionalCoupon | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [copiedCode, setCopiedCode] = useState(false);
   const { toast } = useToast();
+  const { t, language } = useTranslation();
 
   useEffect(() => {
     // Check if user has already seen a popup in this session
@@ -54,10 +67,30 @@ export default function PromotionalPopup() {
       } finally {
         setIsLoading(false);
       }
-    }, 2000); // 2-second delay
+    }, 2500); // 2.5-second delay
 
     return () => clearTimeout(timer);
   }, []);
+
+  // Add keyboard support for closing popup
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && isVisible) {
+        handleClose();
+      }
+    };
+
+    if (isVisible) {
+      document.addEventListener("keydown", handleKeyDown);
+      // Prevent body scroll when popup is open
+      document.body.style.overflow = "hidden";
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = "unset";
+    };
+  }, [isVisible]);
 
   const handleClose = () => {
     setIsVisible(false);
@@ -68,10 +101,19 @@ export default function PromotionalPopup() {
   const handleCopyCode = () => {
     if (coupon) {
       navigator.clipboard.writeText(coupon.code);
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
       toast({
-        title: "Copied!",
-        description: `Coupon code "${coupon.code}" copied to clipboard`,
+        title: t("copied"),
+        description: t("couponCodeCopied").replace("{code}", coupon.code),
       });
+    }
+  };
+
+  const handleOverlayClick = (e: React.MouseEvent) => {
+    // Only close if clicking the overlay, not the popup content
+    if (e.target === e.currentTarget) {
+      handleClose();
     }
   };
 
@@ -79,127 +121,181 @@ export default function PromotionalPopup() {
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-      {/* Backdrop */}
+      {/* Enhanced Backdrop */}
       <div
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm"
-        onClick={handleClose}
+        className="fixed inset-0 bg-black/70 backdrop-blur-md transition-opacity duration-500"
+        onClick={handleOverlayClick}
       />
 
-      {/* Popup Content */}
-      <div className="relative max-w-lg w-full max-h-[90vh] overflow-hidden rounded-2xl shadow-2xl animate-in fade-in zoom-in duration-300">
-        {/* Background Image */}
-        {coupon.image && (
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${coupon.image})` }}
+      {/* Main Popup Container */}
+      <div className="relative max-w-lg w-full max-h-[95vh] overflow-hidden rounded-3xl shadow-2xl animate-in fade-in zoom-in duration-500 transform">
+        {/* Hero Background Image with Overlay */}
+        <div className="absolute inset-0">
+          <Image
+            src="/images/homepage_hero_banner_01.png"
+            alt="Background"
+            fill
+            className="object-cover"
+            priority
           />
-        )}
+          {/* Gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-900/85 via-pink-800/85 to-red-700/85" />
+          {/* Additional overlay for better text contrast */}
+          <div className="absolute inset-0 bg-black/20" />
+        </div>
 
-        {/* Overlay for better text readability */}
-        <div
-          className={`absolute inset-0 ${coupon.image ? "bg-black/40" : "bg-gradient-to-br from-purple-600 via-pink-600 to-red-500"}`}
-        />
-
-        {/* Close Button */}
+        {/* Enhanced Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-colors">
-          <X className="h-5 w-5 text-white" />
+          className="absolute top-6 right-6 z-30 p-3 rounded-full bg-white/20 backdrop-blur-md hover:bg-white/30 transition-all duration-300 group border border-white/30 shadow-lg"
+          aria-label={t("closePopup")}>
+          <X className="h-6 w-6 text-white group-hover:scale-110 group-hover:rotate-90 transition-all duration-300" />
         </button>
 
-        {/* Content */}
-        <div className="relative z-10 p-8 text-white">
-          {/* Header */}
-          <div className="text-center mb-6">
-            {coupon.isInfluencer && coupon.influencerName && (
-              <div className="inline-block px-3 py-1 mb-3 text-xs font-medium bg-white/20 backdrop-blur-sm rounded-full">
-                💫 {coupon.influencerName} Special
-              </div>
-            )}
-
-            <h2 className="text-2xl md:text-3xl font-bold mb-2 leading-tight">
-              {coupon.name}
-            </h2>
-
-            {coupon.description && (
-              <p className="text-white/90 text-sm md:text-base mb-4">
-                {coupon.description}
-              </p>
-            )}
-          </div>
-
-          {/* Discount Badge */}
-          <div className="text-center mb-6">
-            <div className="inline-block px-6 py-3 bg-white text-gray-900 rounded-2xl shadow-lg">
-              <div className="text-3xl md:text-4xl font-black">
-                {coupon.discountText}
+        {/* Split Design Container */}
+        <div className="relative z-20 h-full flex flex-col">
+          {/* ROMANIAN SECTION - TOP HALF */}
+          <div className="flex-1 p-8 text-white border-b-2 border-white/20 relative">
+            {/* Romanian Flag Header */}
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/15 backdrop-blur-sm rounded-full border border-white/30 shadow-lg">
+                <span className="text-2xl">🇷🇴</span>
+                <span className="font-bold text-lg">OFERTĂ SPECIALĂ</span>
+                <Sparkles className="h-5 w-5 text-yellow-300" />
               </div>
             </div>
-          </div>
 
-          {/* Coupon Code */}
-          <div className="mb-6">
-            <div className="text-center mb-3">
-              <span className="text-white/90 text-sm font-medium">
-                Use code:
-              </span>
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <div className="flex-1 max-w-xs">
-                <div className="bg-white/10 backdrop-blur-sm border-2 border-white/20 rounded-lg p-4 text-center">
-                  <div className="font-mono text-xl md:text-2xl font-bold tracking-widest">
-                    {coupon.code}
+            {/* Romanian Content */}
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold leading-tight">
+                {coupon.name}
+              </h2>
+
+              {/* Discount Display */}
+              <div className="inline-block p-1 bg-white/20 backdrop-blur-sm rounded-2xl">
+                <div className="bg-white text-gray-900 rounded-xl px-6 py-3 shadow-lg">
+                  <div className="text-3xl font-black text-red-600">
+                    {coupon.discountText.ro}
                   </div>
                 </div>
               </div>
-              <Button
-                onClick={handleCopyCode}
-                size="sm"
-                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white border-white/20"
-                variant="outline">
-                <Copy className="h-4 w-4" />
-              </Button>
+
+              {/* Romanian Details */}
+              <div className="space-y-2 text-sm text-white/90">
+                {coupon.expiryText && (
+                  <div className="flex items-center justify-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    <span>{coupon.expiryText.ro}</span>
+                  </div>
+                )}
+                {coupon.minOrderText && (
+                  <div className="flex items-center justify-center gap-2">
+                    <ShoppingBag className="h-4 w-4" />
+                    <span>{coupon.minOrderText.ro}</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Terms & Conditions */}
-          <div className="space-y-2 mb-6">
-            {coupon.expiryText && (
-              <div className="flex items-center justify-center gap-2 text-white/80 text-sm">
-                <Clock className="h-4 w-4" />
-                <span>{coupon.expiryText}</span>
+          {/* ENGLISH SECTION - BOTTOM HALF */}
+          <div className="flex-1 p-8 text-white relative">
+            {/* English Flag Header */}
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/15 backdrop-blur-sm rounded-full border border-white/30 shadow-lg">
+                <span className="text-2xl">🇬🇧</span>
+                <span className="font-bold text-lg">SPECIAL OFFER</span>
+                <Sparkles className="h-5 w-5 text-yellow-300" />
               </div>
-            )}
+            </div>
 
-            {coupon.minOrderText && (
-              <div className="flex items-center justify-center gap-2 text-white/80 text-sm">
-                <ShoppingBag className="h-4 w-4" />
-                <span>{coupon.minOrderText}</span>
-              </div>
-            )}
+            {/* English Content */}
+            <div className="text-center space-y-4">
+              <h2 className="text-2xl font-bold leading-tight">
+                {coupon.name}
+              </h2>
 
-            {coupon.type === "PERCENTAGE" && coupon.maxDiscountAmount && (
-              <div className="text-center text-white/70 text-xs">
-                Max discount: {coupon.maxDiscountAmount} LEI
+              {/* Discount Display */}
+              <div className="inline-block p-1 bg-white/20 backdrop-blur-sm rounded-2xl">
+                <div className="bg-white text-gray-900 rounded-xl px-6 py-3 shadow-lg">
+                  <div className="text-3xl font-black text-red-600">
+                    {coupon.discountText.en}
+                  </div>
+                </div>
               </div>
-            )}
+
+              {/* English Details */}
+              <div className="space-y-2 text-sm text-white/90">
+                {coupon.expiryText && (
+                  <div className="flex items-center justify-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    <span>{coupon.expiryText.en}</span>
+                  </div>
+                )}
+                {coupon.minOrderText && (
+                  <div className="flex items-center justify-center gap-2">
+                    <ShoppingBag className="h-4 w-4" />
+                    <span>{coupon.minOrderText.en}</span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* CTA Button */}
-          <div className="text-center">
+          {/* Coupon Code Section - Spans Full Width */}
+          <div className="p-6 bg-white/10 backdrop-blur-md border-t-2 border-white/20">
+            <div className="text-center mb-4">
+              <div className="text-white/90 text-sm font-medium mb-3">
+                🇷🇴 Folosește codul • 🇬🇧 Use code
+              </div>
+              <div className="flex items-center justify-center gap-3">
+                <div className="flex-1 max-w-xs">
+                  <div className="bg-white/20 backdrop-blur-sm border-2 border-white/40 rounded-xl p-4 text-center hover:bg-white/25 transition-all duration-300 shadow-lg">
+                    <div className="font-mono text-2xl font-bold tracking-widest text-white">
+                      {coupon.code}
+                    </div>
+                  </div>
+                </div>
+                <Button
+                  onClick={handleCopyCode}
+                  size="sm"
+                  className={`${
+                    copiedCode
+                      ? "bg-green-500/80 hover:bg-green-500/90"
+                      : "bg-white/25 hover:bg-white/35"
+                  } backdrop-blur-sm text-white border-white/40 rounded-xl px-4 py-3 transition-all duration-300 hover:scale-105 shadow-lg`}
+                  variant="outline">
+                  <Copy
+                    className={`h-5 w-5 ${copiedCode ? "text-white" : ""}`}
+                  />
+                </Button>
+              </div>
+            </div>
+
+            {/* Dual Language CTA Button */}
             <Button
               onClick={handleClose}
               size="lg"
-              className="bg-white text-gray-900 hover:bg-white/90 font-semibold px-8 py-3 rounded-xl shadow-lg transform hover:scale-105 transition-all duration-200">
-              Shop Now & Save
+              className="w-full bg-gradient-to-r from-white to-gray-100 text-gray-900 hover:from-gray-100 hover:to-white font-bold px-8 py-4 rounded-xl shadow-xl transform hover:scale-105 transition-all duration-300 border-2 border-white/20">
+              <div className="flex items-center justify-center gap-4">
+                <div className="text-center">
+                  <div className="text-base font-bold">
+                    🇷🇴 Cumpără Acum & Economisește
+                  </div>
+                  <div className="text-sm opacity-80">🇬🇧 Shop Now & Save</div>
+                </div>
+              </div>
             </Button>
-          </div>
 
-          {/* Footer */}
-          <div className="mt-6 text-center">
-            <p className="text-white/60 text-xs">
-              Limited time offer • Valid while supplies last
-            </p>
+            {/* Footer */}
+            <div className="text-center mt-4">
+              <div className="text-white/70 text-xs space-y-1">
+                <div>✨ Ofertă cu Timp Limitat • Limited Time Offer ✨</div>
+                <div>
+                  🎯 Valabil în limita stocului • Valid while supplies last 🎯
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

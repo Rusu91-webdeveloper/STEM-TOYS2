@@ -199,7 +199,7 @@ export const ourFileRouter = {
       return { fileUrl: res.file.ufsUrl }; // Use ufsUrl instead of url
     }),
 
-  // Digital book files endpoint (EPUB, KBP)
+  // Digital book files endpoint (EPUB, PDF)
   digitalBook: f({
     blob: {
       maxFileSize: "32MB",
@@ -228,7 +228,7 @@ export const ourFileRouter = {
       console.log("Digital book upload complete:", res);
 
       // Validate file extension
-      const allowedExtensions = [".epub", ".kbp"];
+      const allowedExtensions = [".epub", ".pdf"];
       const fileName = res.file.name.toLowerCase();
       const hasValidExtension = allowedExtensions.some((ext) =>
         fileName.endsWith(ext)
@@ -236,7 +236,7 @@ export const ourFileRouter = {
 
       if (!hasValidExtension) {
         throw new Error(
-          "Invalid file type. Only EPUB and KBP files are allowed for digital books."
+          "Invalid file type. Only EPUB and PDF files are allowed for digital books."
         );
       }
 

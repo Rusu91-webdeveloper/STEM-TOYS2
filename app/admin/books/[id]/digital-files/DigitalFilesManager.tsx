@@ -104,11 +104,11 @@ export function DigitalFilesManager({ book, availableLanguages }: Props) {
     // Validate file types
     const validFiles = files.filter((file) => {
       const extension = file.name.toLowerCase().split(".").pop();
-      return extension === "epub" || extension === "kbp";
+      return extension === "epub" || extension === "pdf";
     });
 
     if (validFiles.length !== files.length) {
-      toast.error("Doar fișierele EPUB și KBP sunt permise");
+      toast.error("Doar fișierele EPUB și PDF sunt permise");
     }
 
     setSelectedFiles(validFiles);
@@ -174,7 +174,7 @@ export function DigitalFilesManager({ book, availableLanguages }: Props) {
             Încarcă Fișiere Digitale
           </CardTitle>
           <CardDescription>
-            Încarcă fișierele EPUB și KBP pentru această carte. Fișierele vor fi
+            Încarcă fișierele EPUB și PDF pentru această carte. Fișierele vor fi
             disponibile pentru descărcare după finalizarea comenzilor.
           </CardDescription>
         </CardHeader>
@@ -190,7 +190,7 @@ export function DigitalFilesManager({ book, availableLanguages }: Props) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="epub">EPUB</SelectItem>
-                  <SelectItem value="kbp">KBP</SelectItem>
+                  <SelectItem value="pdf">PDF</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -221,7 +221,7 @@ export function DigitalFilesManager({ book, availableLanguages }: Props) {
                 id="files"
                 type="file"
                 multiple
-                accept=".epub,.kbp"
+                accept=".epub,.pdf"
                 onChange={handleFileSelect}
               />
             </div>
@@ -268,7 +268,7 @@ export function DigitalFilesManager({ book, availableLanguages }: Props) {
               <p>Nu există fișiere digitale încărcate pentru această carte.</p>
               <p className="text-sm">
                 Folosește formularul de mai sus pentru a încărca fișiere EPUB
-                sau KBP.
+                sau PDF.
               </p>
             </div>
           ) : (

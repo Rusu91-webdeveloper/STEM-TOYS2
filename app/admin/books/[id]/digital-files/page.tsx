@@ -38,7 +38,7 @@ export default async function DigitalFilesPage({ params }: Props) {
           Fișiere Digitale - {book.name}
         </h1>
         <p className="text-muted-foreground">
-          Gestionează fișierele EPUB și KBP pentru această carte
+          Gestionează fișierele EPUB și PDF pentru această carte
         </p>
       </div>
 

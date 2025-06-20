@@ -81,22 +81,40 @@ export const CartProvider = ({ children }: CartProviderProps) => {
   const initialLoadComplete = React.useRef(false);
   const serverFetchTimeout = React.useRef<NodeJS.Timeout | null>(null);
 
-  // Load cart from localStorage immediately for better UX
+  // Load cart with smart persistence logic
   useEffect(() => {
-    // Only load from localStorage on first render
+    // Only load from storage on first render
     if (!initialLoadComplete.current && typeof window !== "undefined") {
-      const storedCart = localStorage.getItem("nextcommerce_cart");
-      if (storedCart) {
-        try {
-          const localCart = JSON.parse(storedCart);
-          setCartItems(localCart);
-        } catch (error) {
-          console.error("Failed to parse cart from localStorage:", error);
-          localStorage.removeItem("nextcommerce_cart");
-        }
-      }
-      // Mark initial load as complete to prevent reloading from localStorage
-      initialLoadComplete.current = true;
+      // Import storage functions dynamically to avoid SSR issues
+      import("../lib/cartStorage")
+        .then(({ loadCartFromStorage, clearExpiredCarts }) => {
+          // Clear any expired carts first
+          clearExpiredCarts();
+
+          // Load cart using smart logic
+          const items = loadCartFromStorage();
+          if (items.length > 0) {
+            setCartItems(items);
+          }
+
+          // Mark initial load as complete
+          initialLoadComplete.current = true;
+        })
+        .catch((error) => {
+          console.error("Failed to load cart storage:", error);
+          // Fallback to old localStorage behavior
+          const storedCart = localStorage.getItem("nextcommerce_cart");
+          if (storedCart) {
+            try {
+              const localCart = JSON.parse(storedCart);
+              setCartItems(localCart);
+            } catch (error) {
+              console.error("Failed to parse cart from localStorage:", error);
+              localStorage.removeItem("nextcommerce_cart");
+            }
+          }
+          initialLoadComplete.current = true;
+        });
     }
   }, []);
 
@@ -218,15 +236,31 @@ export const CartProvider = ({ children }: CartProviderProps) => {
     }
   };
 
-  // Save cart to localStorage whenever it changes
+  // Save cart using smart persistence logic
   useEffect(() => {
     if (
       initialLoadComplete.current &&
       !isLoading &&
-      typeof window !== "undefined" &&
-      (cartItems.length > 0 || localStorage.getItem("nextcommerce_cart"))
+      typeof window !== "undefined"
     ) {
-      localStorage.setItem("nextcommerce_cart", JSON.stringify(cartItems));
+      // Import storage functions dynamically
+      import("../lib/cartStorage")
+        .then(({ saveCartToStorage }) => {
+          saveCartToStorage(cartItems);
+        })
+        .catch((error) => {
+          console.error("Failed to save cart storage:", error);
+          // Fallback to old localStorage behavior
+          if (
+            cartItems.length > 0 ||
+            localStorage.getItem("nextcommerce_cart")
+          ) {
+            localStorage.setItem(
+              "nextcommerce_cart",
+              JSON.stringify(cartItems)
+            );
+          }
+        });
     }
   }, [cartItems, isLoading]);
 

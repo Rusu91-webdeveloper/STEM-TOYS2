@@ -75,6 +75,8 @@ export async function GET(
       tax: order.tax,
       shippingCost: order.shippingCost,
       total: order.total,
+      discountAmount: order.discountAmount || 0,
+      couponCode: order.couponCode || null,
     };
     return NextResponse.json({ order: formattedOrder });
   } catch (error) {

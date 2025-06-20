@@ -28,7 +28,16 @@ const languageCache = new Map<
     promise?: Promise<Language[]>;
   }
 >();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes cache
+const CACHE_DURATION = 1 * 60 * 1000; // Reduced to 1 minute cache for fresh data
+
+// **FIX**: Function to clear cache for a specific product
+export const clearLanguageCache = (productSlug?: string) => {
+  if (productSlug) {
+    languageCache.delete(productSlug);
+  } else {
+    languageCache.clear();
+  }
+};
 
 export function BookLanguageSelector({
   productSlug,
@@ -199,7 +208,13 @@ export function BookLanguageSelector({
   if (availableLanguages.length === 0) {
     return (
       <div className={cn("text-sm text-muted-foreground py-2", className)}>
-        No digital formats available
+        <div className="flex items-center gap-2">
+          <FileText className="h-4 w-4" />
+          <span>Digital formats coming soon</span>
+        </div>
+        <p className="text-xs mt-1">
+          This book is available for purchase. Digital files will be added after upload.
+        </p>
       </div>
     );
   }

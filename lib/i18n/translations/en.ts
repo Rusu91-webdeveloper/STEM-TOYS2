@@ -713,4 +713,21 @@ export const en = {
   followInstagram: "Follow us on Instagram",
   followTwitter: "Follow us on Twitter",
   subscribeYoutube: "Subscribe to our YouTube channel",
+
+  // Discount Popup translations
+  specialOffer: "Special Offer",
+  limitedTimeOffer: "Limited Time Offer",
+  validWhileSuppliesLast: "Valid while supplies last",
+  useCode: "Use code:",
+  copyCode: "Copy Code",
+  copied: "Copied!",
+  couponCodeCopied: 'Coupon code "{code}" copied to clipboard',
+  shopNowAndSave: "Shop Now & Save",
+  minimumOrder: "Minimum order",
+  maxDiscount: "Max discount",
+  lei: "LEI",
+  closePopup: "Close popup",
+  getDiscount: "Get Discount",
+  dontMissOut: "Don't Miss Out!",
+  exclusiveDiscount: "Exclusive Discount",
 };

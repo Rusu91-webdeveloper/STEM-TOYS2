@@ -53,6 +53,8 @@ interface Order {
   deliveredAt?: string;
   items: OrderItem[];
   shippingAddress: ShippingAddress;
+  discountAmount?: number;
+  couponCode?: string;
 }
 
 interface OrderDetailsClientProps {
@@ -313,6 +315,19 @@ export function OrderDetailsClient({ order }: OrderDetailsClientProps) {
                 <span>{t("subtotal")}</span>
                 <span>{formatPrice(order.subtotal)}</span>
               </div>
+
+              {/* **DISCOUNT LINE** */}
+              {order.discountAmount && order.discountAmount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span className="font-medium">
+                    Discount {order.couponCode ? `(${order.couponCode})` : ""}
+                  </span>
+                  <span className="font-medium">
+                    -{formatPrice(order.discountAmount)}
+                  </span>
+                </div>
+              )}
+
               <div className="flex justify-between">
                 <span>{t("shipping")}</span>
                 <span>{formatPrice(order.shippingCost)}</span>
@@ -326,6 +341,15 @@ export function OrderDetailsClient({ order }: OrderDetailsClientProps) {
                 <span>{t("total")}</span>
                 <span>{formatPrice(order.total)}</span>
               </div>
+
+              {/* **SAVINGS HIGHLIGHT** */}
+              {order.discountAmount && order.discountAmount > 0 && (
+                <div className="text-center pt-2">
+                  <p className="text-sm text-green-600 font-medium">
+                    🎉 You saved {formatPrice(order.discountAmount)}!
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

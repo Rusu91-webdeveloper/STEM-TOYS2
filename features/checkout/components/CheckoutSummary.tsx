@@ -1,14 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useCart } from "@/features/cart";
 import { useCurrency } from "@/lib/currency";
 import { useTranslation } from "@/lib/i18n";
 import { fetchShippingSettings, fetchTaxSettings } from "../lib/checkoutApi";
-
-interface CheckoutSummaryProps {
-  shippingCost?: number;
-}
+import CouponInput from "@/features/cart/components/CouponInput";
 
 interface TaxSettings {
   rate: string;
@@ -16,7 +13,19 @@ interface TaxSettings {
   includeInPrice: boolean;
 }
 
-export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
+interface CheckoutSummaryProps {
+  shippingCost?: number;
+  onCouponApplied?: (coupon: any, discountAmount: number) => void;
+  appliedCoupon?: any;
+  onCouponRemoved?: () => void;
+}
+
+export function CheckoutSummary({
+  shippingCost = 0,
+  onCouponApplied,
+  appliedCoupon,
+  onCouponRemoved,
+}: CheckoutSummaryProps) {
   const { cartItems, getCartTotal, isLoading } = useCart();
   const { formatPrice } = useCurrency();
   const { t } = useTranslation();
@@ -29,6 +38,20 @@ export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
     active: true,
     includeInPrice: false,
   });
+
+  // **COUPON STATE** - Local coupon management for checkout summary
+  const [localAppliedCoupon, setLocalAppliedCoupon] = useState(appliedCoupon);
+  const [discountAmount, setDiscountAmount] = useState(0);
+
+  // Update local coupon when parent prop changes
+  useEffect(() => {
+    setLocalAppliedCoupon(appliedCoupon);
+    if (appliedCoupon) {
+      setDiscountAmount(appliedCoupon.discountAmount || 0);
+    } else {
+      setDiscountAmount(0);
+    }
+  }, [appliedCoupon]);
 
   // Fetch free shipping threshold and tax settings
   useEffect(() => {
@@ -68,6 +91,27 @@ export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
     loadSettings();
   }, []);
 
+  // **COUPON HANDLERS**
+  const handleCouponApplied = (coupon: any, discountAmount: number) => {
+    setLocalAppliedCoupon(coupon);
+    setDiscountAmount(discountAmount);
+
+    // Notify parent component if handler provided
+    if (onCouponApplied) {
+      onCouponApplied(coupon, discountAmount);
+    }
+  };
+
+  const handleCouponRemoved = () => {
+    setLocalAppliedCoupon(null);
+    setDiscountAmount(0);
+
+    // Notify parent component if handler provided
+    if (onCouponRemoved) {
+      onCouponRemoved();
+    }
+  };
+
   const subtotal = getCartTotal();
 
   // Calculate tax based on settings
@@ -84,7 +128,30 @@ export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
     finalShippingCost = 0;
   }
 
-  const total = subtotal + tax + finalShippingCost;
+  // **CALCULATE FINAL TOTAL WITH DISCOUNT**
+  const totalBeforeDiscount = subtotal + tax + finalShippingCost;
+  const total = Math.max(0, totalBeforeDiscount - discountAmount);
+
+  // Calculate how much more needed for free shipping
+  const renderFreeShippingMessage = () => {
+    if (!isFreeShippingActive || freeShippingThreshold === null) return null;
+
+    if (subtotal >= freeShippingThreshold) {
+      return (
+        <div className="mt-2 p-2 bg-green-50 text-green-700 rounded-md text-sm">
+          {t("freeShippingApplied", "Free shipping applied!")}
+        </div>
+      );
+    } else {
+      const amountNeeded = freeShippingThreshold - subtotal;
+      return (
+        <div className="mt-2 p-2 bg-blue-50 text-blue-700 rounded-md text-sm">
+          {t("addMoreForFreeShipping", "Add")} {formatPrice(amountNeeded)}{" "}
+          {t("moreForFreeShipping", "more for free shipping")}
+        </div>
+      );
+    }
+  };
 
   if (isLoading) {
     return (
@@ -132,27 +199,6 @@ export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
     );
   }
 
-  // Calculate how much more needed for free shipping
-  const renderFreeShippingMessage = () => {
-    if (!isFreeShippingActive || freeShippingThreshold === null) return null;
-
-    if (subtotal >= freeShippingThreshold) {
-      return (
-        <div className="mt-2 p-2 bg-green-50 text-green-700 rounded-md text-sm">
-          {t("freeShippingApplied", "Free shipping applied!")}
-        </div>
-      );
-    } else {
-      const amountNeeded = freeShippingThreshold - subtotal;
-      return (
-        <div className="mt-2 p-2 bg-blue-50 text-blue-700 rounded-md text-sm">
-          {t("addMoreForFreeShipping", "Add")} {formatPrice(amountNeeded)}{" "}
-          {t("moreForFreeShipping", "more for free shipping")}
-        </div>
-      );
-    }
-  };
-
   return (
     <div className="border rounded-lg p-6 space-y-4 sticky top-4">
       <h2 className="text-xl font-semibold">
@@ -184,11 +230,32 @@ export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
         ))}
       </div>
 
+      {/* **COUPON INPUT SECTION** */}
+      <div className="border-t pt-4">
+        <CouponInput
+          cartTotal={subtotal}
+          appliedCoupon={localAppliedCoupon}
+          onCouponApplied={handleCouponApplied}
+          onCouponRemoved={handleCouponRemoved}
+        />
+      </div>
+
       <div className="space-y-2 pt-4 border-t">
         <div className="flex justify-between">
           <span className="text-gray-600">{t("subtotal", "Subtotal")}</span>
           <span>{formatPrice(subtotal)}</span>
         </div>
+
+        {/* **DISCOUNT LINE** */}
+        {discountAmount > 0 && (
+          <div className="flex justify-between text-green-600">
+            <span className="font-medium">
+              Discount ({localAppliedCoupon?.code})
+            </span>
+            <span className="font-medium">-{formatPrice(discountAmount)}</span>
+          </div>
+        )}
+
         {taxSettings.active && (
           <div className="flex justify-between">
             <span className="text-gray-600">
@@ -215,6 +282,15 @@ export function CheckoutSummary({ shippingCost = 0 }: CheckoutSummaryProps) {
           <span>{t("total", "Total")}</span>
           <span>{formatPrice(total)}</span>
         </div>
+
+        {/* **SAVINGS HIGHLIGHT** */}
+        {discountAmount > 0 && (
+          <div className="text-center">
+            <p className="text-sm text-green-600 font-medium">
+              🎉 You saved {formatPrice(discountAmount)}!
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
