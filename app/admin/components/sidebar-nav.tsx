@@ -12,6 +12,7 @@ import {
   LucideIcon,
   FileText,
   BookOpen,
+  Tag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -85,6 +86,11 @@ export const adminNavItems = [
     title: "Returns",
     href: "/admin/returns",
     icon: FileText,
+  },
+  {
+    title: "Coupons",
+    href: "/admin/coupons",
+    icon: Tag,
   },
   {
     title: "Customers",

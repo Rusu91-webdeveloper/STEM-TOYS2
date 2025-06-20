@@ -62,6 +62,8 @@ const orderSchema = z.object({
   shippingCost: z.number().optional(),
   total: z.number().optional(),
   items: z.array(orderItemSchema).optional(),
+  couponCode: z.string().optional(),
+  discountAmount: z.number().optional(),
 });
 
 // Helper function to format Zod errors
@@ -256,8 +258,75 @@ export async function POST(request: Request) {
     // Calculate tax based on settings
     const tax = orderData.tax || (applyTax ? subtotal * taxRate : 0);
 
-    // Calculate total including shipping and tax
-    const orderTotal = orderData.total || subtotal + tax + finalShippingCost;
+    // Handle coupon application
+    let appliedCoupon = null;
+    let discountAmount = 0;
+
+    if (orderData.couponCode) {
+      try {
+        // Validate and apply coupon
+        const coupon = await db.coupon.findUnique({
+          where: { code: orderData.couponCode.toUpperCase() },
+          include: {
+            _count: {
+              select: {
+                usages: {
+                  where: { userId: user.id },
+                },
+              },
+            },
+          },
+        });
+
+        if (coupon && coupon.isActive) {
+          // Check all coupon conditions
+          const now = new Date();
+          const isValidTime =
+            (!coupon.startsAt || now >= coupon.startsAt) &&
+            (!coupon.expiresAt || now <= coupon.expiresAt);
+          const hasUsesLeft =
+            !coupon.maxUses || coupon.currentUses < coupon.maxUses;
+          const userCanUse =
+            !coupon.maxUsesPerUser ||
+            coupon._count.usages < coupon.maxUsesPerUser;
+          const meetsMinimum =
+            !coupon.minimumOrderValue || subtotal >= coupon.minimumOrderValue;
+
+          if (isValidTime && hasUsesLeft && userCanUse && meetsMinimum) {
+            appliedCoupon = coupon;
+
+            // Calculate discount
+            if (coupon.type === "PERCENTAGE") {
+              discountAmount = (subtotal * coupon.value) / 100;
+              if (
+                coupon.maxDiscountAmount &&
+                discountAmount > coupon.maxDiscountAmount
+              ) {
+                discountAmount = coupon.maxDiscountAmount;
+              }
+            } else {
+              discountAmount = Math.min(coupon.value, subtotal);
+            }
+
+            // Round to 2 decimal places
+            discountAmount = Math.round(discountAmount * 100) / 100;
+          }
+        }
+      } catch (couponError) {
+        console.error("Error applying coupon:", couponError);
+        // Continue without coupon if there's an error
+      }
+    }
+
+    // Use provided discount amount if available (from frontend validation)
+    if (orderData.discountAmount !== undefined) {
+      discountAmount = orderData.discountAmount;
+    }
+
+    // Calculate total including shipping, tax, and discount
+    const orderTotal =
+      orderData.total ||
+      Math.max(0, subtotal + tax + finalShippingCost - discountAmount);
 
     // Prepare order details for email (includes all calculated values)
 
@@ -328,12 +397,37 @@ export async function POST(request: Request) {
             subtotal,
             tax,
             shippingCost: finalShippingCost,
+            discountAmount,
+            couponCode: appliedCoupon?.code || null,
+            couponId: appliedCoupon?.id || null,
             paymentMethod: "card", // Default payment method
             status: "PROCESSING",
             paymentStatus: "PAID", // In a real app, this would depend on payment processing
             shippingAddressId: shippingAddressId,
           },
         });
+
+        // If coupon was applied, track its usage and update coupon stats
+        if (appliedCoupon && discountAmount > 0) {
+          // Create coupon usage record
+          await tx.couponUsage.create({
+            data: {
+              couponId: appliedCoupon.id,
+              userId: user.id,
+              orderId: newOrder.id,
+            },
+          });
+
+          // Update coupon usage count
+          await tx.coupon.update({
+            where: { id: appliedCoupon.id },
+            data: {
+              currentUses: {
+                increment: 1,
+              },
+            },
+          });
+        }
 
         // Then, add items - validate and create each item
         for (const item of items) {

@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { SessionValidator } from "@/components/auth/SessionValidator";
 import { SessionProvider } from "next-auth/react";
 import { AccountLinkingNotice } from "@/components/auth/AccountLinkingNotice";
+import PromotionalPopup from "@/components/PromotionalPopup";
 
 export default function ClientLayout({
   children,
@@ -24,6 +25,7 @@ export default function ClientLayout({
     <SessionProvider>
       <SessionValidator />
       <AccountLinkingNotice />
+      <PromotionalPopup />
       <Header />
       <main className="flex-grow">{children}</main>
       <Footer />
