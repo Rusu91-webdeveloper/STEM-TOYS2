@@ -35,11 +35,7 @@ export const brevoTransporter = nodemailer.createTransport({
 // For development environment, provide console-based email simulation
 const devTransporter = {
   sendMail: async (options: any) => {
-    console.log(`\n📧 [DEV MODE] Email would be sent:`);
-    console.log(`From: ${options.from}`);
-    console.log(`To: ${options.to}`);
-    console.log(`Subject: ${options.subject}`);
-    console.log(`HTML Content: ${options.html.substring(0, 300)}...`);
+    // Development mode: Email not sent, but would be sent with these details
     return { messageId: `dev-${Date.now()}@localhost` };
   },
 };
@@ -81,11 +77,7 @@ export async function sendEmailWithBrevoApi({
   try {
     // In development mode with missing credentials, use the dev transporter
     if (isDevelopment() && !process.env.BREVO_API_KEY) {
-      console.log(`\n📧 [DEV MODE] Email would be sent:`);
-      console.log(`From: ${from.name} <${from.email}>`);
-      console.log(`To: ${to.map((r) => r.email).join(", ")}`);
-      console.log(`Subject: ${subject}`);
-      console.log(`HTML Content: ${htmlContent.substring(0, 300)}...`);
+      // Development mode: Email not sent, but would be sent with these details
       return { success: true, messageId: `dev-${Date.now()}@localhost` };
     }
 
@@ -110,14 +102,14 @@ export async function sendEmailWithBrevoApi({
     };
     const data = await apiInstance.sendTransacEmail(sendSmtpEmail);
     const messageId = data.body?.messageId || null;
-    console.log(`✅ Email sent via Brevo API: ${messageId}`);
+    // Email sent successfully via Brevo API
     return { success: true, messageId };
   } catch (error) {
     console.error("❌ Error sending email with Brevo API:", error);
 
     // In development mode, simulate success
     if (isDevelopment()) {
-      console.log(`\n📧 [DEV MODE] Email would be sent despite error`);
+      // Development mode: Email simulation despite error
       return { success: true, messageId: `dev-error-${Date.now()}@localhost` };
     }
 
@@ -149,11 +141,7 @@ export async function sendEmailWithBrevoSmtp({
   try {
     // In development mode with missing credentials, use the dev transporter
     if (isDevelopment() && !process.env.BREVO_SMTP_KEY) {
-      console.log(`\n📧 [DEV MODE] Email would be sent:`);
-      console.log(`From: ${from}`);
-      console.log(`To: ${typeof to === "string" ? to : to.join(", ")}`);
-      console.log(`Subject: ${subject}`);
-      console.log(`HTML Content: ${html.substring(0, 300)}...`);
+      // Development mode: Email not sent, but would be sent with these details
       return { success: true, messageId: `dev-${Date.now()}@localhost` };
     }
 
@@ -167,14 +155,14 @@ export async function sendEmailWithBrevoSmtp({
       attachments,
     });
 
-    console.log(`✅ Email sent via Brevo SMTP: ${info.messageId}`);
+    // Email sent successfully via Brevo SMTP
     return { success: true, messageId: info.messageId };
   } catch (error) {
     console.error("❌ Error sending email with Brevo SMTP:", error);
 
     // In development mode, simulate success
     if (isDevelopment()) {
-      console.log(`\n📧 [DEV MODE] Email would be sent despite error`);
+      // Development mode: Email simulation despite error
       return { success: true, messageId: `dev-error-${Date.now()}@localhost` };
     }
 

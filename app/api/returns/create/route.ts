@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
+import { db } from "@/lib/db";
 import { differenceInDays } from "date-fns";
 
 export async function POST(request: Request) {
@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     const { orderItemId, reason, details } = await request.json();
 
     // Find the order item
-    const orderItem = await prisma.orderItem.findUnique({
+    const orderItem = await db.orderItem.findUnique({
       where: { id: orderItemId },
       include: {
         order: true,
@@ -26,12 +26,6 @@ export async function POST(request: Request) {
             name: true,
             sku: true,
             images: true,
-          },
-        },
-        book: {
-          select: {
-            name: true,
-            author: true,
           },
         },
       },
@@ -45,7 +39,7 @@ export async function POST(request: Request) {
     }
 
     // Check if item is a digital book (not returnable)
-    if (orderItem.isDigital) {
+    if ((orderItem as any).isDigital) {
       return NextResponse.json(
         {
           error:
@@ -67,7 +61,7 @@ export async function POST(request: Request) {
     }
 
     // Check if a return already exists for this order item
-    const existingReturn = await prisma.return.findFirst({
+    const existingReturn = await db.return.findFirst({
       where: {
         orderItemId: orderItem.id,
         userId: session.user.id,
@@ -102,7 +96,7 @@ export async function POST(request: Request) {
     }
 
     // Create the return record
-    const returnRecord = await prisma.return.create({
+    const returnRecord = await db.return.create({
       data: {
         userId: session.user.id,
         orderId: orderItem.orderId,
@@ -122,22 +116,16 @@ export async function POST(request: Request) {
     });
 
     // Update the order item status to reflect return requested
-    await prisma.orderItem.update({
+    await db.orderItem.update({
       where: { id: orderItem.id },
       data: { returnStatus: "REQUESTED" },
     });
 
     // Get store settings for admin email
-    const storeSettings = await prisma.storeSettings.findFirst();
+    const storeSettings = await db.storeSettings.findFirst();
     const adminEmail = storeSettings?.contactEmail || "info@techtots.com";
 
-    // Log environment variables for debugging
-    console.log("==== RETURN EMAIL DEBUG INFO ====");
-    console.log("EMAIL_FROM env:", process.env.EMAIL_FROM);
-    console.log("BREVO_API_KEY available:", !!process.env.BREVO_API_KEY);
-    console.log("BREVO_SMTP_KEY available:", !!process.env.BREVO_SMTP_KEY);
-    console.log("Admin email from store settings:", adminEmail);
-    console.log("================================");
+    // Email configuration verified
 
     // Map reason code to human-readable text
     const reasonLabels = {
@@ -152,14 +140,14 @@ export async function POST(request: Request) {
     // Send emails
     try {
       // Send admin notification using the dedicated template
-      console.log("Sending admin notification email to:", adminEmail);
+      // Sending admin notification email
       await import("@/lib/nodemailer").then(async ({ emailTemplates }) => {
         try {
           const result = await emailTemplates.returnNotification({
             to: adminEmail,
             orderNumber: orderItem.order.orderNumber,
             productName: orderItem.name,
-            productSku: orderItem.product.sku || undefined,
+            productSku: orderItem.product?.sku || undefined,
             customerName: returnRecord.user.name || returnRecord.user.email,
             customerEmail: returnRecord.user.email,
             reason: reasonLabels[reason as keyof typeof reasonLabels] || reason,
@@ -167,7 +155,7 @@ export async function POST(request: Request) {
             returnId: returnRecord.id,
           });
 
-          console.log("Admin notification email result:", result);
+          // Admin notification email sent
         } catch (error) {
           console.error("Failed to send admin notification email:", error);
         }
@@ -176,7 +164,7 @@ export async function POST(request: Request) {
       // Send customer confirmation email
       const userEmail = session.user.email;
       if (typeof userEmail === "string" && userEmail) {
-        console.log("Sending customer confirmation email to:", userEmail);
+        // Sending customer confirmation email
         await import("@/lib/nodemailer").then(async ({ sendMail }) => {
           await sendMail({
             to: userEmail,

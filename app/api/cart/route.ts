@@ -67,7 +67,7 @@ async function cleanupInvalidCartItems(items: CartItem[]): Promise<CartItem[]> {
   for (const item of items) {
     // Skip items with "(Deleted)" in the name
     if (item.name.includes("(Deleted)")) {
-      console.log(`Removing deleted item from cart: ${item.name}`);
+      // Removing deleted item from cart
       continue;
     }
 
@@ -82,7 +82,7 @@ async function cleanupInvalidCartItems(items: CartItem[]): Promise<CartItem[]> {
       if (book && book.isActive) {
         validItems.push(item);
       } else {
-        console.log(`Removing invalid/inactive book from cart: ${item.name}`);
+        // Removing invalid/inactive book from cart
       }
     } else {
       // Check if it's a book by trying to find it in the books table (fallback detection)
@@ -96,7 +96,7 @@ async function cleanupInvalidCartItems(items: CartItem[]): Promise<CartItem[]> {
         if (book.isActive) {
           validItems.push(item);
         } else {
-          console.log(`Removing inactive book from cart: ${book.name}`);
+          // Removing inactive book from cart
         }
       } else {
         // It's a regular product - check if it exists and is active

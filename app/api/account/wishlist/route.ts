@@ -20,7 +20,7 @@ export async function GET() {
       const wishlistExists = (await db.wishlist) !== undefined;
 
       if (!wishlistExists) {
-        console.log("Wishlist model not found in database schema");
+        // Wishlist model not found in database schema
         return NextResponse.json([]);
       }
 

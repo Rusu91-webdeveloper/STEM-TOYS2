@@ -44,22 +44,19 @@ export async function POST(request: Request) {
   switch (event.type) {
     case "payment_intent.succeeded":
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
-      console.log(`PaymentIntent for ${paymentIntent.amount} was successful!`);
       // Handle successful payment (update order status, send confirmation email, etc.)
       await handleSuccessfulPayment(paymentIntent);
       break;
 
     case "payment_intent.payment_failed":
       const failedPaymentIntent = event.data.object as Stripe.PaymentIntent;
-      console.log(
-        `Payment failed: ${failedPaymentIntent.last_payment_error?.message}`
-      );
       // Handle failed payment (notify customer, update order status, etc.)
       await handleFailedPayment(failedPaymentIntent);
       break;
 
     default:
-      console.log(`Unhandled event type ${event.type}`);
+      // Unhandled event type
+      break;
   }
 
   return NextResponse.json({ received: true });
@@ -101,7 +98,7 @@ async function handleSuccessfulPayment(paymentIntent: Stripe.PaymentIntent) {
         throw new Error(`Order not found after update: ${orderId}`);
       }
 
-      console.log(`Updated order ${updatedOrder.orderNumber} to paid status`);
+      // Order updated to paid status
 
       // Check if order contains digital books
       const digitalItems = await db.orderItem.findMany({
@@ -114,16 +111,8 @@ async function handleSuccessfulPayment(paymentIntent: Stripe.PaymentIntent) {
       const hasDigitalBooks = digitalItems.length > 0;
 
       if (hasDigitalBooks) {
-        console.log(
-          `Order ${updatedOrder.orderNumber} contains digital books, processing delivery...`
-        );
-
         // Process digital book delivery
         await processDigitalBookOrder(orderId);
-
-        console.log(
-          `Digital book delivery processed for order ${updatedOrder.orderNumber}`
-        );
       } else {
         // For physical products, send regular order confirmation
         if (userEmail) {
@@ -147,9 +136,7 @@ async function handleSuccessfulPayment(paymentIntent: Stripe.PaymentIntent) {
               }
             );
 
-            console.log(
-              `Order confirmation email sent to ${userEmail} for order ${updatedOrder.orderNumber}`
-            );
+            // Order confirmation email sent
           } catch (emailError) {
             console.error(
               `Failed to send order confirmation email:`,
@@ -174,15 +161,12 @@ async function handleFailedPayment(paymentIntent: Stripe.PaymentIntent) {
 
   if (orderId) {
     // Update order status to "payment_failed" in database
-    console.log(`Updating order ${orderId} to payment_failed status`);
+    // TODO: Implement database update for failed payment
 
     // Notify customer about failed payment if we have their email
     if (userEmail) {
       // Send an email notification about the failed payment
-      // Implement this using the email API
-      console.log(
-        `Sending payment failure notification to ${userEmail} for order ${orderId}`
-      );
+      // TODO: Implement email notification for failed payment
     }
   }
 }

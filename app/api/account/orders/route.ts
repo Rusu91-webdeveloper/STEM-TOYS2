@@ -22,7 +22,7 @@ export async function GET() {
       const ordersExist = (await db.order) !== undefined;
 
       if (!ordersExist) {
-        console.log("Order model not found in database schema");
+        // Order model not found in database schema
         return NextResponse.json([]);
       }
 

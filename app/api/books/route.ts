@@ -7,11 +7,11 @@ async function ensureBooksExist() {
     // Check if books exist
     const existingBooks = await db.book.count();
     if (existingBooks > 0) {
-      console.log(`${existingBooks} books already exist in database`);
+      // Books already exist in database
       return;
     }
 
-    console.log("No books found in database. Creating default books...");
+    // Creating default books...
 
     // Create "Born for the Future" book
     const bornForTheFuture = await db.book.create({
@@ -112,9 +112,7 @@ async function ensureBooksExist() {
       },
     });
 
-    console.log("Books created successfully:");
-    console.log("- Born for the Future:", bornForTheFuture.id);
-    console.log("- STEM Play for Neurodiverse Minds:", stemPlayNeurodiverse.id);
+    // Default books created successfully
   } catch (error) {
     console.error("Error seeding books:", error);
     // Continue with the request even if seeding fails
@@ -127,7 +125,7 @@ export async function GET(request: NextRequest) {
     const slug = searchParams.get("slug");
     const language = searchParams.get("language");
 
-    console.log("API Request Params:", { slug, language });
+    // Processing book request
 
     // Ensure books exist before querying them
     await ensureBooksExist();
@@ -152,7 +150,7 @@ export async function GET(request: NextRequest) {
         },
       });
 
-      console.log(`Found ${books.length} matching books in database`);
+      // Found matching books in database
 
       // Create response with books
       const response = NextResponse.json(books);

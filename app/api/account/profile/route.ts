@@ -91,7 +91,7 @@ export async function PUT(req: Request) {
         const { password, ...userWithoutPassword } = mockUsers[mockUserIndex];
         updatedUser = userWithoutPassword;
 
-        console.log("Updated mock user:", updatedUser);
+        // User profile updated
       }
     }
 
